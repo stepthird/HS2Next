@@ -1,0 +1,7 @@
+# AIT/main Item Glass: colour, alpha, metal / gloss, normal scale, back faces (two backgrounds).
+col | _MainTex=1:1:1:1;_Color=1:1:1:1;_Glossiness4=0;_Metallic4=0;_NormalScale=1 | _Color=1:1:1:1,0.5:0.25:1:1,1:1:1:0.5,0.196:0.196:0.196:0.102 | _BG=0:0:0,1:1:1 | amb,L0,L60
+tex | _MainTex=1:1:1:1;_Color=1:1:1:1;_Glossiness4=0;_Metallic4=0;_NormalScale=1 | _MainTex=0.5:0.25:0.125:1,1:1:1:0.25 | _BG=0:0:0,1:1:1 | amb,L0
+gl | _MainTex=1:1:1:1;_Color=1:1:1:1;_Glossiness4=0;_Metallic4=0;_NormalScale=1;_Color=1:1:1:0.5 | _Glossiness4=0,0.5,0.8,0.95 | _Metallic4=0,1 | amb,L0,L10,L30
+nrm | _MainTex=1:1:1:1;_Color=1:1:1:1;_Glossiness4=0;_Metallic4=0;_NormalScale=1 | _BumpMap=0.7:0.5:1:1,0.5:0.7:1:1 | _NormalScale=0,1,2 | L60,L-60,L0p60
+back | _MainTex=1:1:1:1;_Color=1:1:1:1;_Glossiness4=0;_Metallic4=0;_NormalScale=1;_Glossiness4=0.6;_Color=1:1:1:0.5;_BumpMap=0.7:0.6:1:1 | _BG=0:0:0,1:1:1 | | amb,L0,L180,L30 | 180
+real | _MainTex=1:1:1:1;_Color=1:1:1:1;_Glossiness4=0;_Metallic4=0;_NormalScale=1;_Color=0.196:0.196:0.196:0.102;_Glossiness4=0.8 | _BG=0:0:0,1:1:1 | | amb,L0,L30,L60,M30 | 30

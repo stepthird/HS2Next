@@ -1,0 +1,8 @@
+# Real materials with their textures ("src"), the replacement vs the original, features switched off one at a time.
+# Run per material with -fitItem id:<no> -fitMaterial <name> (SkinFit.Sweep -fitPipe both).
+r_src | _MainTex=src;_BumpMap=src;_ColorMask=src;_EmissonMap=src;_OcclusionMap=src;_MetallicGlossMap=src;_DetailMask=src;_DetailAlbedoMap=src;_DetailNormalMap=src;_PatternMask1=src;_PatternMask2=src;_PatternMask3=src | | | amb,L0,L30,L60,L150,M30
+r_noem | _MainTex=src;_BumpMap=src;_ColorMask=src;_EmissonMap=src;_OcclusionMap=src;_MetallicGlossMap=src;_EmissionStrength=0 | | | amb,L0,L60
+r_nobump | _MainTex=src;_ColorMask=src;_EmissonMap=src;_OcclusionMap=src;_MetallicGlossMap=src;_EmissionStrength=0;_BumpMap=0.5:0.5:1:1 | | | amb,L0,L60
+r_emonly | _MainTex=0:0:0:1;_EmissonMap=src | _EmissionStrength=0,1,3,9 | | amb
+r_emcol | _MainTex=0:0:0:1;_EmissonMap=1:1:1:1;_EmissionStrength=1 | _SETCOLOR_EmissionColor=9.082:8.274:0.476:0,1:0.5:0.25:1,0.5:0.5:0.5:1 | | amb
+r_plx | _MainTex=src;_OcclusionMap=src;_EmissionStrength=0 | _Parallax=0,0.02 | | amb,L0 | 40

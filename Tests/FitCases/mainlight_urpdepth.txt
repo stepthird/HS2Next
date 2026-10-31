@@ -1,0 +1,5 @@
+# AIT/main Light: what URP binds as _CameraDepthTexture without / with a depth texture (-fitPipe urp)
+campos z         | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0;_Float0=1 | _CAMPOS=0:0:0.6,0:0:0.8,0:0:1,0:0:1.2,0:0:1.5 | | amb
+nearfar          | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0;_Float0=1;_CAMPOS=0:0:1 | _NEARFAR=0.01:10,0.1:10,0.5:10,0.1:2 | | amb
+campos z again   | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0;_Float0=1 | _CAMPOS=0:0:0.6,0:0:0.8,0:0:1,0:0:1.2,0:0:1.5 | | amb
+depth fade       | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0;_DEPTHTEX=1;_BGDEPTH=1;_BGTEX=0:0:0:1 | _BGZ=-0.05,-0.25,-0.5,-0.75,-1.5 | _Float0=1 | amb

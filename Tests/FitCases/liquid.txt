@@ -1,0 +1,40 @@
+# SkinFit.Sweep cases for AIT/Liquid (fit, -fitPipe both): label | set | sweep | sweep2 | lights | tilt
+default          | _WeatheringMap=src;_WeatheringMask=src | _BG=0:0:0,1:1:1 | | amb,L0,L60
+all              | _WeatheringMap=1:1:1:1;_WeatheringMask=0:0:0:1 | _WeatheringAll=0,0.25,0.5,0.75,1 | _BG=0:0:0,1:1:1 | amb,L0,L60
+all map          | _WeatheringAll=1;_WeatheringMask=0:0:0:1 | _WeatheringMap=1:0:0:1,0:1:0:1,0:0:1:1,0:0:0:1,1:1:1:0,0.5:0.5:0.5:1 | _BG=0:0:0,1:1:1 | amb,L0
+all x R          | _WeatheringMask=0:0:0:1;_BG=1:1:1 | _WeatheringAll=0.25,0.5,0.6,0.75,1 | _WeatheringMap=0.25:0:0:1,0.5:0:0:1,1:0:0:1,0.03:0:0:1,0.02:0:0:1 | amb
+all x B          | _WeatheringMask=0:0:0:1;_BG=1:1:1 | _WeatheringAll=0.02,0.025,0.1,0.25,0.5,1 | _WeatheringMap=0:0:0.25:1,0:0:0.5:1,0:0:1:1,0:0:0.03:1,0:0:0.02:1 | amb
+regions          | _WeatheringMap=0:0:1:1;_BG=1:1:1 | _WeatheringMask=1:0:0:1,0:1:0:1,0:0:1:1,1:1:0:1,1:0:1:1,0:1:1:1,1:1:1:1,0:0:0:1 | _WeatheringRange1=0.5,0.2 | amb
+regions2         | _WeatheringMap=0:0:1:1;_BG=1:1:1 | _WeatheringMask=1:0:0:1,0:1:0:1,0:0:1:1,1:1:0:1,1:0:1:1,0:1:1:1,1:1:1:1,0:0:0:1 | _WeatheringRange4=0.5,0.2 | amb
+regions3         | _WeatheringMap=0:0:1:1;_BG=1:1:1;_WeatheringRange2=0.2;_WeatheringRange3=0.3 | _WeatheringMask=0:1:0:1,0:0:1:1,0.3:0.8:0:1,0:0.3:0.8:1 | _WeatheringRange5=0.15,0.5 | amb
+regions4         | _WeatheringMap=0:0:1:1;_BG=1:1:1;_WeatheringRange6=0.4 | _WeatheringMask=0:1:1:1,0.1:0.5:0.6:1,0.2:0.4:0.4:1,1:0:1:1,0.6:0.2:0.4:1 | _WeatheringRange5=0.15,0.5 | amb
+region partial   | _WeatheringMap=0:0:1:1;_WeatheringRange1=1;_BG=1:1:1 | _WeatheringMask=0.1:0:0:1,0.25:0:0:1,1:0.75:0:1,1:0.6:0:1,0.5:0.5:0:1,0.8:0.2:0.3:1,0.6:0.1:0.1:1 | | amb
+region RG part   | _WeatheringMap=0:0:1:1;_WeatheringRange4=1;_BG=1:1:1 | _WeatheringMask=0.3:1:0:1,1:0.2:0:1,0.4:0.4:0.2:1,0.9:0.6:0.5:1,0.3:0.3:0:1 | | amb
+all+range        | _WeatheringMap=0:0:1:1;_WeatheringMask=1:0:0:1;_BG=1:1:1 | _WeatheringAll=0,0.1,0.25 | _WeatheringRange1=0,0.1,0.25 | amb
+mask range       | _WeatheringMap=0:0:1:1;_BG=1:1:1 | _WeatheringMask=0.1:0:0:1,0.25:0:0:1,0.5:0:0:1 | _WeatheringRange1=0.1,0.25,0.5 | amb
+range R          | _WeatheringMap=1:0:0:1;_WeatheringMask=1:0:0:1;_BG=1:1:1 | _WeatheringRange1=0.5,0.51,0.52,0.6,0.75,1 | _WeatheringAll=0,0.1 | amb
+cutoff           | _WeatheringAll=1;_BG=1:1:1 | _Cutoff=0,0.2,0.5,1 | _WeatheringMap=0:0:0.02:1,0:0:0.04:1,0:0:0.25:1,0.04:0:0:1 | amb
+cutoff all       | _WeatheringMap=0:0:1:1;_BG=1:1:1 | _WeatheringAll=0,0.01,0.02,0.03,0.05 | _Cutoff=0,0.2,0.5,1 | amb
+color            | _WeatheringAll=1;_WeatheringMap=0:0:1:1 | _BG=0:0:0,1:1:1,1:0:0:1,0.5:0.5:0.5 | | amb,L0,L30,L60,L80,M30,L150
+spec v           | _WeatheringAll=1 | _WeatheringMap=0:0:1:1,0:0:0.5:1,0:0:0.1:1 | | L0,L30
+spec tilt        | _WeatheringAll=1;_WeatheringMap=0:0:1:1 | | | L0,L30,L60 | 10
+spec tilt20      | _WeatheringAll=1;_WeatheringMap=0:0:1:1 | | | L0,L30,L60 | 20
+spec tilt45      | _WeatheringAll=1;_WeatheringMap=0:0:1:1 | | | amb,L0,L30,L60,L120 | 45
+mapu             | _WeatheringAll=1;_WeatheringMap=rampr:u:0/0/x/1 | _UV0=0.1:0.5,0.3:0.5,0.5:0.2 | _WeatheringUV=1:1:0:0,2:1:0:0,3:3:0:0,1:1:0.1:0.2 | amb
+mapv             | _WeatheringAll=1;_WeatheringMap=rampr:v:0/0/x/1 | _UV0=0.5:0.1,0.5:0.3,0.2:0.5 | _WeatheringUV=1:1:0:0,1:2:0:0,3:3:0:0,1:1:0.1:0.2 | amb
+masku            | _WeatheringRange1=1;_WeatheringMap=0:0:1:1;_WeatheringMask=ramp:u:x/0/0/1 | _UV0=0.1:0.5,0.3:0.5,0.6:0.5 | | amb
+maskv            | _WeatheringRange1=1;_WeatheringMap=0:0:1:1;_WeatheringMask=ramp:v:x/0/0/1 | _UV0=0.5:0.1,0.5:0.3,0.5:0.6 | | amb
+real map         | _WeatheringMap=src;_WeatheringMask=src;_BG=1:1:1 | _WeatheringAll=0.5,1 | | amb,L0,L60
+real ranges      | _WeatheringMap=src;_WeatheringMask=src;_BG=1:1:1 | _WeatheringRange1=0.5,1 | _WeatheringRange5=0,1 | amb,L0
+lobe             | _WeatheringAll=1;_WeatheringMap=0:0:0.1:1 | | | L0,L0.5,L1,L1.5,L2,L2.5,L3,L4,L5,L6,L8,L10,L15,L20
+lobe pitch       | _WeatheringAll=1;_WeatheringMap=0:0:0.1:1 | | | L0p0.5,L0p1,L0p2,L0p3,L0p5,L1p1,L2p2
+lobe t10         | _WeatheringAll=1;_WeatheringMap=0:0:0.1:1 | | | L20,L19,L21,L18,L22,L16,L24 | 10
+lobe t30         | _WeatheringAll=1;_WeatheringMap=0:0:0.1:1 | | | L60,L59,L61,L58,L62,L56,L64,L50,L70 | 30
+refr u           | _WeatheringAll=1;_BGTEX=ramp:u:x/x/x/1 | _WeatheringMap=0:0:0:1,0:0:1:1 | _ChromaticAberration=0,0.1,0.3 | amb
+refr v           | _WeatheringAll=1;_BGTEX=ramp:v:x/x/x/1 | _WeatheringMap=0:0:0:1,0:0:1:1 | _ChromaticAberration=0,0.1,0.3 | amb
+refr u tilt      | _WeatheringAll=1;_BGTEX=ramp:u:x/x/x/1 | _WeatheringMap=0:0:0:1,0:0:1:1 | _ChromaticAberration=0,0.1,0.3 | amb | 30
+refr v tilt      | _WeatheringAll=1;_BGTEX=ramp:v:x/x/x/1 | _WeatheringMap=0:0:0:1,0:0:1:1 | _ChromaticAberration=0,0.1,0.3 | amb | 30
+refr const       | _WeatheringAll=1;_BGTEX=0.5:0.5:0.5:1 | _WeatheringMap=0:0:0:1,0:0:1:1 | _ChromaticAberration=0,0.3 | amb | 30
+mixed texels     | _BG=1:1:1 | _WeatheringMap=0.9:0.5:0:1,0.8:0.3:0.6:1,0.3:0.1:0.05:1,0.2:0.6:0.1:1,0.5:0.5:0.5:1,0.1:0:0.3:1,0.6:0:0.02:1,0.6:0.4:0.02:1 | _WeatheringAll=0.3,0.5,0.7 | amb
+L0.5 B small     | _BG=1:1:1;_WeatheringAll=0.5 | _WeatheringMap=0:0:0.01:1,0:0:0.02:1,0.5:0:0.01:1,0.5:0.5:0.01:1,0:0.5:0.01:1,0:0.5:0:1,0:1:0.02:1 | | amb
+real scale       | _WeatheringMap=src;_BG=1:1:1 | _WeatheringUV=3:3:0:0,1:1:0:0,0.2:0.2:0:0,0.05:0.05:0.3:0.3,0.05:0.05:0.6:0.2 | _WeatheringAll=0.3,1 | amb

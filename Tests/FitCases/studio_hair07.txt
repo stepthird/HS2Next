@@ -1,0 +1,134 @@
+# Shader Forge/studio_hair_07 fit cases: the hair_07 set with _Specular/_TopColor/_UnderColor renamed to _Color4/_Color2/_Color3
+# and the ring-texture / mesh / ColorMask_B cases removed (run with -fitItem "studio/00.unity3d:p_acs_hair_odangostu").
+explore1_base         | _ColorMask=1:0:0:1 | | | amb,L0,L60,L150
+explore1_col          | _ColorMask=1:0:0:1 | _Color=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1,1:0:0:1,0:1:0:1,0.2:0.2:0.2:1 | | amb,L0,L60,L150
+explore1_col_met0     | _ColorMask=1:0:0:1;_Metallic=0;_Smoothness=0 | _Color=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1,1:0:0:1 | | amb,L0,L60,L150
+explore1_met          | _ColorMask=1:0:0:1 | _Metallic=0,0.25,0.5,0.75,1 | | amb,L0,L60,L150
+explore1_smooth       | _ColorMask=1:0:0:1 | _Smoothness=0,0.2,0.4,0.6,0.8,1 | | amb,L0,L30,L60,L150
+explore1_spec         | _ColorMask=1:0:0:1 | _Color4=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1,1:0:0:1 | | amb,L0,L30,L60,L150
+explore1_hl           | _ColorMask=1:0:0:1 | _HighLight=0,2,5,10,20 | | amb,L0,L30,L60,L150
+explore1_rim          | _ColorMask=1:0:0:1 | _Rimpower=2.7,5,10,20 | | amb,L0,L60,L150 | 60
+explore1_exg          | _ColorMask=1:0:0:1 | _ExGloss=0,0.25,0.5,0.75,1 | | amb,L0,L30,L60,L150
+explore1_mainG        | _ColorMask=1:0:0:1 | _MainTex=1:0:0:1,1:0.5:0:1,1:1:0:1,1:0:0.5:1,1:0:1:1 | | amb,L0,L60,L150
+explore1_occ          | _ColorMask=1:0:0:1 | _Occlusion=0:0:0:1,0.5:0.5:0.5:1,0.8:0.8:0.8:1,1:0:0:1 | | amb,L0,L60,L150
+explore1_top          | _ColorMask=1:1:0:1 | _Color2=0:0:0:1,1:1:1:1,1:0:0:1 | | amb,L0,L60,L150
+explore1_topm         | _Color2=0:0:1:1 | _ColorMask=1:0:0:1,1:0.25:0:1,1:0.5:0:1,1:0.75:0:1,1:1:0:1,0:0.5:0:1 | _TopGradation=1,2.83,5 | amb,L0
+explore1_under        | _ColorMask=1:0:1:1 | _Color3=0:0:0:1,1:1:1:1,1:0:0:1 | | amb,L0,L60,L150
+explore1_underm       | _Color3=0:0:1:1 | _ColorMask=1:0:0:1,1:0:0.25:1,1:0:0.5:1,1:0:0.75:1,1:0:1:1,0:0:0.5:1 | _UnderGradation=1,1.27,5 | amb,L0
+explore1_alpha        | _ColorMask=1:0:0:1;_BG=1:1:1 | _MainTex=1:0:0:0.1,1:0:0:0.25,1:0:0:0.5,1:0:0:0.75,1:0:0:0.9 | _Cutoff=0,0.5,1 | amb
+explore1_alphab       | _ColorMask=1:0:0:1;_BG=0:0:0 | _MainTex=1:0:0:0.1,1:0:0:0.25,1:0:0:0.5,1:0:0:0.75,1:0:0:0.9 | _Cutoff=0,0.5,1 | amb
+explore2_colg     | _ColorMask=1:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0 | _Color=0:0:0:1,0.1:0.1:0.1:1,0.2:0.2:0.2:1,0.4:0.4:0.4:1,0.6:0.6:0.6:1,0.8:0.8:0.8:1,1:1:1:1 | | amb,L0,L60,L90,L150
+explore2_colrgb   | _ColorMask=1:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0 | _Color=1:0:0:1,0:1:0:1,0:0:1:1,0.6:0.282:0.282:1 | | amb,L0,L60
+explore2_hl0      | _ColorMask=1:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_Color=0.5:0.5:0.5:1 | _HighLight=0,1,2,3,4,5,6,8,10,15,20 | | amb,L0,L60
+explore2_met0     | _ColorMask=1:0:0:1;_Color4=0:0:0:1;_Smoothness=0;_HighLight=0;_Color=0.5:0.5:0.5:1 | _Metallic=0,0.25,0.5,0.75,1 | | amb,L0,L60,L150
+explore2_sm0      | _ColorMask=1:0:0:1;_Color4=0:0:0:1;_Metallic=0;_HighLight=0;_Color=0.5:0.5:0.5:1 | _Smoothness=0,0.2,0.4,0.5,0.6,0.7,0.8,0.9,1 | | amb,L0,L10,L20,L30,L60
+explore2_spec0    | _ColorMask=1:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Color=0:0:0:1 | _Color4=0.25:0.25:0.25:1,0.5:0.5:0.5:1,1:1:1:1,1:0:0:1 | | amb,L0,L30,L60,L150
+explore2_specsm   | _ColorMask=1:0:0:1;_Metallic=0;_HighLight=0;_Color=0:0:0:1;_Color4=1:1:1:1 | _Smoothness=0,0.2,0.4,0.6,0.8,1 | | amb,L0,L10,L20,L30,L60
+explore2_specmet  | _ColorMask=1:0:0:1;_Smoothness=0;_HighLight=0;_Color=0:0:0:1;_Color4=1:1:1:1 | _Metallic=0,0.5,1 | | amb,L0,L30,L60
+explore2_rim0     | _ColorMask=1:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Color=0.5:0.5:0.5:1 | _Rimpower=2.7,5,10,20 | | amb,L0,L60,L150 | 60
+explore2_exg0     | _ColorMask=1:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Color=0.5:0.5:0.5:1 | _ExGloss=0,0.25,0.5,0.75,1 | | amb,L0,L10,L30,L60,L150
+explore2_occ0     | _ColorMask=1:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Color=0.5:0.5:0.5:1 | _Occlusion=0:0:0:1,0.5:0.5:0.5:1,1:0:0:1 | | amb,L0,L60
+explore2_main0    | _ColorMask=1:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Color=0.5:0.5:0.5:1 | _MainTex=1:1:1:1,0:0:0:1,1:0:0:1,0:1:0:1,0:0:1:1,0.5:0.5:0.5:1 | | amb,L0,L60
+explore2_maskg0   | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Color=0.5:0.5:0.5:1 | _ColorMask=0:0:0:1,1:0:0:1,0:1:0:1,0:0:1:1,0:0.5:0:1,0:0:0.5:1,0:1:1:1,1:1:1:1 | _Color2=1:0:0:1,0:0:1:1 | amb
+explore2_maskb0   | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Color=0.5:0.5:0.5:1 | _ColorMask=0:0:0:1,0:1:0:1,0:0:1:1,0:0.5:0:1,0:0:0.5:1,0:1:1:1 | _Color3=1:0:0:1,0:0:1:1 | amb
+explore2_maskc0   | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0 | _ColorMask=0:0:0:1,0:1:0:1,0:0:1:1,0:1:1:1 | _Color=0:0:0:1,1:1:1:1,1:0:0:1 | amb
+explore3_mainGB   | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0 | _MainTex=1:0:0:1,1:0.5:0:1,1:1:0:1,1:0:0.5:1,1:0:1:1,1:0.5:0.5:1,1:1:1:1,0:0:0:1,1:0.25:0:1,1:0.75:0:1,1:0:0.25:1,1:0:0.75:1 | _Color=0:0:0:1,0.25:0.25:0.25:1,0.5:0.5:0.5:1,0.75:0.75:0.75:1,1:1:1:1,1:0:0:1 | amb
+explore3_occG     | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1 | _Occlusion=0:0:0:1,0.25:0.25:0.25:1,0.5:0.5:0.5:1,0.75:0.75:0.75:1,1:1:1:1 | _Color=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1,1:0:0:1 | amb
+explore3_occW     | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:1:1:1 | _Occlusion=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1 | _Color=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1,1:0:0:1 | amb
+explore3_underG   | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_Color=0.5:0.5:0.5:1 | _ColorMask=0:0.25:0:1,0:0.5:0:1,0:0.75:0:1,0:1:0:1 | _Color3=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1,1:0:0:1 | amb
+explore3_underC   | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_ColorMask=0:1:0:1 | _Color=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1,1:0:0:1 | _Color3=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1 | amb
+explore3_underGr  | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_Color=0.5:0.5:0.5:1;_Color3=1:0:0:1 | _ColorMask=0:0.25:0:1,0:0.5:0:1,0:0.75:0:1 | _UnderGradation=1,2,5 | amb
+explore3_topB     | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_Color=0.5:0.5:0.5:1 | _ColorMask=0:0:0.25:1,0:0:0.5:1,0:0:0.75:1,0:0:1:1 | _Color2=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1,1:0:0:1 | amb
+explore3_topC     | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_ColorMask=0:0:1:1 | _Color=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1,1:0:0:1 | _Color2=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1 | amb
+explore3_topGr    | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_Color=0.5:0.5:0.5:1;_Color2=1:0:0:1 | _ColorMask=0:0:0.25:1,0:0:0.5:1,0:0:0.75:1 | _TopGradation=1,2,5 | amb
+explore3_topMain  | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Color=0.5:0.5:0.5:1;_Color2=1:0:0:1 | _ColorMask=0:0:1:1,0:1:0:1,0:0:0.5:1 | _MainTex=1:0:0:1,1:1:0:1,1:0:1:1,1:1:1:1 | amb
+explore3_both     | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_Color=0.5:0.5:0.5:1;_Color2=1:0:0:1;_Color3=0:0:1:1 | _ColorMask=0:0.5:0.5:1,0:1:1:1,0:0.25:0.75:1,0:0.75:0.25:1 | | amb
+explore5_topw     | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_TopGradation=1 | _ColorMask=0:0:0.1:1,0:0:0.2:1,0:0:0.3:1,0:0:0.4:1,0:0:0.5:1,0:0:0.6:1,0:0:0.7:1,0:0:0.8:1,0:0:0.9:1,0:0:1:1 | _Color=0:0:0:1,1:0:0:1,0:1:0:1 | amb
+explore5_topw2    | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_TopGradation=1;_Color2=1:0:0:1 | _ColorMask=0:0:0.1:1,0:0:0.2:1,0:0:0.3:1,0:0:0.4:1,0:0:0.5:1,0:0:0.6:1,0:0:0.7:1,0:0:0.8:1,0:0:0.9:1,0:0:1:1 | _Color=0:0:0:1,0:0:1:1 | amb
+explore5_undw     | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_UnderGradation=1;_Color3=1:0:0:1 | _ColorMask=0:0.1:0:1,0:0.2:0:1,0:0.3:0:1,0:0.4:0:1,0:0.5:0:1,0:0.6:0:1,0:0.7:0:1,0:0.8:0:1,0:0.9:0:1,0:1:0:1 | _Color=0:0:0:1,0:0:1:1 | amb
+explore5_topocc   | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_TopGradation=1;_Color2=1:1:1:1;_Color=0:0:0:1 | _ColorMask=0:0:1:1,0:0:0.5:1 | _Occlusion=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1 | amb
+explore5_topmain  | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_TopGradation=1;_Color2=1:1:1:1;_Color=0:0:0:1 | _ColorMask=0:0:0.5:1 | _MainTex=1:0:0:1,1:1:0:1,1:0:1:1 | amb
+explore6_tu       | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_TopGradation=1;_UnderGradation=1;_Color=0:0:1:1;_Color2=1:0:0:1;_Color3=0:1:0:1 | _ColorMask=0:0:0:1,0:0:0.25:1,0:0:0.5:1,0:0:0.75:1,0:0:1:1 | _Color3=0:1:0:1 | amb
+explore6_tu2      | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_TopGradation=1;_UnderGradation=1;_Color=0:0:1:1;_Color2=1:0:0:1;_Color3=0:1:0:1 | _ColorMask=0:0.25:0:1,0:0.25:0.25:1,0:0.25:0.5:1,0:0.25:0.75:1,0:0.25:1:1,0:0.5:0:1,0:0.5:0.25:1,0:0.5:0.5:1,0:0.5:0.75:1,0:0.5:1:1,0:0.75:0:1,0:0.75:0.25:1,0:0.75:0.5:1,0:0.75:0.75:1,0:0.75:1:1,0:1:0:1,0:1:0.25:1,0:1:0.5:1,0:1:0.75:1,0:1:1:1 | | amb
+explore6_occT     | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_TopGradation=1;_Color2=1:0:0:1;_Color=0:0:1:1 | _ColorMask=0:0:0:1,0:0:0.1:1,0:0:0.25:1,0:0:0.5:1,0:0:0.75:1,0:0:0.9:1,0:0:1:1 | _Occlusion=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1 | amb
+explore6_occU     | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_UnderGradation=1;_Color3=1:0:0:1;_Color=0:0:1:1 | _ColorMask=0:0.1:0:1,0:0.5:0:1,0:0.9:0:1,0:1:0:1 | _Occlusion=0:0:0:1,0.5:0.5:0.5:1 | amb
+explore6_occTB    | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_TopGradation=1;_UnderGradation=1;_Color2=1:0:0:1;_Color3=0:1:0:1;_Color=0:0:1:1 | _ColorMask=0:0.5:0.5:1,0:1:1:1 | _Occlusion=0:0:0:1,0.5:0.5:0.5:1 | amb
+explore6_mainT    | _Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_TopGradation=1;_Color2=1:0:0:1;_Color=0:0:1:1 | _ColorMask=0:0:0.25:1,0:0:0.5:1,0:0:0.75:1 | _MainTex=1:1:0:1,1:0:1:1 | amb
+explore7_dyaw     | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_Color=1:1:1:1 | | | L0,L10,L20,L30,L40,L50,L60,L70,L80,L90,L100,L110,L120,L130,L140,L150,L160,L170,L180
+explore7_dpitch   | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_Color=1:1:1:1 | | | L0p30,L0p60,L0p90,L0p-30,L0p-60,L0p-90,L180p30,L180p60,L60p30,L60p60,L150p30
+explore7_dtilt30  | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_Color=1:1:1:1 | | | amb,L0,L30,L60,L90,L120,L150,L180,L-30,L-60,L-90,L-150 | 30
+explore7_dtilt60  | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_Color=1:1:1:1 | | | amb,L0,L30,L60,L90,L120,L150,L180,L-30,L-60,L-90,L-150 | 60
+explore7_dtan     | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_Color=1:1:1:1 | _TANGENT=1:0:0:1,0:1:0:1,1:0:0:-1 | | L0,L60,L90,L150,L0p60,L0p90
+explore7_rimd     | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_Color=0:0:0:1 | _Rimpower=2.7,5.4,20 | | amb,L0,L60,L90,L150 | 60
+explore7_rimd2    | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_Color=1:1:1:1 | _Rimpower=2.7,5.4,20 | | amb,L0,L60,L90,L150 | 60
+explore7_rimd3    | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_Color=1:1:1:1;_Rimpower=2.7 | | | amb,L0,L60,L90,L150 | 75
+explore7_mets     | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_Color=1:1:1:1 | _Metallic=0,0.5,1 | | amb,L0,L60,L90,L150
+explore8_smet     | _ColorMask=0:0:0:1;_Smoothness=0;_Color4=0:0:0:1;_HighLight=0;_Metallic=1;_Rimpower=20 | _Color=0.5:0.5:0.5:1,1:1:1:1,1:0:0:1 | _MainTex=1:0:0:1,1:1:0:1,1:0:1:1 | L0
+explore8_smet2    | _Smoothness=0;_Color4=0:0:0:1;_HighLight=0;_Metallic=1;_Rimpower=20;_MainTex=1:0:0:1;_Color=0:0:1:1;_TopGradation=1;_Color2=1:0:0:1 | _ColorMask=0:0:0.5:1,0:0:1:1 | _Occlusion=1:1:1:1,0:0:0:1 | L0
+explore8_rimk     | _ColorMask=0:0:0:1;_Smoothness=0;_Color4=0:0:0:1;_HighLight=0;_MainTex=1:0:0:1;_Color=0:0:0:1;_Rimpower=2.7 | _Metallic=0,1 | _ExGloss=0,1 | amb | 60
+explore8_rimk2    | _ColorMask=0:0:0:1;_Smoothness=0;_HighLight=0;_MainTex=1:0:0:1;_Color=0:0:0:1;_Rimpower=2.7;_Metallic=0 | _Color4=0:0:0:1,1:1:1:1,1:0:0:1 | _Smoothness=0,1 | amb | 60
+explore8_rimk3    | _Smoothness=0;_Color4=0:0:0:1;_HighLight=0;_MainTex=1:0:0:1;_Color=0:0:0:1;_Rimpower=2.7;_Metallic=0 | _ColorMask=0:0:0:1,0:0:1:1 | _Occlusion=1:1:1:1,0:0:0:1 | amb | 60
+ring5_r5o  | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_Rimpower=20;_HighLight=0;_Color4=0:0:0:1;_Color=1:0:0:1 | _Metallic=0,0.5,1 | _Smoothness=0,0.5,1 | amb
+explore10_dith | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_Color=1:1:1:1;_BG=0:0:0 | _MainTex=1:0:0:0.100,1:0:0:0.125,1:0:0:0.150,1:0:0:0.175,1:0:0:0.200,1:0:0:0.225,1:0:0:0.250,1:0:0:0.275,1:0:0:0.300,1:0:0:0.325,1:0:0:0.350,1:0:0:0.375,1:0:0:0.400,1:0:0:0.425,1:0:0:0.450,1:0:0:0.475,1:0:0:0.500,1:0:0:0.525,1:0:0:0.550,1:0:0:0.575,1:0:0:0.600,1:0:0:0.625,1:0:0:0.650,1:0:0:0.675,1:0:0:0.700,1:0:0:0.725,1:0:0:0.750,1:0:0:0.775,1:0:0:0.800,1:0:0:0.825,1:0:0:0.850,1:0:0:0.875,1:0:0:0.900,1:0:0:0.925,1:0:0:0.950 | | amb
+explore10_uv_MainTex | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_Color=1:1:1:1;_MainTex=rampr:u:1/0/0/x | _UV0=0.25:0.5,0.75:0.5 | _UV1=0.25:0.5,0.75:0.5 | amb
+explore10_uv_ColorMask | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_Color=1:1:1:1;_Color2=1:0:0:1;_TopGradation=1;_ColorMask=rampr:u:0/0/x/1 | _UV0=0.25:0.5,0.75:0.5 | _UV1=0.25:0.5,0.75:0.5 | amb
+explore10_uv_Occlusion | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_Color=1:1:1:1;_Occlusion=rampr:u:x/x/x/1 | _UV0=0.25:0.5,0.75:0.5 | _UV1=0.25:0.5,0.75:0.5 | amb
+explore10_nbump | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_Color=1:1:1:1;_MainTex=1:0:0:1 | _BumpMap=0.5:0.5:1:1,0.75:0.5:1:1,1:0.5:1:0.75,0.5:0.75:1:1,0.5:0.25:1:1 | | L0,L60,L-60,L0p60,L0p-60
+explore10_ndet | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_Color=1:1:1:1;_MainTex=1:0:0:1 | _DetailMask=0.5:0.5:1:1,0.75:0.5:1:1,0.5:0.75:1:1 | _DetailScale=0,0.5,1 | L0,L60,L-60,L0p60
+explore10_nboth | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_Color=1:1:1:1;_MainTex=1:0:0:1;_BumpMap=0.75:0.5:1:1 | _DetailMask=0.75:0.5:1:1,0.25:0.5:1:1 | _DetailScale=0,0.5,1 | L60,L-60
+explore10_nrim | _ColorMask=0:0:0:1;_Color4=1:1:1:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=2.7;_Color=0:0:0:1;_MainTex=1:0:0:1 | _BumpMap=0.5:0.5:1:1,0.75:0.5:1:1,0.25:0.5:1:1 | | amb
+explore10_dtile | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_Color=1:1:1:1;_MainTex=1:0:0:1;_DetailScale=1 | _DetailMask=rampr:u:x/0.5/1/1 | _UV0=0.1:0.5,0.3:0.5,0.6:0.5 | L60
+explore10_btile | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_Color=1:1:1:1;_MainTex=1:0:0:1 | _BumpMap=rampr:u:x/0.5/1/1 | _UV0=0.1:0.5,0.3:0.5,0.6:0.5 | L60
+explore10_st | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_Color=1:1:1:1;_MainTex=1:0:0:1 | _UV0=0.25:0.5 | | amb
+explore11_dtile | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_Color=1:1:1:1;_MainTex=1:0:0:1;_DetailScale=1 | _DetailMask=rampr:u:x/0.5/1/1 | _UV0=0.05:0.5,0.10:0.5,0.15:0.5,0.20:0.5,0.25:0.5,0.30:0.5,0.35:0.5,0.40:0.5,0.45:0.5,0.50:0.5,0.55:0.5,0.60:0.5,0.65:0.5,0.70:0.5,0.75:0.5,0.80:0.5,0.85:0.5,0.90:0.5,0.95:0.5 | L60
+explore11_dtilev | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_Color=1:1:1:1;_MainTex=1:0:0:1;_DetailScale=1 | _DetailMask=rampr:v:0.5/x/1/1 | _UV0=0.5:0.05,0.5:0.10,0.5:0.15,0.5:0.20,0.5:0.25,0.5:0.30,0.5:0.35,0.5:0.40,0.5:0.45,0.5:0.50,0.5:0.55,0.5:0.60,0.5:0.65,0.5:0.70,0.5:0.75,0.5:0.80,0.5:0.85,0.5:0.90,0.5:0.95 | L0p60
+explore11_back | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_Color=1:1:1:1;_MainTex=1:0:0:1 | | | amb,L0,L180,L60 | 180
+rim_rw   | _ColorMask=0:0:0:1;_Metallic=0;_Smoothness=0;_MainTex=1:0:0:1;_HighLight=0;_Color=0:0:0:1;_Color4=1:1:1:1 | _Rimpower=2.7,20 | | amb,L0,L30,L60,L90,L120,L150,L180,L-30,L-60,L-90,L-120,L-150,L0p60 | 60
+rim_rk   | _ColorMask=0:0:0:1;_Metallic=0;_Smoothness=0;_MainTex=1:0:0:1;_HighLight=0;_Color=0:0:0:1;_Color4=0:0:0:1 | _Rimpower=2.7,20 | | amb,L0,L30,L60,L90,L120,L150,L180,L-30,L-60,L-90,L-120,L-150,L0p60 | 60
+rim_rc   | _ColorMask=0:0:0:1;_Metallic=0;_Smoothness=0;_MainTex=1:0:0:1;_HighLight=0;_Color4=1:1:1:1;_Rimpower=2.7 | _Color=0.5:0.5:0.5:1,1:1:1:1,1:0:0:1 | | amb,L60,L150 | 60
+rim_rm   | _ColorMask=0:0:0:1;_Smoothness=0;_MainTex=1:0:0:1;_HighLight=0;_Color4=1:1:1:1;_Rimpower=2.7;_Color=0:0:0:1 | _Metallic=0.5,1 | _Smoothness=0,0.5 | amb,L60,L150 | 60
+rim_rmask | _Metallic=0;_Smoothness=0;_MainTex=1:0:0:1;_HighLight=0;_Color4=1:1:1:1;_Rimpower=2.7;_Color=0:0:0:1;_Color2=0:0:0:1;_TopGradation=1 | _ColorMask=0:0:0.5:1,0:0:1:1 | _Occlusion=1:1:1:1,0:0:0:1 | amb,L60 | 60
+rim_rmain | _ColorMask=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Color4=1:1:1:1;_Rimpower=2.7;_Color=0:0:0:1 | _MainTex=1:1:1:1,1:0:1:1 | | amb,L60 | 60
+ring8_rt60o | _ColorMask=0:0:0:1;_Metallic=0;_Smoothness=0;_MainTex=1:0:0:1;_Rimpower=20;_Color4=1:1:1:1;_HighLight=0;_Color=0:0:0:1 | | | amb,L0,L30,L60,L90,L120,L150,L180,L-30,L-60,L-90,L-120,L-150 | 60
+ring8_ex    | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_HighLight=0;_Rimpower=20;_MainTex=1:0:0:1;_Color=0.5:0.5:0.5:1;_Metallic=0 | _ExGloss=0,0.25,0.5,0.75,1 | _Smoothness=0,0.5 | amb,L0,L5,L10,L15,L20,L30,L60
+ring8_exm   | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_HighLight=0;_Rimpower=20;_MainTex=1:0:0:1;_Color=0.5:0.5:0.5:1;_Smoothness=0 | _ExGloss=0,0.5,1 | _Metallic=0.5,1 | amb,L0,L10,L30
+ring8_exc   | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_HighLight=0;_Rimpower=20;_MainTex=1:0:0:1;_Smoothness=0;_Metallic=0 | _ExGloss=0.5,1 | _Color=0:0:0:1,1:1:1:1 | amb,L0,L10,L30
+spec2_sg75 | _ColorMask=0:0:0:1;_Metallic=0;_MainTex=1:0:0:1;_HighLight=0;_Color=0:0:0:1;_Color4=0:0:0:1;_Rimpower=20 | _Smoothness=0.3,0.5,0.7 | | L0,L30,L60,L90,L120,L150,L165,L180,L-60,L-90,L-105,L-120 | 75
+spec2_sg60 | _ColorMask=0:0:0:1;_Metallic=0;_MainTex=1:0:0:1;_HighLight=0;_Color=0:0:0:1;_Color4=0:0:0:1;_Rimpower=20 | _Smoothness=0.3,0.5,0.7 | | L0,L30,L60,L90,L120,L150,L165,L180,L-60,L-90,L-105,L-120 | 60
+spec2_sgm  | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=0.5:0.5:0.5:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0.4;_Metallic=0.5 | | | L0,L30,L60,L90,L120,L150,L180,L-90,L-120 | 75
+spec3_st60 | _ColorMask=0:0:0:1;_Metallic=0;_MainTex=1:0:0:1;_HighLight=0;_Color=0:0:0:1;_Color4=0:0:0:1;_Rimpower=20 | _Smoothness=0,0.7 | | L-170,L-160,L-150,L-140,L-130,L-120,L-110,L-100,L-90,L-80,L-70,L-60,L-50,L-40,L-30,L-20,L-10,L0,L10,L20,L30,L40,L50,L60,L70,L80,L90,L100,L110,L120,L130,L140,L150,L160,L170,L180 | 60
+spec3_st0 | _ColorMask=0:0:0:1;_Metallic=0;_MainTex=1:0:0:1;_HighLight=0;_Color=0:0:0:1;_Color4=0:0:0:1;_Rimpower=20 | _Smoothness=0,0.7 | | L-170,L-160,L-150,L-140,L-130,L-120,L-110,L-100,L-90,L-80,L-70,L-60,L-50,L-40,L-30,L-20,L-10,L0,L10,L20,L30,L40,L50,L60,L70,L80,L90,L100,L110,L120,L130,L140,L150,L160,L170,L180 | 0
+spec3_stp | _ColorMask=0:0:0:1;_Metallic=0;_MainTex=1:0:0:1;_HighLight=0;_Color=0:0:0:1;_Color4=0:0:0:1;_Rimpower=20 | _Smoothness=0,0.7 | | L0p-80,L0p-70,L0p-60,L0p-50,L0p-40,L0p-30,L0p-20,L0p-10,L0p0,L0p10,L0p20,L0p30,L0p40,L0p50,L0p60,L0p70,L0p80 | 60
+metal_mt0  | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=0.5:0.5:0.5:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0 | _Metallic=0,0.5,1 | | amb,L180,L-90,L0
+metal_mt30 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=0.5:0.5:0.5:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0 | _Metallic=0,0.5,1 | | amb,L180,L-90,L0 | 30
+metal_mt60 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=0.5:0.5:0.5:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0 | _Metallic=0,0.5,1 | | amb,L180,L-90,L0 | 60
+metal_mt75 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=0.5:0.5:0.5:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0 | _Metallic=0,0.5,1 | | amb,L180,L-90,L0 | 75
+metal_mt75s | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=0.5:0.5:0.5:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0.5 | _Metallic=0,0.5,1 | | amb,L180,L-90,L0 | 75
+metal_mtc  | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0;_Metallic=0.5 | _Color=0:0:0:1,1:1:1:1,1:0:0:1 | | amb,L180 | 75
+metal2_m30 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0;_Metallic=1 | | | amb | 30
+metal2_m35 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0;_Metallic=1 | | | amb | 35
+metal2_m40 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0;_Metallic=1 | | | amb | 40
+metal2_m45 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0;_Metallic=1 | | | amb | 45
+metal2_m50 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0;_Metallic=1 | | | amb | 50
+metal2_m55 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0;_Metallic=1 | | | amb | 55
+metal2_m60 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0;_Metallic=1 | | | amb | 60
+metal2_m65 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0;_Metallic=1 | | | amb | 65
+metal2_m70 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0;_Metallic=1 | | | amb | 70
+metal2_m75 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0;_Metallic=1 | | | amb | 75
+metal2_m80 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0;_Metallic=1 | | | amb | 80
+metal2_m85 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0;_Metallic=1 | | | amb | 85
+metal2_s30 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0.5;_Metallic=1 | | | amb | 30
+metal2_s40 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0.5;_Metallic=1 | | | amb | 40
+metal2_s50 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0.5;_Metallic=1 | | | amb | 50
+metal2_s60 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0.5;_Metallic=1 | | | amb | 60
+metal2_s70 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0.5;_Metallic=1 | | | amb | 70
+metal2_s80 | _ColorMask=0:0:0:1;_MainTex=1:0:0:1;_HighLight=0;_Color=1:1:1:1;_Color4=0:0:0:1;_Rimpower=20;_Smoothness=0.5;_Metallic=1 | | | amb | 80
+dk_dk | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_Color=1:1:1:1;_MainTex=1:0:0:1;_DetailScale=1;_DetailMask=rampr:u:x/0.5/1/1 | _UV0=0.01:0.5,0.02:0.5,0.03:0.5,0.04:0.5,0.06:0.5,0.07:0.5 | | L60
+dk_dkv | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_Color=1:1:1:1;_MainTex=1:0:0:1;_DetailScale=1;_DetailMask=rampr:v:0.5/x/1/1 | _UV0=0.5:0.01,0.5:0.02,0.5:0.03,0.5:0.04 | | L0p60
+s_alpha | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_MainTex=1:0:0:1;_Color=1:1:1:1 | _MainTex=1:0:0:0,1:0:0:0.1,1:0:0:0.25,1:0:0:0.5,1:0:0:0.75,1:0:0:1 | _BG=0:0:0,1:1:1 | amb
+s_cut | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_MainTex=1:0:0:1;_Color=1:1:1:1;_BG=1:1:1 | _MainTex=1:0:0:0.25,1:0:0:0.5 | _Cutoff=0,0.3,0.6,1 | amb
+s_yaw | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_MainTex=1:0:0:1;_Color=1:1:1:1 | | | amb,L0,L15,L30,L45,L60,L75,L90,L105,L120,L135,L150,L165,L180
+s_col | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_MainTex=1:0:0:1 | _Color=0:0:0:1,0.25:0.25:0.25:1,0.5:0.5:0.5:1,1:1:1:1,1:0:0:1 | | amb,L0,L60
+s_main | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_MainTex=1:0:0:1;_Color=0.5:0.5:0.5:1 | _MainTex=1:0:0:1,1:1:0:1,1:0:1:1,0:0:0:1 | | amb,L0
+s_ring | _ColorMask=0:0:0:1;_Metallic=0;_Smoothness=0;_Rimpower=20;_MainTex=1:0:0:1;_Color=0:0:0:1 | _Color4=0:0:0:1,1:1:1:1 | _HighLight=0,9 | amb,L0
+s_tilt | _ColorMask=0:0:0:1;_Color4=0:0:0:1;_Metallic=0;_Smoothness=0;_HighLight=0;_Rimpower=20;_MainTex=1:0:0:1;_Color=1:1:1:1 | | | amb,L0,L60,L-60,L150 | 60

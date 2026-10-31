@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Sample sequencer plugin for HS2Next (CC0-1.0). Builds Stp3.SampleSequencer.dll against the host's Api and the
+    host-provided Newtonsoft.Json; neither is copied next to the plugin (the app loads its own).
+      HS2NextApi      folder holding HS2Next.Api.dll (a player's HS2Next_Data\Managed, or the project's Library\ScriptAssemblies)
+      NewtonsoftJson  path of Newtonsoft.Json.dll (a player's HS2Next_Data\Managed\Newtonsoft.Json.dll)
+    Example: dotnet build -c Release -p:HS2NextApi=<app>\HS2Next_Data\Managed -p:NewtonsoftJson=<app>\HS2Next_Data\Managed\Newtonsoft.Json.dll
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <AssemblyName>Stp3.SampleSequencer</AssemblyName>
+    <RootNamespace>Stp3.Samples.Sequencer</RootNamespace>
+    <Version>0.1.0</Version>
+    <Deterministic>true</Deterministic>
+    <DebugType>none</DebugType>
+    <Nullable>disable</Nullable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+    <HS2NextApi Condition="'$(HS2NextApi)' == ''">$(MSBuildThisFileDirectory)..\..\Library\ScriptAssemblies</HS2NextApi>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(NewtonsoftJson)' == ''">
+    <NewtonsoftCandidate Include="$(MSBuildThisFileDirectory)..\..\Library\PackageCache\com.unity.nuget.newtonsoft-json@*\Runtime\Newtonsoft.Json.dll" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(NewtonsoftJson)' == ''">
+    <NewtonsoftJson>@(NewtonsoftCandidate)</NewtonsoftJson>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="HS2Next.Api">
+      <HintPath>$(HS2NextApi)\HS2Next.Api.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(NewtonsoftJson)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="manifest.json" />
+    <None Include="README.md" />
+  </ItemGroup>
+</Project>

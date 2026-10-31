@@ -1,0 +1,12 @@
+# CT shorts values with neutral textures, back face lit by L150: which value causes the difference?
+base | | | | L150,L180,L120 | 180
+trans0 | _Translucency=0 | | | L150,L180,L120 | 180
+dist | _TransNormalDistortion=0 | | | L150,L180,L120 | 180
+scat | _TransScattering=1 | | | L150,L180,L120 | 180
+direct | _TransDirect=1 | | | L150,L180,L120 | 180
+amb | _TransAmbient=0 | | | L150,L180,L120 | 180
+shad | _TransShadow=0 | | | L150,L180,L120 | 180
+carv | _CarvatureStrength=0 | | | L150,L180,L120 | 180
+dith | _DitherSwitch=0 | | | L150,L180,L120 | 180
+dith2 | _DitherSwitch=0;_Translucency=0 | | | L150,L180,L120 | 180
+front | | | | L0,L30,L150 | 0

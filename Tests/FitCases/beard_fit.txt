@@ -1,0 +1,39 @@
+# Beard layer (_Texture5) of AIT/Skin True Face: UV transform, weight, order and smoothness. Run with -card <bearded male card>
+# so that "src" is a real beard texture (mt_beard AddTex) and _Color5 / _Texture5UV are the card's values.
+# UV read-out: black skin, white _Color5, ambient light -> R = 0.96 * weight; ramps with constant uv0.
+b uvset0          | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1;_Color5=1:1:1:1;_Texture5=ramp:u:x,0,0,0 | _UV0=0.3:0.5,0.6:0.5 | _Texture5UV=1:1:0:0,1.9:2:-0.45:0 | amb
+b uvset1          | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1;_Color5=1:1:1:1;_Texture5=ramp:u:x,0,0,0 | _UV1=0.3:0.5,0.6:0.5 | _Texture5UV=1:1:0:0,1.9:2:-0.45:0 | amb
+b uvset2          | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1;_Color5=1:1:1:1;_Texture5=ramp:u:x,0,0,0 | _UV2=0.3:0.5,0.6:0.5 | _Texture5UV=1:1:0:0,1.9:2:-0.45:0 | amb
+b uvset1v         | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1;_Color5=1:1:1:1;_Texture5=ramp:v:x,0,0,0 | _UV1=0.5:0.3,0.5:0.6 | _Texture5UV=1:1:0:0,1.9:2:-0.45:0 | amb
+b uvset2v         | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1;_Color5=1:1:1:1;_Texture5=ramp:v:x,0,0,0 | _UV2=0.5:0.3,0.5:0.6 | _Texture5UV=1:1:0:0,1.9:2:-0.45:0 | amb
+b vcol            | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1;_Color5=1:1:1:1;_Texture5=1:0:0:0 | _VCOL=1:1:1:1,0:0:0:0,1:0:0:0,0:1:0:0,0:0:1:0,0:0:0:1 | | amb
+b chan            | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1;_Color5=1:1:1:1 | _Texture5=1:0:0:0,0:1:0:0,0:0:1:0,0:0:0:1,1:1:1:1,0.5:0:0:0 | | amb
+b tx              | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1;_Color5=1:1:1:1;_Texture5=ramp:u:x,0,0,0 | _UV0=0.1:0.5,0.3:0.5,0.45:0.5,0.55:0.5,0.7:0.5,0.9:0.5 | _Texture5UV=1:1:0:0,0.5:1:0:0,2:1:0:0,0.1:1:0:0,-1:1:0:0,0:0:0:0 | amb
+b tz              | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1;_Color5=1:1:1:1;_Texture5=ramp:u:x,0,0,0 | _UV0=0.1:0.5,0.3:0.5,0.45:0.5,0.55:0.5,0.7:0.5,0.9:0.5 | _Texture5UV=1:1:0.1:0,1:1:-0.1:0,1:1:0.3:0,1:1:0:0.1,1.9:2:-0.45:0,1.9:2:0:0,1:1:1:1 | amb
+b tv              | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1;_Color5=1:1:1:1;_Texture5=ramp:v:x,0,0,0 | _UV0=0.5:0.1,0.5:0.45,0.5:0.9,0.2:0.3,0.8:0.3 | _Texture5UV=1:1:0:0,1:1:0.1:0,1:1:0:0.1,1:1:0:-0.1,1:0.5:0:0,1:2:0:0,1.9:2:-0.45:0,1:1:0:-0.5,1:-1:0:0.5,0:0:0:0 | amb
+b tst             | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1;_Color5=1:1:1:1;_Texture5UV=1:1:0:0 | _Texture5=ramp:u:x/0/0/0,ramp:v:x/0/0/0 | _Texture5_ST=1:1:0:0,2:2:0:0,1:1:0.2:0.2 | amb
+b alpha           | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1 | _Texture5=0.1:0:0:0,0.25:0:0:0,0.5:0:0:0,0.75:0:0:0,0.9:0:0:0,1:0:0:0 | _Color5=1:1:1:0,1:1:1:0.1,1:1:1:0.25,1:1:1:0.4,1:1:1:0.5,1:1:1:0.6,1:1:1:0.75,1:1:1:0.9,1:1:1:1 | amb
+b alpha col       | _OcclusionMap=0:1:0:1;_MainTex=0.5:0.5:0.5:1 | _Texture5=0.5:0:0:0,1:0:0:0 | _Color5=1:0:0:0.3,0:1:0:0.7,0.19:0.19:0.19:1 | amb,L0
+# Smoothness and order with the other layers.
+b smooth a        | _OcclusionMap=1:1:0:1;_Color5=0:0:0:0.5 | _Texture5=0:0:0:0,0.5:0:0:0,1:0:0:0 | _Gloss=0,0.3,0.6,0.8 | L0,L30
+b smooth a2       | _OcclusionMap=1:1:0:1;_Gloss=0 | _Texture5=0.5:0:0:0,0.75:0:0:0,1:0:0:0 | _Color5=0:0:0:0.25,0:0:0:0.75,0.5:0.5:0.5:1 | L0,L30
+b smooth exg      | _OcclusionMap=1:1:0:1;_Gloss=0;_Color5=0:0:0:1 | _Texture5=0.5:0:0:0,1:0:0:0 | _DetailMainTex=0:0:0.3:0,0:0:0.8:0 | L0,L30
+b order brow      | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:1;_Texture3UV=0:0:1:1;_Texture3=1:1:1:1;_MainTex=0.5:0.5:0.5:1 | _Texture5=0.5:0:0:0,1:0:0:0 | _Color3=1:0:0:1,1:0:0:0.5 | amb,L0
+b order brow2     | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:1;_Texture3UV=0:0:1:1;_Texture3=1:1:1:1;_Color3=1:0:0:0.5;_MainTex=0.5:0.5:0.5:1 | _Texture5=0.5:0:0:0,1:0:0:0 | _Color5=0:1:0:1,0:1:0:0.4 | amb,L0
+b brow smooth     | _OcclusionMap=1:1:0:1;_VCOL=0:0:0:1;_Texture3UV=0:0:1:1;_Texture3=1:1:1:1;_Color3=0:0:0:0.5;_Gloss=0.3 | _Texture5=0:0:0:0,0.5:0:0:0,1:0:0:0 | _Color5=0:0:0:1,0:0:0:0.4 | L0,L30
+b order blush     | _OcclusionMap=0:1:0:1;_NailMask=0:0:1:0;_Texture4Scale=1;_MainTex=0.5:0.5:0.5:1 | _Texture5=0.5:0:0:0,1:0:0:0 | _Color4=0:0:1:1,0:0:1:0.5 | amb,L0
+b order nail      | _OcclusionMap=0:1:0:1;_MainTex=0.5:0.5:0.5:1 | _Texture5=0.5:0:0:0,1:0:0:0 | _NailMask=1:0:0:0,0:1:0:0,0:0:0:1 | amb,L0,L150
+b tune            | _BumpScale2=1;_OcclusionStrength=0;_OcclusionMap=0:1:1:1;_MainTex=1:1:1:1 | _Texture5=0.5:0:0:0,1:0:0:0 | _Color5=1:0.5:0:1,1:0.5:0:0.5 | amb,L0
+b lift            | _OcclusionMap=1:1:0:1;_NailMask=0:1:0:0;_MainTex=0.5:0.5:0.5:1 | _Texture5=0:0:0:0,0.5:0:0:0,1:0:0:0 | _Color5=0:0:0:1,0.5:0.5:0.5:0.5 | L0,L60
+b trans           | _OcclusionMap=0:1:0:1;_NailMask=0:0:0:1 | _Texture5=0:0:0:0,0.5:0:0:0,1:0:0:0 | _Color5=0:0:0:1,1:0:0:1 | L150,L180
+# Bump: G is a height map (forward differences at 0.0055 in texture UV, strength 1.5 * _Color5.a). White skin = white _Color5.
+b bump fit            | _OcclusionMap=0:1:0:1;_MainTex=1:1:1:1;_Color5=1:1:1:1;_Texture5UV=1:1:0.5:0 | _Texture5=ramp:u:0/x/0/0,ramp:v:0/x/0/0,rampr:u:0/x4/0/0,rampr:v:0/x4/0/0 | | L30,L-30,L0p30,L0p-30,L60
+b bump big            | _OcclusionMap=0:1:0:1;_MainTex=1:1:1:1;_Texture5UV=0.1:1:0.6:0 | _Texture5=rampr@1024:u:0/x10/0/0,rampr@1024:u:0/x20/0/0,rampr@1024:u:0/x40/0/0,rampr@1024:u:0/x80/0/0 | _Color5=1:1:1:1,1:1:1:0.5,1:1:1:0.25 | L30,L-30,L60
+b bump bigv           | _OcclusionMap=0:1:0:1;_MainTex=1:1:1:1;_Texture5UV=1:0.1:0.5:0.1 | _Texture5=rampr@1024:v:0/x20/0/0,rampr@1024:v:0/x80/0/0 | _Color5=1:1:1:1,1:1:1:0.5 | L0p30,L0p-30
+b bump base           | _OcclusionMap=0:1:0:1;_MainTex=1:1:1:1;_Texture5UV=0.1:1:0.6:0;_BumpScale=1 | _Texture5=rampr@1024:u:0/x20/0/0,rampr@1024:u:0/x40/0/0,0:0:0:0 | _BumpMap=0.15:0.5:1:1,0.85:0.5:1:1,0.5:0.15:1:1 | L30,L-30,L0p30
+b bump wrap           | _OcclusionMap=0:1:0:1;_MainTex=1:1:1:1;_Color5=1:1:1:1;_Texture5UV=0.1:1:0.6:0 | _Texture5=rampr@1024:u:0/x40/0/0,rampr@1024:v:0/x40/0/0 | | L30,L0p30
+# Real beard texture (src) with the card's _Color5 / _Texture5UV on the probe quad (uv0 0..1).
+b src             | _OcclusionMap=0:1:0:1;_Texture5=src | _MainTex=1:1:1:1,0.5:0.4:0.35:1 | | amb,L0,L60
+b src2            | _OcclusionMap=1:1:0:1;_Texture5=src;_Gloss=0.4 | _Color5=0.19:0.19:0.19:1,0.5:0.3:0.1:0.6 | | amb,L0,L30
+b src lit         | _OcclusionMap=0:1:0:1;_Texture5=src | _Color5=0:0:0:1,1:1:1:1,1:1:1:0.5 | | amb,L0,L30,L60
+b src lit ch      | _OcclusionMap=0:1:0:1;_Texture5=src;_Color5=1:1:1:1;_MainTex=0:0:0:1 | _Gloss=0,0.5 | | amb,L0,L30,L60

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- A test plugin whose types need an assembly that is not shipped (the loader refuses it with plugin.typeLoad) (CC0-1.0). Built by Tools/plugins.ps1, which passes HS2NextApi (a folder with HS2Next.Api.dll). -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <AssemblyName>Stp3.Test.TypeLoad</AssemblyName>
+    <RootNamespace>Stp3.Test.TypeLoad</RootNamespace>
+    <Deterministic>true</Deterministic>
+    <DebugType>none</DebugType>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="HS2Next.Api"><HintPath>$(HS2NextApi)\HS2Next.Api.dll</HintPath><Private>false</Private></Reference>
+    <ProjectReference Include="..\TypeLoadMissing\TypeLoadMissing.csproj"><Private>false</Private></ProjectReference>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.probecore",
+  "name": "Loader probe (app assembly)",
+  "version": "0.1.0",
+  "apiVersion": "1.0",
+  "assemblies": ["Stp3.Test.ProbeCore.dll"],
+  "commandPrefixes": ["probecore."],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the loader that references the app's own assembly (an unsupported reference) and reads a registry count from it."
+}

@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "about": "The classification of the distribution package's tree for Tools/leak_check.py --tree (Tools/package_dist.ps1): every file of the staged package is shipped, so every file is scanned. The repository's export is classified by Tools/export_manifest.json instead.",
+  "include": ["**"],
+  "exclude": [],
+  "why": {
+    "**": "the staged package Builds/Dist/HS2Next: the tested app build's allow-listed files and the package texts, all shipped"
+  }
+}

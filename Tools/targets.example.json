@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "about": "Test targets of the unattended suite (Tools/run_tests.ps1, Editor/TestTargets.cs). Copy this file to Tools/targets.json (a local file, ignored by git) and fill it for your install: visual.female and visual.male each name one clothed, SFW character card of your game's UserData folder (a path relative to that folder, for example chara/female/<card>.png); cards names the two card folders the all-card rows walk; skip lists cards (relative to UserData) that a graphics run must not build. The animation rows are vanilla Studio Anime rows (group, category, no) with their clip name, the expression and look entries are test cases; keep them unless a row asks otherwise. The game root comes from Config/settings.local.json (hs2Root). Without Tools/targets.json the runner reads this file, and the rows whose tests need the cards report WARN 'development input absent: Tools/targets.json' instead of running.",
+  "visual": { "female": "", "male": "" },
+  "animation": [
+    { "group": 19, "category": 0, "no": 0, "name": "Idle_00", "pose": "standing" },
+    { "group": 11, "category": 5, "no": 0, "name": "dance_00", "pose": "loop" },
+    { "group": 19, "category": 1, "no": 11, "name": "Chair_A", "pose": "sitting, height blend" },
+    { "group": 15, "category": 31, "no": 1, "name": "attack_01", "pose": "rifle option item" }
+  ],
+  "expression": ["eyebrow0", "eyebrow1", "eyebrow2", "eyes0", "eyes1", "eyes2", "mouth0", "mouth1", "mouth2", "mouth3", "tears1", "tears2", "eyesopen03_studio", "eyesopen03"],
+  "look": ["front", "eyes_left", "eyes_right", "eyes_up", "eyes_down", "neck_left", "neck_right", "neck_up", "neck_down"],
+  "cards": { "female": "chara/female", "male": "chara/male" },
+  "skip": []
+}

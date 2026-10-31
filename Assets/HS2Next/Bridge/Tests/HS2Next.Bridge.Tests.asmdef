@@ -1,0 +1,19 @@
+{
+    "name": "HS2Next.Bridge.Tests",
+    "rootNamespace": "HS2Next.Bridge.Tests",
+    "references": [
+        "HS2Next.Api",
+        "HS2Next.Bridge"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

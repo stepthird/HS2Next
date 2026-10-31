@@ -1,0 +1,966 @@
+{
+ "_comment": "Studio item groups / categories for Tools/maker_session.py: only the listed (group, category) pairs are drawn from; numbers and names as HS2 Studio lists them (L0f, the same numbers HS2Next keys its lists by); no adult group or category; the 8 rows of Cache/items/corpus_crashes.txt are left out by the driver itself (by ref). Proposed by package G and reviewed.",
+ "leftOut": [
+  "6 Hアイテム (adult toys)",
+  "7 2D効果 (screen overlays)",
+  "9 3DSE and 19 3DSE2 (sound items; voice rows)",
+  "16/74 and 17/75 SM",
+  "17/76 bikini armour",
+  "5/49 succubus",
+  "13/46 H",
+  "11/42 DB Colliders (1 invisible row)",
+  "647158 the accessory group (not in today's build)",
+  "every other mod group (not reviewed one by one)"
+ ],
+ "rowsTotal": 2492,
+ "groups": [
+  {
+   "group": 0,
+   "name": "基本形",
+   "note": "vanilla basic shapes",
+   "rows": 345,
+   "categories": [
+    0,
+    18,
+    42
+   ],
+   "categoryNames": [
+    {
+     "category": 0,
+     "name": "通常",
+     "rows": 173
+    },
+    {
+     "category": 18,
+     "name": "透明",
+     "rows": 86
+    },
+    {
+     "category": 42,
+     "name": "キャラ",
+     "rows": 86
+    }
+   ]
+  },
+  {
+   "group": 1,
+   "name": "ベース",
+   "note": "vanilla base (floors, rooms, buildings, nature)",
+   "rows": 312,
+   "categories": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "categoryNames": [
+    {
+     "category": 1,
+     "name": "床壁",
+     "rows": 64
+    },
+    {
+     "category": 2,
+     "name": "部屋",
+     "rows": 25
+    },
+    {
+     "category": 3,
+     "name": "天井",
+     "rows": 28
+    },
+    {
+     "category": 4,
+     "name": "設置物",
+     "rows": 53
+    },
+    {
+     "category": 5,
+     "name": "建造物",
+     "rows": 31
+    },
+    {
+     "category": 6,
+     "name": "自然物",
+     "rows": 76
+    },
+    {
+     "category": 7,
+     "name": "環境",
+     "rows": 34
+    },
+    {
+     "category": 8,
+     "name": "画像板",
+     "rows": 1
+    }
+   ]
+  },
+  {
+   "group": 14,
+   "name": "ベース2",
+   "note": "vanilla base 2",
+   "rows": 32,
+   "categories": [
+    70,
+    51,
+    83
+   ],
+   "categoryNames": [
+    {
+     "category": 70,
+     "name": "設置物",
+     "rows": 9
+    },
+    {
+     "category": 51,
+     "name": "自然物",
+     "rows": 12
+    },
+    {
+     "category": 83,
+     "name": "DX",
+     "rows": 11
+    }
+   ]
+  },
+  {
+   "group": 2,
+   "name": "家具",
+   "note": "vanilla furniture",
+   "rows": 125,
+   "categories": [
+    9,
+    10,
+    11,
+    12,
+    13,
+    14
+   ],
+   "categoryNames": [
+    {
+     "category": 9,
+     "name": "寝具",
+     "rows": 19
+    },
+    {
+     "category": 10,
+     "name": "机",
+     "rows": 29
+    },
+    {
+     "category": 11,
+     "name": "椅子",
+     "rows": 30
+    },
+    {
+     "category": 12,
+     "name": "キッチンカウンター",
+     "rows": 18
+    },
+    {
+     "category": 13,
+     "name": "水周り",
+     "rows": 12
+    },
+    {
+     "category": 14,
+     "name": "照明",
+     "rows": 17
+    }
+   ]
+  },
+  {
+   "group": 15,
+   "name": "家具2",
+   "note": "vanilla furniture 2",
+   "rows": 115,
+   "categories": [
+    52,
+    53,
+    54,
+    55,
+    57,
+    84
+   ],
+   "categoryNames": [
+    {
+     "category": 52,
+     "name": "寝具",
+     "rows": 6
+    },
+    {
+     "category": 53,
+     "name": "机",
+     "rows": 22
+    },
+    {
+     "category": 54,
+     "name": "椅子",
+     "rows": 23
+    },
+    {
+     "category": 55,
+     "name": "キッチンカウンター",
+     "rows": 18
+    },
+    {
+     "category": 57,
+     "name": "照明",
+     "rows": 12
+    },
+    {
+     "category": 84,
+     "name": "DX",
+     "rows": 34
+    }
+   ]
+  },
+  {
+   "group": 3,
+   "name": "置物",
+   "note": "vanilla ornaments",
+   "rows": 215,
+   "categories": [
+    15,
+    16,
+    17,
+    47
+   ],
+   "categoryNames": [
+    {
+     "category": 15,
+     "name": "オブジェ",
+     "rows": 57
+    },
+    {
+     "category": 16,
+     "name": "小物",
+     "rows": 52
+    },
+    {
+     "category": 17,
+     "name": "その他",
+     "rows": 80
+    },
+    {
+     "category": 47,
+     "name": "クリスマス",
+     "rows": 26
+    }
+   ]
+  },
+  {
+   "group": 16,
+   "name": "置物2",
+   "note": "vanilla ornaments 2 without 74 SM",
+   "rows": 145,
+   "categories": [
+    58,
+    59,
+    81,
+    72,
+    85
+   ],
+   "categoryNames": [
+    {
+     "category": 58,
+     "name": "オブジェ",
+     "rows": 43
+    },
+    {
+     "category": 59,
+     "name": "小物",
+     "rows": 46
+    },
+    {
+     "category": 81,
+     "name": "サマー",
+     "rows": 8
+    },
+    {
+     "category": 72,
+     "name": "シスター",
+     "rows": 13
+    },
+    {
+     "category": 85,
+     "name": "DX",
+     "rows": 35
+    }
+   ]
+  },
+  {
+   "group": 4,
+   "name": "食材",
+   "note": "vanilla food",
+   "rows": 10,
+   "categories": [
+    21
+   ],
+   "categoryNames": [
+    {
+     "category": 21,
+     "name": "飲食物",
+     "rows": 10
+    }
+   ]
+  },
+  {
+   "group": 5,
+   "name": "キャラ",
+   "note": "vanilla character attachments without 49 (succubus)",
+   "rows": 353,
+   "categories": [
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    40,
+    41,
+    43,
+    44,
+    48,
+    50
+   ],
+   "categoryNames": [
+    {
+     "category": 22,
+     "name": "髪",
+     "rows": 9
+    },
+    {
+     "category": 23,
+     "name": "頭",
+     "rows": 44
+    },
+    {
+     "category": 24,
+     "name": "顔",
+     "rows": 37
+    },
+    {
+     "category": 25,
+     "name": "首",
+     "rows": 26
+    },
+    {
+     "category": 26,
+     "name": "胴",
+     "rows": 18
+    },
+    {
+     "category": 27,
+     "name": "腰",
+     "rows": 20
+    },
+    {
+     "category": 28,
+     "name": "腕",
+     "rows": 22
+    },
+    {
+     "category": 29,
+     "name": "手",
+     "rows": 9
+    },
+    {
+     "category": 40,
+     "name": "メカ",
+     "rows": 55
+    },
+    {
+     "category": 41,
+     "name": "バトル",
+     "rows": 40
+    },
+    {
+     "category": 43,
+     "name": "メカ(キャラ)",
+     "rows": 55
+    },
+    {
+     "category": 44,
+     "name": "キツネ巫女",
+     "rows": 5
+    },
+    {
+     "category": 48,
+     "name": "クリスマス",
+     "rows": 10
+    },
+    {
+     "category": 50,
+     "name": "バレンタイン",
+     "rows": 3
+    }
+   ]
+  },
+  {
+   "group": 17,
+   "name": "キャラ2",
+   "note": "vanilla character attachments 2 without 75 SM and 76 bikini armour",
+   "rows": 121,
+   "categories": [
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    73,
+    77,
+    78,
+    79,
+    80,
+    82,
+    86,
+    89,
+    90,
+    91,
+    92
+   ],
+   "categoryNames": [
+    {
+     "category": 62,
+     "name": "頭",
+     "rows": 19
+    },
+    {
+     "category": 63,
+     "name": "顔",
+     "rows": 1
+    },
+    {
+     "category": 64,
+     "name": "首",
+     "rows": 44
+    },
+    {
+     "category": 65,
+     "name": "胴",
+     "rows": 3
+    },
+    {
+     "category": 66,
+     "name": "腰",
+     "rows": 5
+    },
+    {
+     "category": 67,
+     "name": "腕",
+     "rows": 5
+    },
+    {
+     "category": 68,
+     "name": "手",
+     "rows": 2
+    },
+    {
+     "category": 73,
+     "name": "シスター",
+     "rows": 3
+    },
+    {
+     "category": 77,
+     "name": "くノ一",
+     "rows": 3
+    },
+    {
+     "category": 78,
+     "name": "犬耳",
+     "rows": 2
+    },
+    {
+     "category": 79,
+     "name": "七夕",
+     "rows": 2
+    },
+    {
+     "category": 80,
+     "name": "たぬき",
+     "rows": 3
+    },
+    {
+     "category": 82,
+     "name": "サマー",
+     "rows": 1
+    },
+    {
+     "category": 86,
+     "name": "DX",
+     "rows": 15
+    },
+    {
+     "category": 89,
+     "name": "ドラゴニック",
+     "rows": 4
+    },
+    {
+     "category": 90,
+     "name": "マジシャンズ",
+     "rows": 5
+    },
+    {
+     "category": 91,
+     "name": "ミイラ",
+     "rows": 2
+    },
+    {
+     "category": 92,
+     "name": "トナカイ",
+     "rows": 2
+    }
+   ]
+  },
+  {
+   "group": 10,
+   "name": "武器",
+   "note": "vanilla weapons",
+   "rows": 82,
+   "categories": [
+    35
+   ],
+   "categoryNames": [
+    {
+     "category": 35,
+     "name": "バトル",
+     "rows": 82
+    }
+   ]
+  },
+  {
+   "group": 18,
+   "name": "武器2",
+   "note": "vanilla weapons 2",
+   "rows": 3,
+   "categories": [
+    69
+   ],
+   "categoryNames": [
+    {
+     "category": 69,
+     "name": "バトル",
+     "rows": 3
+    }
+   ]
+  },
+  {
+   "group": 8,
+   "name": "ギミック",
+   "note": "vanilla gimmicks",
+   "rows": 40,
+   "categories": [
+    32,
+    33
+   ],
+   "categoryNames": [
+    {
+     "category": 32,
+     "name": "obj有り",
+     "rows": 22
+    },
+    {
+     "category": 33,
+     "name": "obj無し",
+     "rows": 18
+    }
+   ]
+  },
+  {
+   "group": 11,
+   "name": "エフェクト",
+   "note": "vanilla effects (without the 1 collider row)",
+   "rows": 53,
+   "categories": [
+    36,
+    37
+   ],
+   "categoryNames": [
+    {
+     "category": 36,
+     "name": "固定エフェクト",
+     "rows": 18
+    },
+    {
+     "category": 37,
+     "name": "パーティクル",
+     "rows": 35
+    }
+   ]
+  },
+  {
+   "group": 12,
+   "name": "ペット",
+   "note": "vanilla pets",
+   "rows": 21,
+   "categories": [
+    39
+   ],
+   "categoryNames": [
+    {
+     "category": 39,
+     "name": "動物",
+     "rows": 21
+    }
+   ]
+  },
+  {
+   "group": 13,
+   "name": "FKアイテム",
+   "note": "vanilla FK items without 46 H",
+   "rows": 10,
+   "categories": [
+    45
+   ],
+   "categoryNames": [
+    {
+     "category": 45,
+     "name": "通常",
+     "rows": 10
+    }
+   ]
+  },
+  {
+   "group": 20,
+   "name": "FKアイテム2",
+   "note": "vanilla FK items 2",
+   "rows": 4,
+   "categories": [
+    88
+   ],
+   "categoryNames": [
+    {
+     "category": 88,
+     "name": "DX",
+     "rows": 4
+    }
+   ]
+  },
+  {
+   "group": 625,
+   "name": "GMCC_A",
+   "note": "mod GMCC_A without 1 crowd (figures) and 13 gore",
+   "rows": 153,
+   "categories": [
+    0,
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    14,
+    18
+   ],
+   "categoryNames": [
+    {
+     "category": 0,
+     "name": "AirStuff",
+     "rows": 10
+    },
+    {
+     "category": 2,
+     "name": "Vehicle",
+     "rows": 2
+    },
+    {
+     "category": 4,
+     "name": "Weapon",
+     "rows": 2
+    },
+    {
+     "category": 5,
+     "name": "Baroque_item",
+     "rows": 13
+    },
+    {
+     "category": 6,
+     "name": "BBQ_item",
+     "rows": 29
+    },
+    {
+     "category": 7,
+     "name": "Skate_items",
+     "rows": 45
+    },
+    {
+     "category": 8,
+     "name": "object",
+     "rows": 3
+    },
+    {
+     "category": 9,
+     "name": "new_year_item",
+     "rows": 20
+    },
+    {
+     "category": 14,
+     "name": "LowPoly Vehicles",
+     "rows": 27
+    },
+    {
+     "category": 18,
+     "name": "Iphone12 case",
+     "rows": 2
+    }
+   ]
+  },
+  {
+   "group": 1003,
+   "name": "Joe2",
+   "note": "mod Joe2: tools, animals, machines (no figures, demons, monsters)",
+   "rows": 74,
+   "categories": [
+    8,
+    10,
+    11,
+    12,
+    13,
+    14,
+    16,
+    19,
+    22
+   ],
+   "categoryNames": [
+    {
+     "category": 8,
+     "name": "hammers1-2",
+     "rows": 14
+    },
+    {
+     "category": 10,
+     "name": "axes1-2",
+     "rows": 24
+    },
+    {
+     "category": 11,
+     "name": "beasts",
+     "rows": 16
+    },
+    {
+     "category": 12,
+     "name": "insects",
+     "rows": 3
+    },
+    {
+     "category": 13,
+     "name": "mount",
+     "rows": 4
+    },
+    {
+     "category": 14,
+     "name": "dragons",
+     "rows": 1
+    },
+    {
+     "category": 16,
+     "name": "marinelife",
+     "rows": 6
+    },
+    {
+     "category": 19,
+     "name": "machine",
+     "rows": 4
+    },
+    {
+     "category": 22,
+     "name": "smallanimals",
+     "rows": 2
+    }
+   ]
+  },
+  {
+   "group": 1017,
+   "name": "HP17R",
+   "note": "mod HP17R without BDSM, medical, organ, mask, map",
+   "rows": 97,
+   "categories": [
+    110,
+    111,
+    200,
+    300,
+    400,
+    510,
+    520,
+    526
+   ],
+   "categoryNames": [
+    {
+     "category": 110,
+     "name": "object",
+     "rows": 22
+    },
+    {
+     "category": 111,
+     "name": "props",
+     "rows": 8
+    },
+    {
+     "category": 200,
+     "name": "arms",
+     "rows": 5
+    },
+    {
+     "category": 300,
+     "name": "vehicle",
+     "rows": 3
+    },
+    {
+     "category": 400,
+     "name": "cabin",
+     "rows": 26
+    },
+    {
+     "category": 510,
+     "name": "components",
+     "rows": 12
+    },
+    {
+     "category": 520,
+     "name": "machine",
+     "rows": 20
+    },
+    {
+     "category": 526,
+     "name": "spaceship",
+     "rows": 1
+    }
+   ]
+  },
+  {
+   "group": 624,
+   "name": "GMCC",
+   "note": "mod GMCC: vehicles, weapons, places",
+   "rows": 43,
+   "categories": [
+    1,
+    3,
+    5,
+    7,
+    14,
+    25,
+    27
+   ],
+   "categoryNames": [
+    {
+     "category": 1,
+     "name": "tiger",
+     "rows": 2
+    },
+    {
+     "category": 3,
+     "name": "weapon_acc",
+     "rows": 14
+    },
+    {
+     "category": 5,
+     "name": "gasstation",
+     "rows": 2
+    },
+    {
+     "category": 7,
+     "name": "Navy",
+     "rows": 4
+    },
+    {
+     "category": 14,
+     "name": "forest",
+     "rows": 1
+    },
+    {
+     "category": 25,
+     "name": "war",
+     "rows": 18
+    },
+    {
+     "category": 27,
+     "name": "motor",
+     "rows": 2
+    }
+   ]
+  },
+  {
+   "group": 123,
+   "name": "NiiChan Mods",
+   "note": "mod NiiChan: drinks, detective kit, lights, splashes",
+   "rows": 86,
+   "categories": [
+    2,
+    57,
+    412,
+    662,
+    34739
+   ],
+   "categoryNames": [
+    {
+     "category": 2,
+     "name": "Spider Lily",
+     "rows": 1
+    },
+    {
+     "category": 57,
+     "name": "Canned Drinks",
+     "rows": 9
+    },
+    {
+     "category": 412,
+     "name": "Detective Kit",
+     "rows": 7
+    },
+    {
+     "category": 662,
+     "name": "IES Lights",
+     "rows": 55
+    },
+    {
+     "category": 34739,
+     "name": "Water Splashes",
+     "rows": 14
+    }
+   ]
+  },
+  {
+   "group": 1011,
+   "name": "AgiShark",
+   "note": "mod AgiShark water",
+   "rows": 28,
+   "categories": [
+    1
+   ],
+   "categoryNames": [
+    {
+     "category": 1,
+     "name": "Water",
+     "rows": 28
+    }
+   ]
+  },
+  {
+   "group": 668,
+   "name": "NobeOddy",
+   "note": "mod NobeOddy weapons",
+   "rows": 25,
+   "categories": [
+    0
+   ],
+   "categoryNames": [
+    {
+     "category": 0,
+     "name": "DOOM_Weapon",
+     "rows": 25
+    }
+   ]
+  }
+ ]
+}

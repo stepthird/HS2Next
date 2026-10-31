@@ -1,0 +1,29 @@
+{
+  "nodes": [
+    {
+      "id": "a0000000000000000000000000000001",
+      "kind": "camera",
+      "parent": null,
+      "camera": {
+        "active": true
+      }
+    },
+    {
+      "id": "a0000000000000000000000000000002",
+      "kind": "camera",
+      "parent": null,
+      "camera": {
+        "active": true
+      }
+    },
+    {
+      "id": "a0000000000000000000000000000003",
+      "kind": "camera",
+      "parent": null,
+      "camera": {
+        "active": false
+      }
+    }
+  ],
+  "scene": {}
+}

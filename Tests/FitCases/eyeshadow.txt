@@ -1,0 +1,8 @@
+# SkinFit.Sweep cases for AIT/main eyeshadow lambert (fit, -fitPipe both): label | set | sweep | sweep2 | lights | tilt
+blend            | | _BG=0:0:0,1:1:1,0.5:0.5:0.5,1:0:0 | _Color=0.2:0.2:0.2:1,1:0.5:0:1,0:0:0:1 | amb,L0,L150
+alpha pow        | _BG=1:1:1;_Color=0:0:0:1 | _MainTex=1:1:1:0.1,1:1:1:0.25,1:1:1:0.5,1:1:1:0.75,1:1:1:0.9 | _ShadowScale=0.1,0.3,0.5,0.7,0.9 | amb
+color alpha      | _BG=1:1:1;_MainTex=1:1:1:0.5 | _Color=0:0:0:1,0:0:0:0.5,0:0:0:0,0.5:0.5:0.5:1,0.5:0.5:0.5:0.25 | _ShadowScale=0.5,0.9 | amb
+tex rgb          | _BG=1:1:1;_Color=0.2:0.2:0.2:1 | _MainTex=1:0:0:0.5,0:1:0:0.5,0:0:1:0.5,0:0:0:0.5,0.5:0.5:0.5:1 | | amb,L0
+light            | _BG=1:1:1;_MainTex=1:1:1:0.6;_Color=0.3:0.6:0.9:1 | _ShadowScale=0.3,0.8 | | amb,L0,L30,L60,L80,L120,L180,M30,M150
+real tex         | _BG=1:1:1;_MainTex=src | _ShadowScale=0.1,0.5,0.804,0.9 | _Color=0.2:0.2:0.2:1,0:0:0:1 | amb,L0
+backface         | _BG=0.5:0.5:0.5;_MainTex=1:1:1:0.6;_Color=0.3:0.6:0.9:1 | | | amb | 180

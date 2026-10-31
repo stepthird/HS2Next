@@ -1,0 +1,3 @@
+# Legacy Shaders/Transparent/Cutout/Soft Edge Unlit (Editor built-in) vs HS2Next: colour, texture alpha around the cutoff, two backgrounds.
+e0 | _BG=0:0:0;_Cutoff=0.5 | _MainTex=1:1:1:1,0.8:0.4:0.2:0.6,0.8:0.4:0.2:0.4,0.3:0.6:0.9:0.1 | _Color=1:1:1:1,0.5:0.75:1:0.8 | amb,L0
+e1 | _BG=0.3:0.5:0.7;_Cutoff=0.3 | _MainTex=1:1:1:1,0.8:0.4:0.2:0.6,0.8:0.4:0.2:0.2 | _Color=1:1:1:1,0.5:0.75:1:0.8 | amb

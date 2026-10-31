@@ -1,0 +1,90 @@
+always	cf_J_CheekLow_L	Position	cf_s_CheekLow_tx_L.pos.x,cf_s_CheekLow_ty.pos.y,cf_s_CheekLow_tz.pos.z
+always	cf_J_CheekLow_R	Position	cf_s_CheekLow_tx_R.pos.x,cf_s_CheekLow_ty.pos.y,cf_s_CheekLow_tz.pos.z
+always	cf_J_CheekUp_L	Position	cf_s_CheekUp_tx_L.pos.x,cf_s_CheekUp_ty.pos.y,cf_s_CheekUp_tz_00.pos.z + cf_s_CheekUp_tz_01.pos.z
+always	cf_J_CheekUp_R	Position	cf_s_CheekUp_tx_R.pos.x,cf_s_CheekUp_ty.pos.y,cf_s_CheekUp_tz_00.pos.z + cf_s_CheekUp_tz_01.pos.z
+always	cf_J_ChinLow	PositionY	cf_s_ChinLow.pos.y
+always	cf_J_ChinTip_s	PositionY	cf_s_ChinTip_ty.pos.y
+always	cf_J_ChinTip_s	PositionZ	cf_s_ChinTip_tz.pos.z
+always	cf_J_ChinTip_s	Scale	cf_s_ChinTip_sx.scl.x,cf_s_ChinTip_sx.scl.y,cf_s_ChinTip_sx.scl.z
+always	cf_J_Chin_rs	PositionY	cf_s_Chin_rx.pos.y + cf_s_Chin_ty.pos.y
+always	cf_J_Chin_rs	PositionZ	cf_s_Chin_tz.pos.z
+always	cf_J_Chin_rs	Rotation	cf_s_Chin_rx.rot.x,0,0
+always	cf_J_Chin_rs	Scale	cf_s_Chin_sx.scl.x,1,1
+always	cf_J_EarBase_s_L	Rotation	0,cf_s_EarBase_ry_L.rot.y,cf_s_EarBase_rz_L.rot.z
+always	cf_J_EarBase_s_L	Scale	cf_s_EarBase_s_L.scl.x,cf_s_EarBase_s_L.scl.y,cf_s_EarBase_s_L.scl.z
+always	cf_J_EarBase_s_R	Rotation	0,cf_s_EarBase_ry_R.rot.y,cf_s_EarBase_rz_R.rot.z
+always	cf_J_EarBase_s_R	Scale	cf_s_EarBase_s_R.scl.x,cf_s_EarBase_s_R.scl.y,cf_s_EarBase_s_R.scl.z
+always	cf_J_EarLow_L	PositionY	cf_s_EarLow_L.pos.y
+always	cf_J_EarLow_L	Scale	cf_s_EarLow_L.scl.x,cf_s_EarLow_L.scl.y,cf_s_EarLow_L.scl.z
+always	cf_J_EarLow_R	PositionY	cf_s_EarLow_R.pos.y
+always	cf_J_EarLow_R	Scale	cf_s_EarLow_R.scl.x,cf_s_EarLow_R.scl.y,cf_s_EarLow_R.scl.z
+always	cf_J_EarRing_L	PositionY	cf_s_EarRing_L.pos.y
+always	cf_J_EarRing_L	Rotation	0,0,cf_s_EarRing_rz_L.rot.z
+always	cf_J_EarRing_L	Scale	cf_s_EarRing_s_L.scl.x,cf_s_EarRing_s_L.scl.y,cf_s_EarRing_s_L.scl.z
+always	cf_J_EarRing_R	PositionY	cf_s_EarRing_R.pos.y
+always	cf_J_EarRing_R	Rotation	0,0,cf_s_EarRing_rz_R.rot.z
+always	cf_J_EarRing_R	Scale	cf_s_EarRing_s_R.scl.x,cf_s_EarRing_s_R.scl.y,cf_s_EarRing_s_R.scl.z
+always	cf_J_EarUp_L	Position	cf_s_EarUp_L.pos.x,cf_s_EarUp_L.pos.y,cf_s_EarUp_L.pos.z
+always	cf_J_EarUp_L	Rotation	cf_s_EarUp_L.rot.x,cf_s_EarUp_L.rot.y,0
+always	cf_J_EarUp_L	Scale	cf_s_EarUp_L.scl.x,cf_s_EarUp_L.scl.y,cf_s_EarUp_L.scl.z
+always	cf_J_EarUp_R	Position	cf_s_EarUp_R.pos.x,cf_s_EarUp_R.pos.y,cf_s_EarUp_R.pos.z
+always	cf_J_EarUp_R	Rotation	cf_s_EarUp_R.rot.x,cf_s_EarUp_R.rot.y,0
+always	cf_J_EarUp_R	Scale	cf_s_EarUp_R.scl.x,cf_s_EarUp_R.scl.y,cf_s_EarUp_R.scl.z
+always	cf_J_Eye01_L	Rotation	cf_s_Eye01_rx_L.rot.x,cf_s_Eye01_L.rot.y + cf_s_Eye01_rx_L.rot.y,0
+always	cf_J_Eye01_R	Rotation	cf_s_Eye01_rx_R.rot.x,cf_s_Eye01_R.rot.y + cf_s_Eye01_rx_R.rot.y,0
+always	cf_J_Eye02_L	Rotation	cf_s_Eye02_L.rot.x,cf_s_Eye02_ry_L.rot.y,cf_s_Eye02_ry_L.rot.z
+always	cf_J_Eye02_R	Rotation	cf_s_Eye02_R.rot.x,cf_s_Eye02_ry_R.rot.y,cf_s_Eye02_ry_R.rot.z
+always	cf_J_Eye03_L	PositionX	cf_s_Eye03_L.pos.x
+always	cf_J_Eye03_L	Rotation	cf_s_Eye03_rx_L.rot.x,cf_s_Eye03_L.rot.y,0
+always	cf_J_Eye03_R	PositionX	cf_s_Eye03_R.pos.x
+always	cf_J_Eye03_R	Rotation	cf_s_Eye03_rx_R.rot.x,cf_s_Eye03_R.rot.y,0
+always	cf_J_Eye04_L	Rotation	cf_s_Eye04_L.rot.x,cf_s_Eye04_ry_L.rot.y,cf_s_Eye04_ry_L.rot.z
+always	cf_J_Eye04_R	Rotation	cf_s_Eye04_R.rot.x,cf_s_Eye04_ry_R.rot.y,cf_s_Eye04_ry_R.rot.z
+always	cf_J_EyePos_rz_L	Rotation	0,0,cf_s_EyePos_rz_L.rot.z
+always	cf_J_EyePos_rz_R	Rotation	0,0,cf_s_EyePos_rz_R.rot.z
+always	cf_J_Eye_r_L	Rotation	0,cf_s_Eye_ry_L.rot.y,0
+always	cf_J_Eye_r_R	Rotation	0,cf_s_Eye_ry_R.rot.y,0
+always	cf_J_Eye_s_L	Scale	cf_s_Eye_sx_L.scl.x,cf_s_Eye_sy_L.scl.y,1
+always	cf_J_Eye_s_R	Scale	cf_s_Eye_sx_R.scl.x,cf_s_Eye_sy_R.scl.y,1
+always	cf_J_Eye_t_L	Position	cf_s_Eye_tx_L.pos.x,cf_s_Eye_ty.pos.y,cf_s_Eye_tz.pos.z
+always	cf_J_Eye_t_L	Rotation	0,0,cf_s_Eye_rz_L.rot.z
+always	cf_J_Eye_t_R	Position	cf_s_Eye_tx_R.pos.x,cf_s_Eye_ty.pos.y,cf_s_Eye_tz.pos.z
+always	cf_J_Eye_t_R	Rotation	0,0,cf_s_Eye_rz_R.rot.z
+always	cf_J_FaceBase	Scale	cf_s_FaceBase_sx.scl.x,1,1
+always	cf_J_FaceLowBase	PositionZ	cf_s_FaceLow_tz.pos.z
+always	cf_J_FaceLow_s	Scale	cf_s_FaceLow_sx.scl.x,1,1
+always	cf_J_FaceUp_ty	PositionY	cf_s_FaceUp_ty.pos.y
+always	cf_J_FaceUp_tz	PositionZ	cf_s_FaceUp_tz.pos.z
+always	cf_J_MouthBase_s	Scale	cf_s_MouthBase_sx.scl.x,cf_s_MouthBase_sy.scl.y,1
+always	cf_J_MouthBase_tr	PositionY	cf_s_MouthBase_ty.pos.y
+always	cf_J_MouthBase_tr	PositionZ	cf_s_MouthBase_ty.pos.z + cf_s_MouthBase_tz.pos.z
+always	cf_J_MouthCavity	PositionZ	cf_s_MouthC_ty.pos.z + cf_s_MouthC_tz.pos.z
+always	cf_J_MouthLow	PositionY	cf_s_MouthLow.pos.y
+always	cf_J_MouthLow	PositionZ	cf_s_MouthLow.pos.z
+always	cf_J_MouthLow	Scale	cf_s_MouthLow.scl.x,1,1
+always	cf_J_Mouth_L	PositionY	cf_s_Mouth_L.pos.y
+always	cf_J_Mouth_L	Rotation	0,0,cf_s_Mouth_L.rot.z
+always	cf_J_Mouth_R	PositionY	cf_s_Mouth_R.pos.y
+always	cf_J_Mouth_R	Rotation	0,0,cf_s_Mouth_R.rot.z
+always	cf_J_Mouthup	PositionY	cf_s_Mouthup.pos.y
+always	cf_J_NoseBase_s	Rotation	cf_s_NoseBase_rx.rot.x,0,0
+always	cf_J_NoseBase_s	Scale	cf_s_NoseBase_sx.scl.x,cf_s_NoseBase_sx.scl.y,cf_s_NoseBase_sx.scl.z
+always	cf_J_NoseBase_trs	PositionY	cf_s_NoseBase_rx.pos.y + cf_s_NoseBase_ty.pos.y + 0.03003
+always	cf_J_NoseBase_trs	PositionZ	cf_s_NoseBase.pos.z + cf_s_NoseBase_rx.pos.z + cf_s_NoseBase_tz.pos.z
+always	cf_J_NoseBridge_s	Scale	cf_s_NoseBridge_sx.scl.x,1,1
+always	cf_J_NoseBridge_t	PositionY	cf_s_NoseBridge_ty.pos.y
+always	cf_J_NoseBridge_t	PositionZ	cf_s_NoseBridge_tz_00.pos.z + cf_s_NoseBridge_tz_01.pos.z + 0.11
+always	cf_J_NoseBridge_t	Rotation	cf_s_NoseBridge_rx.rot.x,0,0
+always	cf_J_NoseWing_tx_L	Position	cf_s_NoseWing_tx_L.pos.x,cf_s_NoseWing_ty.pos.y,cf_s_NoseWing_tz.pos.z
+always	cf_J_NoseWing_tx_L	Rotation	cf_s_NoseWing_rx.rot.x,0,cf_s_NoseWing_rz_L.rot.z
+always	cf_J_NoseWing_tx_R	Position	cf_s_NoseWing_tx_R.pos.x,cf_s_NoseWing_ty.pos.y,cf_s_NoseWing_tz.pos.z
+always	cf_J_NoseWing_tx_R	Rotation	cf_s_NoseWing_rx.rot.x,0,cf_s_NoseWing_rz_R.rot.z
+always	cf_J_Nose_t	PositionY	cf_s_Nose_rx.pos.y
+always	cf_J_Nose_t	PositionZ	cf_s_Nose_tz.pos.z
+always	cf_J_Nose_t	Rotation	cf_s_Nose_rx.rot.x,0,0
+always	cf_J_Nose_tip	PositionY	cf_s_Nose_tip.pos.y
+always	cf_J_Nose_tip	PositionZ	cf_s_Nose_tip.pos.z
+always	cf_J_Nose_tip	Scale	cf_s_Nose_tip.scl.x,cf_s_Nose_tip.scl.y,cf_s_Nose_tip.scl.z
+always	cf_J_megane	PositionY	cf_s_megane_rx_nosebridge.pos.y + cf_s_megane_ty_eye.pos.y + cf_s_megane_ty_nose.pos.y
+always	cf_J_megane	PositionZ	cf_s_megane_tz_nosebridge.pos.z
+always	cf_J_megane	Rotation	cf_s_megane_rx_nosebridge.rot.x + cf_s_megane_ty_eye.rot.x + cf_s_megane_ty_nose.rot.x,0,0

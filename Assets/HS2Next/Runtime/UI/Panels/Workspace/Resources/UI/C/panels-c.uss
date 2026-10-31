@@ -1,0 +1,133 @@
+/* Package C's panels: the workspace tree, the browsers, the card
+   grid, the scene browser, the options panel and the key overlay. Tokens from tokens-dark.uss (package A). */
+
+.hs-grow { flex-grow: 1; flex-shrink: 1; }
+.hs-row { flex-direction: row; align-items: center; }
+.hs-hint { color: var(--hs-text-dim); -unity-font-style: italic; padding: 8px; white-space: normal; }
+.hs-status-text { color: var(--hs-text-dim); font-size: 11px; padding-left: 8px; -unity-text-align: middle-left; flex-grow: 1; }
+
+/* headers and footers wrap their controls to another line in a narrow panel (a sidebar) instead of squeezing them */
+.hs-panel__header, .hs-panel__footer { flex-direction: row; flex-wrap: wrap; align-items: center; flex-shrink: 0; padding: 2px 4px; min-height: 26px; }
+.hs-panel__header { border-bottom-width: 1px; border-bottom-color: var(--hs-border); }
+.hs-panel__footer { border-top-width: 1px; border-top-color: var(--hs-border); }
+.hs-panel__header > Button, .hs-panel__footer > Button { margin-left: 2px; margin-right: 2px; }
+
+.hs-icon-button { min-width: 24px; height: 22px; padding: 0 4px; margin: 0 1px; -unity-text-align: middle-center; }
+.hs-seg { height: 22px; margin: 0; border-radius: 0; padding: 0 8px; }
+.hs-seg--on { background-color: var(--hs-accent-dim); color: var(--hs-text); }
+.hs-search { min-width: 120px; margin: 0 4px; }
+.hs-zoom { width: 90px; margin: 0 6px; }
+/* the browsers' hint line (what a click and a double click do; the selected card), first in the footer, the full width */
+.hs-browser__hint { width: 100%; white-space: normal; color: var(--hs-text-dim); font-size: 11px; padding: 1px 4px; -unity-text-align: middle-left; }
+
+/* ---------------------------------------------------------------- workspace tree */
+.hs-workspace { flex-grow: 1; }
+.hs-tree-row { flex-direction: row; align-items: center; height: 22px; flex-grow: 1; padding-right: 4px; border-radius: var(--hs-radius); }
+.hs-tree-row:hover { background-color: var(--hs-bg-hover); }
+.hs-tree-row__eye { width: 18px; height: 18px; min-width: 18px; padding: 0; margin: 0 2px 0 0; background-color: rgba(0, 0, 0, 0); border-width: 0; color: var(--hs-text-dim); font-size: 10px; }
+.hs-tree-row__glyph { width: 16px; -unity-text-align: middle-center; color: var(--hs-text-dim); }
+.hs-tree-row__label { flex-grow: 1; flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; -unity-text-align: middle-left; padding-left: 2px; }
+.hs-tree-row__badge { font-size: 9px; padding: 0 3px; margin-left: 2px; border-radius: 2px; background-color: var(--hs-bg-3); color: var(--hs-text-dim); }
+.hs-tree-row__warn { color: var(--hs-warning); margin-left: 2px; }
+.hs-tree-row__rename { position: absolute; left: 34px; right: 2px; top: 1px; bottom: 1px; margin: 0; }
+/* the theme pads a text input by 12 px at the top and bottom: inside the 20 px rename field that left the text no height (the name
+   and the typed text were not shown until Enter) */
+.hs-tree-row__rename .unity-base-text-field__input { margin: 0; padding: 0 4px; min-height: 0; height: 100%; -unity-text-align: middle-left; }
+.hs-tree-row--selected { background-color: var(--hs-accent-dim); }
+.hs-tree-row--primary { background-color: var(--hs-accent); }
+.hs-tree-row--primary .hs-tree-row__label { -unity-font-style: bold; }
+.hs-tree-row--folder .hs-tree-row__glyph { color: rgb(180, 150, 5); }
+.hs-tree-row--camera .hs-tree-row__glyph { color: rgb(70, 140, 220); }
+.hs-tree-row--active-camera .hs-tree-row__label { color: rgb(230, 70, 70); }
+.hs-tree-row--hidden .hs-tree-row__label { color: var(--hs-text-disabled); }
+.hs-tree-row--group .hs-tree-row__label, .hs-tree-row--point .hs-tree-row__label { color: var(--hs-text-dim); font-size: 11px; }
+.hs-tree-row--point .hs-tree-row__label { color: rgb(204, 128, 164); }
+.hs-tree-row--drop-on { background-color: var(--hs-accent-dim); border-width: 1px; border-color: var(--hs-accent); }
+.hs-tree-row--drop-before { border-top-width: 2px; border-top-color: var(--hs-accent); }
+.hs-tree-row--drop-after { border-bottom-width: 2px; border-bottom-color: var(--hs-accent); }
+.hs-tree-row--refused { border-width: 1px; border-color: var(--hs-error); }
+
+.hs-drag-ghost { background-color: var(--hs-bg-3); color: var(--hs-text); padding: 2px 6px; border-radius: var(--hs-radius); border-width: 1px; border-color: var(--hs-accent); opacity: 0.9; }
+.hs-drag-ghost--refused { border-color: var(--hs-error); color: var(--hs-error); }
+
+/* ---------------------------------------------------------------- browsers */
+.hs-browser { flex-grow: 1; }
+/* the list browsers' body follows the region's shape (ListBrowser.BodyShape; the sizes are set from the body's size): stacked
+   in a tall region (groups, categories, then the list; each facet list about a fifth of the height, at least 96 px), three
+   columns in a wide one (groups at least 180 px | categories at least 200 px | list), and the facet lists in one column
+   left of the list in a short region too narrow for three. v0.3 trial: the facet lists had the facet chips' 20 px height
+   (two rows). The list clips its header and columns (they scroll inside it). */
+.hs-browser__body { flex-grow: 1; flex-direction: column; }
+.hs-browser__body--wide, .hs-browser__body--column { flex-direction: row; }
+.hs-browser__facets { flex-shrink: 0; flex-direction: column; }
+.hs-browser__body--wide > .hs-browser__facets { flex-direction: row; }
+.hs-browser__body--column > .hs-browser__facets { border-right-width: 1px; border-right-color: var(--hs-border); }
+.hs-facet-list { flex-shrink: 0; border-color: var(--hs-border); }
+.hs-browser__body--stacked .hs-facet-list { border-bottom-width: 1px; }
+.hs-browser__body--wide .hs-facet-list { border-right-width: 1px; }
+.hs-browser__body--column .hs-facet-list { flex-grow: 1; flex-shrink: 1; flex-basis: 0; min-height: 40px; }
+.hs-browser__body--column .hs-facet-list--groups { border-bottom-width: 1px; }
+.hs-browser__body > MultiColumnListView { min-width: 0; min-height: 0; flex-shrink: 1; overflow: hidden; }
+.hs-facet__row { flex-direction: row; align-items: center; flex-grow: 1; padding-left: 6px; padding-right: 4px; }
+.hs-facet__name { flex-grow: 1; flex-shrink: 1; min-width: 0; margin: 0; padding: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; -unity-text-align: middle-left; }
+.hs-facet__count { flex-shrink: 0; margin: 0 0 0 6px; padding: 0; color: var(--hs-text-dim); font-size: 11px; -unity-text-align: middle-right; }
+.hs-list-cell { -unity-text-align: middle-left; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; }
+.hs-row--colors1 { color: rgb(240, 110, 110); }
+.hs-row--colors2 { color: rgb(110, 220, 230); }
+.hs-row--colors3 { color: rgb(120, 220, 120); }
+.hs-row--colors4 { color: rgb(240, 220, 100); }
+.hs-row--current { -unity-font-style: bold; color: var(--hs-accent); }
+
+.hs-folder-tree { width: 180px; min-width: 120px; }
+/* the folder tree above the grid in a tall region (AdaptiveSplit stacked): the full width */
+.hs-adaptive-split { flex-grow: 1; }
+.hs-adaptive-split--stacked .hs-folder-tree { width: auto; min-width: 0; border-bottom-width: 1px; border-bottom-color: var(--hs-border); }
+.hs-folder-tree__row { -unity-text-align: middle-left; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
+
+/* ---------------------------------------------------------------- card grid */
+.hs-card-grid { flex-grow: 1; }
+.hs-card-grid__row { flex-direction: row; padding-left: 6px; }
+.hs-card { margin-right: 6px; margin-top: 3px; border-radius: var(--hs-radius); border-width: 2px; }
+/* the cell states (hover, selection, keyboard focus, applied, pressed): components.uss, v0.3 trial 2 */
+.hs-card__image { flex-shrink: 0; background-color: var(--hs-bg-2); -unity-background-scale-mode: scale-to-fit; }
+.hs-card__image--none { background-color: var(--hs-bg-3); }
+.hs-card__text { font-size: 11px; height: 18px; -unity-text-align: middle-center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------------------------------------------------------------- scene browser, forms */
+.hs-scene-browser { width: 980px; height: 620px; max-width: 95%; }
+.hs-scene-browser__body { flex-direction: row; flex-grow: 1; }
+.hs-scene-browser__preview { width: 260px; flex-shrink: 0; white-space: normal; padding: 8px; color: var(--hs-text-dim); border-left-width: 1px; border-left-color: var(--hs-border); }
+.hs-confirm-bar { flex-direction: row; align-items: center; padding: 4px; background-color: var(--hs-bg-3); }
+.hs-confirm-bar > Label { flex-grow: 1; white-space: normal; }
+.hs-form { min-width: 420px; }
+.hs-form__problem { color: var(--hs-error); min-height: 16px; }
+
+/* ---------------------------------------------------------------- options, key overlay */
+/* the options fill their sized dialog box (hs-dialog--options) */
+.hs-options { flex-direction: row; flex-grow: 1; min-height: 0; }
+.hs-options__sections { width: 140px; flex-shrink: 0; border-right-width: 1px; border-right-color: var(--hs-border); }
+.hs-options__tab { -unity-text-align: middle-left; margin: 1px 4px; }
+.hs-options__section { padding: 6px 10px 12px 10px; }
+.hs-options__section-title { -unity-font-style: bold; font-size: 14px; margin-bottom: 4px; }
+.hs-options__row { flex-direction: row; align-items: center; min-height: 24px; }
+/* v0.3 trial 2: the label takes 42 % of the row and wraps onto further lines (one line of the render size cap's label was cut
+   and pushed its control out of the row), the control takes the rest, a slider's number field shows its longest value */
+.hs-options__row > .unity-base-field > .unity-base-field__label { width: 42%; min-width: 0; flex-shrink: 0; white-space: normal; }
+.hs-options__row > .unity-base-field > .unity-base-field__input { flex-grow: 1; flex-shrink: 1; min-width: 0; }
+.hs-options__row .unity-base-slider__text-field { width: 108px; flex-shrink: 0; }
+/* a long choice wraps inside its drop-down (the theme kept 40 px free right of the text, before the arrow) */
+.hs-options__row .unity-base-popup-field__text { white-space: normal; margin-right: 6px; }
+.hs-options__row > .hs-color > .hs-color__label { width: 42%; min-width: 0; flex-shrink: 0; white-space: normal; overflow: visible; }
+.hs-options__buttons { margin-top: 6px; }
+.hs-options__conflicts { color: var(--hs-warning); white-space: normal; margin-top: 4px; }
+
+.hs-keys { width: 760px; height: 600px; }
+.hs-keys__row { flex-direction: row; align-items: center; height: 24px; }
+.hs-keys__row--header { background-color: var(--hs-bg-3); }
+.hs-keys__row--header .hs-keys__label { -unity-font-style: bold; }
+.hs-keys__row--conflict .hs-keys__chords { color: var(--hs-warning); }
+.hs-keys__row--recording { background-color: var(--hs-accent-dim); }
+.hs-keys__row--changed .hs-keys__label { color: var(--hs-accent); }
+/* the labels fill the row's height: a label as tall as its text clipped the descenders with overflow: hidden (v0.2) */
+.hs-keys__label { width: 330px; height: 100%; padding-left: 8px; overflow: hidden; text-overflow: ellipsis; -unity-text-align: middle-left; }
+.hs-keys__chords { flex-grow: 1; height: 100%; color: var(--hs-text-dim); -unity-text-align: middle-left; }

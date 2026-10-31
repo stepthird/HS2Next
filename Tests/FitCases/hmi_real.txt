@@ -1,0 +1,4 @@
+# F1 Hanmen/Item Cutoff on a real material (-fitMaterial, its own textures and values; -fitPix)
+real | _MainTex=src;_BumpMap=src;_MetallicGlossMap=src;_ColorMask=src;_OcclusionMap=src;_DetailMask=src;_DetailGlossMap=src;_DetailGlossMap2=src | | | amb,L0,L30,L60,L120,L150,M30,M150 |
+real_t | _MainTex=src;_BumpMap=src;_MetallicGlossMap=src;_ColorMask=src;_OcclusionMap=src;_DetailMask=src;_DetailGlossMap=src;_DetailGlossMap2=src | | | L20,L40,L60,L150 | 60
+real_b | _MainTex=src;_BumpMap=src;_MetallicGlossMap=src;_ColorMask=src;_OcclusionMap=src;_DetailMask=src;_DetailGlossMap=src;_DetailGlossMap2=src;_CullMode=0 | | | amb,L30,L150 | 180

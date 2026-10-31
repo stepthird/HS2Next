@@ -1,0 +1,7 @@
+# Quantum Theory/Particles/HDR Alpha Blended (Phase 5.2 S): the legacy alpha-blended particle with an HDR tint; particles.txt cases.
+# fit: shader="Quantum Theory/Particles/HDR Alpha Blended" repl="HS2Next/Compatible/Quantum Theory/Particles/HDR Alpha Blended" item="hooh/rome_01_003.unity3d:Interior_FireBowlA" rms=0.002
+p0 | _BG=0:0:0;_TintColor=0.5:0.5:0.5:0.5;_Color=1:1:1:1;_Cutoff=0.5 | _MainTex=1:1:1:1,0.8:0.4:0.2:0.5,0.3:0.6:0.9:0.1 | _VCOL=1:1:1:1,0.5:1:0.25:0.6 | amb
+p1 | _BG=0.3:0.5:0.7;_TintColor=0.5:0.5:0.5:0.5;_Color=1:1:1:1;_Cutoff=0.5 | _MainTex=1:1:1:1,0.8:0.4:0.2:0.5,0.3:0.6:0.9:0.1 | _VCOL=1:1:1:1,0.5:1:0.25:0.6 | amb
+pt | _BG=0.3:0.5:0.7;_MainTex=0.8:0.4:0.2:0.5;_VCOL=0.5:1:0.25:0.6;_Cutoff=0.5 | _TintColor=0.5:0.5:0.5:0.5,1:0.5:0.2:0.8,0.2:0.2:0.2:1 | _Color=1:1:1:1,0.5:0.3:0.2:0.4 | amb,L0
+pc | _BG=0.3:0.5:0.7;_TintColor=0.5:0.5:0.5:0.5;_VCOL=1:1:1:1 | _MainTex=1:1:1:0.3,1:1:1:0.6 | _Cutoff=0.5,0.2 | amb
+pback | _BG=0.3:0.5:0.7;_TintColor=0.5:0.5:0.5:0.5;_MainTex=0.8:0.4:0.2:0.5;_Color=0.5:0.3:0.2:1 | | | amb | 180

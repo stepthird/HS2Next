@@ -1,0 +1,4 @@
+# Mochie/Standard: the real material's textures and values (-fitMaterial, -fitPix).
+real | _MainTex=src;_BumpMap=src;_MetallicGlossMap=src;_SpecGlossMap=src;_OcclusionMap=src |  |  | amb,L0,L30,L60,L120,L150,M30,M150
+realtilt | _MainTex=src;_BumpMap=src;_MetallicGlossMap=src;_SpecGlossMap=src;_OcclusionMap=src |  |  | amb,L0,L30,L60,L-60,L60p40 | 65
+realback | _MainTex=src;_BumpMap=src;_MetallicGlossMap=src;_SpecGlossMap=src;_OcclusionMap=src |  |  | amb,L0,L60,L150 | 180

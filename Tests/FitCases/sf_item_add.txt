@@ -1,0 +1,6 @@
+# Shader Forge/main_item_studio_add (vanilla Studio effects): colour mask (priority B > G > R), additive; black and grey backgrounds.
+mask | _BG=0:0:0;_Color=1:0:0:1;_Color2=0:1:0:1;_Color3=0:0:1:1;_alpha=1 | _MainTex=0.5:0:0:1,0.5:0.5:0:1,0.2:0.6:0.3:1,1:0.5:0.25:0.5,0:0:0:0 | _BG=0:0:0,0.5:0.5:0.5 | amb,L0
+col | _BG=0.5:0.5:0.5;_MainTex=0.7:0.4:0.2:1;_alpha=1 | _Color=0.8:0.3:0.1:0.5,0.1:0.2:0.9:1 | _Color3=1:1:1:1,0.3:0.6:0.9:0 | amb
+alpha | _BG=0.5:0.5:0.5;_MainTex=0.7:0.4:0.2:1;_Color=0.8:0.3:0.1:1;_Color2=0.2:0.9:0.4:1;_Color3=0.3:0.6:0.9:1 | _alpha=0,0.3,1 | | amb,L0 | 
+back | _BG=0.5:0.5:0.5;_MainTex=0.7:0.4:0.2:1;_alpha=1 | | | amb | 180
+real | _MainTex=src | _alpha=1,0.5 | | amb

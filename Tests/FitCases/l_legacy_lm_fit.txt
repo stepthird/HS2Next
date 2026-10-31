@@ -1,0 +1,23 @@
+# fit: shader="Legacy Shaders/Diffuse" repl="HS2Next/Legacy Shaders/Diffuse" item="none/none.unity3d:none" rms=0.002 origFind
+# fit: shader="Legacy Shaders/Bumped Specular" repl="HS2Next/Legacy Shaders/Bumped Specular" item="none/none.unity3d:none" rms=0.002 origFind
+# fit: shader="Legacy Shaders/Transparent/Bumped Specular" repl="HS2Next/Legacy Shaders/Transparent/Bumped Specular" item="none/none.unity3d:none" rms=0.002 origFind
+# fit: shader="Mobile/Diffuse" repl="HS2Next/Mobile/Diffuse" item="none/none.unity3d:none" rms=0.002 origFind
+# Lightmapped legacy probes (Phase 3.7 package L): Built-in legacy surface shaders vs the generated replacements on a lightmapped
+# probe quad (SkinFit keys _LM lightmap colour, _LMDIR directional lightmap, _LMMASK shadow mask with the probe light mixed
+# Shadowmask, _LMSUB the probe light mixed Subtractive). amb = white SH only, which a lightmapped renderer does not use.
+# lm_mask on the transparent rows: Built-in leaves the mixed Shadowmask main light out of a lightmapped alpha:fade shader.
+# Properties a shader does not declare are skipped (duplicate cells). Run with -origFind against the Editor's built-ins.
+lm_plain | _LM=0.4:0.3:0.2:1 | _Color=1:1:1:1,0.8:0.6:0.4:1 | | amb,L0,L60,L150 |
+lm_tex | _LM=0.4:0.3:0.2:1 | _MainTex=0.8:0.5:0.3:1,0.2:0.6:0.9:0.5 | | amb,L0,L150 |
+lm_level | | _LM=0:0:0:1,0.1:0.1:0.1:1,0.5:0.5:0.5:1,1:1:1:1,2:1:0.5:1 | | amb,L0 |
+lm_alpha | | _LM=0.5:0.5:0.5:0.25,0.5:0.5:0.5:0.5,0.5:0.5:0.5:1 | | amb |
+lm_ramp | _LM=ramp:u:x,0.5,0.2,1 | | | amb,L60 |
+lm_dir | _LM=0.6:0.5:0.4:1 | _LMDIR=0.5:0.5:1:1,0.8:0.5:0.6:0.7,0.2:0.7:0.5:0.4 | | amb,L0,L150 |
+lm_dir_tilt | _LM=0.6:0.5:0.4:1 | _LMDIR=0.8:0.5:0.6:0.7,0.2:0.7:0.5:0.4 | | amb,L0 | 40
+lm_dir_tilt2 | _LM=0.6:0.5:0.4:1 | _LMDIR=0.8:0.5:0.6:0.7 | | amb,L60 | -50
+lm_bump | _LM=0.6:0.5:0.4:1;_LMDIR=0.8:0.5:0.6:0.7 | _BumpMap=0.5:0.5:1:1,0.75:0.5:0.9:1,0.3:0.7:0.9:1 | | amb,L0,L60 |
+lm_spec | _LM=0.3:0.3:0.3:1;_MainTex=0.6:0.6:0.6:0.8 | _Shininess=0.1,0.5 | | L0,L30 |
+lm_fade | _LM=0.5:0.4:0.3:1;_BG=0.2:0.3:0.4 | _Color=1:1:1:0.5,0.6:0.6:0.6:0.2 | | amb,L0 |
+lm_mask | _LM=0.3:0.3:0.3:1 | _LMMASK=1:1:1:1,0.3:0.3:0.3:1,0:0:0:1 | | L0,L60 |
+lm_sub | _LM=0.5:0.5:0.5:1;_LMSUB=1 | | | amb,L0 |
+nolm | | _Color=1:1:1:1,0.8:0.6:0.4:1 | | amb,L0,L150 |

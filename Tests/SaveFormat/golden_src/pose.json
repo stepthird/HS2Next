@@ -1,0 +1,107 @@
+{
+  "name": "立ちポーズ 1",
+  "sex": 1,
+  "parts": [
+    "anime",
+    "hands",
+    "fk",
+    "ik",
+    "correction",
+    "face",
+    "look",
+    "futurePart"
+  ],
+  "anime": {
+    "ref": {
+      "source": "illusion.hs2",
+      "group": 1,
+      "category": 2,
+      "no": 3
+    },
+    "speed": 1.0,
+    "pattern": 0.5,
+    "time": 0.25,
+    "forceLoop": false,
+    "optionVisible": true,
+    "params": [0.0, 0.75]
+  },
+  "hands": [0, 3],
+  "fk": {
+    "enabled": true,
+    "groups": {
+      "hair": false,
+      "neck": true,
+      "breast": false,
+      "body": true,
+      "rightHand": true,
+      "leftHand": false,
+      "skirt": false
+    },
+    "bones": {
+      "cf_J_Hips": [0.0, 15.0, 0.0],
+      "cf_J_Spine01": [5.0, 0.0, -2.5]
+    },
+    "hipsOffset": 0.0,
+    "hipsPosition": [0.0, 11.25, 0.5],
+    "futureFkMember": true
+  },
+  "ik": {
+    "enabled": false,
+    "groups": {
+      "body": true,
+      "rightLeg": true,
+      "leftLeg": true,
+      "rightArm": false,
+      "leftArm": true
+    },
+    "targets": {
+      "Body": {
+        "pos": [0.0, 11.25, 0.5],
+        "rot": [0.0, 0.0, 0.0]
+      },
+      "LeftHand": {
+        "pos": [3.0, 9.0, 0.5],
+        "rot": [0.0, 90.0, 0.0]
+      },
+      "RightFoot": {
+        "pos": [-1.0, 0.75, 0.0],
+        "rot": [10.0, 0.0, 0.0]
+      }
+    }
+  },
+  "correction": [true, false, false, false, false, false, false, true],
+  "face": {
+    "eyebrow": 1,
+    "eyes": 2,
+    "eyesOpen": 0.75,
+    "blink": false,
+    "mouth": 4,
+    "mouthOpen": 0.25,
+    "lipSync": true,
+    "tears": 0.0,
+    "cheek": 0.5,
+    "eyebrowOpenMax": 1.0,
+    "mouthOpenMin": 0.0,
+    "mouthOpenMax": 1.0,
+    "mouthFixed": false,
+    "mouthAdjustWidth": true,
+    "hideHighlight": false
+  },
+  "look": {
+    "eyes": 4,
+    "neck": 4,
+    "target": [0.0, 0.0, 0.25],
+    "neckFix": {
+      "cf_J_Head": [0.0, 0.1, 0.0, 0.9949874],
+      "cf_J_Neck": [0.0, 0.0, 0.0, 1.0]
+    },
+    "eyeRotations": {
+      "left": [0.0, 0.05, 0.0, 0.99875],
+      "right": [0.0, -0.05, 0.0, 0.99875]
+    }
+  },
+  "futurePart": {
+    "a": 1
+  },
+  "futurePoseMember": "kept"
+}

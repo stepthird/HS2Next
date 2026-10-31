@@ -1,0 +1,16 @@
+# The input of Tools/mod_sweep_player.py (row ModSweep.player): the Studio item rows that once ended an Editor process of the
+# item corpus or the mod sweep, kept as a fixed list so the player pass keeps proving that they add without a death.
+# Format: <guid>#<no>|<group>|<category>|<bundle>|<asset> (the item corpus crash list's; fields after the category are
+# information only). Lines starting with '#' are comments.
+#
+# Truncated meshes in the bundle (Unity 6 dies reading them; the texture check completes them since its rules 5):
+com.aizen53.effects_pack1#26|1230|2|studio/Aizen53/effects_pack1_1.unity3d|Living Particles 2
+com.aizen53.effects_pack1#29|1230|2|studio/Aizen53/effects_pack1_1.unity3d|Living Particles 5
+com.aizen53.effects_pack1#30|1230|2|studio/Aizen53/effects_pack1_1.unity3d|Living Particles 6
+com.aizen53.effects_pack1#31|1230|2|studio/Aizen53/effects_pack1_1.unity3d|Living Particles 7
+# Rows that load alone; the corpus died on them after another bundle's release had corrupted the native heap (a release with
+# Unload(true) of bundles whose clips name an external resource file the bundle cannot reach):
+makotoyuki90.water.pack.3#5|6001|8210|makotoyuki90_water_pack_3_bundles/makotoyuki90_water_pack_3/data_prefab_000.unity3d|[mk90]water_4
+makotoyuki90.fantasy_map_pack_1#2|6001|8002|makotoyuki90_fantasy_map_pack_1_bundles/makotoyuki90_fantasy_map_pack_1/data_prefab_000.unity3d|meshes0 Variant
+Medieval Peasants#7|9300|332|medieval_peasants_bundles/medieval_peasants/data_prefab_000.unity3d|Peasant Male
+Military Weapons#12|9300|169|military_weapons_bundles/military_weapons/data_prefab_000.unity3d|TAK-56 rifle Camo

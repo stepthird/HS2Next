@@ -1,0 +1,16 @@
+# Known differences of Editor/ShapeMapTest.cs (shape-slider maps vs the game measurements of Phase 1.7).
+# A bone of a set that is over the test's thresholds (position 1e-4, angle 0.05 deg, scale 1e-4) is allowed when an entry
+# below matches it and its maximum error stays within the entry's tolerances; the run then reports PASS with
+# "N known differences allowed". Anything over a threshold without an entry, or an allowed bone over its tolerance, FAILs.
+# Columns (tab-separated):
+#   set         a set name (female_body, female_face, male_body, male_face) or a pattern with '*' (*_body, male_*, *)
+#   bone        transform name
+#   correction  on | off | any: the entry applies when the joint correction runs once after each sample (the default of
+#               the body sets), with -nocorrect (and for the face sets, which never run it), or always
+#   position    tolerance of the max local position component error; '-' = the test threshold
+#   angle       tolerance of the max rotation error in degrees; '-' = the test threshold
+#   scale       tolerance of the max local scale component error; '-' = the test threshold
+#   reason      why the game value differs and where it is followed up
+male_body	cf_J_Kosi02_s	any	-	0.3	-	the game holds a constant -0.28 deg about x in every male sample (not slider-driven: prefab 0, no clip binds it, the shape map has no rotation row for it); source not identified, also a known deviation of Editor/CompareTest.cs; not FK or IK: on a fresh HERO107 with the plugin controllers off Studio shows the same -0.28 deg with FK off / on and IK off / on (Phase 3.4 measurement H8)
+*_body	cf_J_Hand_dam_L	off	-	2.0	-	1.98 deg without the joint correction: the bone is written by the correction's LookAt rows (HS2US switches all 8 categories on in the measured Studio), not by the sliders; with the correction on (default) it matches; not IK: on a fresh BR-Chan with the correction off, Studio's IK on after "animation -> IK" leaves it bit-equal to IK off (Phase 3.4 measurement H7)
+*_body	cf_J_Hand_dam_R	off	-	2.0	-	1.95 deg without the joint correction; as cf_J_Hand_dam_L

@@ -1,0 +1,6 @@
+# AIT/main namida grab-pass refraction (not reproduced by the replacement): label | set | sweep | sweep2 | lights | tilt
+refr             | _NamidaScale=1;_MainTex=0:1:0:1;_BGTEX=ramp:u:x/x/x/1 | _RefractionScale=0,0.5,0.98,1,1.5 | _NormalMapScale=0,3 | amb
+refr tilt        | _NamidaScale=1;_MainTex=0:1:0:1;_BGTEX=ramp:u:x/x/x/1 | _RefractionScale=0,0.98,1.5 | _NormalMapScale=0,3 | amb | 30
+refr G ramp      | _NamidaScale=1;_MainTex=ramp:u:0/x/0/1;_BGTEX=0.5:0.5:0.5:1 | _RefractionScale=0.98,1.5 | _NormalMapScale=0,3,10 | amb
+refr G ramp bg   | _NamidaScale=1;_MainTex=ramp:u:0/x/0/1;_BGTEX=ramp:u:x/x/x/1 | _RefractionScale=0.98,1.5 | _NormalMapScale=0,3,10 | amb
+chroma           | _NamidaScale=1;_MainTex=0:1:0:1;_BGTEX=ramp:u:x/x/x/1 | _ChromaticAberration=0,0.1,0.3 | | amb | 30

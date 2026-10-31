@@ -1,0 +1,14 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.imeprobe",
+  "name": "IME caret probe",
+  "version": "0.1.0",
+  "apiVersion": "1.0",
+  "assemblies": ["Stp3.Test.ImeProbe.dll"],
+  "entryType": "Stp3.Test.ImeProbe.ImeProbePlugin",
+  "commandPrefixes": ["imeprobe."],
+  "minAppVersion": "1.0.0",
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the IME caret check: the focused text field's value, cursor and selection per frame and per key / IME event, and the process's text service."
+}

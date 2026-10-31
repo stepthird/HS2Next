@@ -1,0 +1,11 @@
+# Standard aliases (Phase 3.7 F3): std_generic.txt on the mod copies against the Standard replacements.
+# fit: shader="RC/StandardCustomSmoothness" repl="HS2Next/Standard" item="hooh/props/strata_props_000.unity3d:Bench_01" rms=0.0005
+# fit: shader="RC/StandardCustomSmoothness" repl="HS2Next/Standard" item="hooh/props/strata_props_007.unity3d:Supercomputer_01" rms=0.0005
+# fit: shader="RC/StandardTwoSided" repl="HS2Next/Standard(Two Sided)" item="hooh/props/strata_props_003.unity3d:Earth" rms=0.001
+# fit: shader="GarFey/Standard(Two Side)" repl="HS2Next/Standard(Two Sided)" item="Garnet/Garnet_Corneo_Bedroom/data_prefab_000.unity3d:Corneo_Bedroom" rms=0.001
+f | | _Glossiness=0.2,0.7 | _Color=1:1:1:1,0.5:0.3:0.2:1 | amb,L0,L60,L150,L180
+b | | _Glossiness=0.2,0.7 | _Color=1:1:1:1,0.5:0.3:0.2:1 | amb,L0,L60,L150,L180 | 180
+b120 | _Glossiness=0.5 | | | amb,L0,L60,L120,L180,L-120 | 120
+m | | _Metallic=0,0.5,1 | | amb,L0,L30 
+src | _MainTex=src;_BumpMap=src;_MetallicGlossMap=src;_SpecGlossMap=src;_OcclusionMap=src;_EmissionMap=src | | | amb,L0,L30,L150,L180
+srcb | _MainTex=src;_BumpMap=src;_MetallicGlossMap=src;_SpecGlossMap=src;_OcclusionMap=src;_EmissionMap=src | | | amb,L0,L150,L180 | 180

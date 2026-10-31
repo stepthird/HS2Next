@@ -1,0 +1,11 @@
+# AIT/Additive (Amplify, One / OneMinusSrcAlpha, unlit): black and grey backgrounds separate colour and coverage.
+ca0 | _BG=0:0:0;_Emissive=1;_MainTex=1:1:1:1;_TimeMask=1:1:1:1 | _Color=1:1:1:1,1:1:1:0.5,1:1:1:0.25,0.5:0.2:0.1:1 | _Glossiness=0,0.1,0.5,1 | amb
+ca1 | _BG=0.5:0.5:0.5;_Emissive=1;_MainTex=1:1:1:1;_TimeMask=1:1:1:1 | _Color=1:1:1:1,1:1:1:0.5,1:1:1:0.25,0.5:0.2:0.1:1 | _Glossiness=0,0.1,0.5,1 | amb
+em0 | _BG=0:0:0;_Color=1:1:1:0.5;_MainTex=1:1:1:1;_TimeMask=1:1:1:1 | _Emissive=0,0.5,1,2 | _Glossiness=0,0.1,0.5 | amb
+em1 | _BG=0.5:0.5:0.5;_Color=1:1:1:0.5;_MainTex=1:1:1:1;_TimeMask=1:1:1:1 | _Emissive=0,0.5,1,2 | _Glossiness=0,0.1,0.5 | amb
+mt0 | _BG=0:0:0;_Color=1:1:1:1;_Emissive=1;_Glossiness=0.1;_TimeMask=1:1:1:1 | _MainTex=1:1:1:0.5,0.2:0.4:0.8:0.5,1:1:1:0.25 | _BG=0:0:0,0.5:0.5:0.5 | amb
+tm0 | _Color=1:1:1:1;_Emissive=1;_Glossiness=0.1;_MainTex=1:1:1:1 | _TimeMask=ramp:u:x/x/x/x,ramp:v:x/x/x/x,0:0:0:0 | _BG=0:0:0,0.5:0.5:0.5 | amb
+tmp | _Color=1:1:1:1;_Emissive=1;_Glossiness=0.1;_MainTex=ramp:u:x/x/x/x;_UVPannerSpeedx=0;_UVPannerSpeedy=0 | _UVPannerTime=0,0.25,0.5 | _BG=0:0:0,0.5:0.5:0.5 | amb
+mta | _BG=0.5:0.5:0.5;_Color=1:1:1:1;_Emissive=1;_Glossiness=0.1;_TimeMask=1:1:1:1 | _MainTex=1:1:1:0,1:1:1:0.001,1:1:1:0.01,1:1:1:0.05,1:1:1:0.1,0:0:0:0.2 | | amb
+mtr | _BG=0.5:0.5:0.5;_Color=1:1:1:1;_Emissive=1;_Glossiness=0.1;_TimeMask=1:1:1:1 | _MainTex=ramp:u:1/1/1/x,ramp:u:x/x/x/1 | | amb
+g1 | _BG=0:0:0;_Color=1:1:1:1;_Emissive=0;_TimeMask=1:1:1:1;_MainTex=1:1:1:1 | _Glossiness=0.9,0.99,1,2 | _VCOL=1:1:1:1,0.5:0.2:0.1:0.5 | amb

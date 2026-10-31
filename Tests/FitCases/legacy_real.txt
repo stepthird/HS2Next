@@ -1,0 +1,5 @@
+# Legacy shaders on a real material's textures (-fitMaterial / first material; src = the material's texture).
+src | _MainTex=src;_BumpMap=src;_Illum=src | | | amb,L0,L30,L150
+srcm | _MainTex=src | | | amb,L0,L30
+srcn | _BumpMap=src | | | amb,L0,L30,L60
+asis | | | | amb,L0,L30

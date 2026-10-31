@@ -1,0 +1,25 @@
+/* HS2Next dark theme tokens. Panels use the classes of components.uss and these
+   variables; no inline style except run-time geometry. */
+:root {
+    --hs-bg-0: rgb(24, 25, 29);
+    --hs-bg-1: rgb(32, 34, 39);
+    --hs-bg-2: rgb(41, 43, 50);
+    --hs-bg-3: rgb(52, 55, 63);
+    --hs-bg-hover: rgb(62, 66, 76);
+    --hs-border: rgb(58, 61, 70);
+    --hs-text: rgb(222, 224, 229);
+    --hs-text-dim: rgb(150, 154, 163);
+    --hs-text-disabled: rgb(100, 103, 110);
+    --hs-accent: rgb(66, 140, 230);
+    --hs-accent-dim: rgb(44, 86, 140);
+    --hs-warning: rgb(235, 180, 60);
+    --hs-error: rgb(230, 80, 70);
+    --hs-success: rgb(90, 190, 110);
+    --hs-axis-x: rgb(220, 60, 60);
+    --hs-axis-y: rgb(90, 200, 70);
+    --hs-axis-z: rgb(60, 120, 230);
+    --hs-hover: rgb(255, 210, 60);
+    --hs-radius: 3px;
+    --hs-font-size: 13px;
+    --hs-row-height: 22px;
+}

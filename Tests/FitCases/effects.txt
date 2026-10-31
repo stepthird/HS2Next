@@ -1,0 +1,9 @@
+# Effects/* particle shaders (vanilla Studio effects, Aizen effect packs) vs their bundle copies: texture, vertex colour,
+# tint (_TintColor, or _Color for "ParticleAdd C"), _ColorStrength, two backgrounds (blended: colour and coverage).
+e0 | _BG=0:0:0;_TintColor=0.5:0.5:0.5:0.5;_Color=0.5:0.5:0.5:0.5;_ColorStrength=1 | _MainTex=1:1:1:1,0.8:0.4:0.2:0.5,0.3:0.6:0.9:0.1 | _VCOL=1:1:1:1,0.5:1:0.25:0.6 | amb
+e1 | _BG=0.3:0.5:0.7;_TintColor=0.5:0.5:0.5:0.5;_Color=0.5:0.5:0.5:0.5;_ColorStrength=1 | _MainTex=1:1:1:1,0.8:0.4:0.2:0.5,0.3:0.6:0.9:0.1 | _VCOL=1:1:1:1,0.5:1:0.25:0.6 | amb
+es | _MainTex=0.8:0.4:0.2:0.5;_VCOL=0.5:1:0.25:0.6;_TintColor=0.4:0.25:0.1:0.4;_Color=0.4:0.25:0.1:0.4 | _ColorStrength=0,0.5,1,2,4 | _BG=0:0:0,0.3:0.5:0.7 | amb
+et | _BG=0.3:0.5:0.7;_MainTex=0.8:0.4:0.2:0.5;_VCOL=0.5:1:0.25:0.6;_ColorStrength=1.5 | _TintColor=0.5:0.5:0.5:0.5,1:0.5:0.2:0.8,0.2:0.2:0.2:1 | _Color=0.5:0.5:0.5:0.5,1:0.5:0.2:0.8,0.2:0.2:0.2:1 | amb,L0
+esat | _MainTex=1:1:1:1;_VCOL=1:1:1:1;_TintColor=1:1:1:1;_Color=1:1:1:1 | _ColorStrength=0.25,1,2,5 | _BG=0:0:0,0.3:0.5:0.7 | amb
+ea | _MainTex=0.6:0.6:0.6:1;_VCOL=1:1:1:1;_ColorStrength=1 | _TintColor=0.5:0.5:0.5:0.1,0.5:0.5:0.5:0.3,0.5:0.5:0.5:0.7,0.5:0.5:0.5:1 | _BG=0:0:0,0.3:0.5:0.7 | amb
+eback | _BG=0.3:0.5:0.7;_TintColor=0.5:0.5:0.5:0.5;_Color=0.5:0.5:0.5:0.5;_MainTex=0.8:0.4:0.2:0.5;_ColorStrength=1 | | | amb | 180

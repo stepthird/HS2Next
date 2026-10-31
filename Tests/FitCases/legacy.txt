@@ -1,0 +1,11 @@
+# Legacy / Mobile surface shaders (HS2Next/Legacy Shaders/*, HS2Next/Mobile/*) vs Unity's built-ins (-origFind). Properties a shader lacks are ignored by it.
+lop | _Color=1:1:1:1;_MainTex=1:1:1:1;_SpecColor=0.5:0.5:0.5:1;_Shininess=0.078125;_Cutoff=0.5 | _Color=1:1:1:1,0.5:0.3:0.2:1 | _MainTex=1:1:1:1,0.6:0.6:0.6:0.5 | amb,L0,L30,L60,L80
+lspec | _Color=1:1:1:1;_MainTex=1:1:1:1;_SpecColor=0.5:0.5:0.5:1;_Cutoff=0.5 | _Shininess=0.03,0.078125,0.5,1 | _SpecColor=1:1:1:1,0.2:0.5:1:1 | L0,L10,L20,L40
+lgloss | _Color=1:1:1:1;_SpecColor=1:1:1:1;_Shininess=0.2;_Cutoff=0.1 | _MainTex=1:1:1:1,1:1:1:0.25,0.5:0.5:0.5:0.6 | | L0,L15,L30
+ltilt | _Color=1:1:1:1;_MainTex=0.8:0.6:0.4:1;_SpecColor=0.5:0.5:0.5:1;_Shininess=0.1;_Cutoff=0.5 | _Shininess=0.1,0.6 | | amb,L0,L30,L60,L90 | 60
+lbump | _Color=1:1:1:1;_MainTex=1:1:1:1;_SpecColor=0.5:0.5:0.5:1;_Shininess=0.1;_Cutoff=0.5 | _BumpMap=0.7:0.5:1:1,0.5:0.7:1:1,0.5:0.5:1:1 | | L60,L-60,L0p60,L0
+lillum | _Color=1:1:1:1;_MainTex=0.8:0.6:0.4:1;_SpecColor=0.5:0.5:0.5:1;_Shininess=0.1;_Cutoff=0.5 | _Illum=1:1:1:0,1:1:1:0.5,1:1:1:1 | _Color=1:1:1:1,0.5:0.3:0.2:1 | amb,L0
+lrefl | _Color=1:1:1:1;_SpecColor=0.5:0.5:0.5:1;_Shininess=0.1;_Cutoff=0.5 | _ReflectColor=1:1:1:1,0.5:0.2:0.1:0.5,0:0:0:1 | _MainTex=1:1:1:1,1:1:1:0.3 | amb,L0
+lcut | _Color=1:1:1:1;_SpecColor=0.5:0.5:0.5:1;_Shininess=0.1 | _MainTex=1:1:1:0.3,1:1:1:0.6 | _Cutoff=0.5,0.2 | amb,L0
+lfade | _Color=1:1:1:1;_SpecColor=0.5:0.5:0.5:1;_Shininess=0.1;_Cutoff=0.5 | _MainTex=1:1:1:1,1:1:1:0.5,0.6:0.6:0.6:0.1 | _BG=0:0:0,1:1:1 | amb,L0,L20
+lback | _Color=1:1:1:1;_MainTex=1:1:1:1;_SpecColor=0.5:0.5:0.5:1;_Shininess=0.1;_Cutoff=0.5 | | | amb,L0,L180 | 180

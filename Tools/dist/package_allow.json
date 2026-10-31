@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "about": "The leak check's allow-list for the staged distribution package (Tools/package_dist.ps1 passes it with --allow; paths are relative to the staged folder). Generic hits only, never private tokens.",
+  "allow": [
+    {
+      "path": "settings.example.json",
+      "class": "path.drive",
+      "pattern": "^[C]:/Games/HoneySelect2",
+      "reason": "the example value of hs2Root (a neutral placeholder users replace; the repository's Config/settings.example.json)"
+    },
+    {
+      "path": "MonoBleedingEdge/etc/mono/browscap.ini",
+      "class": "email",
+      "pattern": "@",
+      "reason": "the Mono runtime's browser-capability table, shipped by the engine unchanged, names web crawlers' public contact addresses"
+    }
+  ],
+  "policy_data": []
+}

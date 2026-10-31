@@ -1,0 +1,28 @@
+# AIT/Eye Translucency parallax on flat probes (the original's tangent-space offset; the replacement disables it, HS2_EYE_PARK 0)
+main par         | _Color=1:1:1:1;_MainTex=ramp:u:x/x/x/1 | _UV0=0.2:0.5,0.5:0.5 | _Parallax=-1,-0.5,0.2,0.5,1 | amb
+main par v       | _Color=1:1:1:1;_MainTex=ramp:v:x/x/x/1 | _UV0=0.5:0.2,0.5:0.5 | _Parallax=-1,0.2,1 | amb
+iris par         | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_texture2uv=1:1:0:0 | _UV0=0.5:0.5,0.3:0.5 | _Parallax=-1,0,0.2,1 | amb
+iris par v       | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:v:x/0/1/1;_texture2uv=1:1:0:0 | _UV0=0.5:0.5,0.5:0.3 | _Parallax=-1,0,0.2,1 | amb
+pupil par        | _Color=0:0:0:1;_Color3=1:1:1:1;_Texture3=ramp:u:0/0/0/x;_texture3uv=1:1:1:0 | _UV0=0.5:0.5,0.3:0.5 | _Parallax=-1,0,0.2,1 | amb
+hl par           | _Color=0:0:0:1;_Color4=1:1:1:1;_Smoothness=1;_Texture4=ramp:u:x/0/0/1;_Texture4UV=1:1:0:0 | _UV0=0.5:0.5,0.3:0.5 | _Parallax=-1,0,0.2,1 | amb
+main par t       | _Color=1:1:1:1;_MainTex=ramp:u:x/x/x/1;_UV0=0.5:0.5 | _Parallax=-1,0,0.2,1 | | amb | 30
+iris par t       | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5 | _Parallax=-1,0,0.2,0.5,1 | | amb | 30
+iris par t h     | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5;_Parallax=1 | _TextureSample0=1:1:1:1,0:0:0:1,1:0:0:1,0:1:0:1,0:0:1:1,1:1:1:0 | _BumpMap=0.5:0.5:1:1,1:0.5:0.5:0.6 | amb | 30
+iris par t h2    | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5;_Parallax=1 | _MainTex=1:1:1:1,0:0:0:1,1:1:1:0 | | amb | 30
+pupil par t      | _Color=0:0:0:1;_Color3=1:1:1:1;_Texture3=ramp:u:0/0/0/x;_texture3uv=1:1:1:0;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5 | _Parallax=-1,0,0.2,1 | | amb | 30
+hl par t         | _Color=0:0:0:1;_Color4=1:1:1:1;_Smoothness=1;_Texture4=ramp:u:x/0/0/1;_Texture4UV=1:1:0:0;_UV0=0.5:0.5 | _Parallax=-1,0,0.2,1 | | amb | 30
+iris par t v     | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:v:x/0/1/1;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5 | _Parallax=-1,0,1 | | amb | 30
+iris tilts       | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5;_Parallax=1 | | | amb | 15
+iris tilts45     | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5;_Parallax=1 | | | amb | 45
+iris tilts60     | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5;_Parallax=1 | | | amb | 60
+tan u            | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5;_Parallax=1 | _TANGENT=1:0:0:-1,1:0:0:1,-1:0:0:-1,0:1:0:-1,0:1:0:1,0:-1:0:-1 | | amb | 30
+tan v            | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:v:x/0/1/1;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5;_Parallax=1 | _TANGENT=1:0:0:-1,1:0:0:1,-1:0:0:-1,0:1:0:-1,0:1:0:1,0:-1:0:-1 | | amb | 30
+tan light        | _Color=1:1:1:1;_BumpMap=1:0.5:0.5:0.6 | _TANGENT=1:0:0:-1,0:1:0:-1 | | L30,L-30,L0p30,L0p-30
+par dist         | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5;_Parallax=1 | _CAMDIST=2,1,0.5,0.3,5 | | amb | 30
+par light        | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5 | _Parallax=0,1 | | amb,L30,M30,L0 | 30
+par vcol         | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5;_Parallax=1 | _VCOL=1:1:1:1,0:0:0:0,1:0:0:0,0:1:0:0,0:0:1:0,0:0:0:1,0.5:0.5:0.5:0.5 | | amb | 30
+vcol col         | _Color=1:1:1:1 | _VCOL=1:1:1:1,0:0:0:0,1:0:0:1 | | amb,L0
+par t3           | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5;_Parallax=1 | _Texture3=0:0:0:0,1:1:1:0,0.5:0.5:0.5:0,1:0:0:0,0:1:0:0,0:0:1:0 | | amb | 30
+par t4           | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5;_Parallax=1;_Smoothness=0 | _Texture4=0:0:0:0,1:1:1:1,0:0:1:1,0:0:0:1 | | amb | 30
+par t2 chan      | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5;_Parallax=1 | _Texture2=ramp:u:x/0/1/1,ramp:u:x/1/1/1,ramp:u:x/0/1/0,ramp:u:x/0.5/1/0.5 | | amb | 30
+par col3         | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_texture2uv=1:1:0:0;_eyebaseoffset=0:0:0:0;_UV0=0.5:0.5;_Parallax=1;_Texture3=1:1:1:0 | _Color3=1:1:1:1,0:0:0:0,1:1:1:0 | _texture3uv=1:1:1:0,0:0:0:0 | amb | 30

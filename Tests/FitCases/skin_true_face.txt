@@ -1,0 +1,124 @@
+# SkinFit.Sweep cases: label | set | sweep | sweep2 | lights | tilt  (see Assets/HS2Next/Editor/Fit/SkinFit.cs)
+occGB             | | _OcclusionMap=0:0:0:1,0:0.5:0:1,0:1:0:1,0:0:0.5:1,0:0:1:1,0:1:1:1,0:0.5:0.5:1,0:1:0.5:1 | | amb,L0,L60
+occRGB            | | _OcclusionMap=0.5:1:0:1,1:1:0:1,1:1:1:1,0.5:1:1:1,1:0:0:1 | | amb,L0,L60
+occB x bump2      | _OcclusionMap=0:1:1:1 | _BumpScale2=0,0.25,0.5,1 | _OcclusionStrength=0,1 | amb,L0,L60
+occW x occstr     | | _OcclusionStrength=0,0.25,0.5,0.75,1 | _BumpScale2=0,1 | amb,L0,L60
+occG x occstr     | _OcclusionMap=0:0.5:0:1;_BumpScale2=0 | _OcclusionStrength=0,0.5,1 | | amb,L0,L60
+gloss             | _OcclusionMap=0:1:0:1 | _Gloss=0,0.2,0.4,0.6,0.8,1 | | L0,L30,L60,L80
+glossR            | _OcclusionMap=1:1:0:1 | _Gloss=0,0.2,0.4,0.6,0.8,1 | | L0,L30,L60,L80
+occR              | _Gloss=0.6 | _OcclusionMap=0:1:0:1,0.25:1:0:1,0.5:1:0:1,0.75:1:0:1,1:1:0:1 | | L0,L30,L60
+metal             | _OcclusionMap=0:1:0:1 | _Metallic=0,0.25,0.5,0.75,1 | | amb,L0,L30,L60
+metalR            | _OcclusionMap=1:1:0:1 | _Metallic=0,0.5,1 | | amb,L0,L30,L60
+dmainR            | _OcclusionMap=1:1:0:1;_Metallic=0 | _DetailMainTex=0:0:0:0,0.25:0:0:0,0.5:0:0:0,1:0:0:0 | _Metallic=0,0.5 | amb,L0,L30,L60
+dmainB            | _OcclusionMap=1:1:0:1;_Gloss=0.3 | _DetailMainTex=0:0:0:0,0:0:0.25:0,0:0:0.5:0,0:0:1:0 | | amb,L0,L30,L60
+dmainG            | _OcclusionMap=1:1:0:1;_Gloss=0.3 | _DetailMainTex=0:0:0:0,0:0.5:0:0,0:1:0:0,0:0:0:1 | | amb,L0,L30,L60
+exgloss           | _OcclusionMap=1:1:0:1;_Gloss=0.3 | _ExGloss=0,0.25,0.5,0.75,1 | | amb,L0,L30,L60
+nailR             | _OcclusionMap=1:1:0:1 | _NailMask=0:0:0:0,0.5:0:0:0,1:0:0:0 | _Color13=1:1:1:1,0.915:0.704:0.704:1,1:0:0:1 | amb,L0,L60
+nailG             | _OcclusionMap=1:1:0:1 | _NailMask=0:0:0:0,0:0.5:0:0,0:1:0:0 | _NailGloss=0,1 | amb,L0,L30,L60
+nailB             | _OcclusionMap=1:1:0:1 | _NailMask=0:0:0:0,0:0:0.5:0,0:0:1:0 | _Texture4Scale=0,1 | amb,L0,L60
+nailB2            | _OcclusionMap=1:1:0:1;_NailMask=0:0:1:0 | _Color4=1:0:0:1,1:0:0:0.5,0:0:0:1 | _Texture4Scale=0,0.5,1 | amb,L0
+nailR4            | _OcclusionMap=1:1:0:1;_NailMask=1:0:0:0 | _Texture4Scale=0,1 | _Color4=1:0:0:1,0:1:0:1 | amb,L0
+trans             | _OcclusionMap=0:1:0:1 | _NailMask=0:0:0:0,0:0:0:0.5,0:0:0:1 | | L60,L80,L120,L150,L180,M150
+transS            | _OcclusionMap=0:1:0:1;_NailMask=0:0:0:1 | _Translucency=0,10,30,50 | | L120,L150,L180,M150
+transD            | _OcclusionMap=0:1:0:1;_NailMask=0:0:0:1 | _TransDirect=0,0.3,1 | _TransAmbient=0,0.13,1 | amb,L120,L150,L180,M150
+transSc           | _OcclusionMap=0:1:0:1;_NailMask=0:0:0:1 | _TransScattering=1,3.3,10 | _TransNormalDistortion=0,0.66,1 | L120,L150,L180
+transCol          | _OcclusionMap=0:1:0:1;_NailMask=0:0:0:1 | _MainTex=1:0:0:1,0.5:0.5:0.5:1 | _Color=1:1:1:1,0:1:0:1 | L150,amb
+rim               | _OcclusionMap=0:1:0:1 | _BumpMap=0.5:0.5:1:1,0.15:0.5:1:1,0.05:0.5:1:1,0:0.5:1:1 | _FresnelSetting=0:1.6:0.2:0.2,0:0:0:0,1:1:1:1,0:2:50:1 | amb,L0,L60
+rimDG             | _OcclusionMap=0:1:0:1;_BumpMap=0.05:0.5:1:1 | _DetailGlossMap=1:1:1:1,1:1:0:1,0:1:1:1,1:0:1:1,1:1:1:0 | | amb,L0,L60
+dgloss            | _OcclusionMap=1:1:1:1;_BumpScale2=1 | _DetailGlossMap=1:1:1:1,0:1:1:1,1:0:1:1,1:1:0:1,1:1:1:0,0:0:0:0 | | amb,L0,L60
+dgloss2           | _OcclusionMap=1:1:0:1;_BumpScale2=1 | _DetailGlossMap=1:1:1:1,0:1:1:1,1:0:1:1,1:1:0:1,1:1:1:0,0:0:0:0 | | amb,L0,L60
+dgscale           | _OcclusionMap=1:1:1:1;_DetailGlossMap=0:0:0:0 | _BumpScale2=0,0.5,1 | _DetailMainScale=0,1 | amb,L0,L60
+brow              | _OcclusionMap=0:1:0:1 | _Texture3=1:1:1:1,1:1:1:0.5,1:0:0:1 | _Texture3UV=0:0:1:1,0.06:0.144:0.8:1.325 | amb,L0
+hige              | _OcclusionMap=0:1:0:1 | _Texture5=0:0:0:0,0.5:0:0:0,1:0:0:0,0:0:0:1 | _Color5=1:0:0:1,0.699:0.612:0.562:1,0:0:0:1 | amb,L0
+riality           | _OcclusionMap=1:1:1:1;_NailMask=1:1:1:1 | _Riality=0,0.5,1 | | amb,L0,L60,L150
+bump2 scale        | _OcclusionMap=1:1:1:1;_BumpMap2=0.15:0.5:1:1 | _BumpScale2=0,0.5,1 | _NailMask=0:0:0:0,0:1:0:0 | amb,L0,L60
+bump2 B            | _OcclusionMap=1:1:0:1;_BumpMap2=0.15:0.5:1:1 | _BumpScale2=0,0.5,1 | | amb,L0,L60
+bump2 Bhalf        | _OcclusionMap=1:1:0.5:1;_BumpMap2=0.15:0.5:1:1 | _BumpScale2=0,1 | | amb,L0,L60
+bump1 scale        | _OcclusionMap=1:1:0:1;_BumpMap=0.15:0.5:1:1 | _BumpScale=0,0.5,1 | _DetailNormalMapScale=0,1 | L0,L60
+bump combine       | _OcclusionMap=1:1:1:1;_BumpScale2=1;_BumpMap=0.15:0.5:1:1 | _BumpMap2=0.5:0.5:1:1,0.5:0.15:1:1,0.15:0.5:1:1,0.85:0.5:1:1 | | L0,L30,L60,L80,L120
+bump combine2      | _OcclusionMap=1:1:1:1;_BumpScale2=0.5;_BumpMap=0.3:0.5:1:1 | _BumpMap2=0.5:0.5:1:1,0.5:0.3:1:1,0.3:0.5:1:1,0.7:0.5:1:1 | | L0,L30,L60,L80,L120
+nailG darken       | _OcclusionMap=0:1:1:1;_BumpScale2=1 | _NailMask=0:0:0:0,0:0.5:0:0,0:1:0:0 | _OcclusionStrength=0,1 | amb,L0,L60
+smooth R          | _OcclusionMap=0.5:1:0:1;_Gloss=0.6 | _DetailMainTex=0:0:0:0,0:0:0.5:0,0:0:0.8:0 | _ExGloss=0,0.5,0.8 | L0,L30
+smooth R0         | _OcclusionMap=0:1:0:1;_Gloss=0.6 | _DetailMainTex=0:0:0:0,0:0:0.5:0,0:0:0.8:0 | _ExGloss=0,0.5,0.8 | L0,L30
+smooth beard       | _OcclusionMap=1:1:0:1;_Color5=0:0:0:1 | _Texture5=0:0:0:0,0.5:0:0:0,1:0:0:0 | _Gloss=0,0.3,0.6,0.8 | L0,L30
+smooth beard R0    | _OcclusionMap=0:1:0:1;_Color5=0:0:0:1 | _Texture5=0:0:0:0,0.5:0:0:0,1:0:0:0 | _ExGloss=0,0.3,0.8 | L0,L30
+nail col gray      | _OcclusionMap=0:1:0:1;_MainTex=0.5:0.5:0.5:1 | _NailMask=0:0:0:0,0.5:0:0:0,1:0:0:0 | _Color13=1:0:0:1,0:1:0:1,1:1:1:1 | amb,L0
+blush gray         | _OcclusionMap=0:1:0:1;_MainTex=0.5:0.5:0.5:1;_Texture4Scale=1 | _NailMask=0:0:1:0 | _Color4=1:0:0:1,0:1:0:1,1:1:1:1,0.5:0.5:0.5:1 | amb,L0
+beard gray         | _OcclusionMap=0:1:0:1;_MainTex=0.5:0.5:0.5:1 | _Texture5=0.5:0:0:0,1:0:0:0 | _Color5=1:0:0:1,1:1:1:1,0.5:0.5:0.5:1 | amb,L0
+brow mask          | _OcclusionMap=0:1:0:1;_Texture3UV=0:0:1:1;_Color3=1:0:0:1 | _Texture3=1:1:1:1,1:1:1:0.5 | _NailMask=0:0:0:0,1:0:0:0,0:1:0:0,0:0:1:0,0:0:0:1 | amb,L0
+brow color         | _OcclusionMap=0:1:0:1;_Texture3UV=0:0:1:1 | _Texture3=1:1:1:1,1:0:0:1,0:1:0:1,0:0:0:1 | _Color3=1:0:0:1,1:1:1:1 | amb,L0
+brow uv2           | _OcclusionMap=0:1:0:1;_Color3=1:0:0:1 | _Texture3=1:1:1:1 | _Texture3UV=0:0:1:1,0:0:0:0,0.5:0.5:1:1,0:0:2:2,0:0:-1:-1 | amb
+rim tilt           | _OcclusionMap=0:1:0:1 | _FresnelSetting=0:1.6:0.2:0.2,0:0:0:0,1:1:1:1,0:2:50:1,0:1:1:0 | | amb,L0,L60,L120 | 60
+rim tilt2          | _OcclusionMap=1:1:1:1;_NailMask=1:1:1:1 | _FresnelSetting=0:1.6:0.2:0.2,0:0:0:0,1:1:1:1 | _DetailGlossMap=1:1:1:1,0:0:0:0 | amb,L0,L60 | 60
+gloss tilt         | _OcclusionMap=1:1:0:1 | _Gloss=0,0.3,0.6,0.9 | | amb,L0,L30,L60,L120 | 45
+trans occ          | _NailMask=0:0:0:1;_TransAmbient=1;_TransDirect=0 | _OcclusionMap=0:1:0:1,0:0.5:0:1,0:1:1:1 | _OcclusionStrength=0,1 | M150
+trans metal        | _NailMask=0:0:0:1;_OcclusionMap=0:1:0:1 | _Metallic=0,1 | _TransAmbient=0,1 | L150,L180,M150
+trans tilt         | _NailMask=0:0:0:1;_OcclusionMap=0:1:0:1 | _TransNormalDistortion=0,0.66 | | L0,L60,L120,L150,L180 | 40
+trans nailR        | _OcclusionMap=0:1:0:1;_Color13=1:0:0:1 | _NailMask=0:0:0:1,1:0:0:1 | | L180
+dmain all          | _OcclusionMap=1:1:0:1 | _DetailMainTex=0:1:0:0,0:0:0:1,0:1:0:1 | _DetailMainScale=0,1 | amb,L0,L60
+B fine            | _OcclusionMap=0:1:0:1;_BumpScale2=1 | _OcclusionMap=0:1:0:1,0:1:0.25:1,0:1:0.5:1,0:1:0.75:1,0:1:1:1 | _OcclusionStrength=0,1 | amb,L0,L60
+B gray            | _BumpScale2=1;_MainTex=0.5:0.5:0.5:1 | _OcclusionMap=0:1:0:1,0:1:1:1 | _OcclusionStrength=0,1 | amb,L0,L60
+B col             | _BumpScale2=1;_MainTex=1:0.5:0:1 | _OcclusionMap=0:1:0:1,0:1:1:1 | _OcclusionStrength=0,1 | amb,L0,L60,M30
+B mixed           | _BumpScale2=1 | _OcclusionMap=0:1:0:1,0:1:1:1 | _OcclusionStrength=0,1 | M30,M150
+nail x dg         | _OcclusionMap=1:1:1:1;_BumpScale2=1 | _NailMask=0:0:0:0,1:0:0:0,0:1:0:0,0:0:1:0,0:0:0:1,0:1:0:1 | _DetailGlossMap=1:1:1:1,0:0:0:0 | amb,L0,L60
+nail x dg B0      | _OcclusionMap=1:1:0:1;_BumpScale2=1 | _NailMask=0:0:0:0,0:1:0:0,0:0:0:1,0:1:0:1 | _DetailGlossMap=1:1:1:1,0:0:0:0 | amb,L0,L60
+dg chan           | _OcclusionMap=1:1:0:1;_NailMask=0:1:0:0 | _DetailGlossMap=1:1:1:1,0:1:1:1,1:0:1:1,1:1:0:1,1:1:1:0,0.5:0.5:0.5:0.5 | | amb,L0,L30,L60
+dg chan A         | _OcclusionMap=1:1:0:1;_NailMask=0:0:0:1 | _DetailGlossMap=1:1:1:1,0:1:1:1,1:0:1:1,1:1:0:1,1:1:1:0 | | amb,L0,L30,L60
+dg chan tilt      | _OcclusionMap=1:1:0:1;_NailMask=0:1:0:0 | _DetailGlossMap=1:1:1:1,1:1:0:1,1:1:0.5:1 | _FresnelSetting=0:1.6:0.2:0.2,0:1:1:1,1:1:1:1 | amb,L0,L60 | 60
+nailgloss         | _OcclusionMap=0:1:0:1 | _NailMask=0:0:0:0,0:1:0:0,0:0:0:1 | _NailGloss=0,0.5,1 | L0,L30
+color5 alpha      | _OcclusionMap=0:1:0:1;_Texture5=1:0:0:0 | _Color5=0:0:0:1,0:0:0:0.5,0:0:0:0 | _Riality=0,1 | amb,L0
+tune gray         | _BumpScale2=1;_OcclusionStrength=0;_OcclusionMap=0:1:1:1 | _MainTex=0.05:0.05:0.05:1,0.1:0.1:0.1:1,0.25:0.25:0.25:1,0.5:0.5:0.5:1,0.75:0.75:0.75:1,1:1:1:1 | | amb
+tune col          | _BumpScale2=1;_OcclusionStrength=0;_OcclusionMap=0:1:1:1 | _MainTex=1:0:0:1,0:1:0:1,0:0:1:1,1:0.5:0:1,0.5:0.25:0:1,1:1:0:1,0.8:0.6:0.5:1,0.4:0.3:0.25:1 | | amb
+tune col B0       | _BumpScale2=1;_OcclusionStrength=0;_OcclusionMap=0:1:0:1 | _MainTex=1:0.5:0:1,0.8:0.6:0.5:1 | | amb
+tune Bb           | _OcclusionStrength=0;_OcclusionMap=0:1:1:1;_MainTex=1:0.5:0:1 | _BumpScale2=0,0.25,0.5,0.75,1 | | amb
+tune Color        | _BumpScale2=1;_OcclusionStrength=0;_OcclusionMap=0:1:1:1;_MainTex=1:1:1:1 | _Color=1:0.5:0:1,0.5:0.5:0.5:1 | | amb
+tune nail         | _BumpScale2=1;_OcclusionStrength=0;_OcclusionMap=0:1:1:1;_MainTex=1:1:1:1;_NailMask=1:0:0:0 | _Color13=1:0.5:0:1,1:1:1:1 | | amb
+tune beard        | _BumpScale2=1;_OcclusionStrength=0;_OcclusionMap=0:1:1:1;_MainTex=1:1:1:1;_Texture5=1:0:0:0 | _Color5=1:0.5:0:1,1:1:1:1 | | amb
+tune blush        | _BumpScale2=1;_OcclusionStrength=0;_OcclusionMap=0:1:1:1;_MainTex=1:1:1:1;_NailMask=0:0:1:0;_Texture4Scale=1 | _Color4=1:0.5:0:1,1:1:1:1 | | amb
+trans Bb          | _NailMask=0:0:0:1;_OcclusionMap=0:1:1:1;_TransAmbient=0 | _BumpScale2=0,0.5,1 | _MainTex=1:1:1:1,0.5:0.5:0.5:1,1:0.5:0:1 | L150,L180
+trans Bb amb      | _NailMask=0:0:0:1;_OcclusionMap=0:1:1:1;_TransAmbient=1;_TransDirect=0;_OcclusionStrength=0 | _BumpScale2=0,0.5,1 | _MainTex=1:1:1:1,0.5:0.5:0.5:1,1:0.5:0:1 | M150
+trans mask        | _OcclusionMap=0:1:0:1;_TransAmbient=0 | _NailMask=0:0:0:0.25,0:0:0:0.5,0:0:0:1 | _MainTex=1:1:1:1,0.5:0.5:0.5:1 | L180
+brow vcol         | _OcclusionMap=0:1:0:1;_Texture3UV=0:0:1:1;_Color3=1:0:0:1;_Texture3=1:1:1:1 | _VCOL=1:1:1:1,0:0:0:0,1:0:0:0,0:1:0:0,0:0:1:0,0:0:0:1 | | amb
+brow uv           | _OcclusionMap=0:1:0:1;_Texture3UV=0:0:1:1;_Color3=1:0:0:1;_Texture3=1:1:1:1 | _UV2=0.5:0.5,-0.5:-0.5,2:2,0:0 | _UV1=0.5:0.5,3:3 | amb
+brow uv3          | _OcclusionMap=0:1:0:1;_Texture3UV=0:0:1:1;_Color3=1:0:0:1;_Texture3=1:1:1:1 | _UV3=0.5:0.5,-0.5:-0.5,2:2 | | amb
+transX gray       | _NailMask=0:0:0:1;_OcclusionMap=0:1:1:1;_TransAmbient=0 | _MainTex=0.1:0.1:0.1:1,0.25:0.25:0.25:1,0.5:0.5:0.5:1,0.75:0.75:0.75:1,1:1:1:1 | _BumpScale2=0,0.5,1 | L180
+transX col        | _NailMask=0:0:0:1;_OcclusionMap=0:1:1:1;_TransAmbient=0;_BumpScale2=1 | _MainTex=1:0:0:1,1:0.25:0:1,1:0.5:0:1,1:0.75:0:1,0.5:0.25:0:1,0.8:0.6:0.5:1,0.4:0.3:0.25:1,1:0.5:0.5:1 | | L180
+transX occ        | _NailMask=0:0:0:1;_TransAmbient=0;_BumpScale2=1 | _OcclusionMap=0:0:1:1,0:0.5:1:1,0:1:0.5:1,1:1:1:1 | _OcclusionStrength=0,1 | L180
+transX nail       | _OcclusionMap=0:1:1:1;_TransAmbient=0;_BumpScale2=1 | _NailMask=0:0:0:1,0:0:0:0.5,1:0:0:1,0:1:0:1,0:0:1:1 | | L180
+brow blend        | _OcclusionMap=0:1:0:1;_Texture3UV=0:0:1:1;_VCOL=0:0:0:1;_MainTex=0.5:0.5:0.5:1 | _Texture3=1:1:1:1,1:1:1:0.5,1:0:0:1,1:0:0:0.5,0:0:0:0.5,0.5:0.5:0.5:1 | _Color3=1:1:1:1,0:1:0:1,0:1:0:0.5 | amb,L0
+brow vcolb        | _OcclusionMap=0:1:0:1;_Texture3UV=0:0:1:1;_Texture3=1:1:1:1;_Color3=1:0:0:1 | _VCOL=0:0:0.25:1,0:0:0.5:1,0:0:0.75:1 | | amb,L0
+brow tune         | _OcclusionMap=0:1:1:1;_BumpScale2=1;_OcclusionStrength=0;_Texture3UV=0:0:1:1;_VCOL=0:0:0:1;_Texture3=1:1:1:1 | _Color3=1:0.5:0:1,1:1:1:1 | | amb,L0
+brow gloss        | _OcclusionMap=1:1:0:1;_Texture3UV=0:0:1:1;_VCOL=0:0:0:1;_Color3=0:0:0:1 | _Texture3=0:0:0:0,1:1:1:0.5,1:1:1:1 | _Gloss=0,0.6 | L0,L30
+brow uvmap        | _OcclusionMap=0:1:0:1;_Color3=1:0:0:1;_VCOL=0:0:0:1;_Texture3=1:1:1:1 | _Texture3UV=0:0:1:1,0.5:0:1:1,0:0:0.5:0.5,0:0:3:3,2:2:1:1 | _Texture3Rotator=0,0.5 | amb
+brow uvmap2       | _OcclusionMap=0:1:0:1;_Color3=1:0:0:1;_VCOL=0:0:0:1;_Texture3=1:1:1:1;_Texture3UV=0:0:1:1 | _UV2=0.5:0.5,-0.2:0.5,1.2:0.5,0.5:1.2,0.5:-0.2 | _UV1=0.5:0.5,-0.2:0.5,1.2:0.5 | amb
+brow chan         | _OcclusionMap=0:1:0:1;_Texture3UV=0:0:1:1;_VCOL=0:0:0:1;_Color3=1:0:0:1 | _Texture3=0:1:0:0,0:0:1:0,0:0.5:0:0,0:0:0.5:0 | | amb
+brow s            | _OcclusionMap=1:1:0:1;_Texture3UV=0:0:1:1;_VCOL=0:0:0:1;_Color3=0:0:0:1 | _Texture3=1:1:1:1,0.5:0.5:0.5:1 | _Gloss=0,0.3,0.6 | L0,L30,L60
+dg occ str        | _OcclusionMap=0:0.5:0:1;_NailMask=0:1:0:0 | _DetailGlossMap=1:0.5:1:1,1:0:1:1 | _OcclusionStrength=0,0.5,1 | amb
+dg occ nailG      | _OcclusionMap=0:1:0:1 | _DetailGlossMap=1:0:1:1,1:0.5:1:1 | _NailMask=0:0.5:0:0,0:0.25:0:0 | amb
+dg A smooth       | _OcclusionMap=1:1:0:1;_NailMask=0:1:0:0;_Gloss=0.6 | _DetailGlossMap=1:1:1:0.5,1:1:1:0 | _DetailMainTex=0:0:0:0,0:0:0.5:0 | L0,L30
+dg A exg          | _OcclusionMap=1:1:0:1;_NailMask=0:1:0:0;_Gloss=0.2 | _DetailGlossMap=1:1:1:0.5,1:1:1:0 | _ExGloss=0,0.8 | L0,L30
+dg A beard        | _OcclusionMap=1:1:0:1;_NailMask=0:1:0:0;_Gloss=0.2;_Color5=0:0:0:1 | _DetailGlossMap=1:1:1:0.5,1:1:1:0 | _Texture5=0:0:0:0,1:0:0:0 | L0,L30
+dg A nailmask     | _OcclusionMap=1:1:0:1;_Gloss=0.6;_DetailGlossMap=1:1:1:0 | _NailMask=0:0.5:0:0,0:0.25:0:0 | | L0,L30
+dg tile           | _OcclusionMap=0:1:0:1;_NailMask=0:1:0:0 | _DetailGlossMap=1:0:1:1 | | amb
+spec occ          | _OcclusionMap=1:0.5:0:1;_Gloss=0.6 | _OcclusionStrength=0,1 | | L0,L30
+dgR tune          | _OcclusionMap=1:1:1:1;_BumpScale2=1;_OcclusionStrength=0;_MainTex=1:0.5:0:1 | _NailMask=0:0:0:0,0:0.5:0:0,0:1:0:0 | _DetailGlossMap=1:1:1:1,0.5:1:1:1,0:1:1:1 | amb,L0,L60,M30
+dgR notune        | _OcclusionMap=1:1:0:1;_BumpScale2=1;_OcclusionStrength=0;_MainTex=1:0.5:0:1 | _NailMask=0:1:0:0 | _DetailGlossMap=1:1:1:1,0:1:1:1 | amb,L0,L60
+dgR trans         | _OcclusionMap=0:1:1:1;_BumpScale2=1;_MainTex=1:0.5:0:1;_TransAmbient=0 | _NailMask=0:0:0:1,0:1:0:1 | _DetailGlossMap=1:1:1:1,0:1:1:1 | L180
+nailG nl          | _OcclusionMap=1:1:0:1;_MainTex=0.5:0.5:0.5:1 | _NailMask=0:0:0:0,0:1:0:0 | _Riality=1,0.5,0 | L0,L30,L60,L80,amb,M30
+nailG dms         | _OcclusionMap=1:1:0:1;_MainTex=0.5:0.5:0.5:1;_NailMask=0:1:0:0 | _DetailMainScale=0,0.5 | _DetailNormalMapScale=0,0.5 | L0,L60
+nailG gloss       | _OcclusionMap=1:1:0:1;_MainTex=0.5:0.5:0.5:1;_NailMask=0:1:0:0 | _Gloss=0,0.6 | _Metallic=0,0.5 | L0,L60
+nailG lightcol    | _OcclusionMap=1:1:0:1;_MainTex=0:0:0:1 | _NailMask=0:0:0:0,0:1:0:0 | | L0,L30,L60
+brow spec         | _OcclusionMap=1:1:0:1;_Texture3UV=0:0:1:1;_VCOL=0:0:0:1;_Color3=1:1:1:1 | _Texture3=0:0:0:0,0:0:0.25:0,0:0:0.5:0,0:0:0.75:0,0:0:1:0 | _Gloss=0,0.3,0.6 | L0,L30,L60
+brow spec R0      | _OcclusionMap=0:1:0:1;_Texture3UV=0:0:1:1;_VCOL=0:0:0:1;_Color3=1:1:1:1 | _Texture3=0:0:0:0,0:0:0.5:0,0:0:1:0 | _DetailMainTex=0:0:0:0,0:0:0.6:0 | L0,L30
+brow metal        | _OcclusionMap=1:1:0:1;_Texture3UV=0:0:1:1;_VCOL=0:0:0:1;_Color3=1:1:1:1;_Gloss=0.6 | _Texture3=0:0:0:0,0:0:1:0 | _Metallic=0,1 | amb,L0,L30
+brow fine         | _OcclusionMap=1:1:0:1;_Texture3UV=0:0:1:1;_VCOL=0:0:0:1;_Color3=1:1:1:1 | _Texture3=0:0:0.125:0,0:0:0.25:0,0:0:0.375:0,0:0:0.5:0,0:0:0.625:0,0:0:0.75:0,0:0:0.875:0,0:0:1:0 | _Gloss=0,0.3,0.6,0.9 | amb,L0,L30
+brow uvx          | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:1;_Color3=0:0:0:1;_Texture3=rampu;_Texture3Rotator=0 | _UV2=0.2:0.5,0.5:0.5,0.8:0.5 | _Texture3UV=0:0:1:1,0.1:0:1:1,0:0.1:1:1,0:0:2:1,0:0:0.5:1,0.06:0.144:0.8:1.325 | amb
+brow uvy          | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:1;_Color3=0:0:0:1;_Texture3=rampv;_Texture3Rotator=0 | _UV2=0.5:0.2,0.5:0.5,0.5:0.8 | _Texture3UV=0:0:1:1,0.1:0:1:1,0:0.1:1:1,0:0:1:2,0:0:1:0.5,0.06:0.144:0.8:1.325 | amb
+brow rot          | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:1;_Color3=0:0:0:1;_Texture3UV=0:0:1:1;_Texture3=rampu | _UV2=0.2:0.5,0.8:0.5,0.5:0.2,0.5:0.8 | _Texture3Rotator=0,0.1,-0.1,0.5 | amb
+brow rotv         | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:1;_Color3=0:0:0:1;_Texture3UV=0:0:1:1;_Texture3=rampv | _UV2=0.2:0.5,0.8:0.5,0.5:0.2,0.5:0.8 | _Texture3Rotator=0,0.1,-0.1,0.5 | amb
+brow u            | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:1;_Color3=0:0:0:1;_Texture3=ramp:u:0,0,x,0 | _UV1=0.2:0.5,0.5:0.5,0.8:0.5,0.5:0.2,0.5:0.8,0.2:0.2 | _Texture3UV=0:0:1:1,0.1:0:1:1,0:0.1:1:1,0:0:2:1,0:0:0.5:1,0:0:1:2,0.06:0.144:0.8:1.325 | amb
+brow v            | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:1;_Color3=0:0:0:1;_Texture3=ramp:v:0,0,x,0 | _UV1=0.2:0.5,0.5:0.5,0.8:0.5,0.5:0.2,0.5:0.8,0.2:0.2 | _Texture3UV=0:0:1:1,0.1:0:1:1,0:0.1:1:1,0:0:2:1,0:0:1:2,0:0:1:0.5,0.06:0.144:0.8:1.325 | amb
+brow rot u        | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:1;_Color3=0:0:0:1;_Texture3=ramp:u:0,0,x,0;_Texture3UV=0:0:1:1 | _UV1=0.5:0.5,0.8:0.5,0.5:0.8,0.2:0.5,0.5:0.2,0:0 | _Texture3Rotator=0.1,0.25,-0.25 | amb
+brow rot v        | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:1;_Color3=0:0:0:1;_Texture3=ramp:v:0,0,x,0;_Texture3UV=0:0:1:1 | _UV1=0.5:0.5,0.8:0.5,0.5:0.8,0.2:0.5,0.5:0.2,0:0 | _Texture3Rotator=0.1,0.25,-0.25 | amb
+brow rot sc u     | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:1;_Color3=0:0:0:1;_Texture3=ramp:u:0,0,x,0;_Texture3Rotator=0.25 | _UV1=0.5:0.5,0.8:0.5,0.5:0.8 | _Texture3UV=0:0:2:1,0.1:0:1:1,0:0:1:2 | amb
+brow rot sc v     | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:1;_Color3=0:0:0:1;_Texture3=ramp:v:0,0,x,0;_Texture3Rotator=0.25 | _UV1=0.5:0.5,0.8:0.5,0.5:0.8 | _Texture3UV=0:0:2:1,0.1:0:1:1,0:0:1:2 | amb

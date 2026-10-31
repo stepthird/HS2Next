@@ -1,0 +1,581 @@
+{
+  "name": "Golden outfit 夏",
+  "sex": 1,
+  "clothes": {
+    "top": {
+      "item": "test.clothes#240",
+      "colors": [
+        {
+          "base": [1.0, 0.5, 0.25, 1.0],
+          "pattern": "hs2.kcox#58947543",
+          "patternColor": [0.0, 0.0, 0.5, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        },
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#3",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [2.0, 2.0, 0.25, 0.75],
+          "rotation": 0.25,
+          "gloss": 0.75,
+          "metallic": 0.125
+        },
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        }
+      ],
+      "breakRate": 0.25,
+      "hideOptions": [true, false],
+      "overlays": {
+        "main": {
+          "image": "res/5555555555555555555555555555555555555555555555555555555555555555.png",
+          "clearTarget": false,
+          "blend": 0
+        },
+        "colorMask": {
+          "image": "res/6666666666666666666666666666666666666666666666666666666666666666.png",
+          "clearTarget": true,
+          "blend": 1
+        },
+        "patterns": [
+          {
+            "image": "res/6666666666666666666666666666666666666666666666666666666666666666.png",
+            "clearTarget": false,
+            "blend": 1
+          },
+          null,
+          null
+        ],
+        "sourceReplacement": {
+          "image": null,
+          "clearTarget": true,
+          "blend": 0
+        },
+        "textureSize": 2048
+      },
+      "materialOverrides": [
+        {
+          "type": "copy",
+          "material": "c_m_top",
+          "copyName": "c_m_top.MECopy1"
+        },
+        {
+          "type": "shader",
+          "material": "c_m_top.MECopy1",
+          "shader": "Standard",
+          "shaderOriginal": "AIT/Clothes",
+          "renderQueue": null,
+          "renderQueueOriginal": null
+        },
+        {
+          "type": "renderer",
+          "renderer": "o_top_a",
+          "property": "Enabled",
+          "value": 0,
+          "original": 1
+        },
+        {
+          "type": "color",
+          "material": "c_m_top",
+          "property": "Color2",
+          "value": [0.5, 0.5, 0.5, 1.0],
+          "original": [1.0, 1.0, 1.0, 1.0]
+        },
+        {
+          "type": "projector",
+          "projector": "TopProjector",
+          "property": "Orthographic",
+          "value": "True",
+          "original": null
+        }
+      ],
+      "pushUp": {
+        "enabled": false,
+        "firmness": 0.0,
+        "lift": 0.0,
+        "pushTogether": 0.0,
+        "squeeze": 0.0,
+        "centerNipples": 0.0,
+        "corset": 0.0,
+        "flattenNipples": false,
+        "hideNipples": false,
+        "hideAccessories": false,
+        "corsetHalf": false
+      }
+    },
+    "bottom": {
+      "item": "illusion.hs2#0",
+      "colors": [
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        },
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        },
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        }
+      ],
+      "breakRate": 0.0,
+      "hideOptions": [false, false],
+      "overlays": null,
+      "materialOverrides": [],
+      "pushUp": null
+    },
+    "innerTop": {
+      "item": "illusion.hs2#5",
+      "colors": [
+        {
+          "base": [0.0, 0.0, 0.0, 0.5],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        },
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        },
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        }
+      ],
+      "breakRate": 0.0,
+      "hideOptions": [false, true],
+      "overlays": null,
+      "materialOverrides": [],
+      "pushUp": {
+        "enabled": true,
+        "firmness": 0.9,
+        "lift": 0.6,
+        "pushTogether": 0.65,
+        "squeeze": 0.6,
+        "centerNipples": 1.0,
+        "corset": 0.25,
+        "flattenNipples": true,
+        "hideNipples": false,
+        "hideAccessories": true,
+        "corsetHalf": false
+      }
+    },
+    "innerBottom": {
+      "item": "illusion.hs2#0",
+      "colors": [
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        },
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        },
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        }
+      ],
+      "breakRate": 0.0,
+      "hideOptions": [false, false],
+      "overlays": null,
+      "materialOverrides": [],
+      "pushUp": null
+    },
+    "gloves": {
+      "item": "illusion.hs2#0",
+      "colors": [
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        },
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        },
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        }
+      ],
+      "breakRate": 0.0,
+      "hideOptions": [false, false],
+      "overlays": null,
+      "materialOverrides": [],
+      "pushUp": null
+    },
+    "pantyhose": {
+      "item": "hs2.unresolved#-1",
+      "colors": [
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        },
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        },
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        }
+      ],
+      "breakRate": 0.0,
+      "hideOptions": [false, false],
+      "overlays": null,
+      "materialOverrides": [],
+      "pushUp": null
+    },
+    "socks": {
+      "item": "illusion.hs2#2",
+      "colors": [
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        },
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        },
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        }
+      ],
+      "breakRate": 0.0,
+      "hideOptions": [false, false],
+      "overlays": null,
+      "materialOverrides": [],
+      "pushUp": null
+    },
+    "shoes": {
+      "item": "illusion.hs2#4",
+      "colors": [
+        {
+          "base": [0.25, 0.25, 0.25, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        },
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        },
+        {
+          "base": [1.0, 1.0, 1.0, 1.0],
+          "pattern": "illusion.hs2#0",
+          "patternColor": [1.0, 1.0, 1.0, 1.0],
+          "layout": [1.0, 1.0, 0.0, 0.0],
+          "rotation": 0.5,
+          "gloss": 0.5,
+          "metallic": 0.0
+        }
+      ],
+      "breakRate": 0.0,
+      "hideOptions": [false, false],
+      "overlays": null,
+      "materialOverrides": [],
+      "pushUp": null
+    }
+  },
+  "accessories": [
+    {
+      "id": "3f2a6b1c9d8e4f7a0b1c2d3e4f5a6b7c",
+      "category": 352,
+      "item": "test.accessory.pack#5",
+      "parent": "N_Earring_L",
+      "moves": [
+        {
+          "position": [0.0, 0.0, 0.0],
+          "rotation": [0.0, 0.0, 0.0],
+          "scale": [1.0, 1.0, 1.0]
+        },
+        {
+          "position": [0.25, -0.5, 1.0],
+          "rotation": [0.0, 90.0, 360.0],
+          "scale": [1.5, 1.5, 1.5]
+        }
+      ],
+      "colors": [
+        {
+          "color": [1.0, 0.0, 0.0, 1.0],
+          "gloss": 0.5,
+          "metallic": 0.5,
+          "smoothness": 0.5
+        },
+        {
+          "color": [1.0, 1.0, 1.0, 1.0],
+          "gloss": 0.5,
+          "metallic": 0.5,
+          "smoothness": 0.5
+        },
+        {
+          "color": [1.0, 1.0, 1.0, 1.0],
+          "gloss": 0.5,
+          "metallic": 0.5,
+          "smoothness": 0.5
+        },
+        {
+          "color": [0.5, 0.5, 0.5, 0.5],
+          "gloss": 0.25,
+          "metallic": 0.75,
+          "smoothness": 0.125
+        }
+      ],
+      "hideCategory": 0,
+      "hideTiming": 1,
+      "noShake": false,
+      "importSlot": 3,
+      "boneMods": [
+        {
+          "bone": "N_Earring_L",
+          "scale": [2.0, 2.0, 2.0],
+          "length": 1.0,
+          "position": [0.0, 0.0, 0.0],
+          "rotation": [0.0, 0.0, 45.0]
+        }
+      ],
+      "materialOverrides": [
+        {
+          "type": "texture",
+          "material": "earring",
+          "property": "MainTex",
+          "image": null,
+          "offset": null,
+          "offsetOriginal": null,
+          "scale": [2.0, 2.0],
+          "scaleOriginal": [1.0, 1.0]
+        }
+      ],
+      "dynamicBones": [
+        {
+          "root": "cf_J_earring_root",
+          "freezeAxis": 2,
+          "weight": 0.5,
+          "damping": null,
+          "elasticity": 0.25,
+          "stiffness": null,
+          "inertia": null,
+          "radius": 0.125,
+          "original": {
+            "freezeAxis": 0,
+            "weight": 1.0,
+            "damping": 0.1,
+            "elasticity": 0.1,
+            "stiffness": 0.0,
+            "inertia": 0.0,
+            "radius": null
+          }
+        }
+      ],
+      "rules": {
+        "visibility": [
+          {
+            "rule": "TOP",
+            "modifier": "ON",
+            "link": null
+          },
+          {
+            "rule": "ACCESSORY_LINK",
+            "modifier": null,
+            "link": "0a1b2c3d4e5f60718293a4b5c6d7e8f9"
+          },
+          {
+            "rule": "HAIR",
+            "modifier": "17",
+            "link": null
+          }
+        ],
+        "characterAccessory": true,
+        "matchHairColor": false,
+        "advancedParent": "cf_J_Root/cf_J_Hips|12|13",
+        "name": "Left earring"
+      },
+      "ext": {
+        "example.plugin": {
+          "glow": 0.5
+        }
+      }
+    },
+    {
+      "id": "0a1b2c3d4e5f60718293a4b5c6d7e8f9",
+      "category": 351,
+      "item": "illusion.hs2#20",
+      "parent": "N_Hair_pony",
+      "moves": [
+        {
+          "position": [0.0, 0.0, 0.0],
+          "rotation": [0.0, 0.0, 0.0],
+          "scale": [1.0, 1.0, 1.0]
+        },
+        {
+          "position": [0.0, 0.0, 0.0],
+          "rotation": [0.0, 0.0, 0.0],
+          "scale": [1.0, 1.0, 1.0]
+        }
+      ],
+      "colors": [
+        {
+          "color": [1.0, 1.0, 1.0, 1.0],
+          "gloss": 0.5,
+          "metallic": 0.5,
+          "smoothness": 0.5
+        },
+        {
+          "color": [1.0, 1.0, 1.0, 1.0],
+          "gloss": 0.5,
+          "metallic": 0.5,
+          "smoothness": 0.5
+        },
+        {
+          "color": [1.0, 1.0, 1.0, 1.0],
+          "gloss": 0.5,
+          "metallic": 0.5,
+          "smoothness": 0.5
+        },
+        {
+          "color": [1.0, 1.0, 1.0, 1.0],
+          "gloss": 0.5,
+          "metallic": 0.5,
+          "smoothness": 0.5
+        }
+      ],
+      "hideCategory": 0,
+      "hideTiming": 0,
+      "noShake": true,
+      "importSlot": null,
+      "boneMods": [],
+      "materialOverrides": [],
+      "dynamicBones": [],
+      "rules": null,
+      "futureAccessoryMember": 42
+    }
+  ],
+  "ruleOverrides": {
+    "suppressed": [
+      {
+        "rule": "TOP",
+        "modifier": "ON",
+        "overrideRule": "TOP",
+        "overrideModifier": "HALF"
+      }
+    ],
+    "overrides": [
+      {
+        "rule": "BOTTOM",
+        "modifier": null,
+        "overrideRule": "STARTUP",
+        "overrideModifier": null
+      }
+    ]
+  },
+  "ext": {
+    "example.plugin": [1, 2, 3]
+  }
+}

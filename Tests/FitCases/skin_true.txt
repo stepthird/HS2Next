@@ -1,0 +1,38 @@
+# SkinFit.Sweep cases: label | set | sweep | sweep2 | lights | tilt  (see Assets/HS2Next/Editor/Fit/SkinFit.cs)
+alpha chan        | _OcclusionMap=0:1:0:1 | _AlphaMask=1:1:1:1,0:1:1:1,1:0:1:1,1:1:0:1,1:1:1:0,0:0:0:1,1:1:0:0,1:0:0:0 | _alpha_a=0,1 | amb
+alpha ab          | _OcclusionMap=0:1:0:1 | _AlphaMask=0:1:1:1,1:0:1:1,1:1:0:1,1:1:1:0 | _alpha_b=0,1 | amb
+alpha c           | _OcclusionMap=0:1:0:1 | _AlphaMask=0:1:1:1,1:0:1:1,1:1:0:1,1:1:1:0 | _alpha_c=0,1 | amb
+alpha2            | _OcclusionMap=0:1:0:1 | _AlphaMask2=1:1:1:1,0:1:1:1,1:0:1:1,1:1:0:1,1:1:1:0,0:0:0:0 | _alpha_d=0,1 | amb
+alpha half        | _OcclusionMap=0:1:0:1 | _AlphaMask=0.4:1:1:1,0.6:1:1:1,1:0.4:1:1,1:0.6:1:1 | _Cutoff=0.5,0.3 | amb
+alpha maintex     | _OcclusionMap=0:1:0:1 | _MainTex=1:1:1:0,1:1:1:0.4,1:1:1:0.6 | _Color=1:1:1:0,1:1:1:1 | amb
+nip vcol          | _OcclusionMap=0:1:0:1;_Texture2=1:0:0:1 | _VCOL=1:1:1:1,0:0:0:0,1:0:0:0,0:1:0:0,0:0:1:0,0:0:0:1 | _NipScale=0.5,0 | amb
+nip uv            | _OcclusionMap=0:1:0:1;_Texture2=1:0:0:1;_VCOL=0:0:0:0 | _UV1=0.5:0.5,0:0,0.25:0.25,0.75:0.5,1.5:0.5 | _NipScale=0,0.5,1 | amb
+under vcol        | _OcclusionMap=0:1:0:1;_Texture3=1:1:1:1;_Color3=1:0:0:1;_Texture3UV=0:0:1:1 | _VCOL=1:1:1:1,0:0:0:0,1:0:0:0,0:1:0:0,0:0:1:0,0:0:0:1 | | amb
+nail body        | _OcclusionMap=1:1:0:1;_MainTex=0.5:0.5:0.5:1 | _NailMask=1:0:0:0,0.5:0:0:0 | _Color13=1:0:0:1,1:0:0:0.5,1:0:0:0 | amb,L0,L30
+nail gloss body   | _OcclusionMap=1:1:0:1;_NailMask=1:0:0:0;_Color13=0:0:0:1 | _NailGloss=0,0.3,0.6,0.9 | _Gloss=0,0.6 | L0,L30
+nail gloss R0     | _OcclusionMap=0:1:0:1;_NailMask=1:0:0:0;_Color13=0:0:0:1 | _NailGloss=0,0.6 | _ExGloss=0,0.8 | L0,L30
+hip               | _OcclusionMap=0:1:0:1;_MainTex=0.5:0.5:0.5:1;_Texture4Scale=1;_Color4=1:0:0:1 | _NailMask=0:0:1:0,0:1:0:0,1:0:0:0,0:0:0:1 | | amb
+nipgloss          | _OcclusionMap=1:1:0:1;_Texture2=1:1:1:1;_VCOL=0:0:0:0;_Color2=0:0:0:1 | _NipGloss=0,0.5,1 | _Gloss=0,0.6 | L0,L30
+nip chan          | _OcclusionMap=0:1:0:1;_Color2=1:0:0:1 | _Texture2=0:1:0:0,0:0:1:0,0:0:0:1,0:0:0.5:0,1:1:1:1 | _VCOL=1:1:1:1,0:0:0:0 | amb
+nip blend         | _OcclusionMap=0:1:0:1;_MainTex=0.5:0.5:0.5:1;_Texture2=0:0:1:0 | _Color2=1:0:0:1,1:0:0:0.5,0.5:0.5:0.5:1 | | amb
+nip scale         | _OcclusionMap=0:1:0:1;_Texture2=0:0:1:0;_Color2=1:0:0:1 | _NipScale=0,0.5,1 | _UV1=0.5:0.5,0.3:0.5,0.1:0.5,0:0,0.5:0.9 | amb
+nip spec          | _OcclusionMap=1:1:0:1;_Color2=1:1:1:1;_Gloss=0.3 | _Texture2=0:0:0:0,0:0:0.5:0,0:0:1:0 | _NipGloss=0,0.6 | L0,L30
+alpha mult        | _OcclusionMap=0:1:0:1 | _AlphaMask=0.7:0.7:1:1,0.6:0.8:1:1,0.75:0.75:1:1 | _AlphaMask2=1:1:1:1,0.7:1:1:1 | amb
+alpha cd          | _OcclusionMap=0:1:0:1;_alpha_c=1;_alpha_d=1 | _AlphaMask2=0:1:1:1,1:1:1:1 | _AlphaMask=0:0:1:1,1:1:1:1 | amb
+alpha d frac      | _OcclusionMap=0:1:0:1;_alpha_d=1 | _AlphaMask2=0.4:1:1:1,0.6:1:1:1 | _alpha_a=0,1 | amb
+nail add          | _OcclusionMap=1:1:0:1;_NailMask=1:0:0:0;_Color13=0:0:0:1;_NailGloss=0.3 | _DetailMainTex=0:0:0:0,0:0:0.5:0 | _ExGloss=0,0.5 | L0,L30
+nail half         | _OcclusionMap=1:1:0:1;_Color13=0:0:0:1;_NailGloss=0.6 | _NailMask=0.5:0:0:0 | _Gloss=0,0.3 | L0,L30
+nip vc chan       | _OcclusionMap=0:1:0:1;_Color2=0:0:0:1;_Texture2=0:0:1:0 | _VCOL=0:1:1:1,1:0:1:1,1:1:0:1,1:1:1:0,0:0:0:1,0.5:0.5:0.5:0.5 | | amb
+nip col           | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:0;_MainTex=0:0:0:1;_Color2=1:1:1:1 | _Texture2=1:0:1:0,0:1:1:0,0:0:1:1,1:1:1:0,1:1:1:1,0.5:0.5:1:1,1:1:0.5:1 | | amb,L0
+nip col2          | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:0;_MainTex=0:0:0:1;_Texture2=1:1:1:1 | _Color2=1:0:0:1,1:0:0:0.5,0.5:0.5:0.5:1 | | amb
+nip uvx           | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:0;_Color2=0:0:0:1;_Texture2=rampu | _UV1=0.2:0.5,0.4:0.5,0.5:0.5,0.6:0.5,0.8:0.5 | _NipScale=0,0.5,1 | amb
+nip uvy           | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:0;_Color2=0:0:0:1;_Texture2=rampv | _UV1=0.5:0.2,0.5:0.4,0.5:0.6,0.5:0.8 | _NipScale=0,0.5,1 | amb
+nip tune          | _OcclusionMap=0:1:1:1;_BumpScale2=1;_OcclusionStrength=0;_VCOL=0:0:0:0;_Texture2=1:1:1:1 | _Color2=1:0.5:0:1 | | amb
+under uv          | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:1;_Color3=0:0:0:1;_Texture3=rampu | _UV2=0.2:0.5,0.8:0.5 | _Texture3UV=0:0:1:1,0.1:0:1:1,0:0:2:1 | amb
+nip r u           | _OcclusionMap=0:1:0:1;_VCOL=1:0:1:1;_MainTex=0:0:0:1;_Color2=1:1:1:1;_Texture2=ramp:u:x,0,1,1 | _UV1=0.45:0.5,0.4:0.5,0.35:0.5,0.3:0.5,0.55:0.5,0.4:0.4,0.45:0.45,0.4:0.6,0.45:0.4 | _NipScale=0,0.5,1 | amb
+nip r v           | _OcclusionMap=0:1:0:1;_VCOL=1:0:1:1;_MainTex=0:0:0:1;_Color2=1:1:1:1;_Texture2=ramp:v:x,0,1,1 | _UV1=0.4:0.4,0.45:0.45,0.4:0.6,0.45:0.4 | _NipScale=0,0.5,1 | amb
+under u           | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:1;_Color3=0:0:0:1;_Texture3=ramp:u:0,0,x,0 | _UV1=0.2:0.5,0.8:0.5 | _Texture3UV=0:0:1:1,0.1:0:1:1,0:0:2:1 | amb
+nip wrap r        | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:0;_Color2=1:1:1:1;_Texture2=rampr:u:x,0,1,1 | _UV1=0.02:0.5,0.05:0.5,0.1:0.5,0.2:0.5,0.3:0.5,0.4:0.5,0.5:0.5,0.6:0.5,0.7:0.5,0.8:0.5,0.9:0.5,0.95:0.5,0.98:0.5,0:0,1:1,0.5:0.1,0.5:0.9 | _NipScale=0,0.5,0.656,1 | amb
+nip wrap c        | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:0;_Color2=1:1:1:1;_Texture2=ramp:u:x,0,1,1 | _UV1=0.02:0.5,0.05:0.5,0.1:0.5,0.2:0.5,0.3:0.5,0.4:0.5,0.5:0.5,0.6:0.5,0.7:0.5,0.8:0.5,0.9:0.5,0.95:0.5,0.98:0.5,0:0,1:1,0.5:0.1,0.5:0.9 | _NipScale=0,0.5,0.656,1 | amb
+nip wrap rv       | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:0;_Color2=1:1:1:1;_Texture2=rampr:v:x,0,1,1 | _UV1=0.5:0.02,0.5:0.2,0.5:0.4,0.5:0.6,0.5:0.8,0.5:0.98,0:0,1:1 | _NipScale=0,0.5,1 | amb
+nip cap           | _OcclusionMap=0:1:0:1;_VCOL=0:0:0:0;_Color2=1:1:1:1;_Texture2=ramp:u:x,0,1,1 | _UV1=0.1:0.5,0.7:0.7,0.8:0.5,0.9:0.5,0.98:0.5 | _NipScale=0.8,0.9,1,1.25,1.5 | amb

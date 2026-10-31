@@ -1,0 +1,3 @@
+# Custom/Silhouette (vanilla maps 35 / 36) vs HS2Next/Custom/Silhouette: colour and alpha on two backgrounds, ambient and a light.
+s0 | _BG=0:0:0 | _Color=1:1:1:1,0.2:0.4:0.6:0.5,0.9:0.1:0.3:0.25,0:0:0:0.8 | | amb,L0,L120
+s1 | _BG=0.3:0.5:0.7 | _Color=1:1:1:1,0.2:0.4:0.6:0.5,0.9:0.1:0.3:0.25,0:0:0:0.8 | | amb,L0

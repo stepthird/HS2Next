@@ -1,0 +1,1743 @@
+# HS2Next UI strings. UTF-8, one row per key, cells separated by one TAB.
+# Rows starting with '#' are comments; blank rows are skipped. The first non-comment row is the column header.
+# Columns: key, en (required), ja, zh-Hans (Simplified Chinese only), note. Escapes in cells: \n newline, \t tab, \\ backslash;
+# a cell wholly in double quotes is unquoted ("" = "). Placeholders {0} {1} ... must match across languages.
+# note: 'zh?' = the zh-Hans cell is a machine translation awaiting review (U20); 'ja?' likewise for ja.
+# Shared append-only file: each package appends its rows in its own block headed by a comment row
+# '#<package>' (e.g. '#C'); never reorder or edit another package's block; keys are unique across the file.
+key	en	ja	zh-Hans	note
+#P
+lang.en	English	English	English	
+lang.ja	日本語	日本語	日本語	
+lang.zh-Hans	简体中文 (machine translated)	简体中文（機械翻訳）	简体中文（机器翻译）	
+common.ok	OK	OK	确定	zh?
+common.cancel	Cancel	キャンセル	取消	zh?
+common.close	Close	閉じる	关闭	zh?
+common.apply	Apply	適用	应用	zh?
+common.reset	Reset	リセット	重置	zh?
+common.default	Default	初期値	默认值	zh?
+common.none	None	なし	无	zh?
+common.all	All	すべて	全部	zh?
+common.allOn	All on	すべてオン	全部开启	zh?
+common.allOff	All off	すべてオフ	全部关闭	zh?
+common.on	On	オン	开	zh?
+common.off	Off	オフ	关	zh?
+common.mixed	—	—	—	
+common.search	Search	検索	搜索	zh?
+common.yes	Yes	はい	是	zh?
+common.no	No	いいえ	否	zh?
+keys.title	Key bindings	キー一覧	快捷键一览	zh?
+keys.preset	Key preset	キー設定	按键预设	zh?
+keys.preset.default	Default	標準	默认	zh?
+keys.preset.hs2studio	HS2 Studio	HS2 スタジオ	HS2 Studio	zh?
+keys.record	Press a key…	キーを押してください…	请按键…	zh?
+keys.clear	Clear	解除	清除	zh?
+keys.resetToPreset	Reset to preset	プリセットに戻す	恢复预设	zh?
+keys.unbound	—	—	—	
+keys.scope.Global	Everywhere	全体	全局	zh?
+keys.scope.Viewport	Viewport	ビュー	视图	zh?
+keys.scope.Tree	Workspace	ワークスペース	工作区	zh?
+keys.scope.Inspector	Inspector	インスペクター	检查器	zh?
+keys.scope.Browser	Browsers	ブラウザー	浏览器	zh?
+keys.group.edit	Edit	編集	编辑	zh?
+keys.group.tool	Tools	ツール	工具	zh?
+keys.group.view	View	表示	视图	zh?
+keys.group.camera	Camera	カメラ	相机	zh?
+keys.group.file	File	ファイル	文件	zh?
+keys.group.app	Application	アプリ	应用	zh?
+keys.group.add	Add	追加	添加	zh?
+keys.group.help	Help	ヘルプ	帮助	zh?
+keys.group.ui	Interface	画面	界面	zh?
+keys.group.tree	Workspace	ワークスペース	工作区	zh?
+keys.group.gizmo	Gizmo	ギズモ	控件	zh?
+keys.group.click	Click modifiers	クリック修飾	单击修饰键	zh?
+msg.keymapConflict	{0} and {1} share {2} ({3})	{0} と {1} が同じキー {2} を使っています ({3})	{0} 与 {1} 使用了同一按键 {2}（{3}）	zh?
+msg.layoutInvalid	The layout file could not be read; the default layout is used.	レイアウトファイルを読めなかったため既定のレイアウトを使います。	无法读取布局文件，已使用默认布局。	zh?
+msg.optionsInvalid	The options file could not be read; defaults are used.	オプションファイルを読めなかったため既定値を使います。	无法读取选项文件，已使用默认值。	zh?
+msg.l10nMissing	Missing text: {0}	未翻訳の文字列: {0}	缺少文本：{0}	zh?
+search.placeholder	Search (space = AND, guid#id)	検索 (スペース区切りで AND、guid#id)	搜索（空格 = 且，guid#id）	zh?
+search.results	{0} of {1}	{1} 件中 {0} 件	{1} 项中的 {0} 项	zh?
+sort.name	Name	名前	名称	zh?
+sort.date	Date	日付	日期	zh?
+sort.file	File	ファイル	文件	zh?
+sort.source	Source	提供元	来源	zh?
+sort.ascending	Ascending	昇順	升序	zh?
+sort.descending	Descending	降順	降序	zh?
+panel.workspace	Workspace	ワークスペース	工作区	zh?
+panel.inspector	Inspector	インスペクター	检查器	zh?
+panel.add.chara	Characters	キャラ	角色	zh?
+panel.add.item	Items	アイテム	物品	zh?
+panel.add.anime	Animations	アニメーション	动画	zh?
+panel.add.map	Maps	マップ	地图	zh?
+panel.add.light	Lights	ライト	灯光	zh?
+panel.add.pose	Poses	ポーズ	姿势	zh?
+panel.scene	Scene	シーン	场景	zh?
+panel.history	History	履歴	历史记录	zh?
+region.left	Left	左	左侧	zh?
+region.right	Right	右	右侧	zh?
+region.bottom	Bottom	下	底部	zh?
+region.moveTo	Move to {0}	{0}へ移動	移到{0}	zh?
+action.edit.undo	Undo	元に戻す	撤销	zh?
+action.edit.redo	Redo	やり直す	重做	zh?
+action.edit.duplicate	Duplicate	複製	创建副本	zh?
+action.edit.delete	Delete	削除	删除	zh?
+action.edit.selectAll	Select all	すべて選択	全选	zh?
+action.edit.deselect	Deselect	選択解除	取消选择	zh?
+action.edit.rename	Rename	名前を変更	重命名	zh?
+action.edit.copyTransform	Copy transform	トランスフォームをコピー	复制变换	zh?
+action.edit.pasteTransform	Paste transform	トランスフォームを貼り付け	粘贴变换	zh?
+action.edit.moveToPivot	Move selection to the camera pivot	選択を注視点へ移動	将所选移到注视点	zh?
+action.tool.select	Select tool	選択ツール	选择工具	zh?
+action.tool.move	Move tool	移動ツール	移动工具	zh?
+action.tool.rotate	Rotate tool	回転ツール	旋转工具	zh?
+action.tool.scale	Scale tool	拡大縮小ツール	缩放工具	zh?
+action.tool.space	Switch gizmo space	ギズモの座標系を切り替え	切换控件坐标系	zh?
+action.tool.pivot	Switch pivot	ピボットを切り替え	切换轴心	zh?
+action.tool.snapToggle	Toggle snapping	スナップの切り替え	切换吸附	zh?
+action.view.gizmos	Show gizmos	ギズモを表示	显示控件	zh?
+action.view.planes	Show plane handles	平面ハンドルを表示	显示平面手柄	zh?
+action.view.centre	Show centre handles	中心ハンドルを表示	显示中心手柄	zh?
+action.view.pivotMarker	Show the camera pivot marker	注視点マーカーを表示	显示注视点标记	zh?
+action.view.gimmickIcons	Show gimmick icons	ギミックアイコンを表示	显示机关图标	zh?
+action.view.lightHelpers	Show light helpers	ライトの補助線を表示	显示灯光辅助线	zh?
+action.view.cameraIcons	Show camera icons	カメラアイコンを表示	显示相机图标	zh?
+action.view.kinematicHandles	Show FK / IK handles	FK / IK ハンドルを表示	显示 FK / IK 手柄	zh?
+action.view.panels	Toggle panels	パネルの表示切り替え	切换面板	zh?
+action.view.physics	Physics of the selected characters	選択キャラの物理	所选角色的物理	zh?
+action.view.hideSelected	Hide selected	選択を非表示	隐藏所选	zh?
+action.view.showAll	Show all	すべて表示	全部显示	zh?
+action.view.isolate	Isolate selection	選択だけを表示	仅显示所选	zh?
+action.view.fps	Show frame rate	フレームレートを表示	显示帧率	zh?
+action.camera.frame	Frame selection	選択にカメラを合わせる	聚焦所选	zh?
+action.camera.reset	Reset view	視点をリセット	重置视角	zh?
+action.camera.resetAngles	Reset camera angles	カメラの角度をリセット	重置相机角度	zh?
+action.camera.rollReset	Reset roll	ロールをリセット	重置滚转	zh?
+action.camera.fovReset	Reset field of view	画角をリセット	重置视场角	zh?
+action.camera.moveLeft	Move camera left	カメラを左へ移動	相机左移	zh?
+action.camera.moveRight	Move camera right	カメラを右へ移動	相机右移	zh?
+action.camera.moveForward	Move camera forward	カメラを前へ移動	相机前移	zh?
+action.camera.moveBack	Move camera back	カメラを後ろへ移動	相机后移	zh?
+action.camera.moveUp	Move camera up	カメラを上へ移動	相机上移	zh?
+action.camera.moveDown	Move camera down	カメラを下へ移動	相机下移	zh?
+action.camera.dollyIn	Dolly in	近づく	推近	zh?
+action.camera.dollyOut	Dolly out	離れる	拉远	zh?
+action.camera.orbitUp	Orbit up	上へ回り込む	向上环绕	zh?
+action.camera.orbitDown	Orbit down	下へ回り込む	向下环绕	zh?
+action.camera.orbitLeft	Orbit left	左へ回り込む	向左环绕	zh?
+action.camera.orbitRight	Orbit right	右へ回り込む	向右环绕	zh?
+action.camera.rollPlus	Roll +	ロール +	滚转 +	zh?
+action.camera.rollMinus	Roll −	ロール −	滚转 −	zh?
+action.camera.fovDown	Narrow the field of view	画角を狭める	缩小视场角	zh?
+action.camera.fovUp	Widen the field of view	画角を広げる	扩大视场角	zh?
+action.camera.nextObject	Next camera object	次のカメラオブジェクト	下一个相机对象	zh?
+action.camera.release	Release camera	カメラを解除	释放相机	zh?
+action.file.new	New scene	新規シーン	新建场景	zh?
+action.file.open	Open…	開く…	打开…	zh?
+action.file.save	Save	保存	保存	zh?
+action.file.saveAs	Save as…	名前を付けて保存…	另存为…	zh?
+action.file.import	Import scene…	シーンを取り込む…	导入场景…	zh?
+action.file.options	Options…	オプション…	选项…	zh?
+action.app.quit	Quit	終了	退出	zh?
+action.add.female	Female	女	女性	zh?
+action.add.male	Male	男	男性	zh?
+action.add.item	Item	アイテム	物品	zh?
+action.add.light	Light	ライト	灯光	zh?
+action.add.camera	Camera	カメラ	相机	zh?
+action.add.folder	Folder	フォルダー	文件夹	zh?
+action.add.route	Route	ルート	路径	zh?
+action.help.keys	Key bindings	キー一覧	快捷键一览	zh?
+action.help.about	About HS2Next	HS2Next について	关于 HS2Next	zh?
+action.ui.language	Language	言語	语言	zh?
+action.ui.resetLayout	Reset layout	レイアウトをリセット	重置布局	zh?
+action.tree.prev	Previous row	前の行	上一行	zh?
+action.tree.next	Next row	次の行	下一行	zh?
+action.tree.collapse	Collapse	折りたたむ	折叠	zh?
+action.tree.expand	Expand	展開	展开	zh?
+action.gizmo.snapHold	Snap while dragging (hold)	ドラッグ中にスナップ (押しながら)	拖动时吸附（按住）	zh?
+action.gizmo.precisionHold	Precise dragging (hold)	精密ドラッグ (押しながら)	精确拖动（按住）	zh?
+action.gizmo.resize	Gizmo size (hold + right drag)	ギズモの大きさ (押しながら右ドラッグ)	控件大小（按住并右键拖动）	zh?
+action.click.parent	Click: put the primary under the clicked object	クリック: 主選択をクリック先の子にする	单击：将主选对象设为所点对象的子级	zh?
+action.click.parentAll	Click: put the selection under the clicked object	クリック: 選択をクリック先の子にする	单击：将所选设为所点对象的子级	zh?
+action.click.detach	Click: detach the clicked object	クリック: クリック先の親子付けを解除	单击：解除所点对象的父子关系	zh?
+action.click.detachAll	Click: detach the selection	クリック: 選択の親子付けを解除	单击：解除所选的父子关系	zh?
+action.click.copyTransform	Click: copy the transform to the clicked object	クリック: トランスフォームをクリック先へコピー	单击：将变换复制到所点对象	zh?
+action.dialog.accept	OK	OK	确定	zh?
+action.dialog.cancel	Cancel	キャンセル	取消	zh?
+action.text.blur	Leave the text field	入力欄から抜ける	离开输入框	zh?
+action.camera.slotLoad0	Load camera slot 1	カメラ 1 を読み込む	读取相机 1	zh?
+action.camera.slotLoad1	Load camera slot 2	カメラ 2 を読み込む	读取相机 2	zh?
+action.camera.slotLoad2	Load camera slot 3	カメラ 3 を読み込む	读取相机 3	zh?
+action.camera.slotLoad3	Load camera slot 4	カメラ 4 を読み込む	读取相机 4	zh?
+action.camera.slotLoad4	Load camera slot 5	カメラ 5 を読み込む	读取相机 5	zh?
+action.camera.slotLoad5	Load camera slot 6	カメラ 6 を読み込む	读取相机 6	zh?
+action.camera.slotLoad6	Load camera slot 7	カメラ 7 を読み込む	读取相机 7	zh?
+action.camera.slotLoad7	Load camera slot 8	カメラ 8 を読み込む	读取相机 8	zh?
+action.camera.slotLoad8	Load camera slot 9	カメラ 9 を読み込む	读取相机 9	zh?
+action.camera.slotLoad9	Load camera slot 10	カメラ 10 を読み込む	读取相机 10	zh?
+action.camera.slotSave0	Save camera slot 1	カメラ 1 に保存	保存到相机 1	zh?
+action.camera.slotSave1	Save camera slot 2	カメラ 2 に保存	保存到相机 2	zh?
+action.camera.slotSave2	Save camera slot 3	カメラ 3 に保存	保存到相机 3	zh?
+action.camera.slotSave3	Save camera slot 4	カメラ 4 に保存	保存到相机 4	zh?
+action.camera.slotSave4	Save camera slot 5	カメラ 5 に保存	保存到相机 5	zh?
+action.camera.slotSave5	Save camera slot 6	カメラ 6 に保存	保存到相机 6	zh?
+action.camera.slotSave6	Save camera slot 7	カメラ 7 に保存	保存到相机 7	zh?
+action.camera.slotSave7	Save camera slot 8	カメラ 8 に保存	保存到相机 8	zh?
+action.camera.slotSave8	Save camera slot 9	カメラ 9 に保存	保存到相机 9	zh?
+action.camera.slotSave9	Save camera slot 10	カメラ 10 に保存	保存到相机 10	zh?
+option.section.general	General	一般	常规	zh?
+option.section.camera	Camera	カメラ	相机	zh?
+option.section.gizmo	Gizmo	ギズモ	控件	zh?
+option.section.add	Add	追加	添加	zh?
+option.section.view	View	表示	视图	zh?
+option.section.rendering	Rendering	描画	渲染	zh?
+option.section.kinematics	Kinematics	FK / IK	FK / IK	zh?
+option.general.language	Language	Language	Language	English in every language (findable by anyone)
+option.general.uiScale	UI scale (%)	UI の大きさ (%)	界面缩放（%）	zh?
+option.general.keyPreset	Key preset	キー設定	按键预设	zh?
+option.general.confirmDelete	Confirm before deleting	削除の前に確認する	删除前确认	zh?
+option.general.recentCount	Recent files	最近使ったファイルの数	最近文件数	zh?
+option.camera.rotSpeedX	Rotation speed X	回転速度 X	旋转速度 X	zh?
+option.camera.rotSpeedY	Rotation speed Y	回転速度 Y	旋转速度 Y	zh?
+option.camera.speed	Move / dolly speed	移動・ズーム速度	移动 / 推拉速度	zh?
+option.camera.constantSpeed	Constant pan / dolly speed (HS2)	移動・ズームを一定速度にする (HS2)	平移 / 推拉恒定速度（HS2）	zh?
+option.camera.requireAlt	Camera only with Alt held	Alt を押している間だけカメラ操作	仅按住 Alt 时操作相机	zh?
+option.camera.keySpeed	Keyboard camera speed	キー操作のカメラ速度	键盘相机速度	zh?
+option.camera.invertY	Invert Y	上下反転	反转 Y	zh?
+option.camera.wheelDolly	Mouse wheel zooms	マウスホイールでズーム	鼠标滚轮推拉	zh?
+option.gizmo.size	Gizmo size (px)	ギズモの大きさ (px)	控件大小（像素）	zh?
+option.gizmo.snapMove	Snap: move	スナップ: 移動	吸附：移动	zh?
+option.gizmo.snapRotate	Snap: rotate (°)	スナップ: 回転 (°)	吸附：旋转（°）	zh?
+option.gizmo.snapScale	Snap: scale	スナップ: 拡大縮小	吸附：缩放	zh?
+option.gizmo.hs2SnapStep	HS2 snap step (V)	HS2 スナップ幅 (V)	HS2 吸附步长（V）	zh?
+option.gizmo.fkSize	FK handle size	FK ハンドルの大きさ	FK 手柄大小	zh?
+option.gizmo.ikSize	IK handle size	IK ハンドルの大きさ	IK 手柄大小	zh?
+option.gizmo.lookSize	Look target size	視線ターゲットの大きさ	视线目标大小	zh?
+option.view.spheres	Selection spheres	選択用の球を表示	选择球	zh?
+option.view.planes	Plane handles	平面ハンドル	平面手柄	zh?
+option.kinematics.fkColors	FK handle colours	FK ハンドルの色	FK 手柄颜色	zh?
+option.kinematics.fkColors.palette	One colour per group	グループごとの色	每组一种颜色	zh?
+option.kinematics.fkColors.hs2	White (HS2)	白 (HS2)	白色（HS2）	zh?
+option.kinematics.fkLines	FK bone lines	FK の骨の線	FK 骨骼线	zh?
+option.add.placement	Place new objects at	新しいオブジェクトの配置	新对象位置	zh?
+option.add.placement.pivot	Camera pivot	注視点	注视点	zh?
+option.add.placement.origin	Origin	原点	原点	zh?
+option.add.useCardState	Use the card's state when adding	追加時にカードの状態を使う	添加时使用卡片状态	zh?
+option.view.gizmos	Gizmos	ギズモ	控件	zh?
+option.view.centre	Centre handles	中心ハンドル	中心手柄	zh?
+option.view.pivotMarker	Camera pivot marker	注視点マーカー	注视点标记	zh?
+option.view.gimmickIcons	Gimmick icons	ギミックアイコン	机关图标	zh?
+option.view.lightHelpers	Light helpers	ライトの補助線	灯光辅助线	zh?
+option.view.lightHelpers.selected	Selected lights	選択中のライト	所选灯光	zh?
+option.view.lightHelpers.all	All lights	すべてのライト	全部灯光	zh?
+option.view.lightHelpers.none	None	なし	无	zh?
+option.view.cameraIcons	Camera icons	カメラアイコン	相机图标	zh?
+option.view.kinematicHandles	FK / IK handles	FK / IK ハンドル	FK / IK 手柄	zh?
+option.view.fps	Frame rate in the status bar	ステータスバーにフレームレート	状态栏显示帧率	zh?
+option.kinematics.exclusive	FK and IK exclusive	FK と IK を排他にする	FK 与 IK 互斥	zh?
+option.kinematics.rotationLimits	IK rotation limits	IK の回転制限	IK 旋转限制	zh?
+option.kinematics.limitMinInterior	Minimum interior angle (°)	最小内角 (°)	最小内角（°）	zh?
+option.kinematics.missingTargetsFirstFrame	Missing IK targets from the first frame	欠けた IK ターゲットを最初のフレームから補う	从首帧补全缺失的 IK 目标	zh?
+enum.clothesState.on	On	着衣	穿着	zh?
+enum.clothesState.half	Half	半脱ぎ	半脱	zh?
+enum.clothesState.off	Off	脱衣	脱下	zh?
+enum.eyeLook.front	Front	正面	正面	zh?
+enum.eyeLook.camera	Camera	カメラ	相机	zh?
+enum.eyeLook.away	Look away	逸らす	移开	zh?
+enum.eyeLook.fixed	Fixed	固定	固定	zh?
+enum.eyeLook.target	Look target	注視目標	注视目标	zh?
+enum.neckLook.front	Front	正面	正面	zh?
+enum.neckLook.camera	Camera	カメラ	相机	zh?
+enum.neckLook.animation	Animation	アニメ	动画	zh?
+enum.neckLook.fixed	Fixed	固定	固定	zh?
+enum.liquidLevel.none	None	なし	无	zh?
+enum.liquidLevel.some	Some	少し	少量	zh?
+enum.liquidLevel.much	Much	多い	大量	zh?
+enum.soundRepeat.none	Once	1回	单次	zh?
+enum.soundRepeat.all	Repeat	繰り返し	循环	zh?
+inspector.section.header	Object	オブジェクト	对象	zh?
+inspector.section.transform	Transform	トランスフォーム	变换	zh?
+inspector.tab.anime	Animation	アニメ	动画	zh?
+inspector.tab.state	State	状態	状态	zh?
+inspector.tab.face	Face	表情	表情	zh?
+inspector.tab.look	Look	視線・首	视线 / 颈部	zh?
+inspector.tab.hands	Hands	手	手	zh?
+inspector.tab.kinematics	FK / IK	FK / IK	FK / IK	zh?
+inspector.tab.pose	Pose	ポーズ	姿势	zh?
+inspector.tab.correction	Correction	関節補正	关节修正	zh?
+inspector.tab.character	Character	キャラ	角色	zh?
+inspector.item.section.colors	Colours	色	颜色	zh?
+inspector.item.section.patterns	Patterns	柄	花纹	zh?
+inspector.item.section.material	Material	質感	材质	zh?
+inspector.item.section.motion	FK, options and animation	FK・オプション・アニメ	FK、选项与动画	zh?
+inspector.light.section	Light	ライト	灯光	zh?
+inspector.camera.section	Camera	カメラ	相机	zh?
+inspector.scene.section.map	Map	マップ	地图	zh?
+inspector.scene.section.charaLight	Character light	キャラライト	角色灯光	zh?
+inspector.scene.section.cameraSlots	Camera slots	カメラ登録	相机位	zh?
+inspector.scene.section.sound	Sound	サウンド	声音	zh?
+inspector.group.state.clothes	Clothes	服	服装	zh?
+inspector.group.state.accessories	Accessories	アクセサリー	饰品	zh?
+inspector.group.state.liquid	Liquid	汁	液体	zh?
+inspector.group.state.other	Other	その他	其他	zh?
+inspector.group.kinematics.fk	FK	FK	FK	zh?
+inspector.group.kinematics.fk.bones	FK bones	FK の骨	FK 骨骼	zh?
+inspector.group.kinematics.ik	IK	IK	IK	zh?
+inspector.group.kinematics.ik.targets	IK targets	IK ターゲット	IK 目标	zh?
+inspector.node.name	Name	名前	名称	zh?
+inspector.transform.pos	Position	位置	位置	zh?
+inspector.transform.rot	Rotation	回転	旋转	zh?
+inspector.transform.scale	Scale	拡縮	缩放	zh?
+inspector.transform.resetPos	Reset position	位置をリセット	重置位置	zh?
+inspector.transform.resetRot	Reset rotation	回転をリセット	重置旋转	zh?
+inspector.transform.resetScale	Reset scale	拡縮をリセット	重置缩放	zh?
+inspector.transform.copy	Copy	コピー	复制	zh?
+inspector.transform.paste	Paste	貼り付け	粘贴	zh?
+inspector.chara.anime.clip	Animation	アニメーション	动画	zh?
+inspector.chara.anime.speed	Speed	速さ	速度	zh?
+inspector.chara.anime.pattern	Pattern	パターン	模式	zh?
+inspector.chara.anime.param1	Option 1	オプション 1	选项 1	zh?
+inspector.chara.anime.param2	Option 2	オプション 2	选项 2	zh?
+inspector.chara.anime.optionVisible	Option items	オプションアイテム	附带物品	zh?
+inspector.chara.anime.forceLoop	Force loop	強制ループ	强制循环	zh?
+inspector.chara.anime.restart	Restart	最初から	重新开始	zh?
+inspector.chara.anime.restartAll	Restart all	すべて最初から	全部重新开始	zh?
+inspector.chara.anime.copy	Copy animation	アニメをコピー	复制动画	zh?
+inspector.chara.anime.paste	Paste animation	アニメを貼り付け	粘贴动画	zh?
+inspector.chara.state.clothes.top	Top	トップス	上衣	zh?
+inspector.chara.state.clothes.bottom	Bottom	ボトムス	下装	zh?
+inspector.chara.state.clothes.bra	Bra	ブラ	胸罩	zh?
+inspector.chara.state.clothes.shorts	Shorts	ショーツ	内裤	zh?
+inspector.chara.state.clothes.gloves	Gloves	手袋	手套	zh?
+inspector.chara.state.clothes.pantyhose	Pantyhose	パンスト	连裤袜	zh?
+inspector.chara.state.clothes.socks	Socks	靴下	袜子	zh?
+inspector.chara.state.clothes.shoes	Shoes	靴	鞋子	zh?
+inspector.chara.state.clothesAll.on	All on	すべて着衣	全部穿着	zh?
+inspector.chara.state.clothesAll.half	All half	すべて半脱ぎ	全部半脱	zh?
+inspector.chara.state.clothesAll.off	All off	すべて脱衣	全部脱下	zh?
+inspector.chara.state.liquid.face	Face	顔	脸部	zh?
+inspector.chara.state.liquid.breast	Breast	胸	胸部	zh?
+inspector.chara.state.liquid.belly	Belly	腹	腹部	zh?
+inspector.chara.state.liquid.back	Back	背中	背部	zh?
+inspector.chara.state.liquid.hip	Hip	尻	臀部	zh?
+inspector.chara.state.accessory	Slot {0}	スロット {0}	槽位 {0}	zh?
+inspector.chara.state.accessoriesAllOn	Show all	すべて表示	全部显示	zh?
+inspector.chara.state.accessoriesAllOff	Hide all	すべて非表示	全部隐藏	zh?
+inspector.chara.state.tears	Tears	涙	眼泪	zh?
+inspector.chara.state.cheek	Cheek	頬の赤み	脸红	zh?
+inspector.chara.state.nipple	Nipple	乳首	乳头	zh?
+inspector.chara.state.gloss	Skin gloss	肌のツヤ	皮肤光泽	zh?
+inspector.chara.state.wet	Wet	濡れ	湿润	zh?
+inspector.chara.state.silhouette	Silhouette	シルエット	剪影	zh?
+inspector.chara.state.silhouetteColor	Silhouette colour	シルエットの色	剪影颜色	zh?
+inspector.chara.state.son	Son	男性パーツ	男性部件	zh?
+inspector.chara.state.sonLength	Son length	男性パーツの長さ	男性部件长度	zh?
+inspector.chara.face.eyebrow	Eyebrows	眉	眉毛	zh?
+inspector.chara.face.eyes	Eyes	目	眼睛	zh?
+inspector.chara.face.eyesOpen	Eyes open	目の開き	睁眼程度	zh?
+inspector.chara.face.blink	Blink	まばたき	眨眼	zh?
+inspector.chara.face.mouth	Mouth	口	嘴	zh?
+inspector.chara.face.mouthOpen	Mouth open	口の開き	张嘴程度	zh?
+inspector.chara.face.lipSync	Lip sync	口パク	口型同步	zh?
+inspector.chara.look.eyes	Eyes	目線	视线	zh?
+inspector.chara.look.neck	Neck	首	颈部	zh?
+inspector.chara.look.target	Look target	注視目標	注视目标	zh?
+inspector.chara.look.size	Look target size	注視目標の大きさ	注视目标大小	zh?
+inspector.chara.hands.left	Left hand	左手	左手	zh?
+inspector.chara.hands.right	Right hand	右手	右手	zh?
+inspector.chara.fk.enabled	FK	FK	FK	zh?
+inspector.chara.fk.group.hair	Hair	髪	头发	zh?
+inspector.chara.fk.group.neck	Neck	首	颈部	zh?
+inspector.chara.fk.group.breast	Breast	胸	胸部	zh?
+inspector.chara.fk.group.body	Body	体	身体	zh?
+inspector.chara.fk.group.rightHand	Right hand	右手	右手	zh?
+inspector.chara.fk.group.leftHand	Left hand	左手	左手	zh?
+inspector.chara.fk.group.skirt	Skirt	スカート	裙子	zh?
+inspector.chara.fk.hipsOffset	Hips offset	腰の高さ	腰部偏移	zh?
+inspector.chara.fk.hipsPosition	Hips position	腰の位置	腰部位置	zh?
+inspector.chara.fk.fromAnimation.all	From animation	アニメから	从动画	zh?
+inspector.chara.fk.fromAnimation.body	Body from animation	体をアニメから	身体从动画	zh?
+inspector.chara.fk.fromAnimation.neck	Neck from animation	首をアニメから	颈部从动画	zh?
+inspector.chara.fk.fromAnimation.rightHand	Right hand from animation	右手をアニメから	右手从动画	zh?
+inspector.chara.fk.fromAnimation.leftHand	Left hand from animation	左手をアニメから	左手从动画	zh?
+inspector.chara.fk.toIk	→ IK	→ IK	→ IK	zh?
+inspector.chara.fk.initHair	Reset hair	髪を初期化	初始化头发	zh?
+inspector.chara.fk.initSkirt	Reset skirt	スカートを初期化	初始化裙子	zh?
+inspector.chara.fk.size	FK handle size	FK ハンドルの大きさ	FK 手柄大小	zh?
+inspector.chara.fk.bone	{0}	{0}	{0}	zh?
+inspector.chara.ik.enabled	IK	IK	IK	zh?
+inspector.chara.ik.allGroups	All	すべて	全部	zh?
+inspector.chara.ik.group.body	Body	体	身体	zh?
+inspector.chara.ik.group.rightLeg	Right leg	右足	右腿	zh?
+inspector.chara.ik.group.leftLeg	Left leg	左足	左腿	zh?
+inspector.chara.ik.group.rightArm	Right arm	右手	右臂	zh?
+inspector.chara.ik.group.leftArm	Left arm	左手	左臂	zh?
+inspector.chara.ik.fromAnimation.all	From animation	アニメから	从动画	zh?
+inspector.chara.ik.fromAnimation.body	Body from animation	体をアニメから	身体从动画	zh?
+inspector.chara.ik.fromAnimation.rightLeg	Right leg from animation	右足をアニメから	右腿从动画	zh?
+inspector.chara.ik.fromAnimation.leftLeg	Left leg from animation	左足をアニメから	左腿从动画	zh?
+inspector.chara.ik.fromAnimation.rightArm	Right arm from animation	右手をアニメから	右臂从动画	zh?
+inspector.chara.ik.fromAnimation.leftArm	Left arm from animation	左手をアニメから	左臂从动画	zh?
+inspector.chara.ik.toFk	→ FK	→ FK	→ FK	zh?
+inspector.chara.ik.bake	Bake IK to FK	IK を FK に焼き込む	将 IK 烘焙为 FK	zh?
+inspector.chara.ik.convert	Convert imported IK	取り込んだ IK を変換	转换导入的 IK	zh?
+inspector.chara.ik.size	IK handle size	IK ハンドルの大きさ	IK 手柄大小	zh?
+inspector.chara.ik.targetPos	Position	位置	位置	zh?
+inspector.chara.ik.targetRot	Rotation	回転	旋转	zh?
+ik.target.Body	Hips	腰	腰部	zh?
+ik.target.LeftShoulder	Left shoulder	左肩	左肩	zh?
+ik.target.LeftArmChain	Left elbow	左肘	左肘	zh?
+ik.target.LeftHand	Left hand	左手	左手	zh?
+ik.target.RightShoulder	Right shoulder	右肩	右肩	zh?
+ik.target.RightArmChain	Right elbow	右肘	右肘	zh?
+ik.target.RightHand	Right hand	右手	右手	zh?
+ik.target.LeftThigh	Left thigh	左太もも	左大腿	zh?
+ik.target.LeftLegChain	Left knee	左膝	左膝	zh?
+ik.target.LeftFoot	Left foot	左足	左脚	zh?
+ik.target.RightThigh	Right thigh	右太もも	右大腿	zh?
+ik.target.RightLegChain	Right knee	右膝	右膝	zh?
+ik.target.RightFoot	Right foot	右足	右脚	zh?
+light.type.point	Point light	ポイントライト	点光源	zh?
+light.type.spot	Spot light	スポットライト	聚光灯	zh?
+light.type.directional	Directional light	平行光源	平行光	zh?
+inspector.chara.pose.browse	Poses…	ポーズ…	姿势…	zh?
+inspector.chara.pose.load	Load pose	ポーズを読み込む	读取姿势	zh?
+inspector.chara.pose.save	Save pose…	ポーズを保存…	保存姿势…	zh?
+inspector.chara.correction.leftArm	Left arm (upper arm, elbow, wrist)	左腕 (上腕・肘・手首)	左臂（上臂、肘、手腕）	zh?
+inspector.chara.correction.rightArm	Right arm (upper arm, elbow, wrist)	右腕 (上腕・肘・手首)	右臂（上臂、肘、手腕）	zh?
+inspector.chara.correction.leftKnee	Left knee	左膝	左膝	zh?
+inspector.chara.correction.rightKnee	Right knee	右膝	右膝	zh?
+inspector.chara.correction.leftForearm	Left forearm twist	左前腕のひねり	左前臂扭转	zh?
+inspector.chara.correction.rightForearm	Right forearm twist	右前腕のひねり	右前臂扭转	zh?
+inspector.chara.correction.leftThigh	Left thigh and buttock	左太もも・尻	左大腿与臀部	zh?
+inspector.chara.correction.rightThigh	Right thigh and buttock	右太もも・尻	右大腿与臀部	zh?
+inspector.chara.character.change	Change character…	キャラを変更…	更换角色…	zh?
+inspector.chara.character.useCardState	Use the card's state	カードの状態を使う	使用卡片状态	zh?
+inspector.chara.character.save	Save character…	キャラを保存…	保存角色…	zh?
+inspector.item.color1	Colour 1	色 1	颜色 1	zh?
+inspector.item.metallic1	Metallic 1	メタリック 1	金属度 1	zh?
+inspector.item.glossiness1	Glossiness 1	ツヤ 1	光泽度 1	zh?
+inspector.item.pattern.item1	Pattern 1	柄 1	花纹 1	zh?
+inspector.item.pattern.file1	Pattern file 1	柄の画像 1	花纹图片 1	zh?
+inspector.item.pattern.color1	Pattern colour 1	柄の色 1	花纹颜色 1	zh?
+inspector.item.pattern.clamp1	Repeat pattern 1	柄を繰り返す 1	花纹重复 1	zh?
+inspector.item.pattern.us1	Scale U 1	横の拡縮 1	横向缩放 1	zh?
+inspector.item.pattern.vs1	Scale V 1	縦の拡縮 1	纵向缩放 1	zh?
+inspector.item.pattern.ut1	Offset U 1	横の位置 1	横向偏移 1	zh?
+inspector.item.pattern.vt1	Offset V 1	縦の位置 1	纵向偏移 1	zh?
+inspector.item.pattern.rot1	Pattern rotation 1	柄の回転 1	花纹旋转 1	zh?
+inspector.item.color2	Colour 2	色 2	颜色 2	zh?
+inspector.item.metallic2	Metallic 2	メタリック 2	金属度 2	zh?
+inspector.item.glossiness2	Glossiness 2	ツヤ 2	光泽度 2	zh?
+inspector.item.pattern.item2	Pattern 2	柄 2	花纹 2	zh?
+inspector.item.pattern.file2	Pattern file 2	柄の画像 2	花纹图片 2	zh?
+inspector.item.pattern.color2	Pattern colour 2	柄の色 2	花纹颜色 2	zh?
+inspector.item.pattern.clamp2	Repeat pattern 2	柄を繰り返す 2	花纹重复 2	zh?
+inspector.item.pattern.us2	Scale U 2	横の拡縮 2	横向缩放 2	zh?
+inspector.item.pattern.vs2	Scale V 2	縦の拡縮 2	纵向缩放 2	zh?
+inspector.item.pattern.ut2	Offset U 2	横の位置 2	横向偏移 2	zh?
+inspector.item.pattern.vt2	Offset V 2	縦の位置 2	纵向偏移 2	zh?
+inspector.item.pattern.rot2	Pattern rotation 2	柄の回転 2	花纹旋转 2	zh?
+inspector.item.color3	Colour 3	色 3	颜色 3	zh?
+inspector.item.metallic3	Metallic 3	メタリック 3	金属度 3	zh?
+inspector.item.glossiness3	Glossiness 3	ツヤ 3	光泽度 3	zh?
+inspector.item.pattern.item3	Pattern 3	柄 3	花纹 3	zh?
+inspector.item.pattern.file3	Pattern file 3	柄の画像 3	花纹图片 3	zh?
+inspector.item.pattern.color3	Pattern colour 3	柄の色 3	花纹颜色 3	zh?
+inspector.item.pattern.clamp3	Repeat pattern 3	柄を繰り返す 3	花纹重复 3	zh?
+inspector.item.pattern.us3	Scale U 3	横の拡縮 3	横向缩放 3	zh?
+inspector.item.pattern.vs3	Scale V 3	縦の拡縮 3	纵向缩放 3	zh?
+inspector.item.pattern.ut3	Offset U 3	横の位置 3	横向偏移 3	zh?
+inspector.item.pattern.vt3	Offset V 3	縦の位置 3	纵向偏移 3	zh?
+inspector.item.pattern.rot3	Pattern rotation 3	柄の回転 3	花纹旋转 3	zh?
+inspector.item.color4	Colour 4 (glass)	色 4 (ガラス)	颜色 4（玻璃）	zh?
+inspector.item.alpha	Alpha	透明度	透明度	zh?
+inspector.item.emissionColor	Emission colour	発光色	发光颜色	zh?
+inspector.item.emissionPower	Emission strength	発光の強さ	发光强度	zh?
+inspector.item.lightCancel	Light cancel	ライト無効	忽略光照	zh?
+inspector.item.panel	Panel image	パネル画像	面板图片	zh?
+inspector.item.fk	FK	FK	FK	zh?
+inspector.item.dynamicBones	Sway (dynamic bones)	揺れ (ダイナミックボーン)	摆动（动态骨骼）	zh?
+inspector.item.fkBone	{0}	{0}	{0}	zh?
+inspector.item.option	Option {0}	オプション {0}	选项 {0}	zh?
+inspector.item.optionsAll	All options	すべてのオプション	全部选项	zh?
+inspector.item.animePattern	Animation pattern	アニメパターン	动画模式	zh?
+inspector.item.animeSpeed	Animation speed	アニメ速度	动画速度	zh?
+inspector.item.animeRestart	Restart animation	アニメを最初から	重新播放动画	zh?
+inspector.item.defaults	Defaults	初期値に戻す	恢复默认	zh?
+inspector.light.color	Colour	色	颜色	zh?
+inspector.light.intensity	Intensity	強さ	强度	zh?
+inspector.light.range	Range	範囲	范围	zh?
+inspector.light.spotAngle	Spot angle	スポット角	聚光角度	zh?
+inspector.light.shadow	Shadow	影	阴影	zh?
+inspector.light.enabled	On	点灯	开启	zh?
+inspector.light.showTarget	Show helper	補助線を表示	显示辅助线	zh?
+inspector.camera.active	Active	このカメラで見る	使用此相机	zh?
+inspector.camera.fov	Field of view	画角	视场角	zh?
+inspector.camera.fovFromView	Use the view's field of view	ビューの画角を使う	使用视图的视场角	zh?
+inspector.camera.setFromView	Set from view	現在の視点を設定	设为当前视角	zh?
+inspector.camera.lookThrough	Look through	このカメラで見る	通过此相机观看	zh?
+inspector.scene.map.map	Map	マップ	地图	zh?
+inspector.scene.map.pos	Position	位置	位置	zh?
+inspector.scene.map.rot	Rotation	回転	旋转	zh?
+inspector.scene.map.options	Map options	マップのオプション	地图选项	zh?
+inspector.scene.map.lights	Map lights	マップのライト	地图灯光	zh?
+inspector.scene.charaLight.color	Colour	色	颜色	zh?
+inspector.scene.charaLight.intensity	Intensity	強さ	强度	zh?
+inspector.scene.charaLight.rotX	Rotation X	回転 X	旋转 X	zh?
+inspector.scene.charaLight.rotY	Rotation Y	回転 Y	旋转 Y	zh?
+inspector.scene.charaLight.shadow	Shadow	影	阴影	zh?
+inspector.scene.cameraSlots.save	Save {0}	{0} に保存	保存到 {0}	zh?
+inspector.scene.cameraSlots.load	Load {0}	{0} を読み込む	读取 {0}	zh?
+inspector.scene.sound.bgm	BGM	BGM	背景音乐	zh?
+inspector.scene.sound.bgmRepeat	BGM repeat	BGM の繰り返し	背景音乐循环	zh?
+inspector.scene.sound.bgmPlay	Play BGM	BGM を再生	播放背景音乐	zh?
+inspector.scene.sound.userAudio	Outside audio	外部音声	外部音频	zh?
+inspector.scene.sound.userAudioRepeat	Outside audio repeat	外部音声の繰り返し	外部音频循环	zh?
+inspector.scene.sound.userAudioPlay	Play outside audio	外部音声を再生	播放外部音频	zh?
+inspector.effects.reset	Reset block	この項目をリセット	重置此项	zh?
+inspector.effects.colorGrading	Colour grading	カラーグレーディング	调色	zh?
+inspector.effects.colorGrading.lut	Filter	フィルター	滤镜	zh?
+inspector.effects.colorGrading.blend	Blend	ブレンド	混合	zh?
+inspector.effects.colorGrading.saturation	Saturation	彩度	饱和度	zh?
+inspector.effects.colorGrading.brightness	Brightness	明るさ	亮度	zh?
+inspector.effects.colorGrading.contrast	Contrast	コントラスト	对比度	zh?
+inspector.effects.ambientOcclusion	Ambient occlusion	アンビエントオクルージョン	环境光遮蔽	zh?
+inspector.effects.ambientOcclusion.enabled	On	有効	启用	zh?
+inspector.effects.ambientOcclusion.intensity	Intensity	強さ	强度	zh?
+inspector.effects.ambientOcclusion.thickness	Thickness	厚み	厚度	zh?
+inspector.effects.ambientOcclusion.color	Colour	色	颜色	zh?
+inspector.effects.bloom	Bloom	ブルーム	泛光	zh?
+inspector.effects.bloom.enabled	On	有効	启用	zh?
+inspector.effects.bloom.intensity	Intensity	強さ	强度	zh?
+inspector.effects.bloom.threshold	Threshold	しきい値	阈值	zh?
+inspector.effects.bloom.softKnee	Soft knee	ソフトニー	柔和过渡	zh?
+inspector.effects.bloom.clamp	Clamp	クランプ	钳制	zh?
+inspector.effects.bloom.diffusion	Diffusion	拡散	扩散	zh?
+inspector.effects.bloom.color	Colour	色	颜色	zh?
+inspector.effects.depthOfField	Depth of field	被写界深度	景深	zh?
+inspector.effects.depthOfField.enabled	On	有効	启用	zh?
+inspector.effects.depthOfField.focus	Focus target	ピントの対象	对焦目标	zh?
+inspector.effects.depthOfField.focalSize	Focal size	ピントの幅	焦点范围	zh?
+inspector.effects.depthOfField.aperture	Aperture	絞り	光圈	zh?
+inspector.effects.vignette	Vignette	ビネット	暗角	zh?
+inspector.effects.vignette.enabled	On	有効	启用	zh?
+inspector.effects.vignette.intensity	Intensity	強さ	强度	zh?
+inspector.effects.ssr	Screen-space reflections	画面空間反射	屏幕空间反射	zh?
+inspector.effects.ssr.enabled	On	有効	启用	zh?
+inspector.effects.reflectionProbe	Reflection probe	反射プローブ	反射探针	zh?
+inspector.effects.reflectionProbe.enabled	On	有効	启用	zh?
+inspector.effects.reflectionProbe.cubemap	Cubemap	キューブマップ	立方体贴图	zh?
+inspector.effects.reflectionProbe.intensity	Intensity	強さ	强度	zh?
+inspector.effects.fog	Fog	フォグ	雾	zh?
+inspector.effects.fog.enabled	On	有効	启用	zh?
+inspector.effects.fog.excludeFarPixels	Exclude far pixels	遠景を除く	排除远处像素	zh?
+inspector.effects.fog.height	Height	高さ	高度	zh?
+inspector.effects.fog.heightDensity	Height density	高さの濃度	高度密度	zh?
+inspector.effects.fog.color	Colour	色	颜色	zh?
+inspector.effects.fog.density	Density	濃度	密度	zh?
+inspector.effects.sunShafts	Sun shafts	サンシャフト	光束	zh?
+inspector.effects.sunShafts.enabled	On	有効	启用	zh?
+inspector.effects.sunShafts.caster	Sun object	太陽にするオブジェクト	光源对象	zh?
+inspector.effects.sunShafts.thresholdColor	Threshold colour	しきい値の色	阈值颜色	zh?
+inspector.effects.sunShafts.color	Colour	色	颜色	zh?
+inspector.effects.sunShafts.distanceFalloff	Distance falloff	距離減衰	距离衰减	zh?
+inspector.effects.sunShafts.blurSize	Blur size	ぼかし幅	模糊大小	zh?
+inspector.effects.sunShafts.intensity	Intensity	強さ	强度	zh?
+inspector.effects.shadows	Self shadow	セルフシャドウ	自阴影	zh?
+inspector.effects.shadows.enabled	On	有効	启用	zh?
+inspector.effects.ambient	Environment lighting	環境光	环境光	zh?
+inspector.effects.ambient.sky	Sky	空	天空	zh?
+inspector.effects.ambient.equator	Equator	地平	地平线	zh?
+inspector.effects.ambient.ground	Ground	地面	地面	zh?
+inspector.effects.sky	Sky	空	天空	zh?
+inspector.effects.sky.enabled	On	有効	启用	zh?
+inspector.effects.sky.pattern	Sky pattern	空の種類	天空类型	zh?
+#A
+toolbar.file	File	ファイル	文件	zh?
+toolbar.add	Add	追加	添加	zh?
+toolbar.camera	Camera	カメラ	相机	zh?
+toolbar.view	View	表示	视图	zh?
+toolbar.language	Language	Language	Language	English in every language (findable by anyone)
+toolbar.help	Help	ヘルプ	帮助	zh?
+toolbar.history	History	履歴	历史记录	zh?
+toolbar.undoLabel	Undo {0}	元に戻す: {0}	撤销 {0}	zh?
+toolbar.redoLabel	Redo {0}	やり直し: {0}	重做 {0}	zh?
+status.noSelection	Nothing selected	選択なし	未选择	zh?
+status.selection	{0} selected, primary: {1}	{0} 個選択、主: {1}	已选择 {0} 个，主对象：{1}	zh?
+status.untitled	Untitled	無題	未命名	zh?
+status.noFindings	No findings	問題はありません	没有发现问题	zh?
+panel.hide	Hide panel	パネルを隠す	隐藏面板	zh?
+space.auto	Auto	自動	自动	zh?
+space.world	World	ワールド	世界	zh?
+space.local	Local	ローカル	局部	zh?
+space.parent	Parent	親	父级	zh?
+pivot.individual	Individual	個別	各自原点	zh?
+pivot.centre	Centre	中心	选择中心	zh?
+camera.free	Free camera	フリーカメラ	自由相机	zh?
+camera.slots	Load camera slot	カメラスロットを読み込む	读取相机位置	zh?
+camera.slotsSave	Save camera slot	カメラスロットに保存	保存相机位置	zh?
+camera.active	Active camera	使用中のカメラ	当前相机	zh?
+viewport.release	Release	解除	解除	zh?
+viewport.activeCamera	Camera: {0}	カメラ: {0}	相机：{0}	zh?
+history.empty	No history	履歴なし	没有历史记录	zh?
+history.origin	(start)	(最初)	（开始）	zh?
+dialog.delete.title	Delete	削除	删除	zh?
+dialog.delete.message	Delete {0} selected object(s)?	選択中の {0} 個を削除しますか?	删除所选的 {0} 个对象？	zh?
+dialog.rename.title	Rename	名前の変更	重命名	zh?
+dialog.quit.title	Quit	終了	退出	zh?
+dialog.quit.message	The scene has unsaved changes. Quit anyway?	シーンに保存していない変更があります。終了しますか?	场景有未保存的更改。仍要退出吗？	zh?
+dialog.about.message	HS2Next {0}\nUnity {1}	HS2Next {0}\nUnity {1}	HS2Next {0}\nUnity {1}	
+msg.opFailed	{0}: {1}	{0}: {1}	{0}：{1}	zh?
+msg.saved	Saved {0}	{0} を保存しました	已保存 {0}	zh?
+msg.transformCopied	Transform copied	トランスフォームをコピーしました	已复制变换	zh?
+msg.noBrowser	No file browser is available	ファイルブラウザーがありません	没有可用的文件浏览器	zh?
+msg.noOptionsPanel	The options panel is not available	オプションパネルがありません	选项面板不可用	zh?
+msg.actionNeedsArg	This action needs the argument "{0}"	この操作には引数「{0}」が必要です	此操作需要参数“{0}”	zh?
+#C
+attach.group.0	Hair	髪	头发	zh?
+attach.group.1	Head	頭	头部	zh?
+attach.group.2	Face	顔	脸部	zh?
+attach.group.3	Neck	首	颈部	zh?
+attach.group.4	Torso	胴	躯干	zh?
+attach.group.5	Waist	腰	腰部	zh?
+attach.group.6	Legs	脚	腿部	zh?
+attach.group.7	Arms	腕	手臂	zh?
+attach.group.8	Hands	手	手	zh?
+attach.group.9	Groin	股間	胯部	zh?
+attach.group.unknown	Other	その他	其他	zh?
+attach.point.N_Hair_pony	Ponytail	ポニー	马尾	zh?
+attach.point.N_Hair_twin_L	Twin tail left	ツイン左	左双马尾	zh?
+attach.point.N_Hair_twin_R	Twin tail right	ツイン右	右双马尾	zh?
+attach.point.N_Hair_pin_L	Hairpin left	ヘアピン左	左发夹	zh?
+attach.point.N_Hair_pin_R	Hairpin right	ヘアピン右	右发夹	zh?
+attach.point.N_Head_top	Hat	帽子	帽子	zh?
+attach.point.N_Hitai	Forehead	額	额头	zh?
+attach.point.N_Head	Head centre	頭中心	头部中心	zh?
+attach.point.N_Face	Face	顔	脸	zh?
+attach.point.N_Earring_L	Left ear	左耳	左耳	zh?
+attach.point.N_Earring_R	Right ear	右耳	右耳	zh?
+attach.point.N_Megane	Glasses	眼鏡	眼镜	zh?
+attach.point.N_Nose	Nose	鼻	鼻子	zh?
+attach.point.N_Mouth	Mouth	口	嘴	zh?
+attach.point.N_Neck	Neck	首	脖子	zh?
+attach.point.N_Chest_f	Upper chest	胸上	胸部上方	zh?
+attach.point.N_Chest	Upper chest centre	胸上中央	胸部上方中央	zh?
+attach.point.N_Tikubi_L	Left chest	左胸	左胸	zh?
+attach.point.N_Tikubi_R	Right chest	右胸	右胸	zh?
+attach.point.N_Back	Back centre	背中中央	背部中央	zh?
+attach.point.N_Back_L	Back left	背中左	背部左	zh?
+attach.point.N_Back_R	Back right	背中右	背部右	zh?
+attach.point.N_Waist	Waist	腰	腰	zh?
+attach.point.N_Waist_f	Waist front	腰前	腰前	zh?
+attach.point.N_Waist_b	Waist back	腰後ろ	腰后	zh?
+attach.point.N_Waist_L	Waist left	腰左	腰左	zh?
+attach.point.N_Waist_R	Waist right	腰右	腰右	zh?
+attach.point.N_Leg_L	Left thigh	左太もも	左大腿	zh?
+attach.point.N_Knee_L	Left knee	左ひざ	左膝	zh?
+attach.point.N_Ankle_L	Left ankle	左足首	左脚踝	zh?
+attach.point.N_Foot_L	Left heel	かかと左	左脚跟	zh?
+attach.point.N_Leg_R	Right thigh	右太もも	右大腿	zh?
+attach.point.N_Knee_R	Right knee	右ひざ	右膝	zh?
+attach.point.N_Ankle_R	Right ankle	右足首	右脚踝	zh?
+attach.point.N_Foot_R	Right heel	かかと右	右脚跟	zh?
+attach.point.N_Shoulder_L	Left shoulder	左肩	左肩	zh?
+attach.point.N_Elbo_L	Left elbow	左肘	左肘	zh?
+attach.point.N_Arm_L	Left upper arm	左上腕	左上臂	zh?
+attach.point.N_Wrist_L	Left wrist	左手首	左手腕	zh?
+attach.point.N_Shoulder_R	Right shoulder	右肩	右肩	zh?
+attach.point.N_Elbo_R	Right elbow	右肘	右肘	zh?
+attach.point.N_Arm_R	Right upper arm	右上腕	右上臂	zh?
+attach.point.N_Wrist_R	Right wrist	右手首	右手腕	zh?
+attach.point.N_Hand_L	Left hand	左手	左手	zh?
+attach.point.N_Index_L	Left index finger	左人差指	左食指	zh?
+attach.point.N_Middle_L	Left middle finger	左中指	左中指	zh?
+attach.point.N_Ring_L	Left ring finger	左薬指	左无名指	zh?
+attach.point.N_Hand_R	Right hand	右手	右手	zh?
+attach.point.N_Index_R	Right index finger	右人差指	右食指	zh?
+attach.point.N_Middle_R	Right middle finger	右中指	右中指	zh?
+attach.point.N_Ring_R	Right ring finger	右薬指	右无名指	zh?
+attach.point.N_Dan	Lower abdomen 1	下腹部①	下腹部①	zh?
+attach.point.N_Kokan	Lower abdomen 2	下腹部②	下腹部②	zh?
+attach.point.N_Ana	Lower abdomen 3	下腹部③	下腹部③	zh?
+workspace.empty	The scene is empty. Add a character, an item or a light from the Add menu or the browsers below.	シーンは空です。追加メニューか下のブラウザからキャラ・アイテム・ライトを追加してください。	场景为空。请从添加菜单或下方的浏览器添加角色、物品或灯光。	zh?
+workspace.collapseAll	Collapse all	すべて折りたたむ	全部折叠	zh?
+workspace.expandAll	Expand all	すべて展開	全部展开	zh?
+workspace.groupRow	Group: {0}	グループ : {0}	组：{0}	zh?
+workspace.pointRow	Point: {0}	部位 : {0}	部位：{0}	zh?
+workspace.eyeTip	Show / hide	表示 / 非表示	显示 / 隐藏	zh?
+workspace.lightEyeTip	Light visibility has no effect (use Enabled in the inspector)	ライトの表示切替は効果がありません (インスペクターの「有効」を使ってください)	灯光的显示开关无效（请使用检查器中的“启用”）	zh?
+workspace.parentHiddenTip	A parent is hidden	親が非表示です	父对象已隐藏	zh?
+workspace.hide	Hide	非表示	隐藏	zh?
+workspace.show	Show	表示	显示	zh?
+workspace.detach	Detach (to the root)	親子付け解除 (ルートへ)	解除父子关系（移至根）	zh?
+workspace.selectChildren	Select children	子を選択	选择子对象	zh?
+workspace.addFolderHere	Add folder here	ここにフォルダーを追加	在此添加文件夹	zh?
+workspace.cameraActivate	Look through this camera	このカメラで見る	通过此相机观看	zh?
+workspace.cameraRelease	Release the camera	カメラを解除	释放相机	zh?
+workspace.choosePoint	Attach to {0}:	{0} の部位を選択:	附加到 {0}：	zh?
+workspace.dragCount	{0} objects	{0} 個のオブジェクト	{0} 个对象	zh?
+workspace.moveRefused	Cannot move: {0}	移動できません: {0}	无法移动：{0}	zh?
+workspace.dropOnPoint	Drop on an attach point row	部位の行にドロップしてください	请拖放到部位行上	zh?
+workspace.dropOnRow	Drop onto a character row	キャラの行にドロップしてください	请拖放到角色行上	zh?
+workspace.dropOnChara	Drop onto a character	キャラの上にドロップしてください	请拖放到角色上	zh?
+workspace.dropWrongKind	Not allowed here	ここには置けません	此处不允许	zh?
+workspace.dropUnderItself	A node cannot go under itself	自分自身の下には置けません	不能放到自身下方	zh?
+workspace.dropNoChildren	This object takes no children	このオブジェクトは子を持てません	此对象不能拥有子对象	zh?
+browser.add	Add	追加	添加	zh?
+browser.changeChara	Change character	キャラ変更	更换角色	zh?
+browser.applyAnime	Apply to the selected characters	選択中のキャラに適用	应用到所选角色	zh?
+browser.loadMap	Load map	マップを読み込む	加载地图	zh?
+browser.loadPose	Load pose	ポーズを読み込む	加载姿势	zh?
+browser.savePose	Save pose…	ポーズを保存…	保存姿势…	zh?
+browser.savePoseTitle	Save pose as	ポーズに名前を付けて保存	姿势另存为	zh?
+browser.poseSaved	Pose saved	ポーズを保存しました	姿势已保存	zh?
+browser.needChara	Select a character first	先にキャラを選択してください	请先选择角色	zh?
+browser.delete	Delete	削除	删除	zh?
+browser.grid	Grid	グリッド	网格	zh?
+browser.list	List	リスト	列表	zh?
+browser.zoom	Thumbnail size	サムネイルの大きさ	缩略图大小	zh?
+browser.scanning	Reading the folders…	フォルダーを読み込み中…	正在读取文件夹…	zh?
+browser.indexing	(reading names: {0} left)	(名前を読み込み中: 残り {0})	（正在读取名称：剩余 {0}）	zh?
+browser.root.hs2	HS2	HS2	HS2	
+browser.root.hs2next	HS2Next	HS2Next	HS2Next	
+browser.vanilla	Vanilla	バニラ	原版	zh?
+browser.col.name	Name	名前	名称	zh?
+browser.col.category	Category	カテゴリー	类别	zh?
+browser.col.source	Source	提供元	来源	zh?
+browser.col.id	ID	ID	ID	
+browser.col.folder	Folder	フォルダー	文件夹	zh?
+browser.col.target	Lights	照らす対象	照射对象	zh?
+browser.lightTarget.all	All	すべて	全部	zh?
+browser.lightTarget.chara	Characters	キャラ	角色	zh?
+browser.lightTarget.map	Map	マップ	地图	zh?
+files.untitled	Untitled	無題	未命名	zh?
+files.fileName	File name	ファイル名	文件名	zh?
+files.title	Title	タイトル	标题	zh?
+files.load	Load	読み込む	加载	zh?
+files.import	Import	取り込む	导入	zh?
+files.reveal	Show in Explorer	エクスプローラーで表示	在资源管理器中显示	zh?
+files.saved	Saved {0}	{0} を保存しました	已保存 {0}	zh?
+files.loaded	Opened {0}	{0} を開きました	已打开 {0}	zh?
+files.loadedWithFindings	Opened {0} ({1} warnings, see the findings)	{0} を開きました (警告 {1} 件、所見を参照)	已打开 {0}（{1} 条警告，请查看发现列表）	zh?
+files.imported	Imported {0}: {1} objects	{0} を取り込みました: {1} 個	已导入 {0}：{1} 个对象	zh?
+files.characters	Characters: {0}	キャラ: {0}	角色：{0}	zh?
+files.size	{0} MB	{0} MB	{0} MB	
+files.current	(the open scene)	(開いているシーン)	（当前打开的场景）	zh?
+files.noRecent	No recent files	最近使ったファイルはありません	没有最近的文件	zh?
+files.badName.empty	Enter a file name	ファイル名を入力してください	请输入文件名	zh?
+files.badName.rooted	Give a name, not an absolute path	絶対パスではなく名前を入力してください	请输入名称而不是绝对路径	zh?
+files.badName.segment	Empty or relative folder names are not allowed	空のフォルダー名や相対指定は使えません	不允许空的或相对的文件夹名	zh?
+files.badName.chars	The name holds characters a file name cannot have	ファイル名に使えない文字が含まれています	名称包含文件名不允许的字符	zh?
+files.badName.outside	The file must stay inside the scene folder	シーンフォルダーの外には保存できません	文件必须位于场景文件夹内	zh?
+dialog.save	Save	保存	保存	zh?
+dialog.dontSave	Don't save	保存しない	不保存	zh?
+dialog.unsaved.title	Unsaved changes	未保存の変更	未保存的更改	zh?
+dialog.unsaved.message	Save the changes to {0}?	{0} の変更を保存しますか?	是否保存对 {0} 的更改？	zh?
+dialog.unsaved.quit	Save the changes to {0} before quitting?	終了する前に {0} の変更を保存しますか?	退出前是否保存对 {0} 的更改？	zh?
+dialog.overwrite.title	Replace the file?	ファイルを置き換えますか?	替换文件？	zh?
+dialog.overwrite.message	{0} already exists. Replace it?	{0} は既にあります。置き換えますか?	{0} 已存在。是否替换？	zh?
+dialog.deletePose.title	Delete pose	ポーズを削除	删除姿势	zh?
+dialog.deletePose.message	Delete the pose file {0}?	ポーズファイル {0} を削除しますか?	是否删除姿势文件 {0}？	zh?
+dialog.deleteScene.message	Delete the scene file {0}?	シーンファイル {0} を削除しますか?	是否删除场景文件 {0}？	zh?
+msg.saveFailed	Save failed: {0}	保存に失敗しました: {0}	保存失败：{0}	zh?
+msg.thumbnailUnreadable	Thumbnail not readable: {0}	サムネイルを読めません: {0}	无法读取缩略图：{0}	zh?
+sort.newest	Newest first	新しい順	最新优先	zh?
+options.noConflicts	No key conflicts	キーの重複はありません	没有按键冲突	zh?
+options.vanilla	HS2 option: {0}	HS2 のオプション: {0}	HS2 选项：{0}	zh?
+options.lockedByCommandLine	Set on the command line for this session	このセッションではコマンドラインで指定されています	本次会话由命令行指定	zh?
+options.renderingNote	Rendering options (anti-aliasing, grading, …) are set through the bridge command app.options in 3.5.	描画オプション (アンチエイリアス、グレーディングなど) は 3.5 ではブリッジのコマンド app.options で設定します。	渲染选项（抗锯齿、调色等）在 3.5 中通过桥接命令 app.options 设置。	zh?
+keys.pressKey	Press a key… (Esc cancels)	キーを押してください… (Esc で取消)	请按键…（Esc 取消）	zh?
+keys.recording	Recording a key for {0}	{0} のキーを記録中	正在为 {0} 录制按键	zh?
+files.recent	Recent	最近使ったファイル	最近的文件	zh?
+files.chooseImage	Choose an image	画像を選択	选择图片	zh?
+#I
+inspector.empty	Nothing selected	何も選択されていません	未选择任何对象	zh?
+inspector.selection.count	{0} selected, {1} of this kind	{0} 個選択中（この種類は {1} 個）	已选择 {0} 个，此类型 {1} 个	zh?
+inspector.kind.chara	Character	キャラ	角色	zh?
+inspector.kind.item	Item	アイテム	物品	zh?
+inspector.kind.light	Light	ライト	灯光	zh?
+inspector.kind.folder	Folder	フォルダー	文件夹	zh?
+inspector.kind.camera	Camera	カメラ	相机	zh?
+inspector.kind.route	Route	ルート	路线	zh?
+inspector.kind.unknown	Unknown object	不明なオブジェクト	未知对象	zh?
+inspector.copyId	Copy id	ID をコピー	复制 ID	zh?
+inspector.idCopied	Id copied	ID をコピーしました	已复制 ID	zh?
+inspector.findings	{0} findings (warnings or errors)	{0} 件の警告・エラー	{0} 条警告或错误	zh?
+inspector.notBuilt	Not built yet	まだ構築されていません	尚未构建	zh?
+inspector.notBuiltState	Not built: {0}	未構築: {0}	未构建：{0}	zh?
+inspector.item.notBuilt	Item not built ({0}): rows that depend on its features are hidden	アイテム未構築（{0}）: 機能に依存する項目は表示されません	物品未构建（{0}）：依赖其功能的项目已隐藏	zh?
+inspector.item.optionN	Option {0}	オプション {0}	选项 {0}	zh?
+inspector.opaque	This object is kept as stored (no inspector).	このオブジェクトは保存されたまま保持されます（インスペクターなし）。	此对象按原样保留（无检查器）。	zh?
+inspector.route.placeholder	Routes are edited in Phase 3.6.	ルートの編集は Phase 3.6 で対応します。	路线编辑将在 Phase 3.6 提供。	zh?
+inspector.pending.op	Not available yet: the operation is still to be added.	未対応: 操作がまだ用意されていません。	暂不可用：该操作尚未添加。	zh?
+inspector.pending.saveChara	Saving a character from the inspector is not available yet.	インスペクターからのキャラ保存はまだ使えません。	暂不能从检查器保存角色。	zh?
+inspector.chara.anime.choose	Choose…	選択…	选择…	zh?
+inspector.chara.anime.copied	Animation copied	アニメをコピーしました	已复制动画	zh?
+inspector.chara.state.accessorySlot	Slot {0}: {1}	スロット {0}: {1}	槽位 {0}：{1}	zh?
+inspector.chara.state.noAccessories	No accessories	アクセサリーなし	无饰品	zh?
+inspector.chara.hands.fromAnime	From the animation	アニメに従う	跟随动画	zh?
+inspector.chara.fk.noBones	Turn FK on to edit the bones of the applied groups.	FK をオンにすると、適用中のグループの骨を編集できます。	开启 FK 后可编辑所应用组的骨骼。	zh?
+inspector.chara.fk.ikMark	IK	IK	IK	zh?
+inspector.chara.fk.overriddenByIk	IK-driven: the FK value is the IK's starting pose	IK が動かす骨: FK の値は IK の初期姿勢になります	由 IK 驱动：FK 值为 IK 的起始姿势	zh?
+inspector.chara.pose.saveTitle	Save pose	ポーズを保存	保存姿势	zh?
+inspector.chara.pose.saveMessage	Name of the pose file	ポーズファイルの名前	姿势文件名	zh?
+inspector.chara.pose.overwriteTitle	Overwrite pose	ポーズの上書き	覆盖姿势	zh?
+inspector.chara.pose.overwrite	{0} exists. Overwrite it?	{0} は既にあります。上書きしますか?	{0} 已存在。要覆盖吗？	zh?
+inspector.chara.pose.saved	Pose saved: {0}	ポーズを保存しました: {0}	已保存姿势：{0}	zh?
+inspector.chara.character.source	Source: {0}	元データ: {0}	来源：{0}	zh?
+inspector.chara.character.stored	character data in the scene	シーン内のキャラデータ	场景中的角色数据	zh?
+inspector.chara.character.changeHint	Pick the new character in the character browser, then press Change character	キャラ一覧で新しいキャラを選び、「キャラ変更」を押してください	请在角色列表中选择新角色，然后按“更换角色”	zh?
+inspector.scene.section.effects	Screen effects	画面効果	画面效果	zh?
+inspector.scene.section.background	Background / frame	背景・フレーム	背景 / 边框	zh?
+inspector.scene.background.placeholder	Background and frame images arrive in Phase 3.6.	背景とフレームの画像は Phase 3.6 で対応します。	背景和边框图片将在 Phase 3.6 提供。	zh?
+inspector.scene.map.change	Change…	変更…	更改…	zh?
+inspector.scene.map.none	(no map)	（マップなし）	（无地图）	zh?
+inspector.scene.pickNode	Pick	選ぶ	拾取	zh?
+inspector.scene.pickNode.hint	Click a node in the tree or the viewport	ツリーかビューでオブジェクトをクリックしてください	请在树或视图中点击一个对象	zh?
+inspector.scene.cameraSlots.slot	Slot {0}	カメラ {0}	相机 {0}	zh?
+inspector.scene.cameraSlots.saved	saved	登録済み	已保存	zh?
+inspector.scene.cameraSlots.empty	empty	空き	空	zh?
+#I
+inspector.item.panelColor	Panel colour	パネルの色	面板颜色	zh?
+inspector.item.panelUs	Panel scale U	パネル横の拡縮	面板横向缩放	zh?
+inspector.item.panelVs	Panel scale V	パネル縦の拡縮	面板纵向缩放	zh?
+inspector.item.panelUt	Panel offset U	パネル横の位置	面板横向偏移	zh?
+inspector.item.panelVt	Panel offset V	パネル縦の位置	面板纵向偏移	zh?
+inspector.item.panelRot	Panel rotation	パネルの回転	面板旋转	zh?
+inspector.item.panelClamp	Repeat panel image	パネル画像を繰り返す	面板图片重复	zh?
+inspector.chara.fk.hipsPositionClear	Clear	解除	清除	zh?
+inspector.chara.character.saveTitle	Save character	キャラを保存	保存角色	zh?
+inspector.chara.character.saveMessage	Name of the character file	キャラファイルの名前	角色文件名	zh?
+inspector.chara.character.overwriteTitle	Overwrite character	キャラの上書き	覆盖角色	zh?
+inspector.chara.character.saved	Character saved: {0}	キャラを保存しました: {0}	已保存角色：{0}	zh?
+inspector.chara.meShaderUnavailable	MaterialEditor shaders not available in HS2Next (drawn with the standard skin): {0}	HS2Next では描けない MaterialEditor のシェーダー（標準の肌で描画）: {0}	HS2Next 无法绘制的 MaterialEditor 着色器（以标准皮肤绘制）：{0}	zh?
+inspector.chara.meShaderUnavailable.tip	A plugin can supply a URP shader for these names through the plugin shader supply point; HS2Next itself ships none for them.	プラグインはプラグインのシェーダー供給口からこれらの名前に URP のシェーダーを供給できます。HS2Next 自体には含まれていません。	插件可以通过插件着色器提供接口为这些名称提供 URP 着色器；HS2Next 本身不包含它们。	zh?
+#P36 (Phase 3.6 package P: time / capture / route actions, routes / time / capture options, route and scene image rows, the 32 eases)
+action.time.pause	Pause / resume the scene	シーンの一時停止 / 再開	暂停 / 继续场景	zh?
+action.time.step	Step one frame	コマ送り	单步前进	zh?
+action.capture.screenshot	Screenshot	スクリーンショット	截图	zh?
+action.capture.dialog	Screenshot…	スクリーンショットの設定…	截图设置…	zh?
+action.route.play	Play route	ルートを再生	播放路径	zh?
+action.route.stop	Stop route	ルートを停止	停止路径	zh?
+action.route.addPoint	Add point	ポイント追加	添加点	zh?
+action.route.deletePoint	Delete point	ポイント削除	删除点	zh?
+action.route.resetAid	Reset aid point	補助点をリセット	重置辅助点	zh?
+action.route.playAll	Play all routes	全て再生	全部播放	zh?
+action.route.restartAll	Restart all routes	全て最初から再生	全部从头播放	zh?
+action.route.stopAll	Stop all routes	全て停止	全部停止	zh?
+action.view.routes	Show routes	ルートを表示	显示路径	zh?
+keys.group.time	Scene time	シーンの時間	场景时间	zh?
+keys.group.capture	Screenshot	スクリーンショット	截图	zh?
+keys.group.route	Routes	ルート	路径	zh?
+option.routes.timing	Route timing	ルートの所要時間	路径计时	zh?
+option.routes.timing.hs2	As HS2 (scenes keep their speed)	HS2 と同じ（シーンの速度を保つ）	与 HS2 相同（保持场景速度）	zh?
+option.routes.timing.length	Constant speed (curve length)	一定の速さ（曲線の長さ）	匀速（曲线长度）	zh?
+option.routes.orientSmoothing	Smooth route orientation (HS2's lag)	ルートの向きをなめらかにする（HS2 の遅れ）	平滑路径朝向（HS2 的延迟）	zh?
+option.routes.pointLimit	Limit route points to 11	ルートのポイントを 11 個までにする	路径点最多 11 个	zh?
+option.routes.lineWidth	Route line width	ルートのラインの太さ	路径线宽	zh?
+option.view.routes	Routes	ルート	路径	zh?
+option.time.stepDt	Step length (s)	コマ送りの長さ（秒）	单步时长（秒）	zh?
+option.capture.mode	Screenshot size	スクリーンショットのサイズ	截图尺寸	zh?
+option.capture.mode.fit	Fit the window	ウィンドウに合わせる	适合窗口	zh?
+option.capture.mode.viewport	Viewport	ビューポート	视口	zh?
+option.capture.mode.custom	Custom	指定	自定义	zh?
+option.capture.scale	Screenshot scale	スクリーンショットの倍率	截图倍率	zh?
+option.capture.width	Custom width	指定の幅	自定义宽度	zh?
+option.capture.height	Custom height	指定の高さ	自定义高度	zh?
+option.capture.aspectLock	Keep the aspect ratio	縦横比を保つ	保持宽高比	zh?
+option.capture.supersample	Supersampling	スーパーサンプリング	超级采样	zh?
+option.capture.supersample.1	Off (1×)	なし（1×）	关（1×）	zh?
+option.capture.supersample.2	2×	2×	2×	
+option.capture.supersample.4	4×	4×	4×	
+option.capture.frame	Include the frame image	フレーム画像を含める	包含边框图像	zh?
+option.capture.maxPixels	Largest render (pixels; above 16.6 Mpix may exceed an 8 GB GPU)	最大の描画サイズ（画素数。1,660 万画素を超えると 8 GB の GPU では足りないことがある）	最大渲染尺寸（像素；超过 1660 万像素可能超出 8 GB 显卡）	zh?
+option.images.embed	Embed picked images in the scene	選んだ画像をシーンに埋め込む	将所选图像嵌入场景	zh?
+inspector.route.section.route	Route	ルート	路径	zh?
+inspector.route.section.point	Route point	ルートのポイント	路径点	zh?
+inspector.route.play	Play	再生	播放	zh?
+inspector.route.stop	Stop	停止	停止	zh?
+inspector.route.addPoint	Add point	ポイント追加	添加点	zh?
+inspector.route.loop	Loop	ループ	循环	zh?
+inspector.route.showLine	Show line	ラインを表示	显示线	zh?
+inspector.route.color	Line colour	ルートのラインカラー	线条颜色	zh?
+inspector.route.orient	Orient	向き	朝向	zh?
+enum.routeOrient.none	None	なし	无	zh?
+enum.routeOrient.xy	XY	XY	XY	
+enum.routeOrient.y	Y	Y	Y	
+inspector.route.point.speed	Speed	速度	速度	zh?
+inspector.route.point.ease	Ease	動き方	缓动	zh?
+inspector.route.point.easeMore	More…	その他…	更多…	zh?
+inspector.route.point.connection	Connection	接続	连接	zh?
+enum.routeConnection.line	Line	直線	直线	zh?
+enum.routeConnection.curve	Curve	曲線	曲线	zh?
+inspector.route.point.link	Link	リンク	链接	zh?
+inspector.route.point.resetAid	Reset aid point	補助点をリセット	重置辅助点	zh?
+inspector.route.point.pos	Position	位置	位置	zh?
+inspector.route.point.rot	Rotation	回転	旋转	zh?
+inspector.route.point.aid	Aid point	補助点	辅助点	zh?
+inspector.route.point.delete	Delete point	ポイント削除	删除点	zh?
+route.point.start	Start	スタート	起点	zh?
+route.point.n	Point {0}	ポイント{0}	点 {0}	zh?
+route.points	Points ({0})	ポイント（{0}）	点（{0}）	zh?
+route.pointCount	{0} / {1} points	{0} / {1} ポイント	{0} / {1} 个点	zh?
+route.state.stopped	Stopped	停止中	已停止	zh?
+route.state.playing	Playing	再生中	播放中	zh?
+route.state.ended	Ended	終了	已结束	zh?
+inspector.scene.section.images	Background / frame	背景 / フレーム	背景 / 边框	zh?
+inspector.scene.images.background	Background	背景	背景	zh?
+inspector.scene.images.frame	Frame	フレーム	边框	zh?
+inspector.scene.images.clearColour	Clear colour…	背景色…	背景色…	zh?
+inspector.scene.section.routes	Routes	ルート	路径	zh?
+inspector.scene.routes.playAll	Play all	全て再生	全部播放	zh?
+inspector.scene.routes.restartAll	Restart all	全て最初から再生	全部从头播放	zh?
+inspector.scene.routes.stopAll	Stop all	全て停止	全部停止	zh?
+inspector.capture.section	Screenshot	スクリーンショット	截图	zh?
+inspector.capture.take	Take	撮影	拍摄	zh?
+route.ease.linear	Linear	直線的	线性	zh?
+route.ease.easeInQuad	Ease in (quad)	徐々に早く	渐快（二次）	zh?
+route.ease.easeOutQuad	Ease out (quad)	徐々に遅く	渐慢（二次）	zh?
+route.ease.easeInQuart	Ease in (quart)	急に早く	急快（四次）	zh?
+route.ease.easeOutQuart	Ease out (quart)	急に遅く	急慢（四次）	zh?
+route.ease.easeOutBounce	Bounce	バウンド	弹跳	zh?
+route.ease.easeInOutQuad	Ease in-out (quad)	イーズインアウト（2 次）	缓入缓出（二次）	zh?
+route.ease.easeInCubic	Ease in (cubic)	イーズイン（3 次）	缓入（三次）	zh?
+route.ease.easeOutCubic	Ease out (cubic)	イーズアウト（3 次）	缓出（三次）	zh?
+route.ease.easeInOutCubic	Ease in-out (cubic)	イーズインアウト（3 次）	缓入缓出（三次）	zh?
+route.ease.easeInOutQuart	Ease in-out (quart)	イーズインアウト（4 次）	缓入缓出（四次）	zh?
+route.ease.easeInQuint	Ease in (quint)	イーズイン（5 次）	缓入（五次）	zh?
+route.ease.easeOutQuint	Ease out (quint)	イーズアウト（5 次）	缓出（五次）	zh?
+route.ease.easeInOutQuint	Ease in-out (quint)	イーズインアウト（5 次）	缓入缓出（五次）	zh?
+route.ease.easeInSine	Ease in (sine)	イーズイン（サイン）	缓入（正弦）	zh?
+route.ease.easeOutSine	Ease out (sine)	イーズアウト（サイン）	缓出（正弦）	zh?
+route.ease.easeInOutSine	Ease in-out (sine)	イーズインアウト（サイン）	缓入缓出（正弦）	zh?
+route.ease.easeInExpo	Ease in (expo)	イーズイン（指数）	缓入（指数）	zh?
+route.ease.easeOutExpo	Ease out (expo)	イーズアウト（指数）	缓出（指数）	zh?
+route.ease.easeInOutExpo	Ease in-out (expo)	イーズインアウト（指数）	缓入缓出（指数）	zh?
+route.ease.easeInCirc	Ease in (circular)	イーズイン（円）	缓入（圆形）	zh?
+route.ease.easeOutCirc	Ease out (circular)	イーズアウト（円）	缓出（圆形）	zh?
+route.ease.easeInOutCirc	Ease in-out (circular)	イーズインアウト（円）	缓入缓出（圆形）	zh?
+route.ease.spring	Spring	スプリング	弹簧	zh?
+route.ease.easeInBounce	Bounce in	バウンド（イン）	弹跳（缓入）	zh?
+route.ease.easeInOutBounce	Bounce in-out	バウンド（インアウト）	弹跳（缓入缓出）	zh?
+route.ease.easeInBack	Back in	バック（イン）	回退（缓入）	zh?
+route.ease.easeOutBack	Back out	バック（アウト）	回退（缓出）	zh?
+route.ease.easeInOutBack	Back in-out	バック（インアウト）	回退（缓入缓出）	zh?
+route.ease.easeInElastic	Elastic in	エラスティック（イン）	弹性（缓入）	zh?
+route.ease.easeOutElastic	Elastic out	エラスティック（アウト）	弹性（缓出）	zh?
+route.ease.easeInOutElastic	Elastic in-out	エラスティック（インアウト）	弹性（缓入缓出）	zh?
+#K36 (Phase 3.6 package K: the pause read-outs)
+status.paused	Paused	一時停止中	已暂停	zh?
+viewport.paused	❚❚ Paused	❚❚ 一時停止中	❚❚ 已暂停	zh?
+#C36 (Phase 3.6 package C: screenshots, background / frame)
+capture.saved	Screenshot saved: {0}	スクリーンショットを保存しました: {0}	截图已保存：{0}	zh?
+capture.failed	Screenshot failed: {0}	スクリーンショットに失敗しました: {0}	截图失败：{0}	zh?
+capture.largeRender	A render above 16.6 Mpix may exceed the memory of an 8 GB GPU.	1,660 万画素を超える描画は、8 GB の GPU ではメモリが足りないことがあります。	超过 1660 万像素的渲染可能超出 8 GB 显卡的显存。	zh?
+capture.size	Output {0} × {1}, render {2} × {3} ({4} Mpix, at most {5} Mpix)	出力 {0} × {1}、描画 {2} × {3}（{4} Mpix、上限 {5} Mpix）	输出 {0} × {1}，渲染 {2} × {3}（{4} Mpix，上限 {5} Mpix）	zh?
+capture.overCap	Too large: {0}	大きすぎます: {0}	过大：{0}	zh?
+capture.last	Last file: {0}	最後のファイル: {0}	最近的文件：{0}	zh?
+capture.openFolder	Open folder	フォルダーを開く	打开文件夹	zh?
+inspector.scene.images.embedded	embedded {0} × {1}	埋め込み {0} × {1}	已嵌入 {0} × {1}	zh?
+inspector.scene.images.missing	The file is missing ({0}); the reference is kept.	ファイルがありません（{0}）。参照は残しています。	文件缺失（{0}）；保留引用。	zh?
+inspector.scene.images.failed	The image does not decode ({0}).	画像を読み込めません（{0}）。	图像无法解码（{0}）。	zh?
+inspector.scene.images.loading	Loading…	読み込み中…	加载中…	zh?
+#R36 (Phase 3.6 package R: route tree / inspector / scene panel messages)
+workspace.dropOnRoutePoint	Route points take no children	ルートのポイントには置けません	路径点不能拥有子对象	zh?
+route.startNotDeletable	The start point cannot be deleted.	スタートは削除できません。	起点不能删除。	zh?
+inspector.scene.routes.none	No routes in the scene.	シーンにルートはありません。	场景中没有路径。	zh?
+inspector.scene.routes.select	Select	選択	选择	zh?
+#G36 (Phase 3.6 integrator G: the render options of the Options panel, file references in file rows)
+option.render.backgroundColor	Clear colour (view background)	背景色（ビューの背景）	清除颜色（视图背景）	zh?
+option.render.sceneShaderTime	Shader time while paused	一時停止中のシェーダー時間	暂停时的着色器时间	zh?
+option.render.sceneShaderTime.all	Scene time everywhere (view and captures)	シーン時間（ビューとキャプチャ）	场景时间（视图和截图）	zh?
+option.render.sceneShaderTime.captures	Scene time in captures only	キャプチャだけシーン時間	仅截图使用场景时间	zh?
+option.render.sceneShaderTime.off	Real time (water and sky keep moving)	実時間（水と空は動き続ける）	实际时间（水和天空继续运动）	zh?
+options.renderingNote36	Anti-aliasing, grading, ambient, light falloff and shadow distance are set in the settings file or with the bridge command app.options.	アンチエイリアス、グレーディング、環境光、ライトの減衰、影の距離は設定ファイルかブリッジのコマンド app.options で設定します。	抗锯齿、调色、环境光、灯光衰减和阴影距离通过设置文件或桥接命令 app.options 设置。	zh?
+file.embedded	embedded	埋め込み	已嵌入	zh?
+#B40 (Phase 4.0 package B: the Edit tab tree and the Face › Shape page of InspectorSchemas.CharaEdit)
+inspector.charaEdit.tree.face	Face	顔	脸	zh?
+inspector.charaEdit.tree.body	Body	体	身体	zh?
+inspector.charaEdit.tree.hair	Hair	髪	头发	zh?
+inspector.charaEdit.tree.clothes	Clothes	服	服装	zh?
+inspector.charaEdit.tree.accessories	Accessories	アクセサリー	饰品	zh?
+inspector.charaEdit.tree.character	Character	キャラクター	角色	zh?
+inspector.charaEdit.tree.file	File	ファイル	文件	zh?
+inspector.charaEdit.page.face.shape.whole	Whole	全体	整体	zh?
+inspector.charaEdit.page.face.shape.chin	Chin	顎	下颌	zh?
+inspector.charaEdit.page.face.shape.cheek	Cheeks	頬	脸颊	zh?
+inspector.charaEdit.page.face.shape.eyes	Eyes	目	眼睛	zh?
+inspector.charaEdit.page.face.shape.nose	Nose	鼻	鼻子	zh?
+inspector.charaEdit.page.face.shape.mouth	Mouth	口	嘴	zh?
+inspector.charaEdit.page.face.shape.ear	Ears	耳	耳朵	zh?
+inspector.charaEdit.face.shape.faceBaseW	Face width	顔全体横幅	脸部整体宽度	zh?
+inspector.charaEdit.face.shape.faceUpZ	Upper face depth	顔上部前後	脸上部前后	zh?
+inspector.charaEdit.face.shape.faceUpY	Upper face height	顔上部上下	脸上部上下	zh?
+inspector.charaEdit.face.shape.faceLowZ	Lower face depth	顔下部前後	脸下部前后	zh?
+inspector.charaEdit.face.shape.faceLowW	Lower face width	顔下部横幅	脸下部宽度	zh?
+inspector.charaEdit.face.shape.chinW	Jaw width	顎横幅	下颌宽度	zh?
+inspector.charaEdit.face.shape.chinY	Jaw height	顎上下	下颌上下	zh?
+inspector.charaEdit.face.shape.chinZ	Jaw depth	顎前後	下颌前后	zh?
+inspector.charaEdit.face.shape.chinRot	Jaw angle	顎角度	下颌角度	zh?
+inspector.charaEdit.face.shape.chinLowY	Lower jaw height	顎下部上下	下颌下部上下	zh?
+inspector.charaEdit.face.shape.chinTipW	Chin width	顎先幅	下巴尖宽度	zh?
+inspector.charaEdit.face.shape.chinTipY	Chin height	顎先上下	下巴尖上下	zh?
+inspector.charaEdit.face.shape.chinTipZ	Chin depth	顎先前後	下巴尖前后	zh?
+inspector.charaEdit.face.shape.cheekLowY	Lower cheek height	頬下部上下	脸颊下部上下	zh?
+inspector.charaEdit.face.shape.cheekLowZ	Lower cheek depth	頬下部前後	脸颊下部前后	zh?
+inspector.charaEdit.face.shape.cheekLowW	Lower cheek width	頬下部幅	脸颊下部宽度	zh?
+inspector.charaEdit.face.shape.cheekUpY	Upper cheek height	頬上部上下	脸颊上部上下	zh?
+inspector.charaEdit.face.shape.cheekUpZ	Upper cheek depth	頬上部前後	脸颊上部前后	zh?
+inspector.charaEdit.face.shape.cheekUpW	Upper cheek width	頬上部幅	脸颊上部宽度	zh?
+inspector.charaEdit.face.shape.eyeY	Eye position (vertical)	目上下	眼睛上下	zh?
+inspector.charaEdit.face.shape.eyeX	Eye position (horizontal)	目横位置	眼睛横向位置	zh?
+inspector.charaEdit.face.shape.eyeZ	Eye depth	目前後	眼睛前后	zh?
+inspector.charaEdit.face.shape.eyeW	Eye width	目の横幅	眼睛宽度	zh?
+inspector.charaEdit.face.shape.eyeH	Eye height	目の縦幅	眼睛高度	zh?
+inspector.charaEdit.face.shape.eyeRotZ	Eye angle (Z)	目の角度Z軸	眼睛角度Z轴	zh?
+inspector.charaEdit.face.shape.eyeRotY	Eye angle (Y)	目の角度Y軸	眼睛角度Y轴	zh?
+inspector.charaEdit.face.shape.eyeInX	Inner corner (horizontal)	目頭左右位置	内眼角左右位置	zh?
+inspector.charaEdit.face.shape.eyeOutX	Outer corner (horizontal)	目尻左右位置	外眼角左右位置	zh?
+inspector.charaEdit.face.shape.eyeInY	Inner corner (vertical)	目頭上下位置	内眼角上下位置	zh?
+inspector.charaEdit.face.shape.eyeOutY	Outer corner (vertical)	目尻上下位置	外眼角上下位置	zh?
+inspector.charaEdit.face.shape.eyelidForm01	Eyelid shape 1	まぶた形状１	眼睑形状1	zh?
+inspector.charaEdit.face.shape.eyelidForm02	Eyelid shape 2	まぶた形状２	眼睑形状2	zh?
+inspector.charaEdit.face.shape.noseAllY	Nose position (vertical)	鼻全体上下	鼻子整体上下	zh?
+inspector.charaEdit.face.shape.noseAllZ	Nose depth	鼻全体前後	鼻子整体前后	zh?
+inspector.charaEdit.face.shape.noseAllRotX	Nose angle (X)	鼻全体角度X軸	鼻子整体角度X轴	zh?
+inspector.charaEdit.face.shape.noseAllW	Nose width	鼻全体横幅	鼻子整体宽度	zh?
+inspector.charaEdit.face.shape.noseBridgeH	Nose bridge height	鼻筋高さ	鼻梁高度	zh?
+inspector.charaEdit.face.shape.noseBridgeW	Nose bridge width	鼻筋横幅	鼻梁宽度	zh?
+inspector.charaEdit.face.shape.noseBridgeForm	Nose bridge shape	鼻筋形状	鼻梁形状	zh?
+inspector.charaEdit.face.shape.noseWingW	Nostril width	小鼻横幅	鼻翼宽度	zh?
+inspector.charaEdit.face.shape.noseWingY	Nostril height	小鼻上下	鼻翼上下	zh?
+inspector.charaEdit.face.shape.noseWingZ	Nostril depth	小鼻前後	鼻翼前后	zh?
+inspector.charaEdit.face.shape.noseWingRotX	Nostril angle (X)	小鼻角度X軸	鼻翼角度X轴	zh?
+inspector.charaEdit.face.shape.noseWingRotZ	Nostril angle (Z)	小鼻角度Z軸	鼻翼角度Z轴	zh?
+inspector.charaEdit.face.shape.noseH	Nose tip height	鼻先高さ	鼻尖高度	zh?
+inspector.charaEdit.face.shape.noseRotX	Nose tip angle (X)	鼻先角度X軸	鼻尖角度X轴	zh?
+inspector.charaEdit.face.shape.noseSize	Nose tip size	鼻先サイズ	鼻尖大小	zh?
+inspector.charaEdit.face.shape.mouthY	Mouth position (vertical)	口上下	嘴上下	zh?
+inspector.charaEdit.face.shape.mouthW	Mouth width	口横幅	嘴宽度	zh?
+inspector.charaEdit.face.shape.mouthH	Mouth height	口縦幅	嘴高度	zh?
+inspector.charaEdit.face.shape.mouthZ	Mouth depth	口前後位置	嘴前后位置	zh?
+inspector.charaEdit.face.shape.mouthUpForm	Upper lip shape	口形状上	嘴形状上	zh?
+inspector.charaEdit.face.shape.mouthLowForm	Lower lip shape	口形状下	嘴形状下	zh?
+inspector.charaEdit.face.shape.mouthCornerForm	Mouth corner shape	口形状口角	嘴角形状	zh?
+inspector.charaEdit.face.shape.earSize	Ear size	耳サイズ	耳朵大小	zh?
+inspector.charaEdit.face.shape.earRotY	Ear angle (Y)	耳角度Y軸	耳朵角度Y轴	zh?
+inspector.charaEdit.face.shape.earRotZ	Ear angle (Z)	耳角度Z軸	耳朵角度Z轴	zh?
+inspector.charaEdit.face.shape.earUpForm	Upper ear shape	耳上部形状	耳朵上部形状	zh?
+inspector.charaEdit.face.shape.earLowForm	Lower ear shape	耳下部形状	耳朵下部形状	zh?
+#C40 (Phase 4.0 package C: the Edit tab of the character inspector)
+inspector.tab.edit	Edit	編集	编辑	zh?
+inspector.charaEdit.later	This page comes in a later version.	このページは後の版で追加されます。	此页面将在以后的版本中提供。	zh?
+inspector.charaEdit.importOnEdit	Character from an HS2 card: the first edit imports it.	HS2 のカードのキャラです。最初の編集で取り込みます。	来自 HS2 卡片的角色：第一次编辑时导入。	zh?
+inspector.charaEdit.noDocuments	No character documents to edit.	編集できるキャラの文書がありません。	没有可编辑的角色文档。	zh?
+option.maker.keepColours	Keep colours on item change (Maker)	アイテム変更時に色を保持（キャラ編集）	更换物品时保留颜色（角色编辑）	zh?
+#W41 (Phase 4.1 package W: the Maker widgets — thumbnail list, push grid, colour / slider reset, eye side selector — and the edit.show action)
+action.edit.show	Show Edit section	編集セクションを表示	显示编辑分区	zh?
+maker.list.expand	Show more rows	行を増やして表示	显示更多行	zh?
+maker.list.sortFilter	Sort and filter	並べ替えと絞り込み	排序与筛选	zh?
+maker.list.sortList	List order	リスト順	列表顺序	zh?
+maker.list.sortName	By name	名前順	按名称	zh?
+maker.list.filterAll	All	すべて	全部	zh?
+maker.list.filterVanilla	Base game only	本体のみ	仅本体	zh?
+maker.list.filterMods	Mods only	MOD のみ	仅 MOD	zh?
+maker.list.notListed	Not listed: {0}	リストにない: {0}	不在列表中: {0}	zh?
+maker.list.openFailed	Could not open the bundle of {0}	{0} のバンドルを開けません	无法打开 {0} 的资源包	zh?
+maker.reset.tooltip	Reset to the value when the Edit tab was first opened	編集タブを最初に開いたときの値に戻す	恢复为首次打开编辑页时的值	zh?
+maker.slider.lerpTooltip	Values outside 0–100 have the effect of 0 or 100	0〜100 の外の値は 0 または 100 と同じ効果になります	0–100 以外的值效果等同于 0 或 100	zh?
+maker.side.left	Left eye	左目	左眼	zh?
+maker.side.right	Right eye	右目	右眼	zh?
+maker.eyes.linked	Match left and right	左右の設定を合わせる	左右设置一致	zh?
+maker.eyes.copyLeftToRight	Copy left → right	左→右にコピー	复制 左→右	zh?
+maker.eyes.copyRightToLeft	Copy right → left	右→左にコピー	复制 右→左	zh?
+#B41 (Phase 4.1 package B: the Face pages, sections and rows of InspectorSchemas.CharaEdit)
+inspector.charaEdit.page.face.head	Head & skin	顔タイプ・肌	头部与皮肤	zh?
+inspector.charaEdit.page.face.shape	Shape	輪郭	形状	zh?
+inspector.charaEdit.page.face.eyebrow	Eyebrows	眉	眉毛	zh?
+inspector.charaEdit.page.face.eyes	Eyes	目	眼睛	zh?
+inspector.charaEdit.page.face.eyelashes	Eyelashes	まつ毛	睫毛	zh?
+inspector.charaEdit.page.face.makeup	Makeup	メイク	化妆	zh?
+inspector.charaEdit.page.face.paint	Paint	ペイント	彩绘	zh?
+inspector.charaEdit.page.face.mole	Mole	ホクロ	痣	zh?
+inspector.charaEdit.page.face.beard	Beard	ヒゲ	胡子	zh?
+inspector.charaEdit.page.face.head.type	Head	タイプ	类型	zh?
+inspector.charaEdit.page.face.head.preset	Presets	サンプル	样本	zh?
+inspector.charaEdit.page.face.head.skin	Skin	肌	皮肤	zh?
+inspector.charaEdit.page.face.head.detail	Wrinkles	シワ	皱纹	zh?
+inspector.charaEdit.page.face.eyebrow.type	Type	眉のタイプ	类型	zh?
+inspector.charaEdit.page.face.eyebrow.layout	Layout	眉の配置	布局	zh?
+inspector.charaEdit.page.face.eyes.side	Left / right	左右	左右	zh?
+inspector.charaEdit.page.face.eyes.iris	Iris	瞳の設定	虹膜	zh?
+inspector.charaEdit.page.face.eyes.pupil	Pupil	瞳孔設定	瞳孔	zh?
+inspector.charaEdit.page.face.eyes.sclera	Sclera	白目	眼白	zh?
+inspector.charaEdit.page.face.eyes.both	Both eyes	両目	双眼	zh?
+inspector.charaEdit.page.face.eyes.highlight	Highlight	目のハイライト	眼睛高光	zh?
+inspector.charaEdit.page.face.eyelashes.type	Eyelashes	まつ毛	睫毛	zh?
+inspector.charaEdit.page.face.makeup.eyeshadow	Eyeshadow	アイシャドウ	眼影	zh?
+inspector.charaEdit.page.face.makeup.cheek	Blush	チーク	腮红	zh?
+inspector.charaEdit.page.face.makeup.lip	Lipstick	リップ	唇彩	zh?
+inspector.charaEdit.page.face.paint.p1	Paint 1	ペイント01	彩绘 1	zh?
+inspector.charaEdit.page.face.paint.p2	Paint 2	ペイント02	彩绘 2	zh?
+inspector.charaEdit.page.face.mole.type	Mole	ホクロ	痣	zh?
+inspector.charaEdit.page.face.mole.layout	Layout	配置	布局	zh?
+inspector.charaEdit.page.face.beard.type	Beard	ヒゲ	胡子	zh?
+inspector.charaEdit.face.head	Head type	タイプ	头部类型	zh?
+inspector.charaEdit.face.preset	Face presets	サンプル	脸部样本	zh?
+inspector.charaEdit.face.skin	Skin type	肌の種類	皮肤类型	zh?
+inspector.charaEdit.face.detail	Wrinkles	シワ	皱纹	zh?
+inspector.charaEdit.face.detailPower	Strength	強さ	强度	zh?
+inspector.charaEdit.face.eyebrow	Eyebrow type	眉のタイプ	眉毛类型	zh?
+inspector.charaEdit.face.eyebrowColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.face.eyebrowPosX	Position X	眉の位置X	眉毛位置 X	zh?
+inspector.charaEdit.face.eyebrowPosY	Position Y	眉の位置Y	眉毛位置 Y	zh?
+inspector.charaEdit.face.eyebrowWidth	Width	眉の幅	眉毛宽度	zh?
+inspector.charaEdit.face.eyebrowHeight	Height	眉の高さ	眉毛高度	zh?
+inspector.charaEdit.face.eyebrowTilt	Tilt	眉の傾き	眉毛倾斜	zh?
+inspector.charaEdit.face.eyesLinked	Same settings for both eyes	左右の設定を合わせる	左右眼设置相同	zh?
+inspector.charaEdit.face.eyesCopyLeftToRight	Copy left → right	左→右にコピー	复制 左 → 右	zh?
+inspector.charaEdit.face.eyesCopyRightToLeft	Copy right → left	右→左にコピー	复制 右 → 左	zh?
+inspector.charaEdit.face.iris	Iris type	瞳の種類	虹膜类型	zh?
+inspector.charaEdit.face.irisColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.face.irisEmission	Glow	発光	发光	zh?
+inspector.charaEdit.face.irisWidth	Width	幅	宽度	zh?
+inspector.charaEdit.face.irisHeight	Height	高さ	高度	zh?
+inspector.charaEdit.face.pupil	Pupil type	瞳孔種類	瞳孔类型	zh?
+inspector.charaEdit.face.pupilColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.face.pupilWidth	Width	幅	宽度	zh?
+inspector.charaEdit.face.pupilHeight	Height	高さ	高度	zh?
+inspector.charaEdit.face.scleraColor	Sclera colour	白目のカラー	眼白颜色	zh?
+inspector.charaEdit.face.eyesOffsetY	Height adjustment	高さ調整	高度调整	zh?
+inspector.charaEdit.face.eyesShadowScale	Shadow range	影の範囲	阴影范围	zh?
+inspector.charaEdit.face.highlight	Highlight type	種類	高光类型	zh?
+inspector.charaEdit.face.highlightColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.face.highlightWidth	Width	幅	宽度	zh?
+inspector.charaEdit.face.highlightHeight	Height	高さ	高度	zh?
+inspector.charaEdit.face.highlightPosX	Position X	X位置	位置 X	zh?
+inspector.charaEdit.face.highlightPosY	Position Y	Y位置	位置 Y	zh?
+inspector.charaEdit.face.highlightTilt	Tilt	傾き	倾斜	zh?
+inspector.charaEdit.face.eyelashes	Eyelash type	まつ毛のタイプ	睫毛类型	zh?
+inspector.charaEdit.face.eyelashesColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.face.eyeshadow	Eyeshadow	アイシャドウ	眼影	zh?
+inspector.charaEdit.face.eyeshadowColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.face.eyeshadowGloss	Gloss	ツヤ	光泽	zh?
+inspector.charaEdit.face.cheek	Blush	チーク	腮红	zh?
+inspector.charaEdit.face.cheekColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.face.cheekGloss	Gloss	ツヤ	光泽	zh?
+inspector.charaEdit.face.lip	Lipstick	リップ	唇彩	zh?
+inspector.charaEdit.face.lipColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.face.lipGloss	Gloss	ツヤ	光泽	zh?
+inspector.charaEdit.face.paint	Paint type	種類	彩绘类型	zh?
+inspector.charaEdit.face.paintColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.face.paintGloss	Gloss	ツヤ	光泽	zh?
+inspector.charaEdit.face.paintMetallic	Texture	質感	质感	zh?
+inspector.charaEdit.face.paintLayoutPush	Layout	配置	布局	zh?
+inspector.charaEdit.face.paintWidth	Width	幅	宽度	zh?
+inspector.charaEdit.face.paintHeight	Height	高さ	高度	zh?
+inspector.charaEdit.face.paintPosX	Position X	位置X	位置 X	zh?
+inspector.charaEdit.face.paintPosY	Position Y	位置Y	位置 Y	zh?
+inspector.charaEdit.face.paintRotation	Rotation	回転	旋转	zh?
+inspector.charaEdit.face.mole	Mole type	ホクロのタイプ	痣类型	zh?
+inspector.charaEdit.face.moleColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.face.moleLayoutPush	Layout	配置	布局	zh?
+inspector.charaEdit.face.moleWidth	Width	ホクロの幅	痣宽度	zh?
+inspector.charaEdit.face.moleHeight	Height	ホクロの高さ	痣高度	zh?
+inspector.charaEdit.face.molePosX	Position X	ホクロの位置X	痣位置 X	zh?
+inspector.charaEdit.face.molePosY	Position Y	ホクロの位置Y	痣位置 Y	zh?
+inspector.charaEdit.face.beard	Beard type	ヒゲのタイプ	胡子类型	zh?
+inspector.charaEdit.face.beardColor	Colour	カラー	颜色	zh?
+#B42 (Phase 4.2 package B: the Body pages, sections and rows of InspectorSchemas.CharaEdit, the futanari toggle and its tooltip)
+inspector.charaEdit.page.body.shape	Shape	体型	体型	zh?
+inspector.charaEdit.page.body.skin	Skin	肌	皮肤	zh?
+inspector.charaEdit.page.body.sunburn	Tan	日焼け	晒痕	zh?
+inspector.charaEdit.page.body.nipple	Nipples	乳首	乳头	zh?
+inspector.charaEdit.page.body.underhair	Underhair	アンダーヘア	阴毛	zh?
+inspector.charaEdit.page.body.nail	Nails	爪	指甲	zh?
+inspector.charaEdit.page.body.paint	Paint	ペイント	彩绘	zh?
+inspector.charaEdit.page.body.special	Special	特殊	特殊	zh?
+inspector.charaEdit.page.body.shape.whole	Whole	全体	整体	zh?
+inspector.charaEdit.page.body.shape.breast	Breast	胸	胸部	zh?
+inspector.charaEdit.page.body.shape.upper	Upper body	上半身	上半身	zh?
+inspector.charaEdit.page.body.shape.lower	Lower body	下半身	下半身	zh?
+inspector.charaEdit.page.body.shape.arm	Arms	腕	手臂	zh?
+inspector.charaEdit.page.body.shape.leg	Legs	脚	腿	zh?
+inspector.charaEdit.page.body.skin.type	Skin type	肌の種類	皮肤类型	zh?
+inspector.charaEdit.page.body.skin.detail	Muscle tone	肉感	肉感	zh?
+inspector.charaEdit.page.body.skin.colour	Skin colour	肌の色	肤色	zh?
+inspector.charaEdit.page.body.sunburn.type	Tan lines	日焼け跡	晒痕	zh?
+inspector.charaEdit.page.body.nipple.type	Nipples	乳首	乳头	zh?
+inspector.charaEdit.page.body.underhair.type	Underhair	アンダーヘア	阴毛	zh?
+inspector.charaEdit.page.body.nail.colour	Nail colour	爪の色	指甲颜色	zh?
+inspector.charaEdit.page.body.paint.p1	Paint 1	ペイント01	彩绘 1	zh?
+inspector.charaEdit.page.body.paint.p2	Paint 2	ペイント02	彩绘 2	zh?
+inspector.charaEdit.page.body.special.futanari	Special	特殊	特殊	zh?
+inspector.charaEdit.body.height	Height	身長	身高	zh?
+inspector.charaEdit.body.bustSize	Bust size	胸サイズ	胸部大小	zh?
+inspector.charaEdit.body.bustY	Bust height	胸上下位置	胸部上下位置	zh?
+inspector.charaEdit.body.bustRotX	Bust spread	胸の左右開き	胸部左右张开	zh?
+inspector.charaEdit.body.bustX	Bust position	胸の左右位置	胸部左右位置	zh?
+inspector.charaEdit.body.bustRotY	Bust angle	胸上下角度	胸部上下角度	zh?
+inspector.charaEdit.body.bustSharp	Bust shape	胸の尖り	胸部尖度	zh?
+inspector.charaEdit.body.areolaBulge	Areola bulge	乳輪の膨らみ	乳晕隆起	zh?
+inspector.charaEdit.body.nipWeight	Nipple width	乳首太さ	乳头粗细	zh?
+inspector.charaEdit.body.headSize	Head size	頭サイズ	头部大小	zh?
+inspector.charaEdit.body.neckW	Neck width	首周り幅	颈部宽度	zh?
+inspector.charaEdit.body.neckZ	Neck depth	首周り奥	颈部厚度	zh?
+inspector.charaEdit.body.bodyShoulderW	Shoulder width	胴体肩周り幅	肩部宽度	zh?
+inspector.charaEdit.body.bodyShoulderZ	Shoulder depth	胴体肩周り奥	肩部厚度	zh?
+inspector.charaEdit.body.bodyUpW	Upper torso width	胴体上幅	上躯干宽度	zh?
+inspector.charaEdit.body.bodyUpZ	Upper torso depth	胴体上奥	上躯干厚度	zh?
+inspector.charaEdit.body.bodyLowW	Lower torso width	胴体下幅	下躯干宽度	zh?
+inspector.charaEdit.body.bodyLowZ	Lower torso depth	胴体下奥	下躯干厚度	zh?
+inspector.charaEdit.body.waistY	Waist height	ウエスト位置	腰部位置	zh?
+inspector.charaEdit.body.waistUpW	Upper waist width	腰上幅	腰上部宽度	zh?
+inspector.charaEdit.body.waistUpZ	Upper waist depth	腰上奥	腰上部厚度	zh?
+inspector.charaEdit.body.waistLowW	Lower waist width	腰下幅	腰下部宽度	zh?
+inspector.charaEdit.body.waistLowZ	Lower waist depth	腰下奥	腰下部厚度	zh?
+inspector.charaEdit.body.hip	Hips	尻	臀部	zh?
+inspector.charaEdit.body.hipRotX	Hip angle	尻角度	臀部角度	zh?
+inspector.charaEdit.body.thighUp	Upper thighs	太もも上	大腿上部	zh?
+inspector.charaEdit.body.thighLow	Lower thighs	太もも下	大腿下部	zh?
+inspector.charaEdit.body.calf	Calves	ふくらはぎ	小腿	zh?
+inspector.charaEdit.body.ankle	Ankles	足首	脚踝	zh?
+inspector.charaEdit.body.shoulder	Shoulders	肩	肩膀	zh?
+inspector.charaEdit.body.armUp	Upper arms	上腕	上臂	zh?
+inspector.charaEdit.body.armLow	Forearms	前腕	前臂	zh?
+inspector.charaEdit.body.nipStand	Nipple erection	乳首立ち	乳头挺立	zh?
+inspector.charaEdit.body.bustSoftness	Bust softness	胸の柔らかさ	胸部柔软度	zh?
+inspector.charaEdit.body.bustWeight	Bust weight	胸の重さ	胸部重量	zh?
+inspector.charaEdit.body.areolaSize	Areola size	乳輪の大きさ	乳晕大小	zh?
+inspector.charaEdit.body.skin	Skin type	肌の種類	皮肤类型	zh?
+inspector.charaEdit.body.detail	Muscle tone	肉感	肉感	zh?
+inspector.charaEdit.body.detailPower	Strength	肉感の強さ	肉感强度	zh?
+inspector.charaEdit.body.skinColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.body.skinSwatch	Colour samples	カラーサンプル	颜色样本	zh?
+inspector.charaEdit.body.skinGloss	Gloss	ツヤ	光泽	zh?
+inspector.charaEdit.body.skinMetallic	Texture	質感	质感	zh?
+inspector.charaEdit.body.sunburn	Tan type	種類	晒痕类型	zh?
+inspector.charaEdit.body.sunburnColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.body.nipple	Nipple type	種類	乳头类型	zh?
+inspector.charaEdit.body.nippleColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.body.nippleGloss	Gloss	ツヤ	光泽	zh?
+inspector.charaEdit.body.underhair	Underhair type	種類	阴毛类型	zh?
+inspector.charaEdit.body.underhairColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.body.nailColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.body.nailGloss	Gloss	ツヤ	光泽	zh?
+inspector.charaEdit.body.paint	Paint type	種類	彩绘类型	zh?
+inspector.charaEdit.body.paintColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.body.paintGloss	Gloss	ツヤ	光泽	zh?
+inspector.charaEdit.body.paintMetallic	Texture	質感	质感	zh?
+inspector.charaEdit.body.paintRegion	Region	配置	位置	zh?
+inspector.charaEdit.body.paintWidth	Width	幅	宽度	zh?
+inspector.charaEdit.body.paintHeight	Height	高さ	高度	zh?
+inspector.charaEdit.body.paintPosX	Position X	位置X	位置 X	zh?
+inspector.charaEdit.body.paintPosY	Position Y	位置Y	位置 Y	zh?
+inspector.charaEdit.body.paintRotation	Rotation	回転	旋转	zh?
+inspector.charaEdit.body.futanari	Futanari	ふたなり	扶他	zh?
+inspector.charaEdit.body.futanariTip	Stored with the character only: it has no visible effect in Studio (as in HS2's Studio).	キャラクターのデータとして保存されるだけで、スタジオでは見た目に影響しません（HS2 のスタジオと同じ）。	仅作为角色数据保存：在工作室中没有可见效果（与 HS2 的工作室相同）。	zh?
+#W42 (Phase 4.2 package W: the body composite drag throttle option of the Options panel)
+option.maker.bodyThrottle	Body drag throttle (Maker)	体の合成の間引き（キャラ編集）	身体合成节流（角色编辑）	zh?
+option.maker.bodyThrottle.auto	Automatic (heavy body composites only)	自動（重い体の合成のみ）	自动（仅较重的身体合成）	zh?
+option.maker.bodyThrottle.always	Always (every body composite drag)	常に（体の合成のドラッグすべて）	始终（所有身体合成拖动）	zh?
+option.maker.bodyThrottle.off	Off (every frame)	オフ（毎フレーム）	关闭（每帧）	zh?
+#B43 (Phase 4.3 package B: the Hair page, its sections, parts and rows of InspectorSchemas.CharaEdit, the bundle row labels of the HairBundleList)
+inspector.charaEdit.page.hair.hair	Hair	髪	头发	zh?
+inspector.charaEdit.page.hair.hair.options	Options	設定	设置	zh?
+inspector.charaEdit.page.hair.hair.part	Part	パーツ	部位	zh?
+inspector.charaEdit.page.hair.hair.style	Style	種類	类型	zh?
+inspector.charaEdit.page.hair.hair.colour	Hair settings	髪設定	头发设置	zh?
+inspector.charaEdit.page.hair.hair.decoration	Decoration	装飾設定	装饰设置	zh?
+inspector.charaEdit.page.hair.hair.bundles	Adjustment	調整	调整	zh?
+inspector.charaEdit.page.hair.hair.mesh	Mesh	メッシュ	网纹	zh?
+inspector.charaEdit.hair.part.back	Back	後ろ髪	后发	zh?
+inspector.charaEdit.hair.part.front	Front	前髪	前发	zh?
+inspector.charaEdit.hair.part.side	Side	横髪	侧发	zh?
+inspector.charaEdit.hair.part.option	Extension	エクステ	接发	zh?
+inspector.charaEdit.hair.sameSetting	Same colour for front and back hair	前髪と後ろ髪の色を統一	前发与后发颜色统一	zh?
+inspector.charaEdit.hair.autoSetting	Set root and tip colours automatically	根本と毛先の色を自動設定	自动设置发根与发梢颜色	zh?
+inspector.charaEdit.hair.ctrlTogether	Adjust all bundles together	髪の調整をまとめて行う	统一调整所有发束	zh?
+inspector.charaEdit.hair.shaderType	Draw type	描画設定	绘制类型	zh?
+inspector.charaEdit.hair.shaderType.type01	Type 01	タイプ01	类型01	zh?
+inspector.charaEdit.hair.shaderType.type02	Type 02	タイプ02	类型02	zh?
+inspector.charaEdit.hair.style	Style	種類	类型	zh?
+inspector.charaEdit.hair.baseColor	Base colour	基本カラー	基本颜色	zh?
+inspector.charaEdit.hair.topColor	Root colour	根本カラー	发根颜色	zh?
+inspector.charaEdit.hair.underColor	Tip colour	毛先カラー	发梢颜色	zh?
+inspector.charaEdit.hair.specular	Gloss colour	ツヤカラー	光泽颜色	zh?
+inspector.charaEdit.hair.metallic	Texture	質感	质感	zh?
+inspector.charaEdit.hair.smoothness	Smoothness	滑らかさ	光滑度	zh?
+inspector.charaEdit.hair.colourPreset	Colour samples	カラーサンプル	颜色样本	zh?
+inspector.charaEdit.hair.skinMatch	Match the skin colour	肌の色に合わせる	匹配肤色	zh?
+inspector.charaEdit.hair.acsColor1	Colour 01	カラー01	颜色01	zh?
+inspector.charaEdit.hair.acsColor2	Colour 02	カラー02	颜色02	zh?
+inspector.charaEdit.hair.acsColor3	Colour 03	カラー03	颜色03	zh?
+inspector.charaEdit.hair.bundles	Bundles	調整	发束调整	zh?
+inspector.charaEdit.hair.bundlesReset	Reset all	全て初期化	全部重置	zh?
+inspector.charaEdit.hair.bundleTitle	Adjustment {0}	調整{0}	调整{0}	zh?
+inspector.charaEdit.hair.bundleMoveX	Move X	移動X	移动X	zh?
+inspector.charaEdit.hair.bundleMoveY	Move Y	移動Y	移动Y	zh?
+inspector.charaEdit.hair.bundleMoveZ	Move Z	移動Z	移动Z	zh?
+inspector.charaEdit.hair.bundleRotateX	Rotate X	回転X	旋转X	zh?
+inspector.charaEdit.hair.bundleRotateY	Rotate Y	回転Y	旋转Y	zh?
+inspector.charaEdit.hair.bundleRotateZ	Rotate Z	回転Z	旋转Z	zh?
+inspector.charaEdit.hair.bundleNoShake	No sway	揺らさない	不摇晃	zh?
+inspector.charaEdit.hair.meshPattern	Pattern	パターン	图案	zh?
+inspector.charaEdit.hair.meshColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.hair.meshWidth	Width	幅	宽度	zh?
+inspector.charaEdit.hair.meshHeight	Height	高さ	高度	zh?
+inspector.charaEdit.hair.meshPosX	Position X	位置X	位置X	zh?
+inspector.charaEdit.hair.meshPosY	Position Y	位置Y	位置Y	zh?
+#W43 (Phase 4.3 package W: the Hair page widgets — part selector mark, bundle list footer and handle toggles — and the option maker.hairHandles)
+option.maker.hairHandles	Hair bundle handles (Maker)	髪の束の操作軸（キャラ編集）	发束操作轴（角色编辑）	zh?
+maker.hair.handles	Show handles	操作軸の表示	显示操作轴	zh?
+maker.hair.handle	Handle	操作軸	操作轴	zh?
+maker.hair.handleMove	Move	移動	移动	zh?
+maker.hair.handleRotate	Rotate	回転	旋转	zh?
+maker.hair.partNone	no hair on this part	このパーツに髪はありません	此部位没有头发	zh?
+#B44 (Phase 4.4 package B: the Clothes page, its sections, kinds and rows of InspectorSchemas.CharaEdit, the one-piece tooltip of the kind selector, the coordinate load modes)
+inspector.charaEdit.page.clothes.clothes	Clothes	服	服装	zh?
+inspector.charaEdit.page.clothes.clothes.kind	Clothing	部位	部位	zh?
+inspector.charaEdit.page.clothes.clothes.type	Type	種類	类型	zh?
+inspector.charaEdit.page.clothes.clothes.colour1	Colour ①	カラー①	颜色①	zh?
+inspector.charaEdit.page.clothes.clothes.colour2	Colour ②	カラー②	颜色②	zh?
+inspector.charaEdit.page.clothes.clothes.colour3	Colour ③	カラー③	颜色③	zh?
+inspector.charaEdit.page.clothes.clothes.other	Other	その他	其他	zh?
+inspector.charaEdit.page.clothes.clothes.coordinate	Outfit card	衣装カード	服装卡	zh?
+inspector.charaEdit.clothes.kind.top	Top	トップス	上衣	zh?
+inspector.charaEdit.clothes.kind.bottom	Bottom	ボトムス	下装	zh?
+inspector.charaEdit.clothes.kind.innerTop	Inner top	インナー上	内衣上	zh?
+inspector.charaEdit.clothes.kind.innerBottom	Inner bottom	インナー下	内衣下	zh?
+inspector.charaEdit.clothes.kind.gloves	Gloves	手袋	手套	zh?
+inspector.charaEdit.clothes.kind.pantyhose	Pantyhose	パンスト	连裤袜	zh?
+inspector.charaEdit.clothes.kind.socks	Socks	靴下	袜子	zh?
+inspector.charaEdit.clothes.kind.shoes	Shoes	靴	鞋子	zh?
+inspector.charaEdit.clothes.onePieceTip	A one-piece top is selected	ワンピースの上が選ばれています	已选择连体上衣	zh?
+inspector.charaEdit.clothes.item	Type	種類	类型	zh?
+inspector.charaEdit.clothes.defaultColours	Default colours	初期カラー	初始颜色	zh?
+inspector.charaEdit.clothes.baseColor	Colour	カラー	颜色	zh?
+inspector.charaEdit.clothes.gloss	Gloss	ツヤ	光泽	zh?
+inspector.charaEdit.clothes.metallic	Texture	質感	质感	zh?
+inspector.charaEdit.clothes.pattern	Pattern	柄	图案	zh?
+inspector.charaEdit.clothes.patternColor	Pattern colour	柄カラー	图案颜色	zh?
+inspector.charaEdit.clothes.patternWidth	Width	幅	宽度	zh?
+inspector.charaEdit.clothes.patternHeight	Height	高さ	高度	zh?
+inspector.charaEdit.clothes.patternPosX	Position X	位置X	位置X	zh?
+inspector.charaEdit.clothes.patternPosY	Position Y	位置Y	位置Y	zh?
+inspector.charaEdit.clothes.patternRotation	Rotation	回転	旋转	zh?
+inspector.charaEdit.clothes.breakRate	Tear	破れ具合	破损程度	zh?
+inspector.charaEdit.clothes.option1	Show option part 01	オプションパーツ01を表示	显示可选部件01	zh?
+inspector.charaEdit.clothes.option2	Show option part 02	オプションパーツ02を表示	显示可选部件02	zh?
+inspector.charaEdit.clothes.loadCoordinate	Load an outfit card	衣装カードを読み込む	读取服装卡	zh?
+inspector.charaEdit.clothes.coordinateMode.clothes	Load clothes	服読込み	读取服装	zh?
+inspector.charaEdit.clothes.coordinateMode.accessories	Load accessories	装飾読込み	读取饰品	zh?
+inspector.charaEdit.clothes.coordinateMode.all	Load all	全て読込み	全部读取	zh?
+#W44 (Phase 4.4 package W: the Clothes page widgets — kind selector mark, pattern button, coordinate dialog and browser — and the character inspector's Costume tab)
+inspector.tab.costume	Costume	衣装	服装	zh?
+maker.clothes.kindNone	nothing worn on this kind	この部位は何も着ていません	此部位未穿着	zh?
+maker.clothes.patternChoose	Choose the pattern	柄を選ぶ	选择图案	zh?
+maker.clothes.kcoxPattern	not listed (KCOX pattern): {0}	一覧にない（KCOX の柄）: {0}	不在列表中（KCOX 图案）：{0}	zh?
+maker.coord.message	Choose an outfit card, then what to load from it.	衣装カードを選び、読み込む内容のボタンを押してください。	选择服装卡，然后选择要读取的内容。	zh?
+maker.coord.noSelection	Choose an outfit card first.	先に衣装カードを選んでください。	请先选择服装卡。	zh?
+maker.coord.load	Load	読込	读取	zh?
+maker.coord.refresh	List the outfit cards again	衣装カードを読み直す	重新列出服装卡	zh?
+#B45 (Phase 4.5 package B: the Accessories page, its sections, the 14 types and the rows of InspectorSchemas.CharaEdit's AccessoryRows, the copy section, the parent notes)
+inspector.charaEdit.page.accessories.accessories	Accessories	アクセサリー	饰品	zh?
+inspector.charaEdit.page.accessories.accessories.slots	Slots	スロット	槽位	zh?
+inspector.charaEdit.page.accessories.accessories.type	Type	種類	类型	zh?
+inspector.charaEdit.page.accessories.accessories.colour	Colour	カラー	颜色	zh?
+inspector.charaEdit.page.accessories.accessories.hairColour	Hair colour	カラー	头发颜色	zh?
+inspector.charaEdit.page.accessories.accessories.parent	Parent	親	父级	zh?
+inspector.charaEdit.page.accessories.accessories.adjust	Adjust	調整	调整	zh?
+inspector.charaEdit.page.accessories.accessories.copy	Copy	コピー	复制	zh?
+inspector.charaEdit.accessories.type	Type	種類	类型	zh?
+inspector.charaEdit.accessories.type.none	None	なし	无	zh?
+inspector.charaEdit.accessories.type.head	Head	頭	头部	zh?
+inspector.charaEdit.accessories.type.ear	Ear	耳	耳朵	zh?
+inspector.charaEdit.accessories.type.glasses	Glasses	眼鏡	眼镜	zh?
+inspector.charaEdit.accessories.type.face	Face	顔	脸部	zh?
+inspector.charaEdit.accessories.type.neck	Neck	首	颈部	zh?
+inspector.charaEdit.accessories.type.shoulder	Shoulder	肩	肩部	zh?
+inspector.charaEdit.accessories.type.chest	Chest	胸	胸部	zh?
+inspector.charaEdit.accessories.type.waist	Waist	腰	腰部	zh?
+inspector.charaEdit.accessories.type.back	Back	背中	背部	zh?
+inspector.charaEdit.accessories.type.arm	Arm	腕	手臂	zh?
+inspector.charaEdit.accessories.type.hand	Hand	手	手	zh?
+inspector.charaEdit.accessories.type.leg	Leg	脚	腿部	zh?
+inspector.charaEdit.accessories.type.kokan	Lower abdomen	下腹部	下腹部	zh?
+inspector.charaEdit.accessories.item	Item	アイテム	物品	zh?
+inspector.charaEdit.accessories.colour1	Colour 1	カラー1	颜色1	zh?
+inspector.charaEdit.accessories.colour2	Colour 2	カラー2	颜色2	zh?
+inspector.charaEdit.accessories.colour3	Colour 3	カラー3	颜色3	zh?
+inspector.charaEdit.accessories.colour4	Colour 4	カラー4	颜色4	zh?
+inspector.charaEdit.accessories.gloss	Gloss	ツヤ	光泽	zh?
+inspector.charaEdit.accessories.metallic	Texture	質感	质感	zh?
+inspector.charaEdit.accessories.defaultColours	Default colours	初期カラー	初始颜色	zh?
+inspector.charaEdit.accessories.hairBase	Base colour	基本カラー	基本颜色	zh?
+inspector.charaEdit.accessories.hairTop	Root colour	根本カラー	发根颜色	zh?
+inspector.charaEdit.accessories.hairUnder	Tip colour	毛先カラー	发梢颜色	zh?
+inspector.charaEdit.accessories.hairSpecular	Gloss colour	ツヤカラー	光泽颜色	zh?
+inspector.charaEdit.accessories.hairMetallic	Texture	質感	质感	zh?
+inspector.charaEdit.accessories.hairSmoothness	Smoothness	滑らかさ	光滑度	zh?
+inspector.charaEdit.accessories.hairFetch	Take the hair colour	髪の毛の色を取得	获取头发颜色	zh?
+inspector.charaEdit.accessories.hairFetch.back	Back hair	後ろ髪	后发	zh?
+inspector.charaEdit.accessories.hairFetch.front	Front hair	前髪	前发	zh?
+inspector.charaEdit.accessories.hairFetch.side	Side hair	横髪	侧发	zh?
+inspector.charaEdit.accessories.hairFetch.option	Extension	エクステ	接发	zh?
+inspector.charaEdit.accessories.parent	Parent	親	父级	zh?
+inspector.charaEdit.accessories.defaultParent	Default parent	初期親	初始父级	zh?
+inspector.charaEdit.accessories.headWeightedNote	This item follows the head bones (the parent is stored only)	この品目は頭の骨に追従します（親は保存のみ）	此物品跟随头部骨骼（父级仅保存）	zh?
+inspector.charaEdit.accessories.unknownParent	Unknown parent: {0}	不明な親: {0}	未知的父级：{0}	zh?
+inspector.charaEdit.accessories.noShake	No sway	揺らさない	不摇晃	zh?
+inspector.charaEdit.accessories.move1	Adjustment 01	調整01	调整01	zh?
+inspector.charaEdit.accessories.move2	Adjustment 02	調整02	调整02	zh?
+inspector.charaEdit.accessories.position	Position	位置	位置	zh?
+inspector.charaEdit.accessories.rotation	Rotation	回転	旋转	zh?
+inspector.charaEdit.accessories.scale	Scale	拡縮	缩放	zh?
+inspector.charaEdit.accessories.resetMove	Reset	初期化	初始化	zh?
+inspector.charaEdit.accessories.mirrorParent	Swap the left / right parent	左右の親を変更	交换左右父级	zh?
+inspector.charaEdit.accessories.duplicate	Duplicate	複製	复制	zh?
+inspector.charaEdit.accessories.copyToSlot	Copy to slot…	枠へコピー…	复制到槽位…	zh?
+inspector.charaEdit.accessories.copyMove1	Adjustment ①	調整①	调整①	zh?
+inspector.charaEdit.accessories.copyMove2	Adjustment ②	調整②	调整②	zh?
+inspector.charaEdit.accessories.copyMove1LeftRight	Adjustment ① flipped left / right	調整①を左右反転	调整①左右翻转	zh?
+inspector.charaEdit.accessories.copyMove2LeftRight	Adjustment ② flipped left / right	調整②を左右反転	调整②左右翻转	zh?
+inspector.charaEdit.accessories.copyMove1UpDown	Adjustment ① flipped up / down	調整①を上下反転	调整①上下翻转	zh?
+inspector.charaEdit.accessories.copyMove2UpDown	Adjustment ② flipped up / down	調整②を上下反転	调整②上下翻转	zh?
+#W45 (Phase 4.5 package W: the Accessories page widgets — slot list and its add panel, slot pickers, type removal, parent picker, transform rows and their step rates, the copy section, the handles — and the options maker.accessoryHandles, maker.accessoryMirrorParent, maker.copyAccessoryPluginData, maker.accessoryStep.1 / .2)
+maker.acc.add	＋ Add an accessory…	＋ アクセサリを追加…	＋ 添加饰品…	zh?
+maker.acc.addSlot	Slot	スロット	槽位	zh?
+maker.acc.addType	Type	種類	类型	zh?
+maker.acc.addItem	Pick the item to add	追加する品目を選ぶ	选择要添加的物品	zh?
+maker.acc.addCancel	Cancel	キャンセル	取消	zh?
+maker.acc.noSlots	No accessory is worn. «＋» adds one to a chosen slot.	アクセサリを着けていません。«＋» で選んだスロットに追加します。	未佩戴饰品。«＋»可添加到所选槽位。	zh?
+maker.acc.multi	Accessories are edited one character at a time	アクセサリは 1 体ずつ編集します	饰品一次只编辑一个角色	zh?
+maker.acc.notLoaded	MoreAccessories off	MoreAccessories オフ	MoreAccessories 关闭	zh?
+maker.acc.notLoadedTip	Slots above 20 load only with MoreAccessories; this one is kept as data	21 以降のスロットは MoreAccessories がオンのときだけ読み込まれます（データは保持）	21 及以后的槽位仅在启用 MoreAccessories 时加载（数据保留）	zh?
+maker.acc.hairMark	Hair	髪	发	zh?
+maker.acc.hairMarkTip	A hair-type accessory: drawn with the hair shader and the hair colours	髪タイプのアクセサリ（髪のシェーダーと髪の色で描画）	头发类型的饰品（以头发着色器和头发颜色绘制）	zh?
+maker.acc.notListed	not listed: {0}	一覧に無い: {0}	不在列表中：{0}	zh?
+maker.acc.missingMod	missing mod: {0}	見つからない MOD: {0}	缺少 MOD：{0}	zh?
+maker.acc.removeTitle	Remove accessory	アクセサリを外す	移除饰品	zh?
+maker.acc.removeMessage	Remove the accessory of slot {0}? Its plugin data go with it.	スロット {0} のアクセサリを外しますか（プラグインのデータも消えます）	移除槽位 {0} 的饰品吗？其插件数据也会一并删除。	zh?
+maker.acc.overwriteTitle	Overwrite slot	スロットを上書き	覆盖槽位	zh?
+maker.acc.overwriteMessage	Overwrite «{1}» in slot {0}?	スロット {0} の「{1}」を上書きしますか	覆盖槽位 {0} 的“{1}”吗？	zh?
+maker.acc.copySource	From slot {0}	コピー元: スロット {0}	来源：槽位 {0}	zh?
+maker.acc.copyTarget	To slot	コピー先	目标槽位	zh?
+maker.acc.copyNoTarget	Choose the target slot first	先にコピー先のスロットを選んでください	请先选择目标槽位	zh?
+maker.acc.copySameSlot	The target is the source slot	コピー先がコピー元と同じです	目标与来源相同	zh?
+maker.acc.copyNeedsSet	Both slots need this adjustment	両方のスロットにこの調整が必要です	两个槽位都需要此调整	zh?
+maker.acc.copyNeedsOccupied	The target slot holds no accessory	コピー先のスロットにアクセサリがありません	目标槽位没有饰品	zh?
+maker.acc.rate	Step	移動量	步长	zh?
+maker.acc.rate.fine	Fine	小	小	zh?
+maker.acc.rate.normal	Normal	中	中	zh?
+maker.acc.rate.coarse	Coarse	大	大	zh?
+maker.acc.rateTip	Position {0} · rotation {1} · scale {2} per step	1 回で位置 {0}・回転 {1}・拡縮 {2}	每次：位置 {0}・旋转 {1}・缩放 {2}	zh?
+maker.acc.stepTip	Hold to repeat	長押しで繰り返し	按住可重复	zh?
+maker.acc.axisTip	Drag to change	ドラッグで変更	拖动以更改	zh?
+maker.acc.handleMove	Move	移動	移动	zh?
+maker.acc.handleRotate	Rotate	回転	旋转	zh?
+maker.acc.handleTip	The handle of this adjustment in the viewport (move or rotate)	ビューポートのこの調整の操作軸（移動 / 回転）	视口中此调整的操作轴（移动 / 旋转）	zh?
+maker.acc.parentDefault	the item's default ({0})	品目の初期値（{0}）	物品默认（{0}）	zh?
+maker.acc.parentFixed	This item's parent is fixed	この品目の親は固定です	此物品的父级固定	zh?
+option.maker.accessoryHandles	Accessory handles (Maker)	アクセサリの操作軸（キャラ編集）	饰品操作轴（角色编辑）	zh?
+option.maker.accessoryMirrorParent	Swap the left / right parent on accessory copies (Maker)	アクセサリのコピーで左右の親を変更（キャラ編集）	复制饰品时交换左右父级（角色编辑）	zh?
+option.maker.copyAccessoryPluginData	Copy plugin data with an accessory slot (Maker)	アクセサリのスロットのコピーでプラグインのデータも写す（キャラ編集）	复制饰品槽位时一并复制插件数据（角色编辑）	zh?
+option.maker.accessoryStep.1	Accessory adjustment 01 step (Maker)	アクセサリの調整01の移動量（キャラ編集）	饰品调整01步长（角色编辑）	zh?
+option.maker.accessoryStep.1.fine	Fine (0.1 · 1 · 0.01)	小（0.1・1・0.01）	小（0.1・1・0.01）	zh?
+option.maker.accessoryStep.1.normal	Normal (1 · 5 · 0.1)	中（1・5・0.1）	中（1・5・0.1）	zh?
+option.maker.accessoryStep.1.coarse	Coarse (10 · 10 · 1)	大（10・10・1）	大（10・10・1）	zh?
+option.maker.accessoryStep.2	Accessory adjustment 02 step (Maker)	アクセサリの調整02の移動量（キャラ編集）	饰品调整02步长（角色编辑）	zh?
+option.maker.accessoryStep.2.fine	Fine (0.1 · 1 · 0.01)	小（0.1・1・0.01）	小（0.1・1・0.01）	zh?
+option.maker.accessoryStep.2.normal	Normal (1 · 5 · 0.1)	中（1・5・0.1）	中（1・5・0.1）	zh?
+option.maker.accessoryStep.2.coarse	Coarse (10 · 10 · 1)	大（10・10・1）	大（10・10・1）	zh?
+#B46 (Phase 4.6 package B: the Character and File pages, their sections and rows of InspectorSchemas.CharaEdit, the Clothes page's coordinate save button)
+inspector.charaEdit.page.character.character	Character	キャラクター	角色	zh?
+inspector.charaEdit.page.character.character.profile	Character settings	キャラ設定	角色设定	zh?
+inspector.charaEdit.character.name	Name	名前	名字	zh?
+inspector.charaEdit.character.sex	Sex	性別	性别	zh?
+inspector.charaEdit.character.sex.male	Male	男性	男性	zh?
+inspector.charaEdit.character.sex.female	Female	女性	女性	zh?
+inspector.charaEdit.character.futanari	Futanari	ふたなり	扶她	zh?
+inspector.charaEdit.character.futanariHint	Edited on Body › Special	編集は 体 › 特殊	在 身体 › 特殊 中编辑	zh?
+inspector.charaEdit.character.personality	Personality	性格	性格	zh?
+inspector.charaEdit.character.birthday	Birthday	誕生日	生日	zh?
+inspector.charaEdit.character.voiceRate	Voice pitch	声の高さ	声音高低	zh?
+inspector.charaEdit.character.wishes	Wishes	願望	愿望	ja? zh?
+inspector.charaEdit.character.p2Personality	Personality (2)	性格 (2)	性格 (2)	ja? zh?
+inspector.charaEdit.character.p2VoiceRate	Voice pitch (2)	声の高さ (2)	声音高低 (2)	ja? zh?
+inspector.charaEdit.character.p2Trait	Trait	特性	特性	ja? zh?
+inspector.charaEdit.character.p2Mind	Mind	心	心	ja? zh?
+inspector.charaEdit.character.p2HAttribute	H attribute	H 属性	H 属性	ja? zh?
+inspector.charaEdit.character.provenanceFile	Imported from	取り込み元	导入来源	zh?
+inspector.charaEdit.character.provenanceImported	Imported at	取り込み日時	导入时间	zh?
+inspector.charaEdit.character.provenanceImporter	Importer	取り込み器	导入器	ja? zh?
+inspector.charaEdit.character.provenanceSha256	SHA-256	SHA-256	SHA-256	
+inspector.charaEdit.character.provenanceGuids	Sideloader GUIDs	Sideloader GUID 数	Sideloader GUID 数	zh?
+inspector.charaEdit.page.file.file	File	ファイル	文件	zh?
+inspector.charaEdit.page.file.file.character	Character	キャラクター	角色	zh?
+inspector.charaEdit.page.file.file.coordinate	Outfit	コーデ	服装	zh?
+inspector.charaEdit.file.saveCharacter	Save as…	名前を付けて保存…	另存为…	zh?
+inspector.charaEdit.file.thumbnailFraming	Thumbnail	サムネイル	缩略图	zh?
+inspector.charaEdit.file.framing.front	Front	正面	正面	zh?
+inspector.charaEdit.file.framing.view	Current view	現在の視点	当前视角	zh?
+inspector.charaEdit.file.retakeThumbnail	Retake	撮影し直す	重新拍摄	zh?
+inspector.charaEdit.file.loadCharacter	Load character…	キャラを読込…	读取角色…	zh?
+inspector.charaEdit.file.saveCoordinate	Save outfit…	コーデを保存…	保存服装…	zh?
+inspector.charaEdit.file.loadCoordinate	Load outfit…	コーデを読込…	读取服装…	zh?
+inspector.charaEdit.clothes.saveCoordinate	Save…	保存…	保存…	zh?
+#W46 (Phase 4.6 package W: the File and Character pages' widgets — thumbnail preview, save prompts and overwrite questions, the character load dialog with the five flags, the read-only lines of the Character page — and the options maker.thumbnailFraming, maker.loadFlags)
+option.maker.thumbnailFraming	Character thumbnail framing (Maker)	キャラのサムネイルの構図（キャラ編集）	角色缩略图构图（角色编辑）	zh?
+option.maker.thumbnailFraming.front	Front	正面	正面	zh?
+option.maker.thumbnailFraming.view	Current view	現在の視点	当前视角	zh?
+option.maker.loadFlags	Parts a character load takes (Maker)	キャラ読込で読み込む部分（キャラ編集）	读取角色时读取的部分（角色编辑）	zh?
+inspector.charaEdit.file.preview	Thumbnail preview	サムネイルのプレビュー	缩略图预览	zh?
+inspector.charaEdit.file.previewPending	Rendering the preview…	プレビューを撮影しています…	正在拍摄预览…	zh?
+inspector.charaEdit.file.previewNone	No preview: {0}	プレビューなし: {0}	无预览：{0}	zh?
+inspector.charaEdit.file.multi	File operations work on one character at a time	ファイル操作は 1 体ずつ行います	文件操作一次只针对一个角色	zh?
+inspector.charaEdit.file.saveCharaTitle	Save character	キャラを保存	保存角色	zh?
+inspector.charaEdit.file.saveCharaMessage	Name of the character file	キャラファイルの名前	角色文件名	zh?
+inspector.charaEdit.file.overwriteTitle	Overwrite the file?	ファイルの上書き	覆盖文件？	zh?
+inspector.charaEdit.file.overwriteMessage	{0} already exists. Overwrite it?	{0} は既にあります。上書きしますか?	{0} 已存在。要覆盖吗？	zh?
+inspector.charaEdit.file.savedChara	Character saved: {0}	キャラを保存しました: {0}	已保存角色：{0}	zh?
+inspector.charaEdit.file.saveCoordTitle	Save outfit	コーデを保存	保存服装	zh?
+inspector.charaEdit.file.saveCoordMessage	Outfit name	コーデ名	服装名称	zh?
+inspector.charaEdit.file.savedCoord	Outfit saved: {0}	コーデを保存しました: {0}	已保存服装：{0}	zh?
+inspector.charaEdit.file.loadTitle	Load character	キャラを読込	读取角色	zh?
+inspector.charaEdit.file.loadMessage	Choose a character file and the parts to load.	キャラファイルと読み込む部分を選んでください。	选择角色文件和要读取的部分。	zh?
+inspector.charaEdit.file.loadButton	Load	読込	读取	zh?
+inspector.charaEdit.file.loadFlags	Parts	読み込む部分	读取的部分	zh?
+inspector.charaEdit.file.flag.face	Face	顔	脸	zh?
+inspector.charaEdit.file.flag.body	Body	体	身体	zh?
+inspector.charaEdit.file.flag.hair	Hair	髪	头发	zh?
+inspector.charaEdit.file.flag.coordinate	Outfit	コーデ	服装	zh?
+inspector.charaEdit.file.flag.profile	Character settings	キャラ設定	角色设定	zh?
+inspector.charaEdit.file.noFile	Choose a character file first.	先にキャラファイルを選んでください。	请先选择角色文件。	zh?
+inspector.charaEdit.file.noFlag	Tick at least one part.	読み込む部分を 1 つ以上選んでください。	请至少勾选一个部分。	zh?
+inspector.charaEdit.file.refresh	List the character files again	キャラファイルを読み直す	重新列出角色文件	zh?
+inspector.charaEdit.character.hs2	Game parameters	ゲームのパラメータ	游戏参数	zh?
+inspector.charaEdit.character.hs2None	none (made in HS2Next)	なし (HS2Next で作成)	无（在 HS2Next 中创建）	zh?
+inspector.charaEdit.character.provenance	Provenance	取り込み元	来源	zh?
+inspector.charaEdit.character.madeInHs2Next	made in HS2Next	HS2Next で作成	在 HS2Next 中创建	zh?
+inspector.charaEdit.character.birthdayValue	{0}/{1}	{0}月{1}日	{0}月{1}日	zh?
+inspector.charaEdit.character.futanariOn	yes	あり	是	zh?
+inspector.charaEdit.character.futanariOff	no	なし	否	zh?
+#U03 (v0.3 trial package U: the toast after an older layout.json was replaced by the sidebar layout)
+msg.layoutUpdated	The panel layout was updated for this version: the workspace and the inspector are tabs on the left; the browsers, the scene panel and the history are tabs on the right. «{0}» (View menu, or right-click a tab) restores this layout at any time.	パネルの配置をこの版の既定に更新しました。左にワークスペースとインスペクター、右に追加の一覧・シーン・履歴がタブで並びます。「{0}」（表示メニュー、またはタブの右クリック）でいつでもこの配置に戻せます。	面板布局已更新为此版本的默认布局：左侧为工作区和检查器标签，右侧为浏览器、场景和历史记录标签。随时可用“{0}”（视图菜单或右键单击标签）恢复此布局。	zh?
+#U2T2 (v0.3 trial 2 package U2: what a click / double click does in the thumbnail grids, the thumbnail size options of the character browser and the Maker lists)
+browser.chara.hint	Click: select · Double-click or Enter: add to the scene · Drag: add where you drop	クリック: 選択 · ダブルクリックか Enter: シーンに追加 · ドラッグ: 置いた所に追加	单击：选择 · 双击或 Enter：添加到场景 · 拖动：添加到放下的位置	zh?
+browser.chara.selected	Selected: {0} — double-click, Enter or «Add» adds it	選択中: {0} — ダブルクリック・Enter・「追加」で追加	已选择：{0} — 双击、Enter 或“添加”即可添加	zh?
+browser.pose.hint	Click: select · Double-click or Enter: load onto the selected characters	クリック: 選択 · ダブルクリックか Enter: 選択中のキャラに読み込む	单击：选择 · 双击或 Enter：读取到所选角色	zh?
+browser.scene.hint	Click: select · Double-click or Enter: open	クリック: 選択 · ダブルクリックか Enter: 開く	单击：选择 · 双击或 Enter：打开	zh?
+browser.image.hint	Click: select · Double-click or Enter: use this image	クリック: 選択 · ダブルクリックか Enter: この画像を使う	单击：选择 · 双击或 Enter：使用此图像	zh?
+browser.file.hint	Click: choose the file, then a load button	クリック: ファイルを選び、読込のボタンを押す	单击：选择文件，然后按读取按钮	zh?
+browser.costume.hint	Click: select · Double-click or Enter: load the outfit	クリック: 選択 · ダブルクリックか Enter: コーデを読込	单击：选择 · 双击或 Enter：读取服装	zh?
+maker.list.hint	Click or Enter: apply to the character · Arrow keys: move the selection	クリックか Enter: キャラに適用 · 矢印キー: 選択を移動	单击或 Enter：应用到角色 · 方向键：移动选择	zh?
+maker.list.hintAdd	Click or Enter: add this accessory	クリックか Enter: このアクセサリを追加	单击或 Enter：添加此饰品	zh?
+maker.list.hintPush	Click or Enter: apply to the selected characters	クリックか Enter: 選択中のキャラに適用	单击或 Enter：应用到所选角色	zh?
+option.view.thumbSize.chara	Thumbnail size: character cards (px)	サムネイルの大きさ: キャラカード (px)	缩略图大小：角色卡（像素）	zh?
+option.view.thumbSize.face	Thumbnail size: Maker face lists (px)	サムネイルの大きさ: キャラ編集の顔 (px)	缩略图大小：角色编辑的脸部（像素）	zh?
+option.view.thumbSize.body	Thumbnail size: Maker body lists (px)	サムネイルの大きさ: キャラ編集の体 (px)	缩略图大小：角色编辑的身体（像素）	zh?
+option.view.thumbSize.hair	Thumbnail size: Maker hair lists (px)	サムネイルの大きさ: キャラ編集の髪 (px)	缩略图大小：角色编辑的头发（像素）	zh?
+option.view.thumbSize.clothes	Thumbnail size: Maker clothes lists (px)	サムネイルの大きさ: キャラ編集の服 (px)	缩略图大小：角色编辑的服装（像素）	zh?
+option.view.thumbSize.accessories	Thumbnail size: Maker accessory lists (px)	サムネイルの大きさ: キャラ編集のアクセサリ (px)	缩略图大小：角色编辑的饰品（像素）	zh?
+#R2T2 (v0.3 trial 2 package R: the pose browser while names are read, the camera list, the camera actions)
+browser.pose.reading	{0} of {1} · reading {2} more files…	{1} 件中 {0} 件 · 残り {2} ファイルを読み込み中…	{1} 项中的 {0} 项 · 正在读取其余 {2} 个文件…	zh?
+panel.cameras	Cameras	カメラ	相机	zh?
+action.add.cameraFromView	Camera at the current view	今の視点にカメラを追加	在当前视角添加相机	zh?
+action.camera.lookThrough	Look through the selected camera	選択したカメラで見る	通过所选相机观看	zh?
+cameras.addFromView	＋ From the view	＋ 今の視点から	＋ 从当前视角	zh?
+cameras.addFromView.hint	Adds a camera object where you are looking now (position, direction, field of view)	今見ている位置・向き・画角でカメラを追加します	以当前的位置、方向和视场角添加相机对象	zh?
+cameras.none	No cameras yet — «＋ From the view» adds one at the current view	カメラはまだありません。「＋ 今の視点から」で今の視点に追加できます	还没有相机 — “＋ 从当前视角”可在当前视角添加	zh?
+cameras.status	{0} cameras · view: {1}	カメラ {0} 台 · 表示: {1}	{0} 个相机 · 视图：{1}	zh?
+cameras.view	View	見る	观看	zh?
+cameras.view.hint	Look through this camera (double-click the name does the same)	このカメラで見る（名前のダブルクリックでも同じ）	通过此相机观看（双击名称也可）	zh?
+cameras.viewing	Viewing	表示中	观看中	zh?
+cameras.viewing.hint	The view looks through this camera; click: back to the free camera	このカメラで表示中。クリックでフリーカメラに戻る	正在通过此相机观看；单击：返回自由相机	zh?
+cameras.update	Update	更新	更新	zh?
+cameras.update.hint	Moves this camera to the current view (position, direction, field of view)	このカメラを今の視点に合わせる（位置・向き・画角）	将此相机移到当前视角（位置、方向、视场角）	zh?
+cameras.delete	Delete this camera	このカメラを削除	删除此相机	zh?
+cameras.fov	{0}°	{0}°	{0}°
+cameras.selectOne	Select a camera object first (the tree or the Cameras tab)	先にカメラオブジェクトを選んでください（ツリーかカメラのタブ）	请先选择一个相机对象（树或相机标签）	zh?
+inspector.camera.free	Back to the free camera	フリーカメラに戻る	返回自由相机	zh?
+workspace.cameraUpdate	Update from the current view	今の視点に合わせる	更新为当前视角	zh?
+#N5M (Phase 5.M package N: the group column of the animation browser)
+browser.col.group	Group	グループ	分组	zh?
+#R5M (Phase 5.M package R: the wide mosaic option of the Options panel's Rendering section)
+option.render.mosaicWide	Wide mosaic	広域モザイク	广域马赛克	zh?
+#G52 (Phase 5.2 package G: the item browser's label of the accessories offered as Studio items)
+browser.group.accessories	Accessories	アクセサリー	饰品	zh?
+#C52 (Phase 5.2 package C: the notice at start when the last run ended while it loaded a mod bundle)
+msg.contentQuarantined	The last session ended while it loaded «{0}». That bundle is skipped from now on (its parts and items show as missing) until the mod is updated; the bridge command content.quarantine lifts it.	前回の終了時に «{0}» を読み込んでいました。この束は以後読み込みません（その部品とアイテムは「見つからない」と表示されます）。mod を更新するか、ブリッジの content.quarantine で解除できます。	上次会话在加载 «{0}» 时结束。在该 mod 更新之前，此后将跳过该包（其部件和物品显示为缺失）；可用桥接命令 content.quarantine 解除。	zh?
+#F (Phase 5.3 package F: the first-run guide and its folder picker, the setup banner, the settings sections of the Options panel, the unknown-key toast; the strings R, B and P hand over by their markers)
+setup.step	Step {0} of {1}	手順 {0} / {1}	第 {0} 步，共 {1} 步	zh?
+setup.title.welcome	Welcome to HS2Next	HS2Next へようこそ	欢迎使用 HS2Next	zh?
+setup.title.files	Your files	あなたのファイル	你的文件	zh?
+setup.title.hs2	Honey Select 2 folder	Honey Select 2 のフォルダー	Honey Select 2 文件夹	zh?
+setup.title.mods	More mods folders	ほかの mod のフォルダー	更多 mod 文件夹	zh?
+setup.title.cache	Cache folder	キャッシュのフォルダー	缓存文件夹	zh?
+setup.title.index	Building the index	索引を作っています	正在建立索引	zh?
+setup.title.ready	Ready	準備ができました	准备就绪	zh?
+setup.nav.quit	Quit	終了	退出	zh?
+setup.nav.skip	Skip setup	設定を飛ばす	跳过设置	zh?
+setup.nav.back	Back	戻る	上一步	zh?
+setup.nav.next	Next	次へ	下一步	zh?
+setup.nav.build	Build the index	索引を作る	建立索引	zh?
+setup.nav.finish	Start HS2Next	HS2Next を始める	开始使用 HS2Next	zh?
+setup.welcome.version	Version {0}	バージョン {0}	版本 {0}	zh?
+setup.welcome.text	HS2Next is a studio for scenes with Honey Select 2 characters. It reads your own Honey Select 2 install and never changes it. This guide sets up the folders it needs; it takes a few minutes.	HS2Next は Honey Select 2 のキャラクターでシーンを作るスタジオです。あなたの Honey Select 2 のインストールを読むだけで、変更はしません。この案内で必要なフォルダーを設定します（数分かかります）。	HS2Next 是使用 Honey Select 2 角色制作场景的工作室。它只读取你的 Honey Select 2 安装，从不修改它。本向导会设置所需的文件夹，需要几分钟。	zh?
+setup.welcome.language	Language	言語	语言	zh?
+setup.welcome.machineNote	The Chinese text is a machine translation and has not been reviewed.	中国語の表示は機械翻訳で、見直されていません。	中文界面为机器翻译，尚未经过审校。	zh?
+setup.files.text	HS2Next keeps your characters, scenes, settings and caches in this folder:	HS2Next は、キャラクター・シーン・設定・キャッシュをこのフォルダーに置きます:	HS2Next 将你的角色、场景、设置和缓存保存在此文件夹中：	zh?
+setup.files.mode.perUser	This is your own user folder, outside the folders that cloud sync may move; every Windows user has their own.	クラウドの同期が動かしうるフォルダーの外にある、あなたのユーザーのフォルダーです。Windows のユーザーごとに別です。	这是你自己的用户文件夹，位于云同步可能移动的文件夹之外；每个 Windows 用户各有一个。	zh?
+setup.files.mode.portable	Portable mode: the files stay next to HS2Next.exe because portable.txt lies there.	ポータブルモード: portable.txt があるので、ファイルは HS2Next.exe の隣に置きます。	便携模式：由于存在 portable.txt，文件保存在 HS2Next.exe 旁边。	zh?
+setup.files.mode.override	The folder is set by the environment variable HS2NEXT_DATA_ROOT.	フォルダーは環境変数 HS2NEXT_DATA_ROOT で指定されています。	文件夹由环境变量 HS2NEXT_DATA_ROOT 指定。	zh?
+setup.files.mode.editor	The project folder (development).	プロジェクトのフォルダー（開発用）です。	项目文件夹（开发用）。	zh?
+setup.files.open	Open folder	フォルダーを開く	打开文件夹	zh?
+setup.files.portable	To keep everything next to HS2Next.exe instead (portable mode), create an empty file portable.txt next to HS2Next.exe and start HS2Next again.	代わりに HS2Next.exe の隣にすべてを置くには（ポータブルモード）、HS2Next.exe の隣に空のファイル portable.txt を作って HS2Next を起動し直します。	若要改为将所有内容保存在 HS2Next.exe 旁边（便携模式），请在 HS2Next.exe 旁边创建一个空文件 portable.txt，然后重新启动 HS2Next。	zh?
+setup.migrate.offer	An earlier HS2Next folder holds {0} of your files ({1} MB): {2}. Copy them here? The old folder is not changed.	以前の HS2Next のフォルダーにあなたのファイルが {0} 個（{1} MB）あります: {2}。ここにコピーしますか？ 元のフォルダーは変更しません。	以前的 HS2Next 文件夹中有你的 {0} 个文件（{1} MB）：{2}。要复制到这里吗？旧文件夹不会被修改。	zh?
+setup.migrate.copyButton	Copy	コピーする	复制	zh?
+setup.migrate.notNow	Not now	今はしない	暂不	zh?
+setup.migrate.progress	Copying: {0} of {1} files	コピー中: {1} 個中 {0} 個	正在复制：{0}/{1} 个文件	zh?
+setup.migrate.done	Copied {0} files ({1} MB). {2} conflicts kept as they were. The old folder was not changed; you may delete it after checking.	{0} 個のファイル（{1} MB）をコピーしました。食い違う {2} 個はそのままです。元のフォルダーは変更していません。確かめた後に消してかまいません。	已复制 {0} 个文件（{1} MB）。{2} 个冲突保持原样。旧文件夹未被修改；检查后可以删除。	zh?
+setup.migrate.refused	{0} links were not followed.	{0} 個のリンクはたどりませんでした。	未跟随 {0} 个链接。	zh?
+setup.migrate.failed	Nothing was copied: {0}	何もコピーしませんでした: {0}	未复制任何文件：{0}	zh?
+setup.hs2.text	Choose the folder of your Honey Select 2 install (the folder that holds abdata, mods and HoneySelect2.exe). HS2Next reads cards, coordinates and poses there in place and never writes into it.	Honey Select 2 のインストールのフォルダー（abdata・mods・HoneySelect2.exe があるフォルダー）を選びます。HS2Next はカード・コーデ・ポーズをその場で読み、そこには書き込みません。	选择你的 Honey Select 2 安装文件夹（包含 abdata、mods 和 HoneySelect2.exe 的文件夹）。HS2Next 在原处读取角色卡、服装和姿势，从不向其中写入。	zh?
+setup.hs2.suggestions	Found on this computer	このコンピューターで見つかったもの	在此电脑上找到	zh?
+setup.hs2.searching	Searching…	探しています…	正在搜索…	zh?
+setup.hs2.noSuggestions	No install was found automatically. Type or paste the path, or use Browse…	自動では見つかりませんでした。パスを入力するか貼り付けるか、「参照…」を使ってください。	未能自动找到安装。请输入或粘贴路径，或使用“浏览…”。	zh?
+setup.hs2.pathLabel	Folder	フォルダー	文件夹	zh?
+setup.browse	Browse…	参照…	浏览…	zh?
+setup.hs2.pickTitle	Choose the Honey Select 2 folder	Honey Select 2 のフォルダーを選ぶ	选择 Honey Select 2 文件夹	zh?
+setup.hs2.status.none	No folder chosen yet.	まだフォルダーを選んでいません。	尚未选择文件夹。	zh?
+setup.hs2.status.unreadable	This folder cannot be read.	このフォルダーは読めません。	无法读取此文件夹。	zh?
+setup.hs2.status.noAbdata	This is not a game folder (no abdata).	ゲームのフォルダーではありません（abdata がありません）。	这不是游戏文件夹（没有 abdata）。	zh?
+setup.hs2.status.incomplete	The HS2 data is incomplete (base character data missing).	HS2 のデータが欠けています（キャラクターの基本データがありません）。	HS2 数据不完整（缺少角色基础数据）。	zh?
+setup.hs2.status.notHs2	abdata found, but this may not be Honey Select 2.	abdata はありますが、Honey Select 2 ではないかもしれません。	找到了 abdata，但这可能不是 Honey Select 2。	zh?
+setup.hs2.status.ok	Honey Select 2 found - {0} mods in mods\\	Honey Select 2 が見つかりました - mods\\ に {0} 個の mod	已找到 Honey Select 2 - mods\\ 中有 {0} 个 mod	zh?
+setup.hs2.zipmods	{0} mods	{0} 個の mod	{0} 个 mod	zh?
+setup.hs2.didYouMean	Did you mean {0}?	{0} のことですか？	你是指 {0} 吗？	zh?
+setup.hs2.from.settings	current setting	今の設定	当前设置	zh?
+setup.hs2.from.registry	registry	レジストリ	注册表	zh?
+setup.hs2.from.scan	found on a drive	ドライブで発見	在驱动器上找到	zh?
+setup.hs2.readOnlyNote	An install in a read-only place is fine: HS2Next only reads it.	読み取り専用の場所のインストールでもかまいません。HS2Next は読むだけです。	安装位于只读位置也没关系：HS2Next 只读取它。	zh?
+setup.hs2.warnTitle	This may not be Honey Select 2	Honey Select 2 ではないかもしれません	这可能不是 Honey Select 2	zh?
+setup.hs2.warnMessage	The folder has the game data but no HoneySelect2_Data or StudioNEOV2_Data folder. Use it anyway?	このフォルダーにはゲームのデータがありますが、HoneySelect2_Data も StudioNEOV2_Data もありません。それでも使いますか？	该文件夹有游戏数据，但没有 HoneySelect2_Data 或 StudioNEOV2_Data 文件夹。仍要使用吗？	zh?
+setup.mods.text	The mods folder of your install is always read. You can add more folders with zipmods; they come after it in priority.	インストールの mods フォルダーは常に読みます。zipmod のあるフォルダーを追加できます（優先度はその後になります）。	始终读取安装中的 mods 文件夹。你可以添加更多包含 zipmod 的文件夹；它们的优先级排在其后。	zh?
+setup.mods.install	{0} (always included)	{0}（常に含む）	{0}（始终包含）	zh?
+setup.mods.none	No extra folders.	追加のフォルダーはありません。	没有额外的文件夹。	zh?
+setup.mods.remove	Remove	外す	移除	zh?
+setup.mods.pathLabel	Folder	フォルダー	文件夹	zh?
+setup.mods.addButton	Add	追加	添加	zh?
+setup.mods.pickTitle	Choose a mods folder	mod のフォルダーを選ぶ	选择 mod 文件夹	zh?
+setup.mods.unreadable	This folder cannot be read.	このフォルダーは読めません。	无法读取此文件夹。	zh?
+setup.mods.duplicate	This folder is in the list already.	このフォルダーはもう一覧にあります。	此文件夹已在列表中。	zh?
+setup.mods.note	The mods are scanned when the index is built.	mod は索引を作るときに走査します。	建立索引时会扫描 mod。	zh?
+setup.cache.text	HS2Next keeps data it can rebuild here: the mod lists, thumbnails and repaired copies of broken textures.	HS2Next は作り直せるデータをここに置きます（mod の一覧・サムネイル・壊れたテクスチャを直した写し）。	HS2Next 在此保存可重建的数据：mod 列表、缩略图以及修复后的损坏贴图副本。	zh?
+setup.cache.pathLabel	Folder	フォルダー	文件夹	zh?
+setup.cache.changeButton	Change…	変更…	更改…	zh?
+setup.cache.defaultButton	Default	既定	默认	zh?
+setup.cache.pickTitle	Choose the cache folder	キャッシュのフォルダーを選ぶ	选择缓存文件夹	zh?
+setup.cache.free	Free space on its drive: {0} GB	そのドライブの空き: {0} GB	所在驱动器的可用空间：{0} GB	zh?
+setup.cache.freeUnknown	Free space: unknown	空き容量: 不明	可用空间：未知	zh?
+setup.cache.expected	Expected use: about {0} GB at once; up to about {1} GB as repaired mods are opened.	使う量の目安: すぐに約 {0} GB、直した mod を開くにつれて最大で約 {1} GB。	预计用量：立即约 {0} GB；随着打开修复后的 mod，最多约 {1} GB。	zh?
+setup.cache.lowSpace	Less than {0} GB free: the cache may fill the drive. Consider another folder.	空きが {0} GB 未満です。キャッシュでドライブがいっぱいになるかもしれません。別のフォルダーを検討してください。	可用空间不足 {0} GB：缓存可能会占满驱动器。请考虑其他文件夹。	zh?
+setup.index.text	HS2Next reads the lists of your install and scans your mods. This usually takes well under a minute; later starts reuse the index.	HS2Next はインストールの一覧を読み、mod を走査します。たいてい 1 分もかかりません。次からはこの索引を使います。	HS2Next 正在读取安装中的列表并扫描你的 mod。通常不到一分钟；以后启动会重用该索引。	zh?
+setup.index.textProgress	HS2Next is updating its index of your mods. This takes a while after mods were added or the cache was cleared.	HS2Next が mod の索引を更新しています。mod を追加した後やキャッシュを消した後はしばらくかかります。	HS2Next 正在更新 mod 索引。添加 mod 或清除缓存后需要一些时间。	zh?
+setup.index.starting	Starting…	始めています…	正在开始…	zh?
+setup.index.progress	Reading the mods: {0} of {1} ({2} s)	mod を読んでいます: {1} 個中 {0} 個（{2} 秒）	正在读取 mod：{0}/{1}（{2} 秒）	zh?
+setup.index.progressNoTotal	Reading the mods: {0} ({1} s)	mod を読んでいます: {0} 個（{1} 秒）	正在读取 mod：{0}（{1} 秒）	zh?
+setup.index.estimate	About {0} s left.	残り約 {0} 秒。	剩余约 {0} 秒。	zh?
+setup.index.failed	The start failed: {0}	起動に失敗しました: {0}	启动失败：{0}	zh?
+setup.index.note	After the start, a check of the mod textures continues in the background for a few minutes; you can work meanwhile.	起動の後、mod のテクスチャの検査が裏で数分続きます。その間も作業できます。	启动后，mod 贴图的检查会在后台继续几分钟；期间可以照常使用。	zh?
+setup.ready.text	HS2Next is ready. A few tips:	HS2Next の準備ができました。いくつかのヒント:	HS2Next 已准备就绪。一些提示：	zh?
+setup.ready.tipCamera	The camera uses the numpad: 0 looks through the selected camera, Ctrl + numpad 0 adds one.	カメラはテンキーで操作します: 0 で選んだカメラから見て、Ctrl + テンキー 0 でカメラを追加します。	相机使用数字小键盘：0 通过所选相机观看，Ctrl + 小键盘 0 添加一个相机。	zh?
+setup.ready.tipNoNumpad	Without a numpad, use the Camera tab, the inspector, the tree's right-click menu, or rebind the keys (File ▸ Options ▸ Key bindings).	テンキーが無いときは、カメラのタブ、インスペクター、ツリーの右クリックのメニューを使うか、キーを割り当て直してください（ファイル ▸ オプション ▸ キー割り当て）。	没有数字小键盘时，请使用相机选项卡、检查器、树的右键菜单，或重新绑定按键（文件 ▸ 选项 ▸ 按键绑定）。	zh?
+setup.ready.tipFolders	File ▸ Options ▸ Folders shows and changes the folders.	ファイル ▸ オプション ▸ フォルダーで、フォルダーを確かめて変えられます。	文件 ▸ 选项 ▸ 文件夹 可查看和更改文件夹。	zh?
+setup.ready.tipBridge	The automation bridge is on. When it asks for a token, clients read it from {0} (one line).	自動操作のブリッジは有効です。トークンを求めるときは、クライアントは {0}（1 行）から読みます。	自动化桥接已开启。需要令牌时，客户端从 {0}（一行）读取。	zh?
+setup.ready.tipFiles	Your files are in {0}.	あなたのファイルは {0} にあります。	你的文件位于 {0}。	zh?
+setup.picker.up	Up	上へ	上一级	zh?
+setup.picker.select	Select this folder	このフォルダーを選ぶ	选择此文件夹	zh?
+setup.picker.unreadable	This folder cannot be read.	このフォルダーは読めません。	无法读取此文件夹。	zh?
+setup.picker.more	Only the first {0} folders are shown.	最初の {0} 個のフォルダーだけを表示しています。	仅显示前 {0} 个文件夹。	zh?
+setup.picker.empty	No folders here.	ここにフォルダーはありません。	此处没有文件夹。	zh?
+setup.skip.title	Skip setup?	設定を飛ばしますか？	跳过设置？	zh?
+setup.skip.message	HS2Next starts without HS2 content. You can open this guide again from File ▸ Setup guide.	HS2Next は HS2 の中身なしで始まります。この案内は ファイル ▸ セットアップの案内 から開き直せます。	HS2Next 将在没有 HS2 内容的情况下启动。你可以从 文件 ▸ 设置向导 再次打开本向导。	zh?
+setup.error.write	The settings could not be written to {0}: {1}	設定を {0} に書けませんでした: {1}	无法将设置写入 {0}：{1}	zh?
+setup.banner.text	No HS2 folder is set: HS2Next runs without Honey Select 2 content. The setup guide chooses the folder.	HS2 のフォルダーが設定されていません。HS2Next は Honey Select 2 の中身なしで動いています。セットアップの案内でフォルダーを選べます。	未设置 HS2 文件夹：HS2Next 正在没有 Honey Select 2 内容的情况下运行。可在设置向导中选择文件夹。	zh?
+setup.banner.open	Setup guide…	セットアップの案内…	设置向导…	zh?
+setup.restart.title	Restart HS2Next?	HS2Next を再起動しますか？	重新启动 HS2Next？	zh?
+setup.restart.guide	HS2Next restarts and opens the setup guide.	HS2Next を再起動してセットアップの案内を開きます。	HS2Next 将重新启动并打开设置向导。	zh?
+setup.restart.editor	An Editor play session cannot restart itself: stop and start play mode (with "setup": true in the launch override for the guide).	エディターの再生は自分では再起動できません。再生を止めて始め直してください（案内には起動の上書きに "setup": true）。	编辑器的播放会话无法自行重新启动：请停止并重新开始播放模式（向导需在启动覆盖中设置 "setup": true）。	zh?
+msg.unknownSettingsKeys	{1} holds keys HS2Next does not read (ignored): {0}	{1} に HS2Next が読まないキーがあります（無視します）: {0}	{1} 含有 HS2Next 不读取的键（已忽略）：{0}	zh?
+msg.folderFallback	HS2Next cannot write to «{0}», so it keeps these files in «{1}» for now. You can choose another folder under File ▸ Options ▸ Folders.	«{0}» に書き込めないため、当面これらのファイルを «{1}» に置きます。ファイル ▸ オプション ▸ フォルダーで別のフォルダーを選べます。	无法写入 «{0}»，因此暂时将这些文件保存在 «{1}»。可在“文件 ▸ 选项 ▸ 文件夹”中选择其他文件夹。	zh?
+about.build	Build	ビルド	版本类型	zh?
+about.build.dev	development build	開発ビルド	开发版	zh?
+about.build.dist	distribution	配布版	发行版	zh?
+about.build.editor	Editor	エディター	编辑器	zh?
+about.commit	Commit	コミット	提交	zh?
+action.file.setupGuide	Setup guide…	セットアップの案内…	设置向导…	zh?
+option.section.folders	Folders	フォルダー	文件夹	zh?
+option.section.content	Content	中身	内容	zh?
+option.section.automation	Automation	自動操作	自动化	zh?
+option.section.advanced	Advanced	詳細	高级	zh?
+settings.sectionNote	These settings are kept in the settings file and apply at the next start.	これらの設定は設定ファイルに書き、次の起動から効きます。	这些设置保存在设置文件中，下次启动时生效。	zh?
+settings.unreadable	The settings file {0} cannot be read: {1}	設定ファイル {0} を読めません: {1}	无法读取设置文件 {0}：{1}	zh?
+settings.writeFailed	The settings file {0} could not be written: {1}	設定ファイル {0} に書けませんでした: {1}	无法写入设置文件 {0}：{1}	zh?
+settings.restartNow	Restart now	今すぐ再起動	立即重新启动	zh?
+settings.restartPending	Changed settings apply after a restart.	変えた設定は再起動の後に効きます。	更改的设置在重新启动后生效。	zh?
+settings.restartMessage	HS2Next restarts with the same arguments and the changed settings.	HS2Next を同じ引数と変えた設定で再起動します。	HS2Next 将以相同的参数和更改后的设置重新启动。	zh?
+settings.restartDirty	HS2Next restarts with the changed settings. The scene has unsaved changes: they are lost.	HS2Next を変えた設定で再起動します。シーンに保存していない変更があり、それは失われます。	HS2Next 将以更改后的设置重新启动。场景有未保存的更改，这些更改将丢失。	zh?
+settings.locked	set on the command line	コマンドラインで指定	已在命令行中指定	zh?
+settings.afterRestart	changed: applies after restart	変更済み: 再起動で効く	已更改：重新启动后生效	zh?
+settings.restartMark	applies after restart	再起動で効く	重新启动后生效	zh?
+settings.afterRestartTip	Kept in the settings file; the app reads it at start.	設定ファイルに書きます。アプリは起動時に読みます。	保存在设置文件中；应用在启动时读取。	zh?
+settings.dataRoot	Data folder: {0} ({1})	データのフォルダー: {0}（{1}）	数据文件夹：{0}（{1}）	zh?
+settings.mode.editor	the project folder	プロジェクトのフォルダー	项目文件夹	zh?
+settings.mode.portable	portable mode, next to HS2Next.exe	ポータブルモード、HS2Next.exe の隣	便携模式，位于 HS2Next.exe 旁边	zh?
+settings.mode.override	set by HS2NEXT_DATA_ROOT	HS2NEXT_DATA_ROOT で指定	由 HS2NEXT_DATA_ROOT 指定	zh?
+settings.mode.perUser	your user folder	あなたのユーザーのフォルダー	你的用户文件夹	zh?
+settings.file	Settings file: {0}	設定ファイル: {0}	设置文件：{0}	zh?
+settings.userData.pickTitle	Choose the folder for your files	あなたのファイルのフォルダーを選ぶ	选择存放你的文件的文件夹	zh?
+settings.userData.title	Move your files?	ファイルの置き場を変えますか？	更改文件位置？	zh?
+settings.userData.message	HS2Next keeps your characters, scenes and settings in {0} from the next start.	次の起動から、キャラクター・シーン・設定を {0} に置きます。	从下次启动起，角色、场景和设置将保存在 {0}。	zh?
+settings.userData.copy	Copy my files there (the current folder is not changed)	ファイルをそこへコピーする（今のフォルダーは変えません）	将我的文件复制到那里（当前文件夹不会被修改）	zh?
+settings.cache.measuring	Measuring the cache…	キャッシュの大きさを測っています…	正在计算缓存大小…	zh?
+settings.cache.size	The cache holds {0} GB: {1}	キャッシュは {0} GB です: {1}	缓存占用 {0} GB：{1}	zh?
+settings.migrate.button	Copy files from an earlier HS2Next folder…	以前の HS2Next のフォルダーからファイルをコピー…	从以前的 HS2Next 文件夹复制文件…	zh?
+settings.migrate.pickTitle	Choose the earlier HS2Next folder (or its UserData)	以前の HS2Next のフォルダー（またはその UserData）を選ぶ	选择以前的 HS2Next 文件夹（或其 UserData）	zh?
+settings.migrate.started	Copying from {0}…	{0} からコピーしています…	正在从 {0} 复制…	zh?
+settings.tokenFile	Token file: {0}	トークンのファイル: {0}	令牌文件：{0}	zh?
+settings.copyPath	Copy path	パスをコピー	复制路径	zh?
+settings.copied	Copied.	コピーしました。	已复制。	zh?
+settings.plugins	Plugins (each can be turned off)	プラグイン（ひとつずつ切れます）	插件（可逐个关闭）	zh?
+settings.plugins.none	No plugin is installed.	プラグインはありません。	未安装插件。	zh?
+settings.token.off	off	なし	关闭	zh?
+settings.token.required	required	必須	必需	zh?
+about.line	Version {0} · {1}: {2} · {3}: {4}	バージョン {0} · {1}: {2} · {3}: {4}	版本 {0} · {1}：{2} · {3}：{4}	zh?
+about.compat.title	Compatible shaders	互換シェーダー	兼容着色器	zh?
+about.compat.text	So that the materials of mods and asset packs can be read, HS2Next has its own compatible shaders that match the names and property names of the shaders below. They were written from scratch by measuring rendered output. They are not the work of the original authors, who have not endorsed or supported HS2Next. Their names begin with HS2Next/Compatible/.	mod やアセットの素材を読めるように、HS2Next は次のシェーダーの名前とプロパティ名に合わせた互換シェーダーを持っています。互換シェーダーは描画結果を測って一から書いたもので、元の作者が作ったものではありません。元の作者の承認や支援も受けていません。名前は HS2Next/Compatible/ で始まります。	为了能够读取 mod 和资源包的材质，HS2Next 自带与下列着色器的名称和属性名称一致的兼容着色器。它们是通过测量渲染结果从零开始编写的。它们不是原作者的作品，原作者也未认可或支持 HS2Next。它们的名称以 HS2Next/Compatible/ 开头。	zh?
+about.plugins.title	Plugin data read for compatibility	互換のために読むプラグインのデータ	为兼容而读取的插件数据	zh?
+about.plugins.text	So that what you made with them stays usable, HS2Next reads, with its own code, the data that the community plugins below store in character cards, outfit cards and pose files, and the mod packages (zipmod) of Sideloader. It contains none of their code. HS2Next is not the work of their authors, who have not endorsed or supported it.	これまでに作ったものを使い続けられるように、HS2Next は次の有志のプラグインがキャラカード、衣装カード、ポーズファイルに保存したデータと、Sideloader の mod パッケージ（zipmod）を、自前のコードで読みます。プラグインのコードは含みません。HS2Next はこれらのプラグインの作者が作ったものではなく、作者の承認や支援も受けていません。	为了让你用这些插件制作的内容继续可用，HS2Next 用自己的代码读取下列社区插件保存在角色卡、服装卡和姿势文件中的数据，以及 Sideloader 的 mod 包（zipmod）。其中不包含这些插件的代码。HS2Next 不是这些插件作者的作品，作者也未认可或支持它。	zh?
+settings.key.hs2Root	HS2 folder	HS2 のフォルダー	HS2 文件夹	zh?
+settings.key.modsFolders	More mods folders	ほかの mod のフォルダー	更多 mod 文件夹	zh?
+settings.key.userData	Your files (UserData)	あなたのファイル（UserData）	你的文件（UserData）	zh?
+settings.key.cacheDir	Cache folder	キャッシュのフォルダー	缓存文件夹	zh?
+settings.key.studio.accessoryItems	Character accessories as Studio items	キャラクターのアクセサリーを Studio のアイテムに出す	将角色饰品作为 Studio 物品提供	zh?
+settings.key.content.texturePrescan	Check mod textures in the background after start	起動後に mod のテクスチャを裏で検査する	启动后在后台检查 mod 贴图	zh?
+settings.key.content.bundleCacheMB	Memory for unused mod bundles (MB, advanced)	使っていない mod の束に使うメモリー（MB、上級）	未使用 mod 包的内存（MB，高级）	zh?
+settings.key.aiInstall	Show the AI-Shoujo content of the Studio lists	Studio の一覧に AI 少女の中身を出す	在 Studio 列表中显示 AI 少女内容	zh?
+settings.key.sideloaderZipmodSet	One zipmod per GUID by version (the loader's rule)	GUID ごとに版で 1 つの zipmod（ローダーの規則）	每个 GUID 按版本取一个 zipmod（加载器规则）	zh?
+settings.key.sideloaderAssetRedirect	Per-asset redirect of mods	mod の資産ごとの差し替え	mod 的逐资源重定向	zh?
+settings.key.bridge.enabled	Automation bridge	自動操作のブリッジ	自动化桥接	zh?
+settings.key.bridge.port	Bridge port	ブリッジのポート	桥接端口	zh?
+settings.key.bridge.token	Bridge token	ブリッジのトークン	桥接令牌	zh?
+settings.key.bridge.allowQuit	Clients may quit the app (app.quit)	クライアントがアプリを終了できる（app.quit）	客户端可以退出应用（app.quit）	zh?
+settings.key.app.runInBackground	Keep running while another window has the focus	ほかの窓が前のときも動き続ける	其他窗口获得焦点时仍继续运行	zh?
+settings.key.app.frameRate	Frame rate limit (0 = none)	フレームレートの上限（0 = なし）	帧率上限（0 = 无）	zh?
+settings.key.plugins.enabled	Load plugins	プラグインを読み込む	加载插件	zh?
+settings.key.plugins.disabled	Plugins turned off	切ったプラグイン	已关闭的插件	zh?
+settings.key.maps.maxMirrors	Mirrors drawn per frame	1 フレームに描く鏡の数	每帧绘制的镜子数	zh?
+settings.key.mapAudioLink	Map audio link into the game data (development)	マップの音のためのゲームデータへのリンク（開発用）	指向游戏数据的地图音频链接（开发用）	zh?
+settings.key.content.unloadUnusedMinSec	Seconds between unused-asset sweeps	使わない資産の片付けの最短間隔（秒）	清理未使用资源的最短间隔（秒）	zh?
+msg.migrationOffer	An earlier HS2Next folder holds your files: {0}. File ▸ Options ▸ Folders ▸ "Copy files from an earlier HS2Next folder…" copies them here (the old folder is not changed).	以前の HS2Next のフォルダーにあなたのファイルがあります: {0}。ファイル ▸ オプション ▸ フォルダー ▸「以前の HS2Next のフォルダーからファイルをコピー…」でここへコピーできます（元のフォルダーは変えません）。	以前的 HS2Next 文件夹中有你的文件：{0}。可通过 文件 ▸ 选项 ▸ 文件夹 ▸“从以前的 HS2Next 文件夹复制文件…”复制到这里（旧文件夹不会被修改）。	zh?
+setup.restart.unsaved	Save the changes to {0} before HS2Next restarts?	HS2Next を再起動する前に {0} の変更を保存しますか?	重新启动 HS2Next 前是否保存对 {0} 的更改？	zh?

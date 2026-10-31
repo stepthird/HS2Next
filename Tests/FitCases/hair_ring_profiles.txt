@@ -1,0 +1,27 @@
+# Shader Forge/hair_07 ring (angel ring) profile cases: run with SkinFit.Sweep -fitDump (full probe images) or -fitStats;
+# the band shape was fitted offline on the dumped columns (b = 1 - 2|V.y - N.y|, exponents in SF_Hair07_URP.shader).
+ring_dump_rd   | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_Color=0:0:0:1;_Specular=1:1:1:1;_MainTex=1:0:0:1;_Rimpower=20 | _HighLight=0,9 | _QUADOFF=0:0:0,0.1:0:0,0:0.1:0 | amb
+ring_dump_rdk  | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_Color=0:0:0:1;_Specular=0:0:0:1;_MainTex=1:0:0:1;_Rimpower=20 | _HighLight=0,9 | | amb
+ring_dump_rdt  | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_Color=0:0:0:1;_Specular=1:1:1:1;_MainTex=1:0:0:1;_Rimpower=20;_HighLight=9 | | | amb | 45
+ring_dump_rdd  | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_Color=0:0:0:1;_Specular=1:1:1:1;_MainTex=1:0:0:1;_Rimpower=20;_HighLight=9 | _CAMDIST=1 | | amb
+explore9_rpix     | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_Color=0:0:0:1;_Specular=1:1:1:1;_MainTex=1:0:0:1;_Rimpower=20 | _HighLight=0,9,20 | | amb
+explore9_rpixK    | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_Color=0:0:0:1;_Specular=0:0:0:1;_MainTex=1:0:0:1;_Rimpower=20 | _HighLight=0,9,20 | | amb
+explore9_rdist    | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_Color=0:0:0:1;_Specular=1:1:1:1;_MainTex=1:0:0:1;_Rimpower=20;_HighLight=9 | _CAMDIST=1,2,4,8 | | amb
+explore9_ruv1     | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_Color=0:0:0:1;_Specular=1:1:1:1;_MainTex=1:0:0:1;_Rimpower=20;_HighLight=9 | _UV1=0:0,0.5:0.5,1:1,0:1 | | amb
+explore9_ruv2     | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_Color=0:0:0:1;_Specular=1:1:1:1;_MainTex=1:0:0:1;_Rimpower=20;_HighLight=9 | _UV2=0:0,0.5:0.5,1:1 | | amb
+explore9_rvc      | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_Color=0:0:0:1;_Specular=1:1:1:1;_MainTex=1:0:0:1;_Rimpower=20;_HighLight=9 | _VCOL=0:0:0:0,1:0:0:1,0:1:0:1,0:0:1:1 | | amb
+ring2_rc   | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_MainTex=1:0:0:1;_Rimpower=20;_HighLight=0 | _Color=0:0:0:1,0.25:0.25:0.25:1,0.5:0.5:0.5:1,0.75:0.75:0.75:1,1:1:1:1,1:0:0:1,0:1:0:1 | _Specular=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1,1:0:0:1 | amb
+ring2_rc9  | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_MainTex=1:0:0:1;_Rimpower=20;_HighLight=9 | _Color=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1,1:0:0:1 | _Specular=0:0:0:1,1:1:1:1 | amb
+ring2_rh   | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_MainTex=1:0:0:1;_Rimpower=20;_Color=0:0:0:1;_Specular=1:1:1:1 | _HighLight=0,1,2,4,9,20 | _CAMDIST=0.6,1,2 | amb
+ring4_pv  | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_MainTex=1:0:0:1;_Rimpower=20;_HighLight=0;_Specular=1:1:1:1 | _Color=0:0:0:1,0.05:0:0:1,0.1:0:0:1,0.15:0:0:1,0.2:0:0:1,0.25:0:0:1,0.3:0:0:1,0.35:0:0:1,0.4:0:0:1,0.45:0:0:1,0.5:0:0:1,0.55:0:0:1,0.6:0:0:1,0.65:0:0:1,0.7:0:0:1,0.75:0:0:1,0.8:0:0:1,0.85:0:0:1,0.9:0:0:1,0.95:0:0:1,1:0:0:1 | | amb
+ring4_pv2 | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_MainTex=1:0:0:1;_Rimpower=20;_HighLight=0;_Specular=1:1:1:1 | _Color=0:0:0:1,0.05:0.03:0.015:1,0.1:0.06:0.03:1,0.15:0.09:0.045:1,0.2:0.12:0.06:1,0.25:0.15:0.075:1,0.3:0.18:0.09:1,0.35:0.21:0.105:1,0.4:0.24:0.12:1,0.45:0.27:0.135:1,0.5:0.3:0.15:1,0.55:0.33:0.165:1,0.6:0.36:0.18:1,0.65:0.39:0.195:1,0.7:0.42:0.21:1,0.75:0.45:0.225:1,0.8:0.48:0.24:1,0.85:0.51:0.255:1,0.9:0.54:0.27:1,0.95:0.57:0.285:1,1:0.6:0.3:1 | | amb
+ring4_pvk | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_MainTex=1:0:0:1;_Rimpower=20;_HighLight=0;_Specular=0:0:0:1 | _Color=0:0:0:1,1:1:1:1 | | amb
+ring6_r6   | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_MainTex=1:0:0:1;_Rimpower=20;_Specular=1:1:1:1 | _Color=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1,0.25:0.25:0.25:1,0.75:0.75:0.75:1 | _HighLight=0,4,9,20 | amb
+ring6_r6k  | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_MainTex=1:0:0:1;_Rimpower=20;_Specular=0:0:0:1 | _Color=0:0:0:1,1:1:1:1 | _HighLight=0,9 | amb
+ring6_r6o  | _ColorMask=0:0:0:1;_Ringoff=1;_Metallic=0;_Smoothness=0;_MainTex=1:0:0:1;_Rimpower=20;_Specular=1:1:1:1 | _Color=0.5:0.5:0.5:1,1:1:1:1 | _HighLight=0,9 | amb
+ring7_r7k  | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_MainTex=1:0:0:1;_Rimpower=20;_Specular=0:0:0:1 | _Color=0.25:0.25:0.25:1,0.5:0.5:0.5:1,0.75:0.75:0.75:1,1:0:0:1 | _HighLight=4,9,20 | amb
+ring7_r7c  | _ColorMask=0:0:0:1;_Ringoff=0;_Metallic=0;_Smoothness=0;_MainTex=1:0:0:1;_Rimpower=20;_Specular=1:1:1:1 | _Color=1:0:0:1,0.5:0:0:1,0.5:0.25:0:1 | _HighLight=0,9 | amb
+ring7_r7m  | _ColorMask=0:0:0:1;_Ringoff=0;_Smoothness=0;_MainTex=1:0:0:1;_Rimpower=20;_Specular=0:0:0:1;_Metallic=0.5 | _Color=0:0:0:1,0.5:0.5:0.5:1 | _HighLight=0,9 | amb
+ring9_r9 | _ColorMask=0:0:0:1;_Ringoff=0;_Specular=1:1:1:1;_Metallic=0;_Smoothness=0;_HighLight=9;_Rimpower=20;_Color=0:0:0:1;_MainTex=1:0:0:1;_DetailScale=0 | _BumpMap=0.5:0.6:1:1,0.5:0.4:1:1 | _TANGENT=1:0:0:1,1:0:0:-1 | amb
+ring10_rb  | _ColorMask=0:0:0:1;_Ringoff=0;_Specular=1:1:1:1;_Metallic=0;_Smoothness=0;_HighLight=9;_Rimpower=20;_Color=0:0:0:1;_MainTex=1:0:0:1;_DetailScale=0;_TANGENT=1:0:0:1 | _BumpMap=0.5:0.6:1:1,0.5:0.4:1:1 | | amb | 180
+ring10_rf  | _ColorMask=0:0:0:1;_Ringoff=0;_Specular=1:1:1:1;_Metallic=0;_Smoothness=0;_HighLight=9;_Rimpower=20;_Color=0:0:0:1;_MainTex=1:0:0:1;_DetailScale=0;_TANGENT=1:0:0:1 | _BumpMap=0.5:0.6:1:1,0.5:0.4:1:1 | | amb | 0

@@ -1,0 +1,4 @@
+key	en	ja	zh-Hans	note
+plugin.stp3.test.probeui.panel	Probe panel	Probe panel	Probe panel	a test panel
+plugin.stp3.test.probeui.section	Probe section	Probe section	Probe section	a test section
+plugin.stp3.test.probeui.hello	Probe hello	Probe hello	Probe hello	a test action

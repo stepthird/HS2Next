@@ -1,0 +1,3 @@
+# Save-format fixtures are compared byte for byte (UTF-8, LF): never convert line ends.
+Tests/SaveFormat/** -text
+Tests/SceneModel/** -text

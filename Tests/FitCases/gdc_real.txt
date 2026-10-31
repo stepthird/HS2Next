@@ -1,0 +1,7 @@
+# GDC/Clothes True Cutoff on a real material (run with -fitMaterial and -fitPix): which input makes the difference.
+real | _MainTex=src;_BumpMap=src;_DetailGlossMap=src;_OcclusionMap=src | | | amb,L0,L60
+noocc | _MainTex=src;_BumpMap=src;_DetailGlossMap=src;_OcclusionMap=src;_OcclusionMap=1:1:1:1 | | | amb,L0,L60
+nodet | _MainTex=src;_BumpMap=src;_DetailGlossMap=src;_OcclusionMap=src;_DetailGlossMap=1:1:1:1 | | | amb,L0,L60
+nobump | _MainTex=src;_BumpMap=src;_DetailGlossMap=src;_OcclusionMap=src;_BumpMap=0.5:0.5:1:1 | | | amb,L0,L60
+nomain | _MainTex=src;_BumpMap=src;_DetailGlossMap=src;_OcclusionMap=src;_MainTex=1:1:1:1 | | | amb,L0,L60
+noex | _MainTex=src;_BumpMap=src;_DetailGlossMap=src;_OcclusionMap=src;_AlphaEx=1 | | | amb,L0,L60

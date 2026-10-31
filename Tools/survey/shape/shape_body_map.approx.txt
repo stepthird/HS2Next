@@ -1,0 +1,196 @@
+always	cf_J_ArmElbo_low_s_L	Scale	1,cf_s_ArmElbo_up_s_L.scl.y * cf_s_ArmElbo_low_s_L.scl.y,cf_s_ArmElbo_up_s_L.scl.z * cf_s_ArmElbo_low_s_L.scl.z
+always	cf_J_ArmElbo_low_s_R	Scale	1,cf_s_ArmElbo_up_s_R.scl.y * cf_s_ArmElbo_low_s_R.scl.y,cf_s_ArmElbo_up_s_R.scl.z * cf_s_ArmElbo_low_s_R.scl.z
+always	cf_J_ArmElboura_dam_R	Rotation	0,0.006 * cf_s_ArmUp02_s_R.scl.y - 1.6148,0
+always	cf_J_ArmLow01_s_L	Scale	1,cf_s_ArmLow01_h_L.scl.y * cf_s_ArmLow01_s_L.scl.y,cf_s_ArmLow01_h_L.scl.z * cf_s_ArmLow01_s_L.scl.z
+always	cf_J_ArmLow01_s_R	Scale	1,cf_s_ArmLow01_h_R.scl.y * cf_s_ArmLow01_s_R.scl.y,cf_s_ArmLow01_h_R.scl.z * cf_s_ArmLow01_s_R.scl.z
+always	cf_J_ArmLow02_s_L	Scale	1,cf_s_ArmLow02_h_L.scl.y * cf_s_ArmLow02_s_L.scl.y,cf_s_ArmLow02_h_L.scl.z * cf_s_ArmLow02_s_L.scl.z
+always	cf_J_ArmLow02_s_R	Scale	1,cf_s_ArmLow02_h_R.scl.y * cf_s_ArmLow02_s_R.scl.y,cf_s_ArmLow02_h_R.scl.z * cf_s_ArmLow02_s_R.scl.z
+always	cf_J_ArmUp01_s_L	PositionX	cf_s_ArmUp01_s_tx_L.pos.x
+always	cf_J_ArmUp01_s_L	PositionY	cf_s_ArmUp01_s_L.pos.y + cf_s_ArmUp01_s_tx_L.pos.y
+always	cf_J_ArmUp01_s_L	Rotation	0,-0.597,cf_s_ArmUp01_s_L.rot.z + cf_s_ArmUp01_s_tx_L.rot.z
+always	cf_J_ArmUp01_s_L	Scale	1,cf_s_ArmUp01_h_L.scl.y * cf_s_ArmUp01_s_L.scl.y,cf_s_ArmUp01_h_L.scl.z * cf_s_ArmUp01_s_L.scl.z
+always	cf_J_ArmUp01_s_R	PositionX	cf_s_ArmUp01_s_tx_R.pos.x
+always	cf_J_ArmUp01_s_R	PositionY	cf_s_ArmUp01_s_R.pos.y + cf_s_ArmUp01_s_tx_R.pos.y
+always	cf_J_ArmUp01_s_R	Rotation	0,0,cf_s_ArmUp01_s_R.rot.z + cf_s_ArmUp01_s_tx_R.rot.z
+always	cf_J_ArmUp01_s_R	Scale	1,cf_s_ArmUp01_h_R.scl.y * cf_s_ArmUp01_s_R.scl.y,cf_s_ArmUp01_h_R.scl.z * cf_s_ArmUp01_s_R.scl.z
+always	cf_J_ArmUp02_s_L	PositionY	cf_s_ArmUp02_s_L.pos.y
+always	cf_J_ArmUp02_s_L	Scale	1,cf_s_ArmUp02_h_L.scl.y * cf_s_ArmUp02_s_L.scl.y,cf_s_ArmUp02_h_L.scl.z * cf_s_ArmUp02_s_L.scl.z
+always	cf_J_ArmUp02_s_R	PositionY	cf_s_ArmUp02_s_R.pos.y
+always	cf_J_ArmUp02_s_R	Scale	1,cf_s_ArmUp02_h_R.scl.y * cf_s_ArmUp02_s_R.scl.y,cf_s_ArmUp02_h_R.scl.z * cf_s_ArmUp02_s_R.scl.z
+always	cf_J_ArmUp03_s_L	Scale	1,cf_s_ArmUp03_h_L.scl.y * cf_s_ArmUp03_s_L.scl.y,cf_s_ArmUp03_h_L.scl.z * cf_s_ArmUp03_s_L.scl.z
+always	cf_J_ArmUp03_s_R	Scale	1,cf_s_ArmUp03_h_R.scl.y * cf_s_ArmUp03_s_R.scl.y,cf_s_ArmUp03_h_R.scl.z * cf_s_ArmUp03_s_R.scl.z
+always	cf_J_Hand_Wrist_s_L	Scale	1,cf_s_Hand_Wrist_s_L.scl.y,cf_s_Hand_Wrist_s_L.scl.z
+always	cf_J_Hand_Wrist_s_R	Scale	1,cf_s_Hand_Wrist_s_R.scl.y,cf_s_Hand_Wrist_s_R.scl.z
+always	cf_J_Hand_dam_L	Rotation	0,0.65 * cf_s_Hand_h_L.scl.y + 1.243,0
+always	cf_J_Hand_dam_R	Rotation	0,-0.647 * cf_s_Hand_h_R.scl.y - 1.258,0
+always	cf_J_Hand_s_L	Scale	cf_s_Hand_h_L.scl.x,cf_s_Hand_h_L.scl.y,cf_s_Hand_h_L.scl.z
+always	cf_J_Hand_s_R	Scale	cf_s_Hand_h_R.scl.x,cf_s_Hand_h_R.scl.y,cf_s_Hand_h_R.scl.z
+always	cf_J_Head_s	Scale	cf_s_Head_h.scl.x * cf_s_Head_s.scl.x,cf_s_Head_h.scl.y * cf_s_Head_s.scl.y,cf_s_Head_h.scl.z * cf_s_Head_s.scl.z
+always	cf_J_Kosi01_s	Scale	cf_s_Kosi01_h.scl.x * cf_s_Kosi01_s.scl.x,1,cf_s_Kosi01_h.scl.z * cf_s_Kosi01_s_sz.scl.z
+always	cf_J_Kosi02_s	Scale	cf_s_Kosi02_h.scl.x * cf_s_Kosi02_s.scl.x,1,cf_s_Kosi02_h.scl.z * cf_s_Kosi02_s_sz.scl.z
+always	cf_J_LegKnee_back_s_L	PositionZ	cf_s_LegKnee_back_s_L.pos.z
+always	cf_J_LegKnee_back_s_L	Scale	cf_s_LegKnee_back_s_L.scl.x,1,cf_s_LegKnee_back_s_L.scl.z
+always	cf_J_LegKnee_back_s_R	PositionZ	cf_s_LegKnee_back_s_R.pos.z
+always	cf_J_LegKnee_back_s_R	Scale	cf_s_LegKnee_back_s_R.scl.x,1,cf_s_LegKnee_back_s_R.scl.z
+always	cf_J_LegKnee_low_s_L	PositionZ	cf_s_LegKnee_low_s_L.pos.z
+always	cf_J_LegKnee_low_s_L	Scale	cf_s_LegKnee_h_L.scl.x * cf_s_LegKnee_up_s_L.scl.x * cf_s_LegKnee_low_s_L.scl.x,1,cf_s_LegKnee_h_L.scl.z * cf_s_LegKnee_up_s_L.scl.z * cf_s_LegKnee_low_s_L.scl.z
+always	cf_J_LegKnee_low_s_R	PositionZ	cf_s_LegKnee_low_s_R.pos.z
+always	cf_J_LegKnee_low_s_R	Scale	cf_s_LegKnee_h_R.scl.x * cf_s_LegKnee_up_s_R.scl.x * cf_s_LegKnee_low_s_R.scl.x,1,cf_s_LegKnee_h_R.scl.z * cf_s_LegKnee_up_s_R.scl.z * cf_s_LegKnee_low_s_R.scl.z
+always	cf_J_LegLow01_s_L	Rotation	cf_s_LegLow01_s_L.rot.x,0,0
+always	cf_J_LegLow01_s_L	Scale	cf_s_LegLow01_h_L.scl.x * cf_s_LegLow01_s_L.scl.x,1,cf_s_LegLow01_h_L.scl.z * cf_s_LegLow01_s_L.scl.z
+always	cf_J_LegLow01_s_R	Rotation	cf_s_LegLow01_s_R.rot.x,0,0
+always	cf_J_LegLow01_s_R	Scale	cf_s_LegLow01_h_R.scl.x * cf_s_LegLow01_s_R.scl.x,1,cf_s_LegLow01_h_R.scl.z * cf_s_LegLow01_s_R.scl.z
+always	cf_J_LegLow02_s_L	Scale	cf_s_LegLow02_h_L.scl.x * cf_s_LegLow02_s_L.scl.x,1,cf_s_LegLow02_h_L.scl.z * cf_s_LegLow02_s_L.scl.z
+always	cf_J_LegLow02_s_R	Scale	cf_s_LegLow02_h_R.scl.x * cf_s_LegLow02_s_R.scl.x,1,cf_s_LegLow02_h_R.scl.z * cf_s_LegLow02_s_R.scl.z
+always	cf_J_LegLow03_s_L	PositionX	cf_s_LegLow03_s_L.pos.x
+always	cf_J_LegLow03_s_L	PositionZ	cf_s_LegLow03_s_L.pos.z
+always	cf_J_LegLow03_s_L	Rotation	cf_s_LegLow03_s_L.rot.x,0,cf_s_LegLow03_s_L.rot.z
+always	cf_J_LegLow03_s_L	Scale	cf_s_LegLow03_s_L.scl.x,1,cf_s_LegLow03_s_L.scl.z
+always	cf_J_LegLow03_s_R	PositionX	cf_s_LegLow03_s_R.pos.x
+always	cf_J_LegLow03_s_R	PositionZ	cf_s_LegLow03_s_R.pos.z
+always	cf_J_LegLow03_s_R	Rotation	cf_s_LegLow03_s_R.rot.x,0,cf_s_LegLow03_s_R.rot.z
+always	cf_J_LegLow03_s_R	Scale	cf_s_LegLow03_s_R.scl.x,1,cf_s_LegLow03_s_R.scl.z
+always	cf_J_LegUp01_s_L	PositionX	cf_s_LegUp01_blend_s_L.pos.x + cf_s_LegUp01_s_L.pos.x
+always	cf_J_LegUp01_s_L	PositionZ	cf_s_LegUp01_s_L.pos.z
+always	cf_J_LegUp01_s_L	Rotation	0,0,cf_s_LegUp01_blend_s_L.rot.z
+always	cf_J_LegUp01_s_L	Scale	cf_s_LegUp01_h_L.scl.x * cf_s_LegUp01_blend_s_L.scl.x * cf_s_LegUp01_s_L.scl.x,1,cf_s_LegUp01_h_L.scl.z * cf_s_LegUp01_blend_ss_L.scl.z * cf_s_LegUp01_s_L.scl.z
+always	cf_J_LegUp01_s_R	PositionX	cf_s_LegUp01_blend_s_R.pos.x + cf_s_LegUp01_s_R.pos.x
+always	cf_J_LegUp01_s_R	PositionZ	cf_s_LegUp01_s_R.pos.z
+always	cf_J_LegUp01_s_R	Rotation	0,0,cf_s_LegUp01_blend_s_R.rot.z
+always	cf_J_LegUp01_s_R	Scale	cf_s_LegUp01_h_R.scl.x * cf_s_LegUp01_blend_s_R.scl.x * cf_s_LegUp01_s_R.scl.x,1,cf_s_LegUp01_h_R.scl.z * cf_s_LegUp01_blend_ss_R.scl.z * cf_s_LegUp01_s_R.scl.z
+always	cf_J_LegUp02_s_L	Scale	cf_s_LegUp02_h_L.scl.x * cf_s_LegUp02_s_L.scl.x * cf_s_LegUp02_blend_s_L.scl.x,1,cf_s_LegUp02_h_L.scl.z * cf_s_LegUp02_s_L.scl.z * cf_s_LegUp02_blend_s_L.scl.z
+always	cf_J_LegUp02_s_R	Scale	cf_s_LegUp02_h_R.scl.x * cf_s_LegUp02_s_R.scl.x * cf_s_LegUp02_blend_s_R.scl.x,1,cf_s_LegUp02_h_R.scl.z * cf_s_LegUp02_s_R.scl.z * cf_s_LegUp02_blend_s_R.scl.z
+always	cf_J_LegUp03_s_L	Scale	cf_s_LegUp03_h_L.scl.x * cf_s_LegUp03_s_L.scl.x * cf_s_LegUp03_blend_s_L.scl.x,1,cf_s_LegUp03_h_L.scl.z * cf_s_LegUp03_s_L.scl.z * cf_s_LegUp03_blend_s_L.scl.z
+always	cf_J_LegUp03_s_R	Scale	cf_s_LegUp03_h_R.scl.x * cf_s_LegUp03_s_R.scl.x * cf_s_LegUp03_blend_s_R.scl.x,1,cf_s_LegUp03_h_R.scl.z * cf_s_LegUp03_s_R.scl.z * cf_s_LegUp03_blend_s_R.scl.z
+always	cf_J_LegUpDam_s_L	Scale	cf_s_LegUpDam_s_L.scl.x,1,cf_s_LegUpDam_s_L.scl.z
+always	cf_J_LegUpDam_s_R	Scale	cf_s_LegUpDam_s_R.scl.x,1,cf_s_LegUpDam_s_R.scl.z
+always	cf_J_Legsk_root_L	PositionX	cf_s_legskroot_kosi02_sx_L.pos.x + cf_s_legskroot_leg01_L.pos.x
+always	cf_J_Legsk_root_L	Scale	cf_s_legskroot_kosi02_sx_L.scl.x * cf_s_legskroot_leg01_L.scl.x,1,cf_s_legskroot_kosi02_sz.scl.z * cf_s_legskroot_leg01_L.scl.z
+always	cf_J_Legsk_root_R	PositionX	cf_s_legskroot_kosi02_sx_R.pos.x + cf_s_legskroot_leg01_R.pos.x
+always	cf_J_Legsk_root_R	Scale	cf_s_legskroot_kosi02_sx_R.scl.x * cf_s_legskroot_leg01_R.scl.x,1,cf_s_legskroot_kosi02_sz.scl.z * cf_s_legskroot_leg01_R.scl.z
+always	cf_J_Mune00_d_L	PositionX	cf_s_Mune01_s_ry_L.pos.x + cf_s_Mune01_s_tx_L.pos.x
+always	cf_J_Mune00_d_L	PositionZ	cf_s_Mune01_s_rx_L.pos.z + cf_s_Mune01_s_ry_L.pos.z + 0.65
+always	cf_J_Mune00_d_L	Rotation	cf_s_Mune01_s_rx_L.rot.x,cf_s_Mune01_s_ry_L.rot.y,0
+always	cf_J_Mune00_d_R	PositionX	cf_s_Mune01_s_ry_R.pos.x + cf_s_Mune01_s_tx_R.pos.x
+always	cf_J_Mune00_d_R	PositionZ	cf_s_Mune01_s_rx_R.pos.z + cf_s_Mune01_s_ry_R.pos.z + 0.65
+always	cf_J_Mune00_d_R	Rotation	cf_s_Mune01_s_rx_R.rot.x,cf_s_Mune01_s_ry_R.rot.y,0
+always	cf_J_Mune00_s_L	Position	cf_s_Mune00_s_L.pos.x,cf_s_Mune00_s_L.pos.y,cf_s_Mune00_s_L.pos.z
+always	cf_J_Mune00_s_L	Rotation	0,0,cf_s_Mune00_s_L.rot.z
+always	cf_J_Mune00_s_L	Scale	cf_s_Mune00_s_L.scl.x,cf_s_Mune00_s_L.scl.y,cf_s_Mune00_s_L.scl.z
+always	cf_J_Mune00_s_R	Position	cf_s_Mune00_s_R.pos.x,cf_s_Mune00_s_R.pos.y,cf_s_Mune00_s_R.pos.z
+always	cf_J_Mune00_s_R	Rotation	0,0,cf_s_Mune00_s_R.rot.z
+always	cf_J_Mune00_s_R	Scale	cf_s_Mune00_s_R.scl.x,cf_s_Mune00_s_R.scl.y,cf_s_Mune00_s_R.scl.z
+always	cf_J_Mune00_t_L	Position	cf_s_Mune00_ss_02_L.pos.x + cf_s_Mune00_ss_03_L.pos.x,cf_s_Mune00_ss_02sz_L.pos.y + cf_s_Mune00_ss_ty_L.pos.y,cf_s_Mune00_ss_02sz_L.pos.z + cf_s_Mune00_ss_03sz_L.pos.z
+always	cf_J_Mune00_t_L	Rotation	cf_s_Mune00_s_L.rot.x + cf_s_Mune00_ss_02sz_L.rot.x + cf_s_Mune00_ss_03sz_L.rot.x - 10,cf_s_Mune00_ss_03_L.rot.y - 19,0
+always	cf_J_Mune00_t_L	Scale	cf_s_Mune00_h_L.scl.x,cf_s_Mune00_h_L.scl.y,cf_s_Mune00_h_L.scl.z
+always	cf_J_Mune00_t_R	Position	cf_s_Mune00_ss_02_R.pos.x + cf_s_Mune00_ss_03_R.pos.x,cf_s_Mune00_ss_02sz_R.pos.y + cf_s_Mune00_ss_ty_R.pos.y,cf_s_Mune00_ss_02sz_R.pos.z + cf_s_Mune00_ss_03sz_R.pos.z
+always	cf_J_Mune00_t_R	Rotation	cf_s_Mune00_s_R.rot.x + cf_s_Mune00_ss_02sz_R.rot.x + cf_s_Mune00_ss_03sz_R.rot.x - 10,cf_s_Mune00_ss_03_R.rot.y + 19,0
+always	cf_J_Mune00_t_R	Scale	cf_s_Mune00_h_R.scl.x,cf_s_Mune00_h_R.scl.y,cf_s_Mune00_h_R.scl.z
+always	cf_J_Mune01_s_L	PositionY	cf_s_Mune01_s_L.pos.y
+always	cf_J_Mune01_s_L	PositionZ	cf_s_Mune01_s_L.pos.z
+always	cf_J_Mune01_s_L	Rotation	cf_s_Mune01_s_L.rot.x,cf_s_Mune01_s_L.rot.y,cf_s_Mune01_s_L.rot.z
+always	cf_J_Mune01_s_L	Scale	cf_s_Mune01_s_L.scl.x,cf_s_Mune01_s_L.scl.y,cf_s_Mune01_s_L.scl.z
+always	cf_J_Mune01_s_R	PositionY	cf_s_Mune01_s_R.pos.y
+always	cf_J_Mune01_s_R	PositionZ	cf_s_Mune01_s_R.pos.z
+always	cf_J_Mune01_s_R	Rotation	cf_s_Mune01_s_R.rot.x,cf_s_Mune01_s_R.rot.y,cf_s_Mune01_s_R.rot.z
+always	cf_J_Mune01_s_R	Scale	cf_s_Mune01_s_R.scl.x,cf_s_Mune01_s_R.scl.y,cf_s_Mune01_s_R.scl.z
+always	cf_J_Mune01_t_L	PositionX	cf_s_Mune01_s_L.pos.x
+always	cf_J_Mune01_t_L	PositionZ	cf_s_Mune01_s_tz_L.pos.z + 0.3
+always	cf_J_Mune01_t_L	Rotation	cf_s_Mune02_s_rx_L.rot.x,0,0
+always	cf_J_Mune01_t_R	PositionX	cf_s_Mune01_s_R.pos.x
+always	cf_J_Mune01_t_R	PositionZ	cf_s_Mune01_s_tz_R.pos.z + 0.3
+always	cf_J_Mune01_t_R	Rotation	cf_s_Mune02_s_rx_R.rot.x,0,0
+always	cf_J_Mune02_s_L	PositionY	cf_s_Mune02_s_L.pos.y
+always	cf_J_Mune02_s_L	PositionZ	cf_s_Mune02_s_L.pos.z
+always	cf_J_Mune02_s_L	Rotation	cf_s_Mune02_s_L.rot.x,0,0
+always	cf_J_Mune02_s_L	Scale	cf_s_Mune02_s_L.scl.x,cf_s_Mune02_s_L.scl.y,cf_s_Mune02_s_L.scl.z
+always	cf_J_Mune02_s_R	PositionY	cf_s_Mune02_s_R.pos.y
+always	cf_J_Mune02_s_R	PositionZ	cf_s_Mune02_s_R.pos.z
+always	cf_J_Mune02_s_R	Rotation	cf_s_Mune02_s_R.rot.x,0,0
+always	cf_J_Mune02_s_R	Scale	cf_s_Mune02_s_R.scl.x,cf_s_Mune02_s_R.scl.y,cf_s_Mune02_s_R.scl.z
+always	cf_J_Mune02_t_L	PositionZ	cf_s_Mune02_s_tz_L.pos.z + 0.3
+always	cf_J_Mune02_t_L	Rotation	cf_s_Mune02_s_rx_L.rot.x,0,0
+always	cf_J_Mune02_t_R	PositionZ	cf_s_Mune02_s_tz_R.pos.z + 0.3
+always	cf_J_Mune02_t_R	Rotation	cf_s_Mune02_s_rx_R.rot.x,0,0
+always	cf_J_Mune03_s_L	PositionZ	cf_s_Mune03_s_L.pos.z
+always	cf_J_Mune03_s_L	Scale	cf_s_Mune03_s_L.scl.x,cf_s_Mune03_s_L.scl.y,cf_s_Mune03_s_L.scl.z
+always	cf_J_Mune03_s_R	PositionZ	cf_s_Mune03_s_R.pos.z
+always	cf_J_Mune03_s_R	Scale	cf_s_Mune03_s_R.scl.x,cf_s_Mune03_s_R.scl.y,cf_s_Mune03_s_R.scl.z
+always	cf_J_Mune04_s_L	PositionZ	cf_s_Mune04_s_L.pos.z
+always	cf_J_Mune04_s_L	Scale	cf_s_Mune04_s_L.scl.x,cf_s_Mune04_s_L.scl.y,cf_s_Mune04_s_L.scl.z
+always	cf_J_Mune04_s_R	PositionZ	cf_s_Mune04_s_R.pos.z
+always	cf_J_Mune04_s_R	Scale	cf_s_Mune04_s_R.scl.x,cf_s_Mune04_s_R.scl.y,cf_s_Mune04_s_R.scl.z
+always	cf_J_Mune_Nip01_s_L	PositionZ	cf_s_Mune_Nip01_s_L.pos.z + cf_s_Mune_Nip01_ss_L.pos.z
+always	cf_J_Mune_Nip01_s_L	Scale	cf_s_Mune_Nip01_ss_L.scl.x * cf_s_Mune_Nip01_s_L.scl.x,cf_s_Mune_Nip01_ss_L.scl.y * cf_s_Mune_Nip01_s_L.scl.y,cf_s_Mune_Nip01_ss_L.scl.z
+always	cf_J_Mune_Nip01_s_R	PositionZ	cf_s_Mune_Nip01_s_R.pos.z + cf_s_Mune_Nip01_ss_R.pos.z
+always	cf_J_Mune_Nip01_s_R	Scale	cf_s_Mune_Nip01_ss_R.scl.x * cf_s_Mune_Nip01_s_R.scl.x,cf_s_Mune_Nip01_ss_R.scl.y * cf_s_Mune_Nip01_s_R.scl.y,cf_s_Mune_Nip01_ss_R.scl.z
+always	cf_J_Mune_Nip02_s_L	PositionZ	cf_s_Mune_Nip02_s_L.pos.z
+always	cf_J_Mune_Nip02_s_L	Scale	cf_s_Mune_Nip02_s_L.scl.x,cf_s_Mune_Nip02_s_L.scl.y,cf_s_Mune_Nip02_s_L.scl.z
+always	cf_J_Mune_Nip02_s_R	PositionZ	cf_s_Mune_Nip02_s_R.pos.z
+always	cf_J_Mune_Nip02_s_R	Scale	cf_s_Mune_Nip02_s_R.scl.x,cf_s_Mune_Nip02_s_R.scl.y,cf_s_Mune_Nip02_s_R.scl.z
+always	cf_J_Mune_Nipacs01_L	PositionZ	cf_s_Mune_Nipacs01_L.pos.z + cf_s_Mune_Nipacs02_L.pos.z
+always	cf_J_Mune_Nipacs01_L	Scale	cf_s_Mune_Nip_dam_L.scl.x * cf_s_Mune_Nipacs02_L.scl.x,cf_s_Mune_Nip_dam_L.scl.y * cf_s_Mune_Nipacs02_L.scl.y,cf_s_Mune_Nip_dam_L.scl.z * cf_s_Mune_Nipacs02_L.scl.z
+always	cf_J_Mune_Nipacs01_R	PositionZ	cf_s_Mune_Nipacs01_R.pos.z + cf_s_Mune_Nipacs02_R.pos.z
+always	cf_J_Mune_Nipacs01_R	Scale	cf_s_Mune_Nip_dam_R.scl.x * cf_s_Mune_Nipacs02_R.scl.x,cf_s_Mune_Nip_dam_R.scl.y * cf_s_Mune_Nipacs02_R.scl.y,cf_s_Mune_Nip_dam_R.scl.z * cf_s_Mune_Nipacs02_R.scl.z
+always	cf_J_Neck_s	Scale	cf_s_Neck_h.scl.x * cf_s_Neck_s.scl.x,1,cf_s_Neck_h.scl.z * cf_s_Neck_s_sz.scl.z
+always	cf_J_Shoulder02_s_L	PositionX	cf_s_Shoulder02_s_tx_L.pos.x
+always	cf_J_Shoulder02_s_L	Scale	cf_s_Shoulder02_h_L.scl.x,cf_s_Shoulder02_h_L.scl.y * cf_s_Shoulder02_s_L.scl.y,cf_s_Shoulder02_h_L.scl.z * cf_s_Shoulder02_s_L.scl.z
+always	cf_J_Shoulder02_s_R	PositionX	cf_s_Shoulder02_s_tx_R.pos.x
+always	cf_J_Shoulder02_s_R	Scale	cf_s_Shoulder02_h_R.scl.x,cf_s_Shoulder02_h_R.scl.y * cf_s_Shoulder02_s_R.scl.y,cf_s_Shoulder02_h_R.scl.z * cf_s_Shoulder02_s_R.scl.z
+always	cf_J_Siri_s_L	Position	cf_s_Siri_s_L.pos.x,cf_s_Siri_s_L.pos.y + cf_s_Siri_s_ty_L.pos.y,cf_s_Siri_legup01_s_L.pos.z + cf_s_Siri_s_L.pos.z
+always	cf_J_Siri_s_L	Rotation	cf_s_Siri_s_ty_L.rot.x,0,0
+always	cf_J_Siri_s_L	Scale	cf_s_Siri_kosi02_s_L.scl.x * cf_s_Siri_s_L.scl.x * cf_s_Siri_legup01_s_L.scl.x,cf_s_Siri_s_L.scl.y,cf_s_Siri_kosi02_s_L.scl.z * cf_s_Siri_s_L.scl.z * cf_s_Siri_legup01_s_L.scl.z
+always	cf_J_Siri_s_R	Position	cf_s_Siri_s_R.pos.x,cf_s_Siri_s_R.pos.y + cf_s_Siri_s_ty_R.pos.y,cf_s_Siri_legup01_s_R.pos.z + cf_s_Siri_s_R.pos.z
+always	cf_J_Siri_s_R	Rotation	cf_s_Siri_s_ty_R.rot.x,0,0
+always	cf_J_Siri_s_R	Scale	cf_s_Siri_kosi02_s_R.scl.x * cf_s_Siri_s_R.scl.x * cf_s_Siri_legup01_s_R.scl.x,cf_s_Siri_s_R.scl.y,cf_s_Siri_kosi02_s_R.scl.z * cf_s_Siri_s_R.scl.z * cf_s_Siri_legup01_s_R.scl.z
+always	cf_J_Spine01_s	PositionY	cf_s_Spine01_s_ty.pos.y
+always	cf_J_Spine01_s	PositionZ	cf_s_Spine01_s_sz.pos.z
+always	cf_J_Spine01_s	Scale	cf_s_Spine01_h.scl.x * cf_s_Spine01_s.scl.x,1,cf_s_Spine01_h.scl.z * cf_s_Spine01_s_sz.scl.z
+always	cf_J_Spine02_s	Scale	cf_s_Spine02_h.scl.x * cf_s_Spine02_s.scl.x,1,cf_s_Spine02_h.scl.z * cf_s_Spine02_s_sz.scl.z
+always	cf_J_Spine03_s	Scale	cf_s_Spine03_h.scl.x * cf_s_Spine03_s.scl.x,1,cf_s_Spine03_h.scl.z * cf_s_Spine03_s_sz.scl.z
+always	cf_J_sk_00_00_dam	PositionZ	cf_s_sk_00_sz01.pos.z + cf_s_sk_00_sz02.pos.z + 0.85
+always	cf_J_sk_00_00_dam	Rotation	cf_s_sk_00_sz01.rot.x + cf_s_sk_00_sz02.rot.x,0,0
+always	cf_J_sk_01_00_dam	PositionX	cf_s_sk_01_sx01.pos.x
+always	cf_J_sk_01_00_dam	PositionZ	cf_s_sk_01_sx01.pos.z + cf_s_sk_01_sz01.pos.z + cf_s_sk_01_sz02.pos.z
+always	cf_J_sk_01_00_dam	Rotation	cf_s_sk_01_sx02.rot.x + cf_s_sk_01_sz01.rot.x + cf_s_sk_01_sz02.rot.x,0,0
+always	cf_J_sk_02_00_dam	PositionX	cf_s_sk_02_sx01.pos.x + cf_s_sk_02_sx02.pos.x
+always	cf_J_sk_02_00_dam	Rotation	cf_s_sk_02_sx01.rot.x + cf_s_sk_02_sx02.rot.x,0,0
+always	cf_J_sk_03_00_dam	PositionX	cf_s_sk_03_sx01.pos.x
+always	cf_J_sk_03_00_dam	PositionZ	cf_s_sk_03_sz01.pos.z + cf_s_sk_03_sz02.pos.z - 0.962
+always	cf_J_sk_03_00_dam	Rotation	cf_s_sk_03_sx02.rot.x + cf_s_sk_03_sz01.rot.x + cf_s_sk_03_sz02.rot.x,0,0
+always	cf_J_sk_04_00_dam	PositionZ	cf_s_sk_04_sx01.pos.z + cf_s_sk_04_sz01.pos.z + cf_s_sk_04_sz02.pos.z
+always	cf_J_sk_04_00_dam	Rotation	cf_s_sk_04_sz01.rot.x + cf_s_sk_04_sz02.rot.x,0,0
+always	cf_J_sk_05_00_dam	PositionX	cf_s_sk_05_sx01.pos.x
+always	cf_J_sk_05_00_dam	PositionZ	cf_s_sk_05_sz01.pos.z + cf_s_sk_05_sz02.pos.z - 0.962
+always	cf_J_sk_05_00_dam	Rotation	cf_s_sk_05_sx02.rot.x + cf_s_sk_05_sz01.rot.x + cf_s_sk_05_sz02.rot.x,0,0
+always	cf_J_sk_06_00_dam	PositionX	cf_s_sk_06_sx01.pos.x + cf_s_sk_06_sx02.pos.x
+always	cf_J_sk_06_00_dam	PositionZ	cf_s_sk_06_sz01.pos.z - 0.1
+always	cf_J_sk_06_00_dam	Rotation	cf_s_sk_06_sx01.rot.x + cf_s_sk_06_sx02.rot.x,0,0
+always	cf_J_sk_07_00_dam	PositionX	cf_s_sk_07_sx01.pos.x
+always	cf_J_sk_07_00_dam	PositionZ	cf_s_sk_07_sx01.pos.z + cf_s_sk_07_sz01.pos.z + cf_s_sk_07_sz02.pos.z
+always	cf_J_sk_07_00_dam	Rotation	cf_s_sk_07_sx02.rot.x + cf_s_sk_07_sz01.rot.x + cf_s_sk_07_sz02.rot.x,0,0
+always	cf_J_sk_siri_dam	PositionZ	cf_s_sk_siri_dam.pos.z + cf_s_sk_siri_ty_dam.pos.z
+always	cf_J_sk_siri_dam	Rotation	cf_s_sk_siri_ty_dam.rot.x,0,0
+always	cf_J_sk_top	Scale	cf_s_sk_top_h.scl.x,1,cf_s_sk_top_h.scl.z
+always	cf_N_height	Scale	cf_s_height.scl.x,cf_s_height.scl.y,cf_s_height.scl.z
+always	cf_hit_Kosi02_s	PositionY	cf_hit_Kosi02_Kosi01sx_a.pos.y + cf_hit_Kosi02_Kosi02sx_a.pos.y
+always	cf_hit_Kosi02_s	PositionZ	cf_hit_Kosi02_Kosi01sz_a.pos.z + cf_hit_Kosi02_Kosi02sx_a.pos.z + cf_hit_Kosi02_Kosi02sz_a.pos.z
+always	cf_hit_Kosi02_s	Scale	cf_hit_height.scl.x * cf_hit_Kosi02_Kosi01sz_a.scl.x * cf_hit_Kosi02_Kosi02sx_a.scl.x * cf_hit_Kosi02_Kosi02sz_a.scl.x,cf_hit_Kosi02_Kosi01sx_a.scl.y * cf_hit_Kosi02_Kosi01sz_a.scl.y * cf_hit_Kosi02_Kosi02sx_a.scl.y * cf_hit_Kosi02_Kosi02sz_a.scl.y,cf_hit_Kosi02_Kosi01sz_a.scl.x * cf_hit_Kosi02_Kosi02sx_a.scl.x * cf_hit_Kosi02_Kosi02sz_a.scl.x
+always	cf_hit_LegUp01_s_L	PositionX	-cf_hit_LegUp01_Kosi02sx_a.pos.x - cf_hit_LegUp01_Kosi02sz_a.pos.x - cf_hit_Siri_Kosi02sz_a.scl.y + cf_s_Siri_kosi02_s_L.scl.x + 0.1
+always	cf_hit_LegUp01_s_L	Rotation	0,0,-cf_hit_LegUp01_Kosi02sz_a.rot.z
+always	cf_hit_LegUp01_s_L	Scale	cf_hit_LegUp01_Kosi02sx_a.scl.x * cf_hit_LegUp01_Kosi02sz_a.scl.x,1,1
+always	cf_hit_LegUp01_s_R	PositionX	cf_hit_LegUp01_Kosi02sx_a.pos.x + cf_hit_LegUp01_Kosi02sz_a.pos.x - cf_hit_Siri_Kosi02sz_a.scl.y + cf_s_Siri_kosi02_s_R.scl.x + 0.1
+always	cf_hit_LegUp01_s_R	Rotation	0,0,cf_hit_LegUp01_Kosi02sz_a.rot.z
+always	cf_hit_LegUp01_s_R	Scale	cf_hit_LegUp01_Kosi02sx_a.scl.x * cf_hit_LegUp01_Kosi02sz_a.scl.x,1,1
+always	cf_hit_Mune02_s_L	PositionX	cf_hit_Mune_size_a.pos.x
+always	cf_hit_Mune02_s_L	PositionZ	cf_hit_Mune_size_a.pos.z
+always	cf_hit_Mune02_s_L	Scale	cf_hit_Mune_size_a.scl.x,1,cf_hit_Mune_size_a.scl.x
+always	cf_hit_Mune02_s_R	PositionX	cf_hit_Mune_size_a.pos.x
+always	cf_hit_Mune02_s_R	PositionZ	cf_hit_Mune_size_a.pos.z
+always	cf_hit_Mune02_s_R	Scale	cf_hit_Mune_size_a.scl.x,1,cf_hit_Mune_size_a.scl.x
+always	cf_hit_Siri_s_L	Position	-cf_hit_Siri_Kosi02sx_a.pos.x - cf_hit_Siri_size_a.pos.x,cf_hit_Siri_rot_a.pos.y + cf_hit_Siri_size_a.pos.y,cf_hit_Siri_Kosi02sx_a.pos.z + cf_hit_Siri_Kosi02sz_a.pos.z - cf_hit_Siri_Kosi02sz_a.scl.y + cf_hit_Siri_LegUp01.pos.z + cf_hit_Siri_rot_a.pos.z + cf_hit_Siri_size_a.pos.z + cf_s_Siri_kosi02_s_L.scl.z + cf_s_Siri_legup01_s_L.pos.z + cf_s_Siri_legup01_s_L.scl.z - 0.9
+always	cf_hit_Siri_s_L	Rotation	cf_hit_Siri_rot_a.rot.x,0,0
+always	cf_hit_Siri_s_L	Scale	cf_hit_Siri_Kosi02sx_a.scl.x * cf_hit_Siri_Kosi02sz_a.scl.x * cf_hit_Siri_size_a.scl.x * cf_hit_Siri_LegUp01.scl.x / cf_hit_height.scl.x,cf_s_Siri_kosi02_s_L.scl.x + 0.1,cf_hit_Siri_Kosi02sx_a.scl.x * cf_hit_Siri_Kosi02sz_a.scl.x * cf_hit_Siri_size_a.scl.x
+always	cf_hit_Siri_s_R	Position	cf_hit_Siri_Kosi02sx_a.pos.x + cf_hit_Siri_size_a.pos.x + cf_s_Siri_s_R.pos.x + cf_s_Siri_s_R.pos.z + 0.5,cf_hit_Siri_rot_a.pos.y + cf_hit_Siri_size_a.pos.y,cf_hit_Siri_Kosi02sx_a.pos.z + cf_hit_Siri_Kosi02sz_a.pos.z - cf_hit_Siri_Kosi02sz_a.scl.y + cf_hit_Siri_LegUp01.pos.z + cf_hit_Siri_rot_a.pos.z + cf_hit_Siri_size_a.pos.z + cf_s_Siri_kosi02_s_R.scl.z + cf_s_Siri_legup01_s_R.pos.z + cf_s_Siri_legup01_s_R.scl.z + cf_s_Siri_s_R.pos.x + cf_s_Siri_s_R.pos.z - 0.4
+always	cf_hit_Siri_s_R	Rotation	cf_hit_Siri_rot_a.rot.x,0,0
+always	cf_hit_Siri_s_R	Scale	cf_hit_Siri_Kosi02sx_a.scl.x * cf_hit_Siri_Kosi02sz_a.scl.x * cf_hit_Siri_size_a.scl.x * cf_hit_Siri_LegUp01.scl.x / cf_hit_height.scl.x,cf_s_Siri_kosi02_s_R.scl.x + 0.1,cf_hit_Siri_Kosi02sx_a.scl.x * cf_hit_Siri_Kosi02sz_a.scl.x * cf_hit_Siri_size_a.scl.x

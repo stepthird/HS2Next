@@ -1,0 +1,8 @@
+# SkinFit.Sweep cases for AIT/main Light (_Float0 term, builtin, -fitDump -fitStats): label | set | sweep | sweep2 | lights | tilt
+flat             | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0 | _Float0=0.04,0.2 | | amb
+dist1            | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0;_CAMDIST=1 | _Float0=0.04,1 | | amb
+quadoff          | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0 | _QUADOFF=0.1:0:0,0:0:0.5,0:0:-0.5 | _Float0=0.04 | amb
+nearfar          | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0 | _NEARFAR=0.1:10,0.01:10,1:10,0.1:3,0.1:100,0.1:1000 | _Float0=0.04,1 | amb
+depthtex         | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0;_DEPTHTEX=1 | _Float0=0.04,0.2,1 | | amb
+depthtex bg      | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0;_DEPTHTEX=1;_BGTEX=0:0:0:1 | _Float0=0.04,0.2,1 | | amb
+bg tex           | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0;_BGTEX=0:0:0:1 | _Float0=0.04,0.2,1 | | amb

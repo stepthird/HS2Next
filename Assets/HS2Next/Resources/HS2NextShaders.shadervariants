@@ -1,0 +1,1285 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!200 &20000000
+ShaderVariantCollection:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: HS2NextShaders
+  m_Shaders:
+  - first: {fileID: 103, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 104, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 106, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 108, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: _ALPHATEST_ON
+        passType: 8
+      - keywords: 
+        passType: 13
+      - keywords: _ALPHATEST_ON
+        passType: 13
+      - keywords: _ALPHATEST_ON _NORMALMAP
+        passType: 13
+      - keywords: _NORMALMAP
+        passType: 13
+  - first: {fileID: 4800000, guid: 69c1f799e772cb6438f56c23efccb782, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 13
+      - keywords: _MASKMAP
+        passType: 13
+      - keywords: _MASKMAP _NORMALMAP
+        passType: 13
+      - keywords: _NORMALMAP
+        passType: 13
+  - first: {fileID: 4800000, guid: 0f4122b9a743b744abe2fb6a0a88868b, type: 3}
+    second:
+      variants:
+      - keywords: GEOM_TYPE_BRANCH
+        passType: 8
+      - keywords: GEOM_TYPE_BRANCH_DETAIL
+        passType: 8
+      - keywords: GEOM_TYPE_FROND
+        passType: 8
+      - keywords: GEOM_TYPE_LEAF
+        passType: 8
+      - keywords: EFFECT_BUMP EFFECT_HUE_VARIATION GEOM_TYPE_BRANCH
+        passType: 13
+      - keywords: EFFECT_BUMP EFFECT_HUE_VARIATION GEOM_TYPE_BRANCH_DETAIL
+        passType: 13
+      - keywords: EFFECT_BUMP EFFECT_HUE_VARIATION GEOM_TYPE_FROND
+        passType: 13
+      - keywords: EFFECT_BUMP EFFECT_HUE_VARIATION GEOM_TYPE_LEAF
+        passType: 13
+      - keywords: EFFECT_BUMP GEOM_TYPE_BRANCH
+        passType: 13
+      - keywords: EFFECT_BUMP GEOM_TYPE_BRANCH_DETAIL
+        passType: 13
+      - keywords: EFFECT_BUMP GEOM_TYPE_FROND
+        passType: 13
+      - keywords: EFFECT_BUMP GEOM_TYPE_LEAF
+        passType: 13
+      - keywords: GEOM_TYPE_BRANCH
+        passType: 13
+      - keywords: GEOM_TYPE_BRANCH_DETAIL
+        passType: 13
+      - keywords: GEOM_TYPE_FROND
+        passType: 13
+      - keywords: GEOM_TYPE_LEAF
+        passType: 13
+  - first: {fileID: 4800000, guid: 5ec81c81908db34429b4f6ddecadd3bd, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 13
+      - keywords: EFFECT_BUMP
+        passType: 13
+      - keywords: EFFECT_BUMP EFFECT_HUE_VARIATION
+        passType: 13
+      - keywords: EFFECT_HUE_VARIATION
+        passType: 13
+  - first: {fileID: 4800000, guid: f85eb761315af9547aab18349917eb57, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: _DITHERSWITCH_ON
+        passType: 8
+      - keywords: _DITHERSWITCH_ON _EMISSIONCOLORTEXBASE_ON
+        passType: 8
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+      - keywords: _DITHERSWITCH_ON
+        passType: 13
+      - keywords: _DITHERSWITCH_ON _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+  - first: {fileID: 4800000, guid: 45a82870bab5b2f4db7655a4d9434970, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 0d7acd8b13ec6a946abb7bac13ccf39c, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 26fdbc4f180eb3948b1356082a61532e, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: c9fa6274a47905c4a9609089876ff050, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 448344b8d07793545913866a5351d30e, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 67d89fc9600527b4f8c2482f6b2d33c3, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 9cf46c4d0adf9a0468f29ce8141f0fa3, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 3cc304be58460364d92475b167ec1f77, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 86e2b11ebfa621e4bb35320d0165316c, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 4d39c242a89c75546bc1730e13717b81, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 1a632f8d31a3144428b01dc7b3a17175, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 4af6acc7df74dfd4f900aa900e44687d, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: _DITHERSWITCH_ON
+        passType: 8
+      - keywords: _DITHERSWITCH_ON _EMISSIONCOLORTEXBASE_ON
+        passType: 8
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+      - keywords: _DITHERSWITCH_ON
+        passType: 13
+      - keywords: _DITHERSWITCH_ON _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+  - first: {fileID: 4800000, guid: 3cbab0ab3b16295439db2288966ae87f, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: _DITHERSWITCH_ON
+        passType: 8
+      - keywords: _DITHERSWITCH_ON _EMISSIONCOLORTEXBASE_ON
+        passType: 8
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+      - keywords: _DITHERSWITCH_ON
+        passType: 13
+      - keywords: _DITHERSWITCH_ON _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+  - first: {fileID: 4800000, guid: d949bfa6f17c8d04ca00afda1a9ab832, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: _DITHERSWITCH_ON
+        passType: 8
+      - keywords: _DITHERSWITCH_ON _EMISSIONCOLORTEXBASE_ON
+        passType: 8
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+      - keywords: _DITHERSWITCH_ON
+        passType: 13
+      - keywords: _DITHERSWITCH_ON _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+  - first: {fileID: 4800000, guid: 374c6efd2a7353a42bd97a14cf474309, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: _DITHERSWITCH_ON
+        passType: 8
+      - keywords: _DITHERSWITCH_ON _EMISSIONCOLORTEXBASE_ON
+        passType: 8
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 8
+      - keywords: 
+        passType: 13
+      - keywords: _DITHERSWITCH_ON
+        passType: 13
+      - keywords: _DITHERSWITCH_ON _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+  - first: {fileID: 4800000, guid: 1aa65fa049dac34448b2b2719406b60b, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: _DITHERSWITCH_ON
+        passType: 8
+      - keywords: _DITHERSWITCH_ON _EMISSIONCOLORTEXBASE_ON
+        passType: 8
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 8
+      - keywords: 
+        passType: 13
+      - keywords: _DITHERSWITCH_ON
+        passType: 13
+      - keywords: _DITHERSWITCH_ON _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+  - first: {fileID: 4800000, guid: 5dd79aab79ed7c243b500a59e2a20d01, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: _DITHERSWITCH_ON
+        passType: 8
+      - keywords: _DITHERSWITCH_ON _EMISSIONCOLORTEXBASE_ON
+        passType: 8
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 8
+      - keywords: 
+        passType: 13
+      - keywords: _DITHERSWITCH_ON
+        passType: 13
+      - keywords: _DITHERSWITCH_ON _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+  - first: {fileID: 4800000, guid: aed65359c0496b24a94281f6f6c21b4c, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 818ee5bcb07fb3f48974beb41f55e5ba, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 56d3d9fd0e827b04a8549f63ba26270c, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: a1946c0b03100724a9307eba9072034a, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 60210fbd9310b0d4c83c07aeea65d211, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 9879707579a3d6f458d6798411fa45f3, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 59d9b069597827b4989b7aa57b9343a6, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: fb3ac8c73a25ff34a9d677719a277aaa, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 783c183d057675546b0c34ffad0c77d1, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 6aee2e7e988c5fe45bc4de40d5a5a3d5, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 71d936092d83df946ac00f5f70053985, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 4b6eaae5c886f5440ab42ebaf802ee18, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 9c4646d4433bbdc4f832abd23cccae46, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: a4c9176fe248c9a4a926b6e163264a14, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 605dcde99ff519c459ba57b4b0441ac9, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: d5bba7891efd43f4b97ca4956d4777a1, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: eff4f6f9a0e1bfe479afaf19d115eaae, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 9d741442451a9884f8322146f8c6f83e, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 11a373c15ab146247bf113c0491394b8, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 90a50e4eed055254aa73562ee0b20209, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 65dcf14730a355743a873e812e4474e4, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 445d2954e11874a4c8b4a184f46fdd0a, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 763a3755e763e53439c3557b3c2e97a1, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: c718d399a41d8e4478d8fb66a9c0ef17, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 35c01e5b685e23940b96e6703588cedc, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 00156b1e0e1b23248b8e6bd76eef0bfa, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 4010d3da659720845815028b1771ae5c, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 0d0f02099289e4847aa0ed2cab6a34ad, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: ae1fca31b920326448d5dcd5465fcfa2, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 6ae11d54e1bf8194381811436ea0ed2d, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 79e4516619b23b44188de7706747c206, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: d9ee896ae4feb514c89273e55518e1bb, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 0ebbea229386f3d44bd022ebeca127d3, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: aaabf9eb31e81fe4bbeca91bf9474228, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: e173243ef7a72d04699359b3b3e15681, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 3a43bb3e4d8b060489ce8c54a871d954, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 6ddca5b7000e52a4ba4537fea6204487, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 50c8174f50da23b4eb88b05b836ea32d, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: _DITHERSWITCH_ON
+        passType: 8
+      - keywords: _DITHERSWITCH_ON _EMISSIONCOLORTEXBASE_ON
+        passType: 8
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+      - keywords: _DITHERSWITCH_ON
+        passType: 13
+      - keywords: _DITHERSWITCH_ON _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+  - first: {fileID: 4800000, guid: 8112081966b8b3f48bae0b1414abe39f, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: _DITHERSWITCH_ON
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+      - keywords: _DITHERSWITCH_ON
+        passType: 13
+  - first: {fileID: 4800000, guid: dea4b4e61d8162d47bd83ad39d489aec, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 33dd4dcb981ef9a4cb6cd5a9919d00ef, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 1e7a134d0af88584c87d2e02282344e0, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 2de78900f3e1aec4fb5534202d55cfca, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: d617fd82560bb1c4399346904355714d, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 27e7af97287e3fb4fb4fefd25be4e4d8, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: _DITHERSWITCH_ON
+        passType: 8
+      - keywords: _DITHERSWITCH_ON _EMISSIONMAINCOLORBASE_ON
+        passType: 8
+      - keywords: _DITHERSWITCH_ON _EMISSIONMAINCOLORBASE_ON _EMISSION_ON
+        passType: 8
+      - keywords: _DITHERSWITCH_ON _EMISSION_ON
+        passType: 8
+      - keywords: _EMISSIONMAINCOLORBASE_ON
+        passType: 8
+      - keywords: _EMISSIONMAINCOLORBASE_ON _EMISSION_ON
+        passType: 8
+      - keywords: _EMISSION_ON
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+      - keywords: _DITHERSWITCH_ON
+        passType: 13
+      - keywords: _DITHERSWITCH_ON _EMISSIONMAINCOLORBASE_ON
+        passType: 13
+      - keywords: _DITHERSWITCH_ON _EMISSIONMAINCOLORBASE_ON _EMISSION_ON
+        passType: 13
+      - keywords: _DITHERSWITCH_ON _EMISSION_ON
+        passType: 13
+      - keywords: _EMISSIONMAINCOLORBASE_ON
+        passType: 13
+      - keywords: _EMISSIONMAINCOLORBASE_ON _EMISSION_ON
+        passType: 13
+      - keywords: _EMISSION_ON
+        passType: 13
+  - first: {fileID: 4800000, guid: c43f552655a90cc439e02c6f2cba0bdf, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: b8c4c668d518c134aae95b247629e5ac, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 390166af2e251cb49b4b311e9e324de2, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: a302ffbba6c87a24dba0599ac17528ec, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 796c5e338ed5fce49a97764c9f04d33b, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 7ffd8002c36dea64d850faaf0d97b856, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: ef11cb636dfd0224da6cb5d53d6c8929, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: dfe2ab038d04ae34faa477e14927c0b1, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: d3a407a5f90d40246ac3dfc68d27ce98, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 1e95612b918c58842a01ec03d92f47c4, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 7a28066d612626d4e9a9fe3d7bd6eb2f, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 4a9e3ba452e8d5e4896699c93019c951, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 1feb3879a300121409867175d38a74f0, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 31b85215cc9a9b64b9ea84695943cff6, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: e2cea92ed62765f40ae9353c091120ea, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: eb4836211737b5446bd637d1d13cb46e, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: d0f3cfedd4da96248a46ff9ccf9d3f44, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 05173a72d0d9bf54c9b8f271501f5af0, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 21132d43ef9fa6549b181a6e65db1a26, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: b54152b9d1324da41bd9fcadf210926c, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 8cccc6df9ec9492491b175aa19ac7fb6, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: cc8c961771b34a8db8b9d94cbc036663, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 0f5356c4f89a34747963cf29cef8d9f0, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 37c8483cc9d0d8848b486711d4636cd1, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: c5544f4aeb6ca5042923158aa0f4d86f, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 1d4b5bfa5ec643a449b071403b7c7c4e, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: _DITHERSWITCH_ON
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+      - keywords: _DITHERSWITCH_ON
+        passType: 13
+      - keywords: _DITHERSWITCH_ON _TRANSMISSION_ON
+        passType: 13
+      - keywords: _TRANSMISSION_ON
+        passType: 13
+  - first: {fileID: 4800000, guid: 190586361f349d94086b38fcb43809cb, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: _EMISSIONCOLOR1_ON
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+      - keywords: _EMISSIONCOLOR1_ON
+        passType: 13
+  - first: {fileID: 4800000, guid: 9809f099e71d2164086a6fd916e8bdf3, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: _DITHERSWITCH_ON
+        passType: 8
+      - keywords: 
+        passType: 13
+      - keywords: _DITHERSWITCH_ON
+        passType: 13
+  - first: {fileID: 4800000, guid: 9101845b795bfd347a7521a645c5499a, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 8bf9807e17e2f7b4e9ee5280105974be, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 6a14f9d5a4ee0c84eaf378ea2dd8fd08, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 674d512acc0851547a5a4316c47322a5, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: fd7089d380e4bee44ba8540b843e9b5c, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 2442462c55323b243ba3697c0cdec79a, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: b6a97ad44777d17448c08e0ba8ce6b96, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: bc5ca952a42780847bf35198f6b03743, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 9f7dc78de75283545a5332b9e90ded77, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 9cceb3b469a5b45408be9c1f20a79df5, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: e121aa522252b1246a4cfaf639d4f869, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 8adf8439c71b74841b3688a0c82b20a7, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 84679d3f0a0a45649a26275e00d1edfe, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: d7635dd1cb975724caca91bc4cb5c540, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 2f5b693453cfd864b8b312f5a4c2f1b4, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: f0d1d3032a10b454aba592dffd3d1dd9, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 05434720c08c1d046a48a704b248e9c9, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 2bfbf25431145b844b4fec8039e96721, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 434c811b6ee809549ae5cc8b9ace1dab, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 8e0d98b961d34ec4c91e0c61322bc59c, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 28eb67d241dee6d4691ab3f742d1ae71, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 23a859f0ae4668d4ebff00e3d1c0d6bc, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 307c94f73c1a2454abd0c13ecfec8f90, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 8f3c6e7569675ec4d85a22723a762899, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: bb98e99cf06c7b84ebe8f8b49cbe5ad8, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: f2331f1f51205ef479bcf6c80f51f01f, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 3b3cb7afeb0de274aac2d7dfa994364a, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+  - first: {fileID: 4800000, guid: a8d536601f2a71b4fbcf6c0f413e232b, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: _DITHERBLUENOISE_ON
+        passType: 8
+      - keywords: _DITHERBLUENOISE_ON _DITHERSWITCH_ON
+        passType: 8
+      - keywords: _DITHERSWITCH_ON
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+      - keywords: _DITHERBLUENOISE_ON
+        passType: 13
+      - keywords: _DITHERBLUENOISE_ON _DITHERSWITCH_ON
+        passType: 13
+      - keywords: _DITHERSWITCH_ON
+        passType: 13
+  - first: {fileID: 4800000, guid: 1b6089cb1d3670c4990e9d81fd14bef7, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 2299ae614f0219344ad10d3f514e4a83, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 8775dc7c125ad9443a8f8ffa60a752bb, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: f798730048753d843803eac3136fe615, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: e9305b6a4acf21e4c92f134a28499192, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 3138d686443659d44b7146804a90bb2e, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: eb51d218c13686f479e6522e6e657e21, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 6db05e3f6afb4dc4b8033accf8addcd1, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: acea684a0e22866479c2b51555e87772, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 84306f995b06139428bcd01727fb50ee, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 82668204955452b4c90bd6209614c6c8, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 9989f50eb61817c4db3d0a021e8e4c12, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: b7dd603574750cc44a869987803f4265, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 7505a80d3ad67914585d9349101fbb37, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: f7b9f74fa808d3d4e8e2ddc560aa365c, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: c4fe7e91e85ff9547aa2995ff7f20ce4, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 0e44e39dd65ec564b828904b0cc4f4bf, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 89500245392f7d846a8f6a432b979d53, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 12
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 288249ba36c24333bfb5ee918d2b065e, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 05277f3989a841a59bd224e587aab55a, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13

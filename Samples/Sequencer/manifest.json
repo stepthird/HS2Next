@@ -1,0 +1,14 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.sample.sequencer",
+  "name": "Sample sequencer",
+  "version": "0.1.0",
+  "apiVersion": "1.0",
+  "assemblies": ["Stp3.SampleSequencer.dll"],
+  "entryType": "Stp3.Samples.Sequencer.SequencerPlugin",
+  "commandPrefixes": ["seq."],
+  "minAppVersion": "1.0.0",
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "A minimal sequencer: timed command events and transform / camera tracks stored with the scene."
+}

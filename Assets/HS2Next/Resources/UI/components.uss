@@ -1,0 +1,342 @@
+/* HS2Next UI components: shell, regions, tabs, toolbar, status bar, overlays,
+   dialogs, toasts, menus, tooltips and the field widgets. Uses the variables of tokens-dark.uss. */
+
+.hs-root { flex-grow: 1; color: var(--hs-text); font-size: var(--hs-font-size); -unity-text-generator: advanced; }
+.hs-main { flex-grow: 1; }
+.hs-toolbar { height: 36px; flex-direction: row; align-items: center; background-color: var(--hs-bg-0); border-bottom-width: 1px; border-color: var(--hs-border); padding-left: 4px; padding-right: 4px; flex-shrink: 0; }
+.hs-toolbar__button { height: 26px; min-width: 26px; margin-left: 1px; margin-right: 1px; padding-left: 6px; padding-right: 6px; background-color: var(--hs-bg-1); border-width: 0; border-radius: var(--hs-radius); color: var(--hs-text); -unity-text-align: middle-center; }
+.hs-toolbar__button:hover { background-color: var(--hs-bg-hover); }
+.hs-toolbar__button:disabled { color: var(--hs-text-disabled); }
+.hs-toolbar__button--on { background-color: var(--hs-accent-dim); }
+.hs-toolbar__sep { width: 1px; height: 20px; margin-left: 5px; margin-right: 5px; background-color: var(--hs-border); }
+.hs-toolbar__spacer { flex-grow: 1; }
+
+.hs-statusbar { height: 24px; overflow: hidden; flex-direction: row; align-items: center; background-color: var(--hs-bg-0); border-top-width: 1px; border-color: var(--hs-border); padding-left: 8px; padding-right: 8px; flex-shrink: 0; }
+.hs-statusbar__item { margin: 0 16px 0 0; padding: 0; color: var(--hs-text-dim); font-size: 12px; -unity-text-align: middle-left; white-space: nowrap; overflow: hidden; }
+.hs-statusbar__finding { color: var(--hs-warning); }
+.hs-statusbar__spacer { flex-grow: 1; }
+
+.hs-region { background-color: var(--hs-bg-1); flex-grow: 1; }
+.hs-region--left { min-width: 300px; }
+.hs-region--right { min-width: 300px; }
+.hs-region--bottom { min-height: 160px; }
+.hs-tabs__strip { flex-direction: row; flex-wrap: wrap; background-color: var(--hs-bg-0); flex-shrink: 0; }
+/* a tab keeps its whole label: tabs that do not fit wrap to another line of the strip (the sidebar holds eight) */
+.hs-tab { height: 24px; flex-shrink: 0; white-space: nowrap; padding-left: 10px; padding-right: 10px; margin: 0; border-width: 0; border-radius: 0; background-color: var(--hs-bg-0); color: var(--hs-text-dim); }
+.hs-tab:hover { color: var(--hs-text); background-color: var(--hs-bg-2); }
+.hs-tab--active { color: var(--hs-text); background-color: var(--hs-bg-1); border-top-width: 2px; border-color: var(--hs-accent); }
+.hs-tabs__content { flex-grow: 1; }
+.hs-panel { flex-grow: 1; padding: 4px; }
+.hs-panel--hidden { display: none; }
+.hs-panel__empty { color: var(--hs-text-dim); -unity-text-align: middle-center; flex-grow: 1; }
+
+.hs-viewport { flex-grow: 1; background-color: rgba(0, 0, 0, 0); }
+.hs-viewport:focus { border-width: 0; }
+.hs-viewport__info { position: absolute; top: 4px; right: 8px; color: var(--hs-text); font-size: 12px; -unity-text-align: upper-right; }
+.hs-viewport__tools { position: absolute; top: 4px; left: 4px; flex-direction: row; }
+.unity-two-pane-split-view__dragline-anchor { background-color: var(--hs-bg-0); }
+
+.hs-overlay { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
+.hs-dialog-layer { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.45); align-items: center; justify-content: center; }
+/* a dialog never draws outside its box: the box is at most 92 % of the window each way and clips; the title, the message
+   and the buttons keep their size, the content shrinks to the rest (a long content scrolls in its own ScrollView); a
+   message alone wraps at the former 640 px box width (v0.3 trial: the 760 px options stuck out of the 640 px box) */
+.hs-dialog { min-width: 360px; max-width: 92%; max-height: 92%; flex-shrink: 1; overflow: hidden; padding: 14px; background-color: var(--hs-bg-2); border-radius: 4px; border-width: 1px; border-color: var(--hs-border); }
+.hs-dialog__title { -unity-font-style: bold; font-size: 15px; margin-bottom: 8px; flex-shrink: 0; }
+.hs-dialog__message { white-space: normal; margin-bottom: 10px; max-width: 610px; flex-shrink: 0; }
+.hs-dialog__buttons { flex-direction: row; justify-content: flex-end; margin-top: 10px; flex-shrink: 0; }
+.hs-dialog > .hs-dialog__content { flex-shrink: 1; min-height: 0; max-width: 100%; }
+/* the options: 760 px or 92 % of the window wide, 680 px or 85 % of its height; the section list and the scrolling options fill it */
+.hs-dialog.hs-dialog--options { width: 760px; height: 680px; max-height: 85%; }
+.hs-dialog--options > .hs-dialog__content { flex-grow: 1; }
+.hs-dialog__button { min-width: 80px; height: 26px; }
+.hs-dialog__button--default { background-color: var(--hs-accent-dim); }
+.hs-toast-stack { position: absolute; right: 12px; bottom: 30px; flex-direction: column-reverse; align-items: flex-end; }
+.hs-toast { margin-top: 6px; padding: 8px 12px; max-width: 480px; white-space: normal; background-color: var(--hs-bg-3); border-radius: 4px; border-left-width: 4px; border-color: var(--hs-accent); }
+.hs-toast--success { border-color: var(--hs-success); }
+.hs-toast--warning { border-color: var(--hs-warning); }
+.hs-toast--error { border-color: var(--hs-error); }
+.hs-tooltip { position: absolute; padding: 4px 8px; max-width: 320px; white-space: normal; background-color: var(--hs-bg-3); border-width: 1px; border-color: var(--hs-border); border-radius: 3px; font-size: 12px; }
+.hs-menu-blocker { background-color: rgba(0, 0, 0, 0); }
+.hs-menu { min-width: 180px; padding: 3px 0; background-color: var(--hs-bg-2); border-width: 1px; border-color: var(--hs-border); border-radius: 3px; }
+.hs-menu__item { flex-direction: row; height: 22px; align-items: center; padding-left: 4px; padding-right: 10px; }
+.hs-menu__item:hover { background-color: var(--hs-accent-dim); }
+.hs-menu__item--disabled { color: var(--hs-text-disabled); }
+.hs-menu__item--disabled:hover { background-color: rgba(0, 0, 0, 0); }
+.hs-menu__check { width: 18px; -unity-text-align: middle-center; }
+.hs-menu__text { flex-grow: 1; }
+.hs-menu__shortcut { color: var(--hs-text-dim); margin-left: 20px; }
+.hs-menu__separator { height: 1px; margin: 3px 6px; background-color: var(--hs-border); }
+
+.hs-field { min-height: var(--hs-row-height); margin-top: 1px; margin-bottom: 1px; }
+.hs-field__label, .hs-number__label, .hs-vector__label, .hs-color__label, .hs-ref__label, .hs-file__label { width: 120px; min-width: 80px; flex-shrink: 0; -unity-text-align: middle-left; color: var(--hs-text-dim); overflow: hidden; text-overflow: ellipsis; }
+.hs-number { flex-direction: row; align-items: center; }
+.hs-number__slider { flex-grow: 1; margin-right: 4px; }
+.hs-number__field { width: 64px; margin: 0; }
+.hs-number__reset { width: 22px; height: 20px; padding: 0; margin-left: 2px; }
+.hs-vector { flex-direction: row; align-items: center; }
+.hs-vector__field { flex-grow: 1; flex-basis: 0; margin: 0 1px; }
+.hs-vector__field > .unity-label { min-width: 12px; width: auto; padding: 0 2px; -unity-font-style: bold; }   /* auto: a 12 px box showed X as an ellipsis (v0.2) */
+.hs-vector__field--x > .unity-label { color: var(--hs-axis-x); }
+.hs-vector__field--y > .unity-label { color: var(--hs-axis-y); }
+.hs-vector__field--z > .unity-label { color: var(--hs-axis-z); }
+.hs-color { flex-direction: row; align-items: center; }
+.hs-color__swatch { flex-grow: 1; height: 20px; padding: 2px; margin: 0; }
+.hs-color__chip { flex-grow: 1; border-radius: 2px; }
+.hs-color__mixed { position: absolute; left: 0; right: 0; top: 0; bottom: 0; -unity-text-align: middle-center; }
+.hs-colorpicker { width: 280px; padding: 8px; background-color: var(--hs-bg-2); border-width: 1px; border-color: var(--hs-border); border-radius: 4px; }
+.hs-colorpicker__top { flex-direction: row; height: 160px; margin-bottom: 6px; }
+.hs-colorpicker__sv { flex-grow: 1; }
+.hs-colorpicker__strip { width: 18px; margin-left: 6px; }
+.hs-colorpicker__fields { flex-direction: row; flex-wrap: wrap; }
+.hs-colorpicker__num { width: 33%; }
+.hs-colorpicker__preview { height: 16px; margin: 4px 0; border-radius: 2px; }
+.hs-colorpicker__swatches { flex-direction: row; flex-wrap: wrap; }
+.hs-colorpicker__swatch { width: 18px; height: 18px; margin: 1px; padding: 0; }
+.hs-colorpicker__buttons { flex-direction: row; justify-content: flex-end; margin-top: 6px; }
+.hs-segmented { flex-direction: row; flex-grow: 1; flex-shrink: 1; min-width: 0; }
+/* one line per button, cut with an ellipsis when the row is narrow (v0.2: the text wrapped out of the 20 px button); the tooltip has the text */
+.hs-segmented__button { flex-grow: 1; flex-basis: 0; min-width: 0; margin: 0 1px; height: 20px; padding-left: 2px; padding-right: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hs-segmented__button--on { background-color: var(--hs-accent-dim); }
+.hs-segmented__button--mixed { opacity: 0.7; }
+.hs-field__enum { flex-direction: row; align-items: center; }
+.hs-ref { flex-direction: row; align-items: center; }
+.hs-ref__button { flex-grow: 1; -unity-text-align: middle-left; margin: 0; }
+.hs-ref__popup { width: 320px; height: 300px; padding: 4px; background-color: var(--hs-bg-2); border-width: 1px; border-color: var(--hs-border); }
+.hs-ref__list { flex-grow: 1; }
+.hs-file { flex-direction: row; align-items: center; }
+.hs-file__name { flex-grow: 1; overflow: hidden; }
+.hs-field__button { height: 22px; }
+.hs-history__row { height: 20px; padding-left: 6px; -unity-text-align: middle-left; }
+.hs-history__row--redo { color: var(--hs-text-dim); }
+.hs-history__row--current { -unity-font-style: bold; }
+.hs-section__title { -unity-font-style: bold; margin-top: 6px; margin-bottom: 2px; color: var(--hs-text); }
+
+/* default-theme overrides for the dark look */
+.hs-root .unity-label { color: var(--hs-text); }
+.hs-root .unity-button { background-color: var(--hs-bg-2); color: var(--hs-text); border-color: var(--hs-border); border-radius: var(--hs-radius); }
+.hs-root .unity-button:hover { background-color: var(--hs-bg-hover); }
+.hs-root .unity-base-field__input { background-color: var(--hs-bg-0); color: var(--hs-text); border-color: var(--hs-border); }
+.hs-root .unity-base-text-field__input { background-color: var(--hs-bg-0); color: var(--hs-text); }
+.hs-root .unity-base-field__label { color: var(--hs-text-dim); }
+.hs-root .unity-toggle__checkmark { background-color: var(--hs-bg-0); border-color: var(--hs-border); }
+.hs-root .unity-base-popup-field__text { color: var(--hs-text); }
+.hs-root .unity-list-view__item:hover { background-color: var(--hs-bg-hover); }
+.hs-root .unity-collection-view__item--selected { background-color: var(--hs-accent-dim); }
+.hs-root .unity-scroller { background-color: var(--hs-bg-1); }
+.hs-root .unity-foldout__text { color: var(--hs-text); }
+/* v0.2: scroller buttons, list headers, alternating rows and the open popup field still had the default light look */
+.hs-root .unity-scroller .unity-repeat-button { background-color: var(--hs-bg-2); border-color: var(--hs-border); -unity-background-image-tint-color: var(--hs-text-dim); }
+.hs-root .unity-scroller .unity-repeat-button:hover { background-color: var(--hs-bg-hover); }
+.hs-root .unity-scroller .unity-base-slider__tracker { background-color: var(--hs-bg-1); border-color: var(--hs-border); }
+.hs-root .unity-scroller .unity-base-slider__dragger { background-color: var(--hs-bg-3); border-color: var(--hs-border); }
+.hs-root .unity-scroller .unity-base-slider__dragger:hover { background-color: var(--hs-bg-hover); }
+.hs-root .unity-multi-column-header { background-color: var(--hs-bg-0); }
+.hs-root .unity-multi-column-header__column { background-color: var(--hs-bg-0); border-color: var(--hs-border); color: var(--hs-text-dim); }
+.hs-root .unity-multi-column-header__column:hover { background-color: var(--hs-bg-2); }
+.hs-root .unity-collection-view__item--alternative-background { background-color: var(--hs-bg-2); }
+.hs-root .unity-base-popup-field__input:hover, .hs-root .unity-base-popup-field__input:active, .hs-root .unity-base-popup-field__input:focus { background-color: var(--hs-bg-2); color: var(--hs-text); }
+.hs-root .unity-base-popup-field__arrow { -unity-background-image-tint-color: var(--hs-text-dim); }
+
+/* Unity's dropdown menu (DropdownField, EnumField): GenericDropdownMenu adds it to the panel's root, outside .hs-root, so these
+   selectors have no .hs-root prefix (v0.2: the look-target menu was white) */
+.unity-base-dropdown { color: var(--hs-text); font-size: var(--hs-font-size); }
+.unity-base-dropdown .unity-base-dropdown__container-outer { background-color: var(--hs-bg-2); border-width: 1px; border-color: var(--hs-border); border-radius: var(--hs-radius); }
+.unity-base-dropdown .unity-base-dropdown__container-inner { background-color: var(--hs-bg-2); }
+.unity-base-dropdown .unity-base-dropdown__item { color: var(--hs-text); background-color: rgba(0, 0, 0, 0); }
+.unity-base-dropdown .unity-base-dropdown__item:hover { background-color: var(--hs-accent-dim); }
+.unity-base-dropdown .unity-base-dropdown__item:disabled { color: var(--hs-text-disabled); }
+.unity-base-dropdown .unity-base-dropdown__label { color: var(--hs-text); }
+.unity-base-dropdown .unity-base-dropdown__checkmark { -unity-background-image-tint-color: var(--hs-text); }
+.unity-base-dropdown .unity-base-dropdown__separator { background-color: var(--hs-border); }
+.unity-base-dropdown .unity-scroller { background-color: var(--hs-bg-2); }
+
+/* generic panel building blocks (packages C and I: ask package A for more in the questions file) */
+.hs-section { margin-bottom: 6px; }
+.hs-section__header { flex-direction: row; align-items: center; height: 22px; }
+.hs-row { flex-direction: row; align-items: center; min-height: var(--hs-row-height); }
+.hs-row--selected { background-color: var(--hs-accent-dim); }
+.hs-row--hover:hover { background-color: var(--hs-bg-hover); }
+.hs-row__icon { width: 18px; -unity-text-align: middle-center; color: var(--hs-text-dim); }
+.hs-row__label { flex-grow: 1; overflow: hidden; text-overflow: ellipsis; -unity-text-align: middle-left; }
+.hs-row__badge { margin-left: 4px; padding: 0 4px; font-size: 10px; border-radius: 3px; background-color: var(--hs-bg-3); color: var(--hs-text-dim); }
+.hs-row__badge--warning { color: var(--hs-warning); }
+.hs-text--dim { color: var(--hs-text-dim); }
+.hs-text--warning { color: var(--hs-warning); }
+.hs-text--error { color: var(--hs-error); }
+.hs-text--active-camera { color: var(--hs-error); }
+.hs-search { margin: 2px 0 4px 0; }
+.hs-list { flex-grow: 1; }
+.hs-grid { flex-direction: row; flex-wrap: wrap; }
+.hs-grid__cell { width: 126px; height: 196px; margin: 3px; background-color: var(--hs-bg-2); border-radius: 3px; overflow: hidden; }
+.hs-grid__cell--selected { border-width: 2px; border-color: var(--hs-accent); }
+.hs-grid__image { flex-grow: 1; background-color: var(--hs-bg-0); -unity-background-scale-mode: scale-to-fit; }
+.hs-grid__caption { height: 18px; font-size: 11px; -unity-text-align: middle-center; overflow: hidden; text-overflow: ellipsis; }
+.hs-facets { flex-direction: row; flex-wrap: wrap; margin-bottom: 4px; }
+.hs-facet { height: 20px; margin: 1px; padding: 0 6px; }
+.hs-facet--on { background-color: var(--hs-accent-dim); }
+.hs-split-row { flex-direction: row; flex-grow: 1; }
+.hs-column { flex-direction: column; flex-grow: 1; }
+.hs-panel__toolbar { flex-direction: row; align-items: center; height: 26px; flex-shrink: 0; }
+.hs-inspector__tabs { flex-direction: row; flex-wrap: wrap; flex-shrink: 0; }
+/* tabs that wrap fill each line (v0.2: a narrow inspector left a ragged second line) */
+.hs-inspector__tab { flex-grow: 1; height: 22px; padding: 0 6px; margin: 1px; white-space: nowrap; }
+.hs-inspector__node-id { flex-grow: 1; flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; -unity-text-align: middle-left; }
+.hs-inspector__tab--active { background-color: var(--hs-accent-dim); }
+.hs-drop-target { border-width: 1px; border-color: var(--hs-accent); }
+.hs-drop-between { border-top-width: 2px; border-color: var(--hs-accent); }
+
+/* Phase 4.1 package W: segmented buttons keep their 20 px against the runtime theme's button padding /
+   border (v0.2 resolved 24 px), the Maker thumbnail list / push grid, the colour row, the eye side selector */
+.hs-root .hs-segmented > .hs-segmented__button { height: 20px; min-height: 20px; max-height: 20px; padding-top: 0; padding-bottom: 0; border-top-width: 1px; border-bottom-width: 1px; margin-top: 0; margin-bottom: 0; }
+.hs-partlist { flex-direction: column; margin-bottom: 4px; }
+.hs-partlist__header { flex-direction: row; align-items: center; min-height: 20px; }
+.hs-partlist__label { color: var(--hs-text-dim); -unity-text-align: middle-left; }
+.hs-partlist__current { flex-grow: 1; flex-shrink: 1; min-width: 0; margin-left: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; -unity-text-align: middle-right; }
+.hs-partlist__tools { flex-direction: row; align-items: center; }
+.hs-partlist__button { width: 24px; height: 20px; padding: 0; margin: 0 0 0 2px; }
+.hs-partlist__grid { flex-shrink: 0; background-color: var(--hs-bg-0); border-radius: var(--hs-radius); }
+.hs-partlist .hs-card-grid__row { flex-direction: row; padding-left: 4px; }
+.hs-partlist .hs-card { margin-right: 4px; margin-top: 2px; border-radius: var(--hs-radius); border-width: 2px; border-color: rgba(0, 0, 0, 0); background-color: var(--hs-bg-2); overflow: hidden; }
+.hs-partlist .hs-card--busy { opacity: 0.5; }
+.hs-partlist .hs-card--warning { border-color: var(--hs-warning); }
+.hs-partlist .hs-card__image { flex-shrink: 0; background-color: var(--hs-bg-1); -unity-background-scale-mode: scale-to-fit; }
+.hs-partlist .hs-card__image--none { background-color: var(--hs-bg-3); }
+.hs-partlist .hs-card__text { font-size: 10px; -unity-text-align: middle-center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hs-partlist--text .hs-card__text { font-size: 11px; white-space: normal; }
+.hs-partlist .hs-card__badge { right: 2px; top: 1px; font-size: 9px; padding: 0 2px; border-radius: 2px; background-color: var(--hs-bg-3); color: var(--hs-text-dim); }
+.hs-partlist .hs-card--warning .hs-card__badge { color: var(--hs-warning); }
+.hs-maker-color { align-items: center; }
+.hs-side-selector { flex-direction: column; margin-bottom: 2px; }
+.hs-side-selector > .hs-segmented { flex-grow: 0; margin-bottom: 2px; }
+
+/* Phase 4.2 package W: the colour chips of a colour push grid (skin swatches): 28 px chips with a
+   thin frame, no text line; the chip colour is the cell's inline background (as ColorSwatch draws a colour) */
+.hs-partlist--colour .hs-card { margin-top: 2px; border-width: 1px; border-color: var(--hs-bg-3); }
+.hs-partlist--colour .hs-card:hover { border-color: var(--hs-text-dim); }
+.hs-partlist--colour .hs-card--selected { border-color: var(--hs-accent); }
+.hs-partlist--colour .hs-card__image { flex-grow: 1; }
+.hs-maker-toggle { flex-direction: row; align-items: center; }
+/* W-1: thumbnail cells that load or failed show no texture (no 3.5 placeholder tile in UI Toolkit's dynamic atlas) */
+.hs-card__image.hs-card__image--loading { background-color: rgb(41, 41, 43); }
+.hs-card__image.hs-card__image--failed { background-color: rgb(41, 41, 43); border-width: 1px; border-color: rgb(191, 51, 51); }
+
+/* Phase 4.3 package W: the Hair page's part selector (a part without a hair prefab dimmed), the bundle
+   list (one foldout per bundle, the sub-selected bundle marked) with its footer, the Maker choice row (label + segmented) */
+.hs-part-selector { flex-direction: row; margin-bottom: 2px; }
+.hs-part-selector > .hs-segmented { flex-grow: 1; }
+.hs-part-selector__button--none { opacity: 0.5; }
+.hs-hair-bundles { flex-direction: column; }
+.hs-hair-bundle { margin-left: 2px; }
+.hs-hair-bundle--selected > .unity-foldout__toggle { background-color: var(--hs-accent-dim); }
+.hs-hair-bundles__footer { flex-direction: row; flex-wrap: wrap; align-items: center; margin-top: 2px; }
+.hs-hair-bundles__footer > .hs-segmented { flex-grow: 1; min-width: 96px; }
+.hs-maker-choice { flex-direction: row; align-items: center; }
+.hs-maker-choice > .hs-segmented { flex-grow: 1; }
+
+/* Phase 4.4 package W: the clothes kind selector wraps (each button keeps its label's width, lines fill up), a disabled kind,
+   the pattern button of a colour set (thumbnail + name) with its list, the outfit-card browser of the coordinate dialog and
+   of the Costume tab */
+.hs-segmented.hs-segmented--wrap { flex-wrap: wrap; }
+.hs-root .hs-segmented--wrap > .hs-segmented__button { flex-grow: 1; flex-shrink: 0; flex-basis: auto; overflow: visible; text-overflow: clip; padding-left: 6px; padding-right: 6px; margin-bottom: 1px; }
+.hs-part-selector__button--disabled { opacity: 0.4; }
+.hs-clothes-pattern { flex-direction: column; margin-bottom: 2px; }
+.hs-clothes-pattern__line { flex-direction: row; align-items: center; }
+.hs-clothes-pattern__button { flex-direction: row; align-items: center; flex-grow: 1; flex-shrink: 1; min-width: 0; height: 32px; padding: 1px 4px; }
+.hs-clothes-pattern__thumb { width: 28px; height: 28px; flex-shrink: 0; margin-right: 6px; background-color: var(--hs-bg-1); -unity-background-scale-mode: scale-to-fit; }
+.hs-clothes-pattern__name { flex-grow: 1; flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; -unity-text-align: middle-left; }
+.hs-clothes-pattern__arrow { flex-shrink: 0; margin-left: 4px; }
+.hs-coord-browser { flex-direction: column; flex-grow: 1; }
+.hs-coord-browser__header { flex-direction: row; align-items: center; flex-shrink: 0; }
+.hs-coord-browser__grid { height: 300px; flex-shrink: 0; }
+.hs-coord-dialog { width: 520px; max-width: 100%; }
+.hs-costume-tab { flex-direction: column; }
+.hs-costume-tab .hs-coord-browser__grid { height: 360px; }
+
+/* Phase 4.5 package W: the accessory slot list (a row per worn slot: slot badge, thumbnail,
+   name, hair mark, MoreAccessories badge; the selected row marked; the «＋» row), the add panel, the slot pickers (free and
+   occupied slots), the parent picker (group labels, wrapping key buttons, the current key marked), the transform rows (three
+   number fields with steps, the axis label drags), the set heads and the copy section's wrapping buttons */
+.hs-acc-slots { flex-direction: column; }
+.hs-acc-slot { flex-direction: row; align-items: center; height: 30px; padding: 1px 4px; border-radius: var(--hs-radius); }
+.hs-acc-slot:hover { background-color: var(--hs-bg-hover); }
+.hs-acc-slot--selected { background-color: var(--hs-accent-dim); }
+.hs-acc-slot__badge { width: 26px; flex-shrink: 0; margin-right: 4px; -unity-text-align: middle-center; -unity-font-style: bold; background-color: var(--hs-bg-3); border-radius: 2px; }
+.hs-acc-slot__thumb { width: 26px; height: 26px; flex-shrink: 0; margin-right: 6px; background-color: var(--hs-bg-1); -unity-background-scale-mode: scale-to-fit; }
+.hs-acc-slot__name { flex-grow: 1; flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; -unity-text-align: middle-left; }
+.hs-acc-slot__mark { flex-shrink: 0; margin-left: 3px; padding: 0 3px; font-size: 10px; border-radius: 2px; background-color: var(--hs-bg-3); color: var(--hs-text-dim); }
+.hs-acc-slot__mark--warning { color: var(--hs-warning); }
+.hs-acc-slot--add { -unity-font-style: bold; color: var(--hs-text-dim); }
+.hs-acc-add { flex-direction: column; margin-top: 2px; padding: 2px; border-width: 1px; border-color: var(--hs-bg-3); border-radius: var(--hs-radius); }
+.hs-acc-picker { flex-direction: row; flex-wrap: wrap; align-items: center; }
+.hs-acc-picker__label { font-size: 10px; color: var(--hs-text-dim); margin-right: 4px; }
+.hs-acc-picker__slot { width: 30px; height: 22px; margin: 1px; padding: 0; font-size: 10px; }
+.hs-acc-picker__slot--occupied { color: var(--hs-warning); }
+.hs-acc-picker__slot--selected { background-color: var(--hs-accent); color: var(--hs-text); }
+.hs-acc-parent { flex-direction: column; }
+.hs-acc-parent__group { flex-direction: row; flex-wrap: wrap; align-items: center; }
+.hs-acc-parent__label { width: 100%; margin-top: 2px; font-size: 10px; color: var(--hs-text-dim); }
+.hs-acc-parent__key { flex-grow: 1; flex-shrink: 0; flex-basis: auto; height: 22px; margin: 1px; padding-left: 4px; padding-right: 4px; font-size: 11px; }
+.hs-acc-parent__key--current { background-color: var(--hs-accent); color: var(--hs-text); }
+.hs-acc-parent__unknown { color: var(--hs-warning); }
+.hs-maker-vector { flex-direction: column; }
+.hs-maker-vector__label { overflow: hidden; text-overflow: ellipsis; }
+/* an axis keeps the width of its fixed parts (label 12 + steps 2 × 15 + field minimum 30 + reset 18 = 90 px) and the line wraps */
+.hs-maker-vector__axes { flex-direction: row; flex-wrap: wrap; }
+.hs-maker-vector__axis { flex-direction: row; flex-grow: 1; flex-shrink: 0; flex-basis: 92px; min-width: 92px; margin-right: 2px; align-items: center; }
+.hs-maker-vector__axislabel { width: 12px; flex-shrink: 0; -unity-text-align: middle-center; color: var(--hs-text-dim); }
+.hs-maker-vector__field { flex-grow: 1; flex-shrink: 1; min-width: 30px; margin: 0; }
+.hs-maker-vector__step { width: 15px; height: 18px; margin: 0; padding: 0; font-size: 10px; flex-shrink: 0; }
+.hs-maker-vector__reset { width: 18px; flex-shrink: 0; margin: 0; padding: 0; }
+.hs-acc-set { flex-direction: column; margin-top: 3px; }
+.hs-acc-set__head { flex-direction: row; flex-wrap: wrap; align-items: center; }
+.hs-acc-set__title { -unity-font-style: bold; margin-right: 6px; }
+.hs-acc-set__head > .hs-segmented { flex-grow: 1; min-width: 96px; }
+.hs-acc-copy__buttons { flex-direction: row; flex-wrap: wrap; }
+.hs-acc-copy__buttons > .hs-field__button { flex-grow: 1; flex-shrink: 0; flex-basis: auto; }
+
+/* Phase 4.6 package W: the File page's thumbnail preview (126 × 176 = the 504 × 704 render at a quarter) with its note and
+   «撮影し直す», its button rows, the read-only value lines of the Character page, the character load dialog (browser, the five
+   flags on a wrapping line) */
+.hs-thumb-preview { flex-direction: row; align-items: flex-end; margin-top: 2px; margin-bottom: 2px; }
+.hs-thumb-preview__image { width: 126px; height: 176px; flex-shrink: 0; background-color: var(--hs-bg-1); }
+.hs-thumb-preview__side { flex-direction: column; flex-grow: 1; flex-shrink: 1; min-width: 0; margin-left: 6px; }
+.hs-thumb-preview__note { white-space: normal; }
+.hs-file-buttons { flex-direction: row; flex-wrap: wrap; }
+.hs-file-buttons > .hs-field__button { flex-grow: 1; flex-shrink: 0; flex-basis: auto; }
+.hs-readonly-line { flex-direction: row; align-items: center; }
+.hs-readonly-line__value { flex-grow: 1; flex-shrink: 1; min-width: 0; -unity-text-align: middle-left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hs-readonly-line__hint { flex-shrink: 0; margin-left: 6px; }
+.hs-chara-load-dialog { width: 560px; max-width: 100%; }
+.hs-chara-load__flags { flex-direction: row; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+.hs-chara-load__flags > Toggle { margin-right: 10px; }
+
+/* v0.3 trial 2 package U2: (1) the cell states of every thumbnail grid (ThumbGrid: the character, pose, scene and image
+   browsers, the Maker lists and push grids). The ring is the cell's own 2 px border: under the pointer grey, the selection /
+   focus cell accent, white while the grid has the keyboard focus. The frame (hs-card__frame) and the check badge lie over
+   the image, so no state moves the layout: the value applied to the character gets a 3 px accent frame, a check badge and an
+   accent text line; the selection a lit text line; a held press dims the cell and shrinks it a little. (2) A vector row's
+   fields sit on their own line (hs-vector__axes): beside the label when the row has room for every field at 94 px (a value
+   like -123.456 shown whole), else below it (hs-vector--stacked, set by VectorField from the row's width), wrapping further
+   when even that line is too narrow. */
+.hs-card { border-color: rgba(0, 0, 0, 0); }
+.hs-thumb-grid .hs-card--hover { border-color: var(--hs-text-dim); }
+.hs-thumb-grid .hs-card--selected { border-color: var(--hs-accent); }
+.hs-thumb-grid.hs-thumb-grid--focused .hs-card--selected { border-color: var(--hs-text); }
+.hs-thumb-grid .hs-card--warning { border-color: var(--hs-warning); }
+.hs-card__frame { position: absolute; left: 0; top: 0; right: 0; bottom: 0; border-width: 0; border-color: rgba(0, 0, 0, 0); border-radius: 2px; }
+.hs-thumb-grid .hs-card--current > .hs-card__frame { border-width: 3px; border-color: var(--hs-accent); }
+.hs-thumb-grid .hs-card--pressed { scale: 0.95 0.95; opacity: 0.8; }
+.hs-card__check { display: none; position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; margin: 0; padding: 0; border-radius: 8px; background-color: var(--hs-accent); color: rgb(255, 255, 255); font-size: 11px; -unity-font-style: bold; -unity-text-align: middle-center; }
+.hs-thumb-grid .hs-card--current > .hs-card__check { display: flex; }
+.hs-thumb-grid .hs-card--selected > .hs-card__text { background-color: var(--hs-accent-dim); color: var(--hs-text); }
+.hs-thumb-grid .hs-card--current > .hs-card__text { background-color: var(--hs-accent); color: rgb(255, 255, 255); -unity-font-style: bold; }
+.hs-vector__axes { flex-direction: row; flex-wrap: wrap; flex-grow: 1; flex-shrink: 1; min-width: 0; }
+.hs-vector--stacked { flex-direction: column; align-items: stretch; }
+.hs-vector--stacked > .hs-vector__label { align-self: flex-start; }
+.hs-vector--stacked > .hs-vector__axes { flex-grow: 0; flex-basis: auto; }
+.hs-vector > .hs-vector__axes > .hs-vector__field { flex-grow: 1; flex-shrink: 0; flex-basis: 94px; min-width: 94px; }
+/* the runtime theme's 10 px side padding of a number input left about one digit in the sidebar */
+.hs-root .hs-vector .hs-vector__field > .unity-base-text-field__input { padding-left: 3px; padding-right: 3px; }
+/* (3) the thumbnail size slider of the Maker lists, beside the search field */
+.hs-partlist__zoom { width: 72px; flex-shrink: 0; margin: 0 2px 0 4px; }

@@ -1,0 +1,11 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.noentry",
+  "name": "Loader test: noentry",
+  "version": "0.1.0",
+  "apiVersion": "1.0",
+  "assemblies": ["Stp3.Test.NoEntry.dll"],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the loader: an assembly without an IPlugin type."
+}

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- A test plugin that faults on request (CC0-1.0). Built by Tools/plugins.ps1, which passes HS2NextApi (a folder with HS2Next.Api.dll),
+       NewtonsoftJson (the file) and UnityManaged (the Editor's Managed/UnityEngine folder). -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <AssemblyName>Stp3.Test.Faulty</AssemblyName>
+    <RootNamespace>Stp3.Test.Faulty</RootNamespace>
+    <Deterministic>true</Deterministic>
+    <DebugType>none</DebugType>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="HS2Next.Api"><HintPath>$(HS2NextApi)\HS2Next.Api.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Newtonsoft.Json"><HintPath>$(NewtonsoftJson)</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>

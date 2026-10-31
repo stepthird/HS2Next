@@ -1,0 +1,65 @@
+# SkinFit.Sweep cases for AIT/Eye Translucency (fit, -fitPipe both): label | set | sweep | sweep2 | lights | tilt
+# Iris texture G = 0 throughout (the G-driven direct-light lift is not reproduced; see eye_gaps.txt).
+sclera light     | | _Color=1:1:1:1,0.5:0.5:0.5:1,1:0.5:0:1 | _MainTex=1:1:1:1,0.5:0.5:0.5:1 | amb,L0,L30,L60,L80,L120,L150,L180,M30,M150
+sclera trans     | _Color=1:1:1:1 | _TransNormalDistortion=0,0.5 | _TransScattering=1,2,4 | L120,L150,L180
+sclera trans2    | _Color=1:1:1:1;_TransNormalDistortion=0 | _TransDirect=0,0.1,1 | _Translucency=0,9,18 | L150,L180,M150
+sclera trans3    | _TransNormalDistortion=0 | _Color=1:1:1:1,0.5:0.5:0.5:1,1:0.5:0:1 | _MainTex=1:1:1:1,0.5:0.5:0.5:1,1:0:0:1 | L180,M150
+sclera transamb  | _TransNormalDistortion=0 | _TransAmbient=0,0.12,1 | _TransShadow=0,1 | amb,M150
+occ              | | _TextureSample0=1:1:1:1,0.5:0.5:0.5:1,0:0:0:1,0.5:1:1:1,1:0.5:0.5:1 | _OcclusionStrength=0,0.5,1 | amb,L0,M30
+iris colour      | _Texture2=1:0:1:1 | _Color2=1:1:1:1,0.5:0.5:0.5:1,1:0.5:0:1,1:1:1:0 | _Emission=0,0.061,0.5,1 | amb,L0,L60,L150
+iris tex         | _Color2=1:1:1:1;_Emission=0 | _Texture2=1:0:1:1,0:1:1:1,0.5:0.5:1:1,1:1:0.5:1,1:1:0.25:1,0.5:0:1:1 | | amb,L0,L60,L150
+iris emis tex    | _Color2=1:1:1:1;_Emission=1 | _Texture2=1:0:1:1,0:1:1:1,0.5:0.5:1:1,1:1:0.5:1 | | amb,L150
+iris spec        | _Texture2=0:0:1:1;_Color=0:0:0:1 | _Smoothness=0,0.5,0.8,0.9,1 | | L0,L5,L10,L20,L30,L60
+iris spec col    | _Texture2=0:0:1:1;_Color=0:0:0:1;_Smoothness=1 | _Color2=1:1:1:1,1:0:0:1,0:0:0:1 | _Texture2=0:0:1:1,0:0:0.5:1,1:1:1:1 | L0,L10
+sclera spec      | _Color=0:0:0:1 | _Smoothness=0,1 | _MainTex=1:1:1:1,0:0:0:1,1:1:1:0 | L0,L10,L30
+pupil            | | _Texture3=1:1:1:1,1:0:0:1,0:1:0:1,0:0:0:1,1:1:1:0.5,0.5:0.5:0.5:1 | _Color3=1:1:1:1,0.5:0.5:0.5:1,1:0:0:0.5 | amb,L0,L60,L150
+pupil on iris    | _Texture2=1:0:1:1 | _Texture3=1:1:1:1,1:1:1:0.5,0:0:0:1 | _Smoothness=0,1 | amb,L0,L10,L150
+hl               | | _Texture4=1:1:1:1,1:0:0:1,0:1:0:1,0:0:1:1,0.5:0:0:1,0:0.5:0:1,1:1:1:0 | _Color4=1:1:1:0.796,1:0:0:1,1:1:1:0,0:0:0:1 | amb,L0,L60,L150
+hl smooth        | _Texture4=0:1:0:1 | _Smoothness=0,0.5,1 | _Color4=1:1:1:0.796,1:1:1:0 | amb,L0,L10,L30
+hl on iris       | _Texture2=1:0:1:1 | _Texture4=1:0:0:1,0:1:0:1 | _Smoothness=0,1 | amb,L0,L150
+main u           | _Color=1:1:1:1;_MainTex=ramp:u:x/x/x/1;_Parallax=0 | _UV0=0.2:0.5,0.5:0.5,0.8:0.5,0.5:0.2,0.5:0.8 | | amb
+main v           | _Color=1:1:1:1;_MainTex=ramp:v:x/x/x/1;_Parallax=0 | _UV0=0.2:0.5,0.5:0.5,0.8:0.5,0.5:0.2,0.5:0.8 | | amb
+main off         | _Color=1:1:1:1;_MainTex=ramp:u:x/x/x/1;_Parallax=0 | _UV0=0.5:0.5 | _eyebaseoffset=0:0:0:0,0.1:0:0:0,0:0.1:0:0,0:0:0.1:0,0:0:0:0.1 | amb
+main off v       | _Color=1:1:1:1;_MainTex=ramp:v:x/x/x/1;_Parallax=0 | _UV0=0.5:0.5 | _eyebaseoffset=0:0:0:0,0.1:0:0:0,0:0.1:0:0,0:0:0.1:0,0:0:0:0.1 | amb
+iris u           | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_Parallax=0 | _UV0=0.3:0.5,0.5:0.5,0.7:0.5,0.5:0.3 | _texture2uv=1:1:0:0,2:1:0:0,1:2:0:0,0.5:0.5:0:0,1:1:0.1:0,1:1:0:0.1,1.087:0.957:0:0.02 | amb
+iris v           | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:v:x/0/1/1;_Parallax=0 | _UV0=0.5:0.3,0.5:0.5,0.5:0.7,0.3:0.5 | _texture2uv=1:1:0:0,2:1:0:0,1:2:0:0,0.5:0.5:0:0,1:1:0.1:0,1:1:0:0.1,1.087:0.957:0:0.02 | amb
+iris off         | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_texture2uv=1:1:0:0 | _UV0=0.5:0.5,0.3:0.5 | _eyebaseoffset=0:0:0:0,0.1:0:0:0,0:0.1:0:0,0:0:0.1:0,0:0:0:0.1 | amb
+iris off v       | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:v:x/0/1/1;_texture2uv=1:1:0:0 | _UV0=0.5:0.5,0.5:0.3 | _eyebaseoffset=0:0:0:0,0.1:0:0:0,0:0.1:0:0,0:0:0.1:0,0:0:0:0.1 | amb
+pupil u          | _Color=0:0:0:1;_Color3=1:1:1:1;_Texture3=ramp:u:0/0/0/x;_Parallax=0 | _UV0=0.3:0.5,0.5:0.5,0.7:0.5,0.5:0.3 | _texture3uv=1:1:1:0,2:1:1:0,1:2:1:0,1:1:2:0,1:1:4:0,1:1:1:0.1,1:1:1:1,1.026:0.969:4:0 | amb
+pupil v          | _Color=0:0:0:1;_Color3=1:1:1:1;_Texture3=ramp:v:0/0/0/x;_Parallax=0 | _UV0=0.5:0.3,0.5:0.5,0.5:0.7,0.3:0.5 | _texture3uv=1:1:1:0,2:1:1:0,1:2:1:0,1:1:2:0,1:1:4:0,1:1:1:0.1,1:1:1:1,1.026:0.969:4:0 | amb
+pupil t2uv       | _Color=0:0:0:1;_Color3=1:1:1:1;_Texture3=ramp:u:0/0/0/x;_Parallax=0;_texture3uv=1:1:1:0 | _UV0=0.3:0.5,0.5:0.5 | _texture2uv=1:1:0:0,2:1:0:0,1:1:0.1:0,1:1:0:0.1 | amb
+hl u             | _Color=0:0:0:1;_Color4=1:1:1:1;_Smoothness=1;_Texture4=ramp:u:x/0/0/1;_Parallax=0 | _UV0=0.3:0.5,0.5:0.5,0.7:0.5,0.5:0.3 | _Texture4UV=1:1:0:0,2:1:0:0,1:2:0:0,1:1:0.1:0,1:1:0:0.1,0.5:0.5:0:0 | amb
+hl v             | _Color=0:0:0:1;_Color4=1:1:1:1;_Smoothness=1;_Texture4=ramp:v:x/0/0/1;_Parallax=0 | _UV0=0.5:0.3,0.5:0.5,0.5:0.7,0.3:0.5 | _Texture4UV=1:1:0:0,2:1:0:0,1:2:0:0,1:1:0.1:0,1:1:0:0.1,0.5:0.5:0:0 | amb
+hl rot u         | _Color=0:0:0:1;_Color4=1:1:1:1;_Smoothness=1;_Texture4=ramp:u:x/0/0/1;_Parallax=0;_Texture4UV=1:1:0:0 | _UV0=0.3:0.5,0.7:0.5,0.5:0.3,0.5:0.7 | _Texture4Rotator=0,0.25,0.5,-0.25,1 | amb
+hl rot v         | _Color=0:0:0:1;_Color4=1:1:1:1;_Smoothness=1;_Texture4=ramp:v:x/0/0/1;_Parallax=0;_Texture4UV=1:1:0:0 | _UV0=0.3:0.5,0.7:0.5,0.5:0.3,0.5:0.7 | _Texture4Rotator=0,0.25,0.5,-0.25,1 | amb
+hl off           | _Color=0:0:0:1;_Color4=1:1:1:1;_Smoothness=1;_Texture4=ramp:u:x/0/0/1;_Texture4UV=1:1:0:0;_Parallax=0 | _UV0=0.5:0.5 | _eyebaseoffset=0.1:0:0:0,0:0.1:0:0,0:0:0.1:0,0:0:0:0.1 | amb
+iris uv mix      | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:v:x/0/1/1;_Parallax=0 | _UV0=0.5:0.3,0.5:0.7 | _texture2uv=1:2:0:0.1,1:0.5:0:0.1,1:2:0:0 | amb
+iris uv mixe     | _Color=0:0:0:1;_Emission=0;_Color2=1:1:1:1;_Texture2=ramp:u:x/0/1/1;_Parallax=0;_eyebaseoffset=0.05:0:0:0 | _UV0=0.3:0.5,0.7:0.5 | _texture2uv=2:1:0.1:0,0.5:1:0.1:0,1:1:0:0 | amb
+hl uv mix r0    | _Color=0:0:0:1;_Color4=1:1:1:1;_Smoothness=1;_Texture4=ramp:u:x/0/0/1;_Parallax=0;_Texture4Rotator=0 | _UV0=0.3:0.5,0.5:0.3,0.7:0.6 | _Texture4UV=2:1:0.1:0,2:2:0.1:0.1,0.5:1:0:0.1 | amb
+hl uv mix r0.25    | _Color=0:0:0:1;_Color4=1:1:1:1;_Smoothness=1;_Texture4=ramp:u:x/0/0/1;_Parallax=0;_Texture4Rotator=0.25 | _UV0=0.3:0.5,0.5:0.3,0.7:0.6 | _Texture4UV=2:1:0.1:0,2:2:0.1:0.1,0.5:1:0:0.1 | amb
+hl uv mixv r0   | _Color=0:0:0:1;_Color4=1:1:1:1;_Smoothness=1;_Texture4=ramp:v:x/0/0/1;_Parallax=0;_Texture4Rotator=0 | _UV0=0.3:0.5,0.5:0.3,0.7:0.6 | _Texture4UV=2:1:0.1:0,2:2:0.1:0.1,0.5:1:0:0.1 | amb
+hl uv mixv r0.25   | _Color=0:0:0:1;_Color4=1:1:1:1;_Smoothness=1;_Texture4=ramp:v:x/0/0/1;_Parallax=0;_Texture4Rotator=0.25 | _UV0=0.3:0.5,0.5:0.3,0.7:0.6 | _Texture4UV=2:1:0.1:0,2:2:0.1:0.1,0.5:1:0:0.1 | amb
+bump uv          | _Color=1:1:1:1;_BumpMap=ramp:u:1/0.5/0.5/x | _UV0=0.3:0.5,0.5:0.5,0.7:0.5 | | L0,L-30
+hl col           | _Color=0:0:0:1;_Texture4=0:1:0:1;_Smoothness=1 | _Color4=0.25:0.25:0.25:1,0.75:0.75:0.75:1,1:0:0:1,0:1:0:1,0.5:0.5:0.5:0 | | L0,L5,L10,L20,L30
+bump d           | _Color=1:1:1:1 | _BumpMap=1:0.5:0.5:0.51,1:0.5:0.5:0.525,1:0.5:0.5:0.55,1:0.5:0.5:0.6,1:0.5:0.5:0.45 | | amb,L0,L15,L30,L-30,L60,L-60
+bump d nt       | _Color=1:1:1:1;_Translucency=0 | _BumpMap=1:0.5:0.5:0.51,1:0.5:0.5:0.525,1:0.5:0.5:0.55,1:0.5:0.5:0.6 | | L0,L15,L30,L-30,L60,L-60
+hl spec          | _Color=0:0:0:1;_Texture4=0:1:0:1 | _Smoothness=0,0.25,0.5,0.75,0.9,1 | _Color4=1:1:1:1,0.5:0.5:0.5:1 | amb,L0,L5,L10,L20,L30,L60
+hl spec G        | _Color=0:0:0:1;_Smoothness=0.5;_Color4=1:1:1:1 | _Texture4=0:0.25:0:1,0:0.5:0:1,0:0.75:0:1,0:1:0:1 | | amb,L0,L10,L20,L30
+hl R             | _Color=0:0:0:1;_Color4=1:1:1:1 | _Texture4=0.25:0:0:1,0.5:0:0:1,1:0:0:1 | _Smoothness=0,0.25,0.5,1 | amb,L0,L60,L150
+hl B             | _Color=1:1:1:1 | _Texture4=0:0:1:1,0:0:0.5:1 | _Smoothness=0,1 | amb,L0,L60
+bump             | _Color=1:1:1:1 | _BumpMap=1:0.5:0.5:0.5,1:0.75:0.5:0.5,1:0.5:0.5:0.75,1:0.25:0.5:0.5,1:0.5:0.5:0.25 | | amb,L0,L30,L60,L-30,L0p30,L0p-30
+bump rgb         | _Color=1:1:1:1 | _BumpMap=0.75:0.5:1:1,0.5:0.75:1:1,0.5:0.5:1:1 | | L0,L30,L-30,L0p30
+real             | _MainTex=src;_Texture2=src;_Texture3=src;_Texture4=src;_BumpMap=src;_TextureSample0=src | | | amb,L0,L30,L60,L150,M30
+real tilt        | _MainTex=src;_Texture2=src;_Texture3=src;_Texture4=src;_BumpMap=src;_TextureSample0=src | | | amb,L0,L30,L60 | 30
+iris g           | _Emission=0;_Color2=0.5:0.5:0.5:1;_Color=0:0:0:1 | _Texture2=1:0.25:1:1,1:0.5:1:1,1:1:1:1 | | amb,L0,L10,L20,L30,L45,L60,L75,L90
+iris g t30       | _Emission=0;_Color2=0.5:0.5:0.5:1;_Color=0:0:0:1;_Texture2=1:1:1:1 | | | L0,L15,L30,L45,L60,L-30,L0p30 | 30
+iris g c         | _Emission=0;_Color=0:0:0:1;_Texture2=1:1:1:1 | _Color2=0.1:0.1:0.1:1,0.25:0.25:0.25:1,0.75:0.75:0.75:1,0.9:0.9:0.9:1 | | amb,L0,L30,L60
+iris g R         | _Emission=0;_Color=0:0:0:1;_Color2=0.5:0.5:0.5:1 | _Texture2=0.5:1:1:1,0.25:1:1:1,1:1:0.5:1 | | amb,L0,L30,L60
+iris g emis      | _Emission=0.5;_Color=0:0:0:1;_Color2=0.5:0.5:0.5:1 | _Texture2=1:1:1:1,1:0:1:1 | | amb,L0,L60,L150
+lift R           | _Emission=0;_Color=0:0:0:1;_Color2=0.5:0.5:0.5:1 | _Texture2=1:1:1:1,0.95:1:1:1,0.9:1:1:1,0.8:1:1:1,0.7:1:1:1,0.6:1:1:1 | | amb,L0,L60
+lift nl          | _Emission=0;_Color=0:0:0:1;_Color2=0.5:0.5:0.5:1;_Texture2=1:1:1:1 | | | L0,L30,L40,L45,L50,L55,L60,L65,L70,L75,L80,L85
+lift c           | _Emission=0;_Color=0:0:0:1;_Texture2=1:1:1:1 | _Color2=0.5:0.02:0:1,0.5:0.005:0.001:1,1:0.5:0:1 | | amb,L0,L60
+lift G nl        | _Emission=0;_Color=0:0:0:1;_Color2=0.5:0.5:0.5:1 | _Texture2=1:0.25:1:1,1:0.1:1:1 | | L0,L45,L60,L75
+lift tilt        | _Emission=0;_Color=0:0:0:1;_Color2=0.5:0.5:0.5:1;_Texture2=1:1:1:1 | | | L0,L20,L40,L60,L-20,L-40 | 40
+lift emis        | _Emission=0.5;_Color=0:0:0:1;_Color2=0.5:0.5:0.5:1;_Texture2=1:1:1:1 | | | amb,L0,L60
+lift pupil       | _Emission=0;_Color=0:0:0:1;_Color2=0.5:0.5:0.5:1;_Texture2=1:1:1:1 | _Texture3=1:1:1:0.5,0:0:0:1 | | L0,L60

@@ -1,0 +1,12 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.faulty",
+  "name": "Loader test: faults",
+  "version": "0.1.0",
+  "apiVersion": "1.0",
+  "assemblies": ["Stp3.Test.Faulty.dll"],
+  "commandPrefixes": ["faulty."],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the loader: a scene ext block, and an Update that throws once asked to (the plugin becomes faulted)."
+}

@@ -1,0 +1,15 @@
+# AIT/main texture studio unlit regression set (-fitItem id:975, -fitPipe both): panel_decode plus the real texture.
+pa_blend | _MainTex=1:1:1:1;_Color=1:1:1:1 | _MainTex=1:1:1:1,1:1:1:0.5,0.5:0.5:0.5:0.5,1:0:0:0 | _BG=0:0:0,1:1:1 | amb,L0
+pa_col | _MainTex=1:1:1:1 | _Color=1:1:1:1,1:1:1:0.5,0.5:0.5:0.5:1,1:0:0:0 | _BG=0:0:0,1:1:1 | amb
+pa_cut | _MainTex=1:1:1:0.3;_Color=1:1:1:1 | _Cutoff=0,0.001,0.2,0.5 | _BG=0:0:0,1:1:1 | amb
+pa_cutc | _MainTex=1:1:1:1;_Color=1:1:1:0.3 | _Cutoff=0.001,0.5 | _BG=0:0:0,1:1:1 | amb
+pa_uv | _Color=1:1:1:1;_UV0=0.25:0.5;_MainTex=ramp:u:x/x/x/1 | _patternuv1=1:1:0:0,2:1:0:0,1:2:0:0,1:1:0.1:0,1:1:0:0.1,0:0:0:0 | _BG=0:0:0 | amb
+pa_uvv | _Color=1:1:1:1;_UV0=0.25:0.5;_MainTex=ramp:v:x/x/x/1 | _patternuv1=1:1:0:0,1:2:0:0,1:1:0:0.1 | | amb
+pa_rot | _Color=1:1:1:1;_UV0=0.25:0.5;_MainTex=ramp:u:x/x/x/1 | _patternuv1Rotator=0,0.25,0.5,-0.25 | _patternuv1=1:1:0:0,2:1:0:0 | amb
+pa_clamp | _Color=1:1:1:1;_MainTex=rampr:u:x/x/x/1 | _UV0=0.25:0.5,1.25:0.5,-0.25:0.5 | _patternclamp1=0,1 | amb
+pa_scroll | _Color=1:1:1:1;_UV0=0.25:0.5;_MainTex=rampr:u:x/x/x/1 | _UVScroll1=0,0.5,1 | | amb
+pa_back | _Color=0.5:0.5:0.5:1;_MainTex=1:1:1:1 | _BG=0:0:0,1:1:1 | | amb | 180
+pa_st | _Color=1:1:1:1;_UV0=0.25:0.5;_MainTex=ramp:u:x/x/x/1 | _MainTex_ST=1:1:0:0,2:1:0:0,1:1:0.1:0 | | amb
+pa_hdr | _MainTex=1:1:1:1 | _Color=2:1:0.5:1,0.5:0.5:0.5:1 | | amb
+pa_src | _MainTex=src | | | amb,L0
+pa_srcbg | _MainTex=src;_Color=0.8:0.6:0.4:1 | _BG=0:0:0,1:1:1 | | amb

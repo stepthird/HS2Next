@@ -1,0 +1,15 @@
+# fixture	compression	verdict	textures	actions (name=action|...)	refused container paths (|)
+tc_ok.unity3d	LZ4HC	ok	4		
+tc_mip0.unity3d	LZ4	patch	2	mip0_dxt5_streamed=mips 0->1|mip0_rgba_chain=mips 0->6	
+tc_block.unity3d	LZ4HC	patch	3	block_512x511=pad 512x511->512x512|block_493x388=pad 493x388->496x388|block_150_mip0=pad 150x150->152x152 mips 0->1	
+tc_grey.unity3d	LZ4HC	patch-grey	6	short_rgba=grey 4x4|short_bump_n=flat normal 4x4|etc_rgb4=grey 4x4|outside_dxt1=grey 4x4	
+tc_lzma.unity3d	LZMA	patch	2	lzma_mip0=mips 0->1	
+tc_none.unity3d	none	patch	2	none_mip0=mips 0->1	
+tc_malformed.unity3d	LZ4HC	malformed	1		
+tc_streamname.unity3d	LZ4HC	patch	2	node names=names CAB-51077f89e73543bed230367368c88906 CAB-51077f89e73543bed230367368c88906.resS	
+tc_streamdir.unity3d	LZ4	patch	1	node names=names CAB-f161eae49d592dca6044582051e04b96 CAB-f161eae49d592dca6044582051e04b96.resS	
+tc_streamstray.unity3d	LZ4HC	patch	2	stray_dir=stream path	
+tc_overlap.unity3d	LZ4	patch	2	node names=names CAB-14e6b05e40fe2d250b0f3edec829bd80 CAB-14e6b05e40fe2d250b0f3edec829bd80.resS moved 1772	
+tc_longname.unity3d	LZ4HC	patch	2	longname_mip0=mips 0->6	
+tc_readable.unity3d	LZ4HC	patch	3	readable_streamed=readable off|readable_streamed_mip0=mips 0->1 readable off	
+tc_mesh.unity3d	LZ4HC	patch	1	tailless=mesh tail +24	assets/fx/broken.prefab|assets/fx/cut.asset

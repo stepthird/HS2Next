@@ -1,0 +1,20 @@
+# ASESampleShaders/Translucency (bushitsu curtains), Built-in decode: every input alone around the curtain material
+# (textures neutral). Lights: amb = white SH, L0 front, L30/L60 oblique, L150/L180 behind (translucency).
+base | | | | amb,L0,L30,L60,L120,L150,L180 |
+albedo | | _Albedo=1:1:1:1,0.8:0.5:0.3:1,0.5:0.5:0.5:0,0.5:0.5:0.5:0.5,0:0:0:1 | | amb,L0,L150,L180 |
+spec | _Albedo=0.5:0.5:0.5:1 | _Specular=0,0.105,0.5,1 | | amb,L0,L30,L60,L150 |
+color0 | _Albedo=0.5:0.5:0.5:1 | _Color0=0:0:0:0,1:1:1:1,1:0:0:1,0:0:0:1,1:1:1:0 | | amb,L0,L30,L150,L180 |
+tint | _Albedo=0.5:0.5:0.5:1 | _Tint=0:0:0:0,1:1:1:1,1:0:0:1,1:1:1:0,0.5:0.5:0.5:1 | | amb,L0,L150,L180 |
+depth | _Albedo=0.5:0.5:0.5:1;_Tint=1:1:1:1 | _Depth=1:1:1:1,0:0:0:0,0.5:0.5:0.5:0.5,1:0:0:1,1:1:1:0 | | amb,L0,L150,L180 |
+trans | _Albedo=0.5:0.5:0.5:1;_Tint=1:1:1:1 | _Translucency=0,1,4,10 | | amb,L0,L150,L180 |
+tdir | _Albedo=0.5:0.5:0.5:1;_Tint=1:1:1:1 | _TransDirect=0,0.5,1 | | amb,L150,L180 |
+tamb | _Albedo=0.5:0.5:0.5:1;_Tint=1:1:1:1 | _TransAmbient=0,0.5,1 | | amb,L150,L180 |
+tscat | _Albedo=0.5:0.5:0.5:1;_Tint=1:1:1:1 | _TransScattering=1,2,5.2,20 | | L120,L150,L165,L180 |
+tdist | _Albedo=0.5:0.5:0.5:1;_Tint=1:1:1:1;_TransScattering=2 | _TransNormalDistortion=0,0.5,1 | | L120,L150,L180 |
+normal | _Albedo=0.5:0.5:0.5:1 | _Normal=0.5:0.5:1:1,0.75:0.5:0.9:1,0.5:0.75:0.9:1 | | amb,L0,L60,L-60,L150 |
+gloss_lobe | _Albedo=0.5:0.5:0.5:1;_Specular=1 | | | L0,L10,L20,L30,L40,L50,L60,L70 | 30
+backface | _Albedo=0.8:0.5:0.3:1;_Tint=1:1:1:1 | | | amb,L0,L150,L180 | 180
+tiling | _Albedo=ramp:u:x,0.5,0.2,1 | _Albedo_ST=1:1:0:0,2:1:0:0,1:1:0.5:0 | | amb |
+tiling2 | _Albedo=ramp:u:x,0.5,0.2,1 | _texcoord_ST=1:1:0:0,2:1:0:0 | | amb |
+lm | _Albedo=0.8:0.5:0.3:1;_Tint=1:1:1:1 | _LM=0.4:0.3:0.2:1,0.1:0.1:0.1:1 | | amb,L0,L150,L180 |
+lm_dir | _Albedo=0.8:0.5:0.3:1;_Tint=1:1:1:1;_LM=0.4:0.3:0.2:1 | _LMDIR=0.8:0.5:0.6:0.7 | | amb,L0,L150 |

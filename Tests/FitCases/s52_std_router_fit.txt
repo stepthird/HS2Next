@@ -1,0 +1,15 @@
+# Standard-like router (Phase 5.2 S): std_generic cases (as f3_std_alias_fit.txt) on the mod copies against their Standard replacements (approximations: the thresholds are the measured values, a regression guard).
+# fit: shader="Standard-DoubleSided" repl="HS2Next/Standard(Two Sided)" item="ybiii_ywings1_yhorns1/ybiii_ywings1_yhorns1/data_prefab_000.unity3d:YWings_L" rms=0.001
+# fit: shader="Lux Standard (Metallic setup)" repl="HS2Next/Standard(Two Sided)" item="leonardzsmnv_stditem_smnvmisc_bundles/leonardzsmnv_stditem_smnvmisc/data_prefab_000.unity3d:arai_19" material="Helmet_Base" rms=0.63
+# fit: shader="Lux Standard (Specular setup)" repl="HS2Next/Standard (Specular setup)(Two Sided)" item="leonardzsmnv_stditem_smnvmisc_bundles/leonardzsmnv_stditem_smnvmisc/data_prefab_000.unity3d:stroller1" rms=0.001
+# fit: shader="Standard Plus/Standard Plus Glass Full" repl="HS2Next/Standard" item="gdc_nina_williams_dress_bundles/gdc_nina_williams_dress/data_prefab_000.unity3d:GDC Nina williams glasses" rms=0.03
+# fit: shader="Bakery/Standard Specular" repl="HS2Next/Standard (Specular setup)" item="hooh/furniture_pack02_010.unity3d:drawer_a" rms=0.0005
+# fit: shader="standard_specular" repl="HS2Next/Standard(Two Sided)" item="studio/comrade/tape1.unity3d:tape1_binded" rms=0.009
+# fit: shader="Unity/Standard (Specular CullOff)" repl="HS2Next/Standard (Specular setup)(Two Sided)" item="[blake]ribbon_flower/[blake]ribbon_flower/data_prefab_000.unity3d:1" rms=0.001
+# fit: shader="DoubleSided/Standard/Standard DS (Specular setup)" repl="HS2Next/Compatible/Standard DS (Specular setup)(flipped back faces)" item="[xoa_designs]_fantasy_npc_pack_bundles/[xoa_designs]_fantasy_npc_pack/data_prefab_000.unity3d:Elven Huntress" material="Elven_hanter_skirt_color" rms=0.0005
+f | | _Glossiness=0.2,0.7 | _Color=1:1:1:1,0.5:0.3:0.2:1 | amb,L0,L60,L150,L180
+b | | _Glossiness=0.2,0.7 | _Color=1:1:1:1,0.5:0.3:0.2:1 | amb,L0,L60,L150,L180 | 180
+b120 | _Glossiness=0.5 | | | amb,L0,L60,L120,L180,L-120 | 120
+m | | _Metallic=0,0.5,1 | | amb,L0,L30 
+src | _MainTex=src;_BumpMap=src;_MetallicGlossMap=src;_SpecGlossMap=src;_OcclusionMap=src;_EmissionMap=src | | | amb,L0,L30,L150,L180
+srcb | _MainTex=src;_BumpMap=src;_MetallicGlossMap=src;_SpecGlossMap=src;_OcclusionMap=src;_EmissionMap=src | | | amb,L0,L150,L180 | 180

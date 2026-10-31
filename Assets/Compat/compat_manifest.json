@@ -1,0 +1,3197 @@
+[
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Studio",
+  "class": "ItemComponent",
+  "count": 14419,
+  "scriptableObject": false,
+  "fields": 22,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "DynamicBone",
+  "count": 10886,
+  "scriptableObject": false,
+  "fields": 30,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "LightmappedLOD",
+  "count": 10523,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "BakeryRuntimeAssembly.dll",
+  "namespace": "",
+  "class": "BakeryPointLight",
+  "count": 4384,
+  "scriptableObject": false,
+  "fields": 24,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "AIChara",
+  "class": "CmpClothes",
+  "count": 4151,
+  "scriptableObject": false,
+  "fields": 44,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "ADV",
+  "class": "ScenarioData",
+  "count": 3945,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "MeshCombineStudio",
+  "class": "CachedComponents",
+  "count": 3261,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "HPoint",
+  "count": 3249,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "AIChara",
+  "class": "CmpAccessory",
+  "count": 2906,
+  "scriptableObject": false,
+  "fields": 32,
+  "conflicts": []
+ },
+ {
+  "assembly": "IL.dll",
+  "namespace": "",
+  "class": "ExcelData",
+  "count": 2695,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Obi.dll",
+  "namespace": "Obi",
+  "class": "ObiCollider",
+  "count": 2254,
+  "scriptableObject": false,
+  "fields": 7,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "AIChara",
+  "class": "CmpHair",
+  "count": 1428,
+  "scriptableObject": false,
+  "fields": 16,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "SkinnedCollisionHelper",
+  "count": 855,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "AIChara",
+  "class": "CmpFace",
+  "count": 719,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Correct",
+  "class": "BaseData",
+  "count": 699,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "IL.dll",
+  "namespace": "",
+  "class": "FaceBlendShape",
+  "count": 696,
+  "scriptableObject": false,
+  "fields": 8,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Door",
+  "count": 682,
+  "scriptableObject": false,
+  "fields": 12,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "HitCollision",
+  "count": 660,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Illusion.Component.Correct",
+  "class": "BaseData",
+  "count": 555,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "DynamicBoneCollider",
+  "count": 550,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Correct.Process",
+  "class": "IKBeforeOfDankonProcess",
+  "count": 426,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "ADV.EventCG",
+  "class": "CameraData",
+  "count": 360,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "ADV.EventCG",
+  "class": "Data",
+  "count": 360,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "ModBoneImplantor.dll",
+  "namespace": "ModBoneImplantor",
+  "class": "BoneImplantProcess",
+  "count": 352,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "TileAnimation",
+  "count": 348,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Illusion.Component.Correct.Process",
+  "class": "IKBeforeOfDankonProcess",
+  "count": 334,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "MagicLightProbes",
+  "class": "MLPVolume",
+  "count": 326,
+  "scriptableObject": false,
+  "fields": 24,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Correct.Process",
+  "class": "IKBeforeProcess",
+  "count": 273,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "UniRx.dll",
+  "namespace": "UniRx.Triggers",
+  "class": "ObservableDestroyTrigger",
+  "count": 273,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "CameraEffector",
+  "class": "ConfigEffectorVolume",
+  "count": 246,
+  "scriptableObject": false,
+  "fields": 8,
+  "conflicts": []
+ },
+ {
+  "assembly": "BakeryRuntimeAssembly.dll",
+  "namespace": "",
+  "class": "BakeryLightMesh",
+  "count": 243,
+  "scriptableObject": false,
+  "fields": 16,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Illusion.Component.Correct.Process",
+  "class": "IKBeforeProcess",
+  "count": 221,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "LightFlicker",
+  "count": 217,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "HooahComponents.dll",
+  "namespace": "",
+  "class": "SkinnedAccessory",
+  "count": 198,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Gizmo",
+  "count": 178,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "ME_LightCurves",
+  "count": 167,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "SunLightInfo",
+  "count": 164,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Map",
+  "class": "MapVisibleList",
+  "count": 160,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "LightmapPrefab",
+  "count": 157,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "KriptoFX.BloodFX",
+  "class": "UVTextureAnimator",
+  "count": 150,
+  "scriptableObject": false,
+  "fields": 8,
+  "conflicts": []
+ },
+ {
+  "assembly": "BakeryRuntimeAssembly.dll",
+  "namespace": "",
+  "class": "ftLightmapsStorage",
+  "count": 138,
+  "scriptableObject": false,
+  "fields": 28,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Rotator",
+  "count": 131,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "AIChara",
+  "class": "CmpBody",
+  "count": 131,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "HPointList",
+  "count": 129,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "RootMotion.FinalIK",
+  "class": "FABRIK",
+  "count": 118,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "TransformInfoData",
+  "count": 113,
+  "scriptableObject": true,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Map",
+  "class": "MapEnvSetting",
+  "count": 112,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "MeshCombineStudio",
+  "class": "GarbageCollectMesh",
+  "count": 106,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Obi.dll",
+  "namespace": "Obi",
+  "class": "ObiCollisionMaterial",
+  "count": 98,
+  "scriptableObject": true,
+  "fields": 8,
+  "conflicts": []
+ },
+ {
+  "assembly": "Obi.dll",
+  "namespace": "Obi",
+  "class": "ObiEmitterMaterialFluid",
+  "count": 98,
+  "scriptableObject": true,
+  "fields": 11,
+  "conflicts": []
+ },
+ {
+  "assembly": "BakeryRuntimeAssembly.dll",
+  "namespace": "",
+  "class": "BakeryDirectLight",
+  "count": 91,
+  "scriptableObject": false,
+  "fields": 16,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Studio",
+  "class": "MapComponent",
+  "count": 87,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "BakeryRuntimeAssembly.dll",
+  "namespace": "",
+  "class": "BakerySkyLight",
+  "count": 86,
+  "scriptableObject": false,
+  "fields": 12,
+  "conflicts": []
+ },
+ {
+  "assembly": "HS2_CopyChaBodyMat.dll",
+  "namespace": "",
+  "class": "ChaCopyBodyMaterial",
+  "count": 82,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "LightOptimize",
+  "count": 68,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Studio.Sound",
+  "class": "SEComponent",
+  "count": 66,
+  "scriptableObject": false,
+  "fields": 6,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "DynamicBone_Ver02",
+  "count": 64,
+  "scriptableObject": false,
+  "fields": 12,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "PlaceholderSoftware.WetStuff",
+  "class": "WetDecal",
+  "count": 63,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "AnimatedFountainUVs",
+  "count": 60,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "EyeLookCalc",
+  "count": 59,
+  "scriptableObject": false,
+  "fields": 13,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "EyeLookController",
+  "count": 59,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "MirrorReflection",
+  "count": 56,
+  "scriptableObject": false,
+  "fields": 6,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "DevPreviewHair",
+  "count": 54,
+  "scriptableObject": false,
+  "fields": 7,
+  "conflicts": []
+ },
+ {
+  "assembly": "IL.dll",
+  "namespace": "",
+  "class": "NormalData",
+  "count": 54,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "MapInfo",
+  "count": 53,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RamSpline",
+  "count": 47,
+  "scriptableObject": false,
+  "fields": 83,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Studio",
+  "class": "ItemColorData",
+  "count": 47,
+  "scriptableObject": true,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "FantasticGlass",
+  "class": "GlassType",
+  "count": 44,
+  "scriptableObject": false,
+  "fields": 18,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "AQUAS_RenderQueueEditor",
+  "count": 38,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "QADoor_InterrogationRoom",
+  "count": 38,
+  "scriptableObject": false,
+  "fields": 8,
+  "conflicts": []
+ },
+ {
+  "assembly": "MeshBakerCore.dll",
+  "namespace": "",
+  "class": "MB3_MeshBaker",
+  "count": 36,
+  "scriptableObject": false,
+  "fields": 7,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "BoneController",
+  "count": 35,
+  "scriptableObject": false,
+  "fields": 7,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "VertexMorph",
+  "count": 34,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "SetRenderQueue",
+  "count": 33,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Studio",
+  "class": "ParticleComponent",
+  "count": 33,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Clock",
+  "count": 31,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "distortedLight",
+  "count": 30,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "SplineProfile",
+  "count": 29,
+  "scriptableObject": true,
+  "fields": 10,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "LuxWater",
+  "class": "LuxWater_PlanarReflection",
+  "count": 28,
+  "scriptableObject": false,
+  "fields": 13,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "PersonalPoseInfo",
+  "count": 27,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "ReachableGames.AutoProbe",
+  "class": "AutoProbe",
+  "count": 27,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "MdgqBodyChange.dll",
+  "namespace": "MdgqBodyChange",
+  "class": "BodyCut",
+  "count": 27,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "RootMotion.FinalIK",
+  "class": "LookAtIK",
+  "count": 26,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "FaceBlendShape",
+  "count": 24,
+  "scriptableObject": false,
+  "fields": 8,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "LivingParticleController",
+  "count": 24,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX1_ShaderFloatCurve",
+  "count": 24,
+  "scriptableObject": false,
+  "fields": 6,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "RootMotion.FinalIK",
+  "class": "FullBodyBipedIK",
+  "count": 23,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "NormalData",
+  "count": 23,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Studio",
+  "class": "IconComponent",
+  "count": 23,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "TransformCompositeInfoData",
+  "count": 22,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "MagicLightProbes",
+  "class": "MLPQuickEditing",
+  "count": 22,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "MagicLightProbes",
+  "class": "MagicLightProbes",
+  "count": 22,
+  "scriptableObject": false,
+  "fields": 127,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "RootMotion.FinalIK",
+  "class": "RotationLimitAngle",
+  "count": 20,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "MeshCombineStudio",
+  "class": "MeshCombiner",
+  "count": 20,
+  "scriptableObject": false,
+  "fields": 104,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "MeshCombineStudio",
+  "class": "MeshCombinerData",
+  "count": 20,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "BakeryRuntimeAssembly.dll",
+  "namespace": "",
+  "class": "BakeryLightmapGroupSelector",
+  "count": 20,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX1_ParticlePositionPoint",
+  "count": 19,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "UVScroll",
+  "count": 18,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX1_ShieldCollisionTrigger",
+  "count": 17,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "UVTextureAnimator",
+  "count": 17,
+  "scriptableObject": false,
+  "fields": 12,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "lerpedLight",
+  "count": 17,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "RootMotion.FinalIK",
+  "class": "CCDIK",
+  "count": 16,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "LeftDoor",
+  "count": 16,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RightDoor",
+  "count": 16,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "VendingMachine",
+  "count": 15,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "BakeryRuntimeAssembly.dll",
+  "namespace": "",
+  "class": "BakeryVolume",
+  "count": 15,
+  "scriptableObject": false,
+  "fields": 21,
+  "conflicts": []
+ },
+ {
+  "assembly": "IL.dll",
+  "namespace": "",
+  "class": "SetRenderQueue",
+  "count": 15,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "ThisDestroy",
+  "count": 14,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "UnityStandardAssets.ImageEffects",
+  "class": "Antialiasing",
+  "count": 13,
+  "scriptableObject": false,
+  "fields": 15,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "ServiceDoor",
+  "count": 13,
+  "scriptableObject": false,
+  "fields": 6,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "UnityStandardAssets.CinematicEffects",
+  "class": "ScreenSpaceReflection",
+  "count": 12,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "UnityStandardAssets.CinematicEffects",
+  "class": "TonemappingColorGrading",
+  "count": 12,
+  "scriptableObject": false,
+  "fields": 6,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "UnityStandardAssets.ImageEffects",
+  "class": "ScreenSpaceAmbientObscurance",
+  "count": 12,
+  "scriptableObject": false,
+  "fields": 7,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "UnityStandardAssets.ImageEffects",
+  "class": "VignetteAndChromaticAberration",
+  "count": 12,
+  "scriptableObject": false,
+  "fields": 11,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "TexAnmUV",
+  "count": 12,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "TicketMachine",
+  "count": 12,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "YS_Timer",
+  "count": 12,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "PSMeshRendererUpdater",
+  "count": 11,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX1_AudioVolumeCurves",
+  "count": 11,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "SmokeSensorAnim",
+  "count": 11,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "MagicLightProbes",
+  "class": "MLPLight",
+  "count": 11,
+  "scriptableObject": false,
+  "fields": 35,
+  "conflicts": []
+ },
+ {
+  "assembly": "BakeryRuntimeAssembly.dll",
+  "namespace": "",
+  "class": "BakeryLightmapGroup",
+  "count": 11,
+  "scriptableObject": true,
+  "fields": 25,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "UnityStandardAssets.CinematicEffects",
+  "class": "DepthOfField",
+  "count": 10,
+  "scriptableObject": false,
+  "fields": 31,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX1_ParticleCollisionDecal",
+  "count": 10,
+  "scriptableObject": false,
+  "fields": 6,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX1_ParticleGravityPoint",
+  "count": 10,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "particleColorChanger",
+  "count": 10,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "MagicLightProbes",
+  "class": "MLPCombinedVolume",
+  "count": 10,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "DynamicBonePlaneCollider",
+  "count": 9,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "ME_MeshMaterialEffect",
+  "count": 9,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "MeshAnime",
+  "count": 9,
+  "scriptableObject": false,
+  "fields": 10,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "NeckLookCalcVer2",
+  "count": 9,
+  "scriptableObject": false,
+  "fields": 12,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "NeckLookControllerVer2",
+  "count": 9,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX4_Turbulence",
+  "count": 9,
+  "scriptableObject": false,
+  "fields": 14,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "UnityEngine.PostProcessing",
+  "class": "PostProcessingBehaviour",
+  "count": 9,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Aura2_Core.dll",
+  "namespace": "Aura2API",
+  "class": "AuraLight",
+  "count": 9,
+  "scriptableObject": false,
+  "fields": 21,
+  "conflicts": []
+ },
+ {
+  "assembly": "IL.dll",
+  "namespace": "",
+  "class": "EyeLookCalc",
+  "count": 9,
+  "scriptableObject": false,
+  "fields": 13,
+  "conflicts": []
+ },
+ {
+  "assembly": "IL.dll",
+  "namespace": "",
+  "class": "EyeLookController",
+  "count": 9,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "UnityStandardAssets.Water",
+  "class": "Water",
+  "count": 8,
+  "scriptableObject": false,
+  "fields": 6,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "FreeCam",
+  "count": 8,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "NewMaterialChange",
+  "count": 8,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "ScaleFactorApplyToMaterial",
+  "count": 8,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "EpicToonFX",
+  "class": "ETFXLightFade",
+  "count": 8,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Housing",
+  "class": "ItemComponent",
+  "count": 8,
+  "scriptableObject": false,
+  "fields": 20,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "MirzaBeig.Scripting.Effects",
+  "class": "TurbulenceParticleAffector",
+  "count": 8,
+  "scriptableObject": false,
+  "fields": 12,
+  "conflicts": []
+ },
+ {
+  "assembly": "IL.dll",
+  "namespace": "",
+  "class": "SetRenderQueue_Custom",
+  "count": 8,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "DoorScript",
+  "count": 7,
+  "scriptableObject": false,
+  "fields": 7,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "LightAnimation",
+  "count": 7,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "MMDEngine",
+  "count": 7,
+  "scriptableObject": false,
+  "fields": 23,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "MorphManager",
+  "count": 7,
+  "scriptableObject": false,
+  "fields": 9,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "PhysicsManager",
+  "count": 7,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX4_LocalSpaceFix",
+  "count": 7,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "ScrollingUVs",
+  "count": 7,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "EpicToonFX",
+  "class": "ETFXRotation",
+  "count": 7,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Studio",
+  "class": "LightColor",
+  "count": 7,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-UnityScript.dll",
+  "namespace": "",
+  "class": "Lighting",
+  "count": 7,
+  "scriptableObject": false,
+  "fields": 13,
+  "conflicts": []
+ },
+ {
+  "assembly": "IL.dll",
+  "namespace": "",
+  "class": "NeckLookCalcVer2",
+  "count": 7,
+  "scriptableObject": false,
+  "fields": 12,
+  "conflicts": []
+ },
+ {
+  "assembly": "IL.dll",
+  "namespace": "",
+  "class": "NeckLookControllerVer2",
+  "count": 7,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "AQUAS_Reflection",
+  "count": 6,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "EliminateScale",
+  "count": 6,
+  "scriptableObject": false,
+  "fields": 6,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX1_LightCurves",
+  "count": 6,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "AIChara",
+  "class": "CmpBoneBody",
+  "count": 6,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "CopyRig.dll",
+  "namespace": "",
+  "class": "CopyRig",
+  "count": 6,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "HooahComponents.dll",
+  "namespace": "",
+  "class": "DickController",
+  "count": 6,
+  "scriptableObject": false,
+  "fields": 18,
+  "conflicts": []
+ },
+ {
+  "assembly": "HooahComponents.dll",
+  "namespace": "",
+  "class": "NiceMirrorReflection",
+  "count": 6,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "MyCustomMirrorAssembly.dll",
+  "namespace": "MyCustomMirrorMod",
+  "class": "MyCustomMirror",
+  "count": 6,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "TopBAnim.dll",
+  "namespace": "TopBAnim",
+  "class": "Dissovle",
+  "count": 6,
+  "scriptableObject": false,
+  "fields": 14,
+  "conflicts": []
+ },
+ {
+  "assembly": "UnityEngine.Timeline.dll",
+  "namespace": "UnityEngine.Timeline",
+  "class": "ActivationPlayableAsset",
+  "count": 6,
+  "scriptableObject": true,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "CFX_AutoDestructShuriken",
+  "count": 5,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "ExplodingProjectile",
+  "count": 5,
+  "scriptableObject": false,
+  "fields": 13,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Material_Change",
+  "count": 5,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "TitleCharaStateInfo",
+  "count": 5,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Water",
+  "count": 5,
+  "scriptableObject": false,
+  "fields": 6,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Water_Reflection",
+  "count": 5,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "destroyMe",
+  "count": 5,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "AIChara",
+  "class": "CmpBoneHead",
+  "count": 5,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "MirzaBeig.Scripting.Effects",
+  "class": "VortexParticleAffector",
+  "count": 5,
+  "scriptableObject": false,
+  "fields": 7,
+  "conflicts": []
+ },
+ {
+  "assembly": "UnityEngine.Timeline.dll",
+  "namespace": "UnityEngine.Timeline",
+  "class": "ActivationTrack",
+  "count": 5,
+  "scriptableObject": true,
+  "fields": 9,
+  "conflicts": []
+ },
+ {
+  "assembly": "UnityEngine.Timeline.dll",
+  "namespace": "UnityEngine.Timeline",
+  "class": "AnimationPlayableAsset",
+  "count": 5,
+  "scriptableObject": true,
+  "fields": 8,
+  "conflicts": []
+ },
+ {
+  "assembly": "UnityEngine.Timeline.dll",
+  "namespace": "UnityEngine.Timeline",
+  "class": "AnimationTrack",
+  "count": 5,
+  "scriptableObject": true,
+  "fields": 21,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "GameParameterInfo",
+  "count": 4,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Gate",
+  "count": 4,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Lightbeam",
+  "count": 4,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "LightbeamSettings",
+  "count": 4,
+  "scriptableObject": true,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX4_StartDelay",
+  "count": 4,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "fanRotate",
+  "count": 4,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "flickeringlight",
+  "count": 4,
+  "scriptableObject": false,
+  "fields": 6,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "MirzaBeig.ParticleSystems",
+  "class": "Rotator",
+  "count": 4,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-UnityScript.dll",
+  "namespace": "",
+  "class": "DestroyEffect",
+  "count": 4,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-UnityScript.dll",
+  "namespace": "",
+  "class": "ThisDestroy",
+  "count": 4,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "TopBAnim.dll",
+  "namespace": "TopBAnim",
+  "class": "Anim",
+  "count": 4,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "DAX_Rotator_XYZ",
+  "count": 3,
+  "scriptableObject": false,
+  "fields": 6,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "EventContentInfoData",
+  "count": 3,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "EyeAdv_AutoDilation",
+  "count": 3,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "HomeConciergeInfoData",
+  "count": 3,
+  "scriptableObject": true,
+  "fields": 29,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "QT_LightFlicker",
+  "count": 3,
+  "scriptableObject": false,
+  "fields": 6,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX1_ShaderColorGradient",
+  "count": 3,
+  "scriptableObject": false,
+  "fields": 7,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX4_ShaderColorGradient",
+  "count": 3,
+  "scriptableObject": false,
+  "fields": 7,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX4_UVAnimation",
+  "count": 3,
+  "scriptableObject": false,
+  "fields": 10,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RotateObject",
+  "count": 3,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "AquariusMax.Medieval",
+  "class": "MakeSomeNoise",
+  "count": 3,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Correct",
+  "class": "FrameCorrect",
+  "count": 3,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Correct",
+  "class": "IKCorrect",
+  "count": 3,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Illusion.Anime.Information",
+  "class": "AnimePlayStateParameter",
+  "count": 3,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Illusion.Component.Correct",
+  "class": "FrameCorrect",
+  "count": 3,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Illusion.Component.Correct",
+  "class": "IKCorrect",
+  "count": 3,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Map",
+  "class": "MapBobList",
+  "count": 3,
+  "scriptableObject": false,
+  "fields": 10,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "MirzaBeig.Scripting.Effects",
+  "class": "AttractionParticleAffector",
+  "count": 3,
+  "scriptableObject": false,
+  "fields": 8,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Studio",
+  "class": "PanelComponent",
+  "count": 3,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "UnityEngine.PostProcessing",
+  "class": "PostProcessingProfile",
+  "count": 3,
+  "scriptableObject": true,
+  "fields": 15,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "RootMotion.FinalIK",
+  "class": "AimIK",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "RootMotion.FinalIK",
+  "class": "LimbIK",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "UnityStandardAssets.ImageEffects",
+  "class": "DepthOfField",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 18,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "UnityStandardAssets.ImageEffects",
+  "class": "NoiseAndGrain",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 15,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "AchievementInfoData",
+  "count": 2,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "BGMNameInfo",
+  "count": 2,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "CollisionActiveBehaviour",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "DayCycleManager",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 12,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "EffectSettings",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 14,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Elevator",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 21,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "ElevatorManager",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "FlickerLight",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "GroupMorph",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Halo_Trigger",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "HomeCameraInfo",
+  "count": 2,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "LiquidRotate",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "MapSourceTag",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "MaterialMorph",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "MouseLook",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 7,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "NGSS_Local",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 11,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "PersonalParameterInfo",
+  "count": 2,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "PointPrefabData",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "PortalFX_AxisRotateByTime",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "PortalFX_Turbulence",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "ProjectileCollisionBehaviour",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 16,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX1_AudioPitchCurves",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX1_WindCurves",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX4_ParticleTrail",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 28,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX4_RaycastCollision",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 12,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "VariousRotateObject",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "VariousTranslateMove",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 6,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "VoiceInfo",
+  "count": 2,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Water_Caustics",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "csAnimationPlay",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "csDestroyEffect",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "rotation",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "FantasticGlass",
+  "class": "Glass",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 134,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Illusion.Anime",
+  "class": "AnimeEventParameter",
+  "count": 2,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Illusion.Anime",
+  "class": "EventItemParameter",
+  "count": 2,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "MirzaBeig.ParticleSystems.Demos",
+  "class": "MouseFollow",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "PicoGames.QuickRopes",
+  "class": "QuickRope",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 19,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "PicoGames.Utilities",
+  "class": "Spline",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 7,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "UnityStandardAssets.Characters.FirstPerson",
+  "class": "FirstPersonController",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 17,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-UnityScript.dll",
+  "namespace": "",
+  "class": "MeshAnime",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 10,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-UnityScript.dll",
+  "namespace": "",
+  "class": "ParticleAction",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 7,
+  "conflicts": []
+ },
+ {
+  "assembly": "Deformers.dll",
+  "namespace": "",
+  "class": "Bulger",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Deformers.dll",
+  "namespace": "",
+  "class": "Expander",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Deformers.dll",
+  "namespace": "",
+  "class": "Mover",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Deformers.dll",
+  "namespace": "",
+  "class": "Rotator",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Deformers.dll",
+  "namespace": "",
+  "class": "Shrinker",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Deformers.dll",
+  "namespace": "",
+  "class": "Squeezer",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "HooahComponents.dll",
+  "namespace": "",
+  "class": "LookAtIt",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "HooahComponents.dll",
+  "namespace": "",
+  "class": "RailedTracker",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 9,
+  "conflicts": []
+ },
+ {
+  "assembly": "HooahComponents.dll",
+  "namespace": "Aura2API",
+  "class": "AuraLight",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 21,
+  "conflicts": []
+ },
+ {
+  "assembly": "UnityEngine.Networking.dll",
+  "namespace": "UnityEngine.Networking",
+  "class": "NetworkIdentity",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "UnityEngine.Networking.dll",
+  "namespace": "UnityEngine.Networking",
+  "class": "NetworkProximityChecker",
+  "count": 2,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "UnityStandardAssets.Characters.FirstPerson",
+  "class": "FirstPersonController",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 17,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp-firstpass.dll",
+  "namespace": "UnityStandardAssets.ImageEffects",
+  "class": "ScreenSpaceAmbientOcclusion",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 9,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "AGGlobalSettings",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 7,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "AGGlobalSnowGrass",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "AGGlobalSnowHeight",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "AGGlobalSnowProps",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "AGGlobalSnowTree",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "AGGlobalWind",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 9,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "AnimeEvent",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "AutoDesrtoy",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "BillBoard",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "BloodDestorySelf",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "DebuffOnEnemyFromCollision",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 6,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "DelayActive",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "DepthFix",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "FPSShaderColorGradient",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "FPSShaderFloatCurves",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "FireLightScript",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Fly",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "FreezeAnimation",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "GameScreenShot",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 9,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "GlowEffect",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 7,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "HResultParam",
+  "count": 1,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "HTaiiParam",
+  "count": 1,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "HomeSceneInfoData",
+  "count": 1,
+  "scriptableObject": true,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "MCS_RemoveTrisBelowSurface",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "ME_ParticleGravityPoint",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "MirrorScript",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 9,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "NGSS_Directional",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 20,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "OnStartSendCollision",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "ParameterNameInfo",
+  "count": 1,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "ParticleAction",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 7,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "PlanNameInfo",
+  "count": 1,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "ProjectorMaterialProperties",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX1_ParticleCollisionGameObject",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX1_RandomRotate",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX1_StartDelay",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX4_CameraShake",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 8,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX4_LightCurves",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX4_RotateAround",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "RFX4_ShaderFloatCurve",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 6,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "SSAOEffect",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 9,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "STRActionInfoData",
+  "count": 1,
+  "scriptableObject": true,
+  "fields": 11,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Sandstorm",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "ScaleChange",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "ScreenEffectPresetData",
+  "count": 1,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "SearchAccessoryInfoData",
+  "count": 1,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Song",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Sound3DSettingData",
+  "count": 1,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "SoundSettingData",
+  "count": 1,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "Switch_ParticleLoop_OnOff",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "TumbleweedScript",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 7,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "UvScroll",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "",
+  "class": "csLightIntancityControl",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "AIProject.Animal",
+  "class": "AloneButterflyHabitatPoint",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 13,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "AquariusMax.Demo",
+  "class": "TextureScroll",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "AquariusMax.Medieval",
+  "class": "DemoCharacter",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 10,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "AquariusMax.Medieval",
+  "class": "TextureScroll",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "FantasticGlass",
+  "class": "GlassManager",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 109,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "FantasticGlass",
+  "class": "GlassRenderOrderManager",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Illusion.Anime",
+  "class": "AnimeItemScaleParameter",
+  "count": 1,
+  "scriptableObject": true,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "LuxWater",
+  "class": "LuxWater_WaterVolume",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "MirzaBeig.Scripting.Effects",
+  "class": "ParticleLights",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "MirzaBeig.Scripting.Effects",
+  "class": "ParticlePlexus",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 15,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "PicoGames.Utilities",
+  "class": "RopeRenderer",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 28,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Studio",
+  "class": "CharAnimeCtrl",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Studio",
+  "class": "IKCtrl",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Studio",
+  "class": "LookAtCamera",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Studio",
+  "class": "PVCopy",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Studio",
+  "class": "Preparation",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 5,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Studio",
+  "class": "RouteComponent",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Studio",
+  "class": "RoutePointComponent",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-CSharp.dll",
+  "namespace": "Studio",
+  "class": "YureCtrl",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "Assembly-UnityScript.dll",
+  "namespace": "",
+  "class": "DeadTime",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 1,
+  "conflicts": []
+ },
+ {
+  "assembly": "Aura2_Core.dll",
+  "namespace": "Aura2API",
+  "class": "AuraResourcesCollection",
+  "count": 1,
+  "scriptableObject": true,
+  "fields": 22,
+  "conflicts": []
+ },
+ {
+  "assembly": "DebugComponents.dll",
+  "namespace": "DebugComponents",
+  "class": "DevPreviewHair",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 11,
+  "conflicts": []
+ },
+ {
+  "assembly": "HooahComponents.dll",
+  "namespace": "",
+  "class": "DickNavigator",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 6,
+  "conflicts": []
+ },
+ {
+  "assembly": "HooahComponents.dll",
+  "namespace": "",
+  "class": "DickPuller",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "HooahComponents.dll",
+  "namespace": "",
+  "class": "DragTracker",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 10,
+  "conflicts": []
+ },
+ {
+  "assembly": "HooahComponents.dll",
+  "namespace": "",
+  "class": "HijackLook",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "HooahComponents.dll",
+  "namespace": "",
+  "class": "HijackNeck",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "HooahComponents.dll",
+  "namespace": "",
+  "class": "IKAnchor",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "HooahComponents.dll",
+  "namespace": "",
+  "class": "LiquidHangController",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 4,
+  "conflicts": []
+ },
+ {
+  "assembly": "HooahComponents.dll",
+  "namespace": "",
+  "class": "LookAtMe",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "HooahComponents.dll",
+  "namespace": "",
+  "class": "SoundContainer",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 3,
+  "conflicts": []
+ },
+ {
+  "assembly": "HooahComponents.dll",
+  "namespace": "HooahComponents",
+  "class": "ChannelTarget",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 0,
+  "conflicts": []
+ },
+ {
+  "assembly": "MeinaPlugin.dll",
+  "namespace": "",
+  "class": "PaperPlaneGimmick",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 8,
+  "conflicts": []
+ },
+ {
+  "assembly": "MeinaPlugin.dll",
+  "namespace": "",
+  "class": "RecordTracker",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "TopBAnim.dll",
+  "namespace": "TopBAnim",
+  "class": "AnimEvents",
+  "count": 1,
+  "scriptableObject": false,
+  "fields": 2,
+  "conflicts": []
+ },
+ {
+  "assembly": "UnityEngine.Timeline.dll",
+  "namespace": "UnityEngine.Timeline",
+  "class": "TimelineAsset",
+  "count": 1,
+  "scriptableObject": true,
+  "fields": 6,
+  "conflicts": []
+ }
+]

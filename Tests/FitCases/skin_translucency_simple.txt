@@ -1,0 +1,15 @@
+# SkinFit.Sweep cases: label | set | sweep | sweep2 | lights | tilt  (see Assets/HS2Next/Editor/Fit/SkinFit.cs)
+matcap tilt0      | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1;_matcapscale=1 | _MatcapTexture=0:0:0:0,ramp:u:x/x/x/1,ramp:v:x/x/x/1 | _matcaptilling=1,2 | L0
+matcap tilt20     | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1;_matcapscale=1 | _MatcapTexture=0:0:0:0,ramp:u:x/x/x/1,ramp:v:x/x/x/1 | _matcaptilling=1,2 | L0 | 20
+matcap tilt40     | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1;_matcapscale=1 | _MatcapTexture=0:0:0:0,ramp:u:x/x/x/1,ramp:v:x/x/x/1 | _matcaptilling=1,2 | L0 | 40
+matcap tiltm40    | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1;_matcapscale=1 | _MatcapTexture=0:0:0:0,ramp:u:x/x/x/1,ramp:v:x/x/x/1 | _matcaptilling=1,2 | L0 | -40
+matcap col        | _OcclusionMap=0:1:0:1;_matcapscale=1;_MatcapTexture=1:1:1:1 | _MainTex=0:0:0:1,0.5:0.5:0.5:1,1:1:1:1 | _Gloss=0,0.9 | amb,L0,L30,L60
+matcap scale      | _OcclusionMap=0:1:0:1;_MainTex=0:0:0:1;_MatcapTexture=1:1:1:1 | _matcapscale=0,0.5,1 | _Metallic=0,1 | L0,L30
+ts gloss          | _MainTex=1:1:1:1;_MatcapTexture=0:0:0:0 | _OcclusionMap=1:1:0:1,0.5:1:0:1 | _Gloss=0,0.3,0.6,0.9 | amb,L0,L30
+ts dg             | _MainTex=1:1:1:1;_MatcapTexture=0:0:0:0;_OcclusionMap=1:1:1:1;_Gloss=0.6 | _DetailGlossMap=1:1:1:1,1:0.5:1:1,1:1:1:0.5,0:1:0:1 | _OcclusionStrength=0,1 | amb,L0,L30
+ts occ            | _MainTex=1:1:1:1;_MatcapTexture=0:0:0:0;_Gloss=0 | _OcclusionMap=1:0.5:1:1,1:0.5:0:1 | _OcclusionStrength=0,0.5,1 | amb
+ts bump           | _MainTex=1:1:1:1;_MatcapTexture=0:0:0:0;_Gloss=0;_BumpMap=0.15:0.5:1:1 | _NormalMapScale=0,0.5,1 | _DetailNormalMapScale=0,20 | L0,L60
+ts trans          | _MatcapTexture=0:0:0:0;_Gloss=0;_OcclusionMap=0:1:0:1 | _MainTex=1:1:1:1,0.5:0.5:0.5:1 | _TransNormalDistortion=0,1 | L120,L150,L180,M150
+ts trans mask     | _MatcapTexture=0:0:0:0;_Gloss=0;_TransNormalDistortion=0 | _OcclusionMap=0:1:1:1,1:1:0:1,0:1:0:0,0:1:0.5:1,1:0:0:1 | _DetailGlossMap=1:1:1:1,0:0:0:0 | L180,M150
+ts trans col      | _MatcapTexture=0:0:0:0;_Gloss=0;_TransNormalDistortion=0;_OcclusionMap=1:1:1:1 | _MainTex=1:1:1:1,0.5:0.5:0.5:1,1:0.5:0:1 | _TransShadow=0,1 | L180,M150
+ts occ dg         | _MatcapTexture=0:0:0:0;_Gloss=0 | _OcclusionMap=1:0.5:1:1 | _DetailGlossMap=1:0.5:1:1,1:0.25:1:1 | amb

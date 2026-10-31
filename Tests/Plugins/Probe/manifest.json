@@ -1,0 +1,14 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.probe",
+  "name": "Loader probe",
+  "version": "0.1.0",
+  "apiVersion": "1.0",
+  "assemblies": ["Stp3.Test.Probe.dll"],
+  "entryType": "Stp3.Test.Probe.ProbePlugin",
+  "commandPrefixes": ["probe."],
+  "minAppVersion": "1.0.0",
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the loader: commands, a MonoBehaviour, a private dependency, the host's JSON library, events and settings."
+}

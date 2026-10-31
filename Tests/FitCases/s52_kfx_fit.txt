@@ -1,0 +1,6 @@
+# KriptoFX RFX1 / RFX4 particles (Phase 5.2 S: RFX1 alias, RFX4 router onto HS2Next/Compatible/KriptoFX/ME/Particle with Cull Off): maps_kriptofx.txt cases.
+# fit: shader="KriptoFX/RFX1/Particle" repl="HS2Next/Compatible/KriptoFX/ME/Particle" item="studio/Aizen53/effects_pack1.unity3d:Ashes 1" rms=0.002
+# fit: shader="KriptoFX/RFX4/Particle" repl="HS2Next/Compatible/KriptoFX/ME/Particle" item="studio/Aizen53/effects_pack2.unity3d:fire circle 1" rms=0.0005
+k0 | _KW=-Clip_ON;_KW=-SoftParticles_ON;_KW=-FrameBlend_ON;SrcMode=5;DstMode=1;CullMode=0;_BG=0:0:0 | _TintColor=0.5:0.5:0.5:0.5,1:0.5:0.2:0.8,0.2:0.4:0.9:1 | _MainTex=1:1:1:1,0.8:0.4:0.2:0.5 | amb
+k1 | _KW=-Clip_ON;_KW=-SoftParticles_ON;_KW=-FrameBlend_ON;SrcMode=5;DstMode=10;CullMode=0;_BG=0.3:0.5:0.7 | _TintColor=0.5:0.5:0.5:0.5,1:0.5:0.2:0.8,0.2:0.4:0.9:1 | _MainTex=1:1:1:1,0.8:0.4:0.2:0.5 | amb
+k2 | _KW=-Clip_ON;_KW=-SoftParticles_ON;_KW=-FrameBlend_ON;SrcMode=5;DstMode=10;CullMode=0;_BG=0.3:0.5:0.7;_TintColor=1:0.5:0.2:0.8;_MainTex=0.8:0.4:0.2:0.5 | _VCOL=1:1:1:1,0.5:1:0.25:0.6 | | amb,L0

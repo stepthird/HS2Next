@@ -1,0 +1,14 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.dependent",
+  "name": "Loader test: dependent",
+  "version": "0.1.0",
+  "apiVersion": "1.0",
+  "assemblies": ["Stp3.Test.Dependent.dll"],
+  "commandPrefixes": ["dependent."],
+  "dependencies": [{ "guid": "stp3.test.probe", "minVersion": "0.1.0" }],
+  "loadAfter": ["stp3.test.faulty"],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the loader: depends on the probe and asks to load after the faulty plugin."
+}

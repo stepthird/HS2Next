@@ -1,0 +1,118 @@
+{
+  "version": 1,
+  "about": "Allowed hits of Tools/leak_check.py's generic hard classes (path.drive, path.profile, email): an entry allows a hit when the path matches the glob (the export manifest's glob rules), the class matches (when given) and the regex is found in the hit's text (the path-like run or the address). Drive letters are written as a class ([C]:) so the patterns do not match themselves. Private tokens are never allow-listed here: this file is committed; narrow the local pattern instead. 'policy_data' lists the files of the release policy's data allow-list: exported files that keep the card's uncensor data as inert data (decoder, import, document section, field schema, plugin sections) and the data tests; policy.uncensor does not look at them.",
+  "allow": [
+    {
+      "path": "Assets/HS2Next/Bridge/Tests/BridgeTests_Frames.cs",
+      "class": "path.drive",
+      "pattern": "^C:.{1,2}Windows.{1,2}x[.]txt$",
+      "reason": "synthetic input of the bridge's path rule test (an absolute path is refused)"
+    },
+    {
+      "path": "Assets/HS2Next/Editor/BridgeCoreTest.cs",
+      "class": "path.drive",
+      "pattern": "^[C]:/(c7_x|x|Windows/win[.]ini)\\b",
+      "reason": "synthetic absolute paths the save / load commands must refuse (io_denied)"
+    },
+    {
+      "path": "Assets/HS2Next/Editor/BridgeCoreTest_Chara.cs",
+      "class": "path.drive",
+      "pattern": "^[C]:/(w2_c10_x|x)\\b",
+      "reason": "a synthetic absolute path chara.save must refuse (io_denied)"
+    },
+    {
+      "path": "Assets/HS2Next/Editor/ContentRedirect/AssetRedirectTests.cs",
+      "class": "path.drive",
+      "pattern": "^[C]:/(abdata|mods)/",
+      "reason": "synthetic install and zipmod paths of the redirect tests (no file is read)"
+    },
+    {
+      "path": "Assets/HS2Next/Editor/SceneModel/SceneTestKit.cs",
+      "class": "path.drive",
+      "pattern": "^[X]:/synthetic/",
+      "reason": "a synthetic full path of the scene-model test kit"
+    },
+    {
+      "path": "Assets/HS2Next/Editor/SceneModel/SceneTests_AppearanceClothes.cs",
+      "class": "path.drive",
+      "pattern": "^(X:.HS2.UserData.coordinate.|D:.cards.male.a[.]png$|D:.downloads.outfit[.]png$)",
+      "reason": "synthetic coordinate-card paths of the per-sex folder rule test"
+    },
+    {
+      "path": "Config/settings.example.json",
+      "class": "path.drive",
+      "pattern": "^[C]:/Games/HoneySelect2",
+      "reason": "the example value of hs2Root (a neutral placeholder users replace)"
+    },
+    {
+      "path": "Tools/player_checks.py",
+      "class": "path.drive",
+      "pattern": "^C:.Program$",
+      "reason": "the standard install folders of Microsoft Edge (the browser the check may start); not machine data"
+    },
+    {
+      "path": "Tools/offline_compile.py",
+      "class": "path.drive",
+      "pattern": "^C:.Program$",
+      "reason": "Windows' standard Program Files folder as the fallback when the ProgramFiles variable is missing; not machine data"
+    }
+  ],
+  "policy_data": [
+    {
+      "path": "Assets/HS2Next/Runtime/Data/Ext/UncensorData.cs",
+      "reason": "the card decoder of the plugin's data (kept inert, round-trips)"
+    },
+    {
+      "path": "Assets/HS2Next/Runtime/Import/PluginImport.cs",
+      "reason": "the import of the plugin data into body.uncensor (data)"
+    },
+    {
+      "path": "Assets/HS2Next/Runtime/Save/Documents/CharaBody.cs",
+      "reason": "the document section body.uncensor (frozen format v1)"
+    },
+    {
+      "path": "Assets/HS2Next/Runtime/Scene/Model/Fields/*",
+      "reason": "the field schema rows of body.uncensor (data)"
+    },
+    {
+      "path": "Assets/HS2Next/Runtime/Chara/Documents/ExtSections.cs",
+      "reason": "the plugin sections built from the documents (data)"
+    },
+    {
+      "path": "Assets/HS2Next/Editor/CardExtTest.cs",
+      "reason": "data test: the decoder"
+    },
+    {
+      "path": "Assets/HS2Next/Editor/CardImportTest.cs",
+      "reason": "data test: the import of every card"
+    },
+    {
+      "path": "Assets/HS2Next/Editor/ImportTest.cs",
+      "reason": "data test: the importer"
+    },
+    {
+      "path": "Assets/HS2Next/Editor/CharaDocBuildTest.cs",
+      "reason": "data test: documents against cards"
+    },
+    {
+      "path": "Assets/HS2Next/Editor/SaveFormat/DocTests_*",
+      "reason": "data tests: the document format"
+    },
+    {
+      "path": "Assets/HS2Next/Editor/SceneModel/SceneTests_Appearance*",
+      "reason": "data tests: the appearance members"
+    },
+    {
+      "path": "Assets/HS2Next/Editor/MakerAcceptTest.cs",
+      "reason": "data test: the rebuild members"
+    },
+    {
+      "path": "Assets/HS2Next/Editor/MakerCore/MakerUnitTest.cs",
+      "reason": "data test: the rebuild members"
+    },
+    {
+      "path": "Assets/HS2Next/Editor/MakerEditTest.cs",
+      "reason": "data test: the rebuild members"
+    }
+  ]
+}

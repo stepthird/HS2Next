@@ -1,0 +1,4 @@
+# GAPH Integrated Particle (ValueControl) tint decode (Phase 5.2 S): additive One One on black, then SrcAlpha / Zero for the alpha.
+tint | _BG=0:0:0;_MainTex=1:1:1:1;_VCOL=1:1:1:1;_AllColorFactor=1;_ColorRedFactor=1;_ColorGreenFactor=1;_ColorBlueFactor=1;_BlendSrc=1;_BlendDst=1;_InvFade=1 | _TintColor=0.25:0.25:0.25:1,0.5:0.5:0.5:1,1:1:1:1,1:0.5:0.25:1,0.5:0.5:0.5:0.5 | | amb
+alpha | _BG=0:0:0;_MainTex=1:1:1:1;_VCOL=1:1:1:1;_AllColorFactor=1;_ColorRedFactor=1;_ColorGreenFactor=1;_ColorBlueFactor=1;_BlendSrc=1;_BlendDst=1;_InvFade=1;_BlendSrc=5;_BlendDst=0 | _MainTex=1:1:1:1,1:1:1:0.5 | _TintColor=1:1:1:1,1:1:1:0.5,0.5:0.5:0.5:0.25 | amb
+tex | _BG=0:0:0;_MainTex=1:1:1:1;_VCOL=1:1:1:1;_AllColorFactor=1;_ColorRedFactor=1;_ColorGreenFactor=1;_ColorBlueFactor=1;_BlendSrc=1;_BlendDst=1;_InvFade=1;_TintColor=1:1:1:1 | _MainTex=0.5:0.25:0.75:1,0.2:0.2:0.2:1 | _VCOL=1:1:1:1,0.5:0.25:0.75:0.5 | amb

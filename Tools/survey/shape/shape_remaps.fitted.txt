@@ -1,0 +1,3 @@
+# set	slider	remap applied to the card value before SetValue
+female_body	32	Lerp(0, 0.8, v)
+male_body	32	Lerp(0, 0.8, v)

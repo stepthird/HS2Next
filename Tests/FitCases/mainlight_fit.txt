@@ -1,0 +1,19 @@
+# SkinFit.Sweep regression set for AIT/main Light (fit, -fitPipe both; the depth fade is in mainlight_depth.txt, Built-in only): label | set | sweep | sweep2 | lights | tilt
+f0 sweep         | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0 | _Float0=0,0.01,0.02,0.04,0.08,0.12,0.2,0.3,0.5,0.7,1 | | amb
+f0 tilt          | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0 | _Float0=0.04,0.1,0.2,0.5,1 | | amb | 30
+f0 tilt60        | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0 | _Float0=0.04,0.1,0.2,0.5,1 | | amb | 60
+f0 tilt75        | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0 | _Float0=0.04,0.2,1 | | amb | 75
+f0 back          | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0;_BG=0.3:0.3:0.3 | _Float0=0.04,1 | | amb | 180
+f0 fov           | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0 | _FOVT=0.0625,0.25 | _Float0=0.04,0.2,1 | amb
+f1 sweep         | _Color=1:1:1:1;_Float0=0.5;_ColorMask=0:0:0:0 | _Float1=-1,0,0.5,2,8 | | amb
+colour           | _Float0=0.5;_Float1=1;_ColorMask=0:0:0:0 | _Color=0.1:0.1:0.1:1,0.5:0.5:0.5:1,2:2:2:1,0.2:0.5:0.8:0 | | amb
+mask             | _Float0=0.5;_Float1=1;_Color=0.2:0.2:0.2:1;_Color2=1:0:0:1;_Color3=0:1:0:1;_Color4=0:0:1:1 | _ColorMask=0.5:0:0:1,0:0.75:0:1,0:0:0.25:1,0.5:0.5:0:1,0.3:0.3:0.3:1,0.25:0.5:0.75:0,1:1:1:1 | | amb
+mask cols        | _Float0=0.5;_Float1=1;_ColorMask=0.5:0.25:0.75:1 | _Color2=1:0.5:0:1,0:0:0:0 | _Color4=0.2:0.4:0.6:1,2:1:0:1 | amb
+real values      | _Float0=0.04;_Float1=2 | _ColorMask=0:0:0:0,1:1:1:1,1:0:0:1,src | _BG=0:0:0,1:1:1 | amb
+blend            | _Float0=0.5;_Float1=1;_ColorMask=0:0:0:0 | _BG=0:0:0,0.5:0.5:0.5,0.2:0.5:0.8,1:1:1 | _Color=0.1:0.1:0.1:1,0.3:0.6:0.9:1,2:2:2:1 | amb
+light            | _Float0=0.5;_Float1=1;_ColorMask=0:0:0:0;_Color=0.5:0.5:0.5:1 | | | amb,L0,L60,L150,M30,M150
+uv               | _Float0=1;_Float1=1;_Color=0:0:0:1;_Color2=1:1:1:1;_ColorMask=ramp:u:x,0,0,1 | _UV0=0.1:0.1,0.3:0.7,0.9:0.2 | _UV1=0.5:0.5,0.95:0.95 | amb
+uv v             | _Float0=1;_Float1=1;_Color=0:0:0:1;_Color2=1:1:1:1;_ColorMask=ramp:v:x,0,0,1 | _UV0=0.1:0.1,0.3:0.7,0.9:0.2 | | amb
+uv st            | _Float0=1;_Float1=1;_Color=0:0:0:1;_Color2=1:1:1:1;_ColorMask=rampr:u:x,0,0,1;_UV0=0.3:0.7 | _ColorMask_ST=1:1:0:0,2:1:0:0,0.5:1:0.1:0 | _texcoord_ST=1:1:0:0,1.5:1:0.05:0 | amb
+vcol             | _Float0=0.5;_Float1=1;_ColorMask=0:0:0:0;_Color=0.5:0.5:0.5:1 | _VCOL=0:0:0:0,1:0:0:1 | | amb
+ztest            | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0;_BGTEX=0.2:0.2:0.2:1 | _BGZ=0.3,-0.3 | _Float0=1 | amb

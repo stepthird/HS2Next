@@ -1,0 +1,13 @@
+# AIT/Item studio, the cat's material (-fitItem id:1026): which term differs on the real mesh. src textures, tilts, lights.
+c_all | _MainTex=src;_BumpMap=src;_ColorMask=src;_MetallicGlossMap=src;_OcclusionMap=src | | | amb,L0,L30,L60,L120,L150,L180,M30 | 0
+c_t60 | _MainTex=src;_BumpMap=src;_ColorMask=src;_MetallicGlossMap=src;_OcclusionMap=src | | | amb,L0,L30,L60,L120,L150,L180,M30 | 60
+c_t80 | _MainTex=src;_BumpMap=src;_ColorMask=src;_MetallicGlossMap=src;_OcclusionMap=src | | | amb,L0,L60,L150,M30 | 80
+c_notr | _MainTex=src;_BumpMap=src;_ColorMask=src;_MetallicGlossMap=src;_OcclusionMap=src;_Translucency=0 | | | amb,L0,L60,L150,M30 | 60
+c_norim | _MainTex=src;_BumpMap=src;_ColorMask=src;_MetallicGlossMap=src;_OcclusionMap=src;_BitangentRim=0 | | | amb,L0,L60,L150,M30 | 60
+c_nobump | _MainTex=src;_BumpMap=src;_ColorMask=src;_MetallicGlossMap=src;_OcclusionMap=src;_BumpMap=0.5:0.5:1:1 | | | amb,L0,L60,L150,M30 | 60
+c_fres | _MainTex=src;_BumpMap=src;_ColorMask=src;_MetallicGlossMap=src;_OcclusionMap=src;_Translucency=0 | _FresnelSetting=0:1:3:1,-2:12:2:0.6,0:0:1:0 | _BitangentRim=0,0.15,1 | amb,L0,M30 | 70
+c_emc | _MainTex=0:0:0:1;_ColorMask=0:0:0:0;_MetallicGlossMap=1:1:1:1;_OcclusionMap=1:1:1:1;_EmissionStrength=1;_KW=-_DITHERSWITCH_ON | _EmissionColor=1:0.5:0.25:1,1:0.5:0.25:0.5,1:0.5:0.25:0 | _KW=-_EMISSIONCOLORTEXBASE_ON,+_EMISSIONCOLORTEXBASE_ON | amb
+c_dith | _MainTex=1:1:1:1;_ColorMask=0:0:0:0;_MetallicGlossMap=1:1:1:1;_OcclusionMap=1:1:1:1;_KW=+_DITHERSWITCH_ON | _alpha=1,0.5,0 | _EmissionColor=1:1:1:1,1:1:1:0.5,1:1:1:0 | amb
+c_dith2 | _ColorMask=0:0:0:0;_MetallicGlossMap=1:1:1:1;_OcclusionMap=1:1:1:1;_KW=+_DITHERSWITCH_ON;_EmissionColor=1:1:1:1 | _MainTex=1:1:1:1,1:1:1:0.5,1:1:1:0 | _BaseColor=1:1:1:1,1:1:1:0.5,1:1:1:0 | amb
+c_dith3 | _MainTex=1:1:1:1;_ColorMask=0:0:0:0;_MetallicGlossMap=1:1:1:1;_OcclusionMap=1:1:1:1;_KW=+_DITHERSWITCH_ON;_EmissionColor=1:1:1:1 | _Color=1:1:1:1,1:1:1:0.5,1:1:1:0 | _Cutoff=0,0.5,1 | amb
+c_cut | _MainTex=1:1:1:0.6;_ColorMask=0:0:0:0;_MetallicGlossMap=1:1:1:1;_OcclusionMap=1:1:1:1;_KW=-_DITHERSWITCH_ON | _alpha=1,0.5 | _EmissionColor=1:1:1:1,1:1:1:0 | amb

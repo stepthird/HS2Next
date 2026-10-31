@@ -1,0 +1,12 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.probeui",
+  "name": "Loader probe (UI)",
+  "version": "0.1.0",
+  "apiVersion": "1.0",
+  "assemblies": ["Stp3.Test.ProbeUi.dll"],
+  "commandPrefixes": ["probeui."],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the loader's UI registration: a panel, an inspector section on items, an action and its strings."
+}

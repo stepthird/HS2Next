@@ -1,0 +1,5 @@
+# AIT/Item with the snowflake earring material (real textures and values): lights from all sides, tilts, per-pixel
+r0 | _MainTex=src;_BumpMap=src;_MetallicGlossMap=src;_OcclusionMap=src;_DetailMask=src;_DetailGlossMap=src;_DetailGlossMap2=src;_ColorMask=src | | | amb,L0,L30,L60,L150,L180,M150 | 0
+r60 | _MainTex=src;_BumpMap=src;_MetallicGlossMap=src;_OcclusionMap=src;_DetailMask=src;_DetailGlossMap=src;_DetailGlossMap2=src;_ColorMask=src | | | amb,L0,L30,L60,L150,L180,M150 | 60
+r180 | _MainTex=src;_BumpMap=src;_MetallicGlossMap=src;_OcclusionMap=src;_DetailMask=src;_DetailGlossMap=src;_DetailGlossMap2=src;_ColorMask=src | | | amb,L0,L30,L150,L180 | 180
+nt | _MainTex=src;_BumpMap=src;_MetallicGlossMap=src;_OcclusionMap=src;_DetailMask=src;_DetailGlossMap=src;_DetailGlossMap2=src;_ColorMask=src;_Translucency=0 | | | L150,L180 | 60

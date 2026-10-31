@@ -1,0 +1,465 @@
+{
+  "profile": {
+    "name": "Golden \"Chara\" 金\tA",
+    "sex": 1,
+    "futanari": false,
+    "hs2": {
+      "personality": 3,
+      "birthMonth": 7,
+      "birthDay": 21,
+      "voiceRate": 0.75,
+      "wishes": [2, 5, 9],
+      "parameter2": {
+        "personality": 1,
+        "voiceRate": 0.25,
+        "trait": 4,
+        "mind": 2,
+        "hAttribute": 6
+      }
+    }
+  },
+  "face": {
+    "head": "illusion.hs2#2",
+    "skin": "test.mod#11",
+    "detail": {
+      "item": "illusion.hs2#3",
+      "power": 0.875
+    },
+    "shape": [0.5, 0.25, 0.75, -0.25, 1.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.125, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1E-07, 2.0],
+    "eyebrow": {
+      "item": "illusion.hs2#5",
+      "color": [0.05, 0.05, 0.05, 1.0],
+      "layout": [0.5, 0.375, 0.666, 0.666],
+      "tilt": 0.625
+    },
+    "eyes": {
+      "linked": false,
+      "offsetY": 0.5,
+      "shadowScale": 0.5,
+      "left": {
+        "white": [0.846, 0.846, 0.846, 1.0],
+        "iris": {
+          "item": "test.mod#317",
+          "color": [0.33, 0.33, 0.33, 1.0],
+          "size": [0.666, 0.666],
+          "emission": 0.5
+        },
+        "pupil": {
+          "item": "illusion.hs2#1",
+          "color": [0.0, 0.0, 0.0, 1.0],
+          "size": [0.8333, 0.8333]
+        }
+      },
+      "right": {
+        "white": [0.9, 0.9, 0.9, 1.0],
+        "iris": {
+          "item": "test.mod#318",
+          "color": [0.25, 0.5, 0.75, 1.0],
+          "size": [0.7, 0.7],
+          "emission": 0.0
+        },
+        "pupil": {
+          "item": "illusion.hs2#2",
+          "color": [0.0, 0.0, 0.0, 1.0],
+          "size": [0.75, 0.75]
+        }
+      },
+      "highlight": {
+        "item": "illusion.hs2#4",
+        "color": [1.0, 1.0, 1.0, 1.0],
+        "layout": [0.5, 0.5, 0.5, 0.5],
+        "tilt": 0.5
+      }
+    },
+    "eyelashes": {
+      "item": "illusion.hs2#6",
+      "color": [0.19, 0.19, 0.19, 1.0]
+    },
+    "mole": {
+      "item": "illusion.hs2#0",
+      "color": [0.0, 0.0, 0.0, 1.0],
+      "layout": [0.5, 0.5, 0.25, 0.5]
+    },
+    "makeup": {
+      "eyeshadow": {
+        "item": "illusion.hs2#7",
+        "color": [0.5, 0.25, 0.25, 0.5],
+        "gloss": 0.0
+      },
+      "cheek": {
+        "item": "illusion.hs2#8",
+        "color": [1.0, 0.75, 0.75, 0.25],
+        "gloss": 0.125
+      },
+      "lip": {
+        "item": "illusion.hs2#9",
+        "color": [0.75, 0.25, 0.25, 1.0],
+        "gloss": 0.5
+      },
+      "paint": [
+        {
+          "item": "illusion.hs2#0",
+          "color": [1.0, 0.0, 0.0, 1.0],
+          "gloss": 0.5,
+          "metallic": 0.5,
+          "layoutItem": "illusion.hs2#0",
+          "layout": [0.5, 0.5, 0.5, 0.5],
+          "rotation": 0.5
+        },
+        {
+          "item": "test.mod#313",
+          "color": [0.0, 0.5, 1.0, 0.75],
+          "gloss": 0.25,
+          "metallic": 0.75,
+          "layoutItem": "illusion.hs2#0",
+          "layout": [0.25, 0.25, 0.75, 0.5],
+          "rotation": 0.375
+        }
+      ]
+    },
+    "beard": {
+      "item": "illusion.hs2#0",
+      "color": [0.19, 0.19, 0.19, 1.0]
+    },
+    "futureFaceMember": {
+      "note": "unknown member kept as read",
+      "values": [1, 2.5, true, null]
+    }
+  },
+  "body": {
+    "shape": [0.5, 0.5, 0.625, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -1.0, 0.0],
+    "bust": {
+      "softness": 0.5,
+      "weight": 0.25
+    },
+    "skin": {
+      "item": "illusion.hs2#1",
+      "color": [0.8, 0.7, 0.64, 1.0],
+      "gloss": 0.7,
+      "metallic": 0.0
+    },
+    "detail": {
+      "item": "illusion.hs2#2",
+      "power": 0.5
+    },
+    "sunburn": {
+      "item": "illusion.hs2#0",
+      "color": [1.0, 1.0, 1.0, 1.0]
+    },
+    "paint": [
+      {
+        "item": "illusion.hs2#3",
+        "color": [0.25, 0.0, 0.5, 1.0],
+        "gloss": 0.5,
+        "metallic": 0.5,
+        "layoutItem": "illusion.hs2#12",
+        "layout": [0.5, 0.5, 0.5, 0.5],
+        "rotation": 0.5
+      },
+      {
+        "item": "illusion.hs2#0",
+        "color": [1.0, 0.0, 0.0, 1.0],
+        "gloss": 0.5,
+        "metallic": 0.5,
+        "layoutItem": "hs2.unresolved#99999999",
+        "layout": [0.5, 0.5, 0.5, 0.5],
+        "rotation": 0.5
+      }
+    ],
+    "nipple": {
+      "item": "illusion.hs2#1",
+      "color": [0.76, 0.52, 0.52, 1.0],
+      "gloss": 0.6,
+      "areola": 0.7
+    },
+    "underhair": {
+      "item": "illusion.hs2#2",
+      "color": [0.05, 0.05, 0.05, 1.0]
+    },
+    "nail": {
+      "color": [1.0, 0.92, 0.92, 1.0],
+      "gloss": 0.6
+    },
+    "visible": true,
+    "uncensor": {
+      "body": "test.uncensor.body",
+      "penis": null,
+      "balls": null,
+      "displayBalls": false,
+      "legacy": null
+    },
+    "skinOverlays": [
+      {
+        "target": "BodyOver",
+        "image": "res/1111111111111111111111111111111111111111111111111111111111111111.png"
+      },
+      {
+        "target": "EyeOverL",
+        "image": "res/2222222222222222222222222222222222222222222222222222222222222222.png"
+      },
+      {
+        "target": "EyeOverR",
+        "image": "res/2222222222222222222222222222222222222222222222222222222222222222.png"
+      },
+      {
+        "target": "FutureOverlayTarget",
+        "image": "res/3333333333333333333333333333333333333333333333333333333333333333.png"
+      }
+    ],
+    "boneMods": [
+      {
+        "bone": "cf_J_Neck",
+        "location": "unknown",
+        "scale": [1.0, 1.25, 1.0],
+        "length": 1.0,
+        "position": [0.0, 0.0, 0.0],
+        "rotation": [0.0, 0.0, 0.0]
+      },
+      {
+        "bone": "cf_J_Spine02_s",
+        "location": "bodyTop",
+        "scale": [1.125, 1.0, 1.125],
+        "length": 0.5,
+        "position": [0.0, 0.25, -0.125],
+        "rotation": [10.0, 370.0, -5.0]
+      }
+    ]
+  },
+  "hair": {
+    "shaderType": 1,
+    "editor": {
+      "sameSetting": true,
+      "autoSetting": false,
+      "ctrlTogether": true
+    },
+    "back": {
+      "item": "test.hair.pack#300",
+      "baseColor": [0.2, 0.2, 0.2, 1.0],
+      "topColor": [0.039, 0.039, 0.039, 1.0],
+      "underColor": [0.565, 0.565, 0.565, 1.0],
+      "specular": [0.3, 0.3, 0.3, 1.0],
+      "metallic": 0.0,
+      "smoothness": 0.25,
+      "accessoryColors": [
+        [1.0, 1.0, 1.0, 1.0],
+        [0.5, 0.5, 0.5, 1.0],
+        [1.0, 0.0, 0.0, 1.0],
+        [1.0, 1.0, 1.0, 1.0]
+      ],
+      "bundles": [
+        {
+          "index": 0,
+          "move": [0.5, 0.5, 0.0],
+          "rotate": [0.5, 0.25, 0.5],
+          "noShake": false
+        },
+        {
+          "index": 3,
+          "move": [0.0, 0.0, 0.0],
+          "rotate": [1.0, 0.5, 0.5],
+          "noShake": true
+        }
+      ],
+      "mesh": {
+        "item": "illusion.hs2#0",
+        "color": [1.0, 1.0, 1.0, 1.0],
+        "layout": [1.0, 1.0, 0.0, 0.0]
+      },
+      "materialOverrides": []
+    },
+    "front": {
+      "item": "illusion.hs2#1",
+      "baseColor": [0.25, 0.125, 0.0625, 1.0],
+      "topColor": [0.039, 0.039, 0.039, 1.0],
+      "underColor": [0.565, 0.565, 0.565, 1.0],
+      "specular": [0.3, 0.3, 0.3, 1.0],
+      "metallic": 0.0,
+      "smoothness": 0.0,
+      "accessoryColors": [
+        [1.0, 1.0, 1.0, 1.0],
+        [1.0, 1.0, 1.0, 1.0],
+        [1.0, 1.0, 1.0, 1.0],
+        [1.0, 1.0, 1.0, 1.0]
+      ],
+      "bundles": [],
+      "mesh": {
+        "item": "illusion.hs2#2",
+        "color": [0.5, 0.5, 1.0, 1.0],
+        "layout": [2.0, 2.0, 0.5, 0.5]
+      },
+      "materialOverrides": [
+        {
+          "type": "float",
+          "material": "c_m_hair_f",
+          "property": "Smoothness",
+          "value": 0.75,
+          "original": null
+        }
+      ]
+    },
+    "side": {
+      "item": "illusion.hs2#0",
+      "baseColor": [0.2, 0.2, 0.2, 1.0],
+      "topColor": [0.039, 0.039, 0.039, 1.0],
+      "underColor": [0.565, 0.565, 0.565, 1.0],
+      "specular": [0.3, 0.3, 0.3, 1.0],
+      "metallic": 0.0,
+      "smoothness": 0.0,
+      "accessoryColors": [
+        [1.0, 1.0, 1.0, 1.0],
+        [1.0, 1.0, 1.0, 1.0],
+        [1.0, 1.0, 1.0, 1.0],
+        [1.0, 1.0, 1.0, 1.0]
+      ],
+      "bundles": [],
+      "mesh": {
+        "item": "illusion.hs2#0",
+        "color": [1.0, 1.0, 1.0, 1.0],
+        "layout": [1.0, 1.0, 0.0, 0.0]
+      },
+      "materialOverrides": []
+    },
+    "option": {
+      "item": "hs2.unresolved#100000013",
+      "baseColor": [0.2, 0.2, 0.2, 1.0],
+      "topColor": [0.039, 0.039, 0.039, 1.0],
+      "underColor": [0.565, 0.565, 0.565, 1.0],
+      "specular": [0.3, 0.3, 0.3, 1.0],
+      "metallic": 0.5,
+      "smoothness": 0.0,
+      "accessoryColors": [
+        [1.0, 1.0, 1.0, 1.0],
+        [1.0, 1.0, 1.0, 1.0],
+        [1.0, 1.0, 1.0, 1.0],
+        [1.0, 1.0, 1.0, 1.0]
+      ],
+      "bundles": [],
+      "mesh": {
+        "item": "illusion.hs2#0",
+        "color": [1.0, 1.0, 1.0, 1.0],
+        "layout": [1.0, 1.0, 0.0, 0.0]
+      },
+      "materialOverrides": []
+    }
+  },
+  "materialOverrides": [
+    {
+      "type": "copy",
+      "material": "cf_m_skin_body_00",
+      "copyName": "cf_m_skin_body_00.MECopy1"
+    },
+    {
+      "type": "name",
+      "renderer": "o_body_cf",
+      "material": "cf_m_skin_body_00",
+      "value": "cf_m_skin_body_00_renamed",
+      "original": null
+    },
+    {
+      "type": "shader",
+      "material": "cf_m_skin_body_00",
+      "shader": "Standard",
+      "shaderOriginal": "AIT/Skin True",
+      "renderQueue": 2450,
+      "renderQueueOriginal": null
+    },
+    {
+      "type": "shader",
+      "material": "cf_m_skin_head_00",
+      "shader": null,
+      "shaderOriginal": null,
+      "renderQueue": 3000,
+      "renderQueueOriginal": 2000
+    },
+    {
+      "type": "renderer",
+      "renderer": "o_body_cf",
+      "property": "ShadowCastingMode",
+      "value": 2,
+      "original": 1
+    },
+    {
+      "type": "renderer",
+      "renderer": "o_head",
+      "property": "FutureRendererProperty",
+      "value": "on",
+      "original": null
+    },
+    {
+      "type": "float",
+      "material": "cf_m_skin_body_00",
+      "property": "Metallic",
+      "value": 0.25,
+      "original": 0.0
+    },
+    {
+      "type": "float",
+      "material": "cf_m_skin_body_00",
+      "property": "Glossiness",
+      "value": "0,5",
+      "original": "abc"
+    },
+    {
+      "type": "keyword",
+      "material": "cf_m_skin_body_00",
+      "property": "NORMALMAP",
+      "value": true,
+      "original": false
+    },
+    {
+      "type": "color",
+      "material": "cf_m_skin_body_00",
+      "property": "Color",
+      "value": [1.0, 0.5, 0.25, 1.0],
+      "original": null
+    },
+    {
+      "type": "vector",
+      "material": "cf_m_skin_body_00",
+      "property": "DetailUV",
+      "value": [1.0, 2.0, 0.0, 0.5],
+      "original": [1.0, 1.0, 0.0, 0.0]
+    },
+    {
+      "type": "texture",
+      "material": "cf_m_skin_body_00",
+      "property": "MainTex",
+      "image": "res/4444444444444444444444444444444444444444444444444444444444444444.jpg",
+      "offset": [0.0, 0.5],
+      "offsetOriginal": [0.0, 0.0],
+      "scale": null,
+      "scaleOriginal": null
+    },
+    {
+      "type": "cubemap",
+      "material": "cf_m_skin_body_00",
+      "property": "Cube",
+      "image": null
+    },
+    {
+      "type": "projector",
+      "projector": "Projector",
+      "property": "FieldOfView",
+      "value": "45",
+      "original": "60"
+    },
+    {
+      "type": "futureMaterialEditorType",
+      "material": "cf_m_skin_body_00",
+      "payload": [1, 2, 3]
+    }
+  ],
+  "studioOverlays": {
+    "skin": true,
+    "eyes": false,
+    "clothes": true
+  },
+  "futureCharaMember": "kept",
+  "ext": {
+    "example.plugin": {
+      "version": 2,
+      "values": [0.5, 1.0]
+    },
+    "example.plugin.sub": "text value"
+  }
+}

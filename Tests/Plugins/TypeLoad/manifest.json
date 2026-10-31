@@ -1,0 +1,12 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.typeload",
+  "name": "Loader test: typeload",
+  "version": "0.1.0",
+  "apiVersion": "1.0",
+  "assemblies": ["Stp3.Test.TypeLoad.dll"],
+  "commandPrefixes": ["typeload."],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the loader: its public types derive from a type of an assembly that is not shipped."
+}

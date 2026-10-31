@@ -1,0 +1,24 @@
+# SkinFit.Sweep cases for AIT/main Light (decode, builtin): label | set | sweep | sweep2 | lights | tilt
+f0 sweep         | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0 | _Float0=0,0.01,0.02,0.04,0.08,0.12,0.16,0.2,0.25,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1 | | amb
+f0 tilt30        | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0 | _Float0=0.04,0.1,0.2,0.5,1 | | amb | 30
+f0 tilt60        | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0 | _Float0=0.04,0.1,0.2,0.5,1 | | amb | 60
+f0 tilt75        | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0 | _Float0=0.04,0.1,0.2,0.5,1 | | amb | 75
+f0 back          | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0 | _Float0=0.04,0.5,1 | | amb | 180
+f0 camdist       | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0 | _CAMDIST=1,2,4,8 | _Float0=0.04,0.2,1 | amb
+f1 sweep         | _Color=1:1:1:1;_Float0=1;_ColorMask=0:0:0:0 | _Float1=-1,0,0.25,0.5,1,2,4,8 | | amb
+f0f1             | _Color=1:1:1:1;_ColorMask=0:0:0:0 | _Float0=0.04,0.2,0.5 | _Float1=0.5,1,4 | amb
+colour lin       | _Float0=1;_Float1=1;_ColorMask=0:0:0:0 | _Color=0.1:0.1:0.1:1,0.25:0.25:0.25:1,0.5:0.5:0.5:1,2:2:2:1,0.2:0.5:0.8:1,0.2:0.5:0.8:0 | | amb
+mask R           | _Float0=1;_Float1=1;_Color=0.2:0.2:0.2:1;_Color2=1:0:0:1;_Color3=0:1:0:1;_Color4=0:0:1:1 | _ColorMask=0.25:0:0:1,0.5:0:0:1,0.75:0:0:1,1:0:0:1 | | amb
+mask G           | _Float0=1;_Float1=1;_Color=0.2:0.2:0.2:1;_Color2=1:0:0:1;_Color3=0:1:0:1;_Color4=0:0:1:1 | _ColorMask=0:0.25:0:1,0:0.5:0:1,0:0.75:0:1,0:1:0:1 | | amb
+mask B           | _Float0=1;_Float1=1;_Color=0.2:0.2:0.2:1;_Color2=1:0:0:1;_Color3=0:1:0:1;_Color4=0:0:1:1 | _ColorMask=0:0:0.25:1,0:0:0.5:1,0:0:0.75:1,0:0:1:1 | | amb
+mask mix        | _Float0=1;_Float1=1;_Color=0.2:0.2:0.2:1;_Color2=1:0:0:1;_Color3=0:1:0:1;_Color4=0:0:1:1 | _ColorMask=0.5:0.5:0:1,0.5:0:0.5:1,0:0.5:0.5:1,0.5:0.5:0.5:1,0.3:0.3:0.3:1,0.6:0.6:0:1,1:1:0:1,1:0:1:1,0:1:1:1,0.25:0.5:0.75:1 | | amb
+mask cols       | _Float0=1;_Float1=1;_ColorMask=0.5:0.5:0.5:1 | _Color2=1:0:0:1,1:0:0:0 | _Color3=0:1:0:1,0:1:0:0 | amb
+mask alpha      | _Float0=1;_Float1=1;_Color=0.2:0.2:0.2:1;_Color2=1:0:0:1;_Color3=0:1:0:1;_Color4=0:0:1:1 | _ColorMask=0.5:0:0:0,0.5:0:0:0.5,0.5:0:0:1 | | amb
+blend            | _Float0=1;_Float1=1;_ColorMask=0:0:0:0 | _BG=0:0:0,0.5:0.5:0.5,0.2:0.5:0.8,1:1:1 | _Color=0.1:0.1:0.1:1,0.5:0.5:0.5:1,0.3:0.6:0.9:1,1:1:1:1,2:2:2:1 | amb
+blend alpha      | _Float0=1;_Float1=1;_ColorMask=0:0:0:0;_BG=0.5:0.5:0.5 | _Color=0.5:0.5:0.5:0,0.5:0.5:0.5:0.5,0.5:0.5:0.5:1 | | amb
+light            | _Float0=0.5;_Float1=1;_ColorMask=0:0:0:0;_Color=0.5:0.5:0.5:1 | | | amb,L0,L30,L60,L80,L120,L150,L180,M30,M150
+uv ramp u        | _Float0=1;_Float1=1;_Color=0:0:0:1;_Color2=1:1:1:1;_ColorMask=ramp:u:x,0,0,1 | _UV0=0.1:0.1,0.3:0.7,0.9:0.2 | _UV1=0.5:0.5,0.95:0.95 | amb
+uv ramp v        | _Float0=1;_Float1=1;_Color=0:0:0:1;_Color2=1:1:1:1;_ColorMask=ramp:v:x,0,0,1 | _UV0=0.1:0.1,0.3:0.7,0.9:0.2 | | amb
+uv st mask       | _Float0=1;_Float1=1;_Color=0:0:0:1;_Color2=1:1:1:1;_ColorMask=ramp:u:x,0,0,1;_UV0=0.3:0.7 | _ColorMask_ST=1:1:0:0,2:1:0:0,0.5:1:0.1:0 | | amb
+uv st texcoord   | _Float0=1;_Float1=1;_Color=0:0:0:1;_Color2=1:1:1:1;_ColorMask=ramp:u:x,0,0,1;_UV0=0.3:0.7 | _texcoord_ST=1:1:0:0,2:1:0:0,0.5:1:0.1:0 | | amb
+vcol             | _Float0=1;_Float1=1;_ColorMask=0:0:0:0;_Color=0.5:0.5:0.5:1 | _VCOL=1:1:1:1,0:0:0:0,1:0:0:1,1:1:1:0 | | amb

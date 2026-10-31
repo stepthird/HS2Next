@@ -1,0 +1,4 @@
+# Standard family parallax (_PARALLAXMAP, one-step offset) on tilted (non-uniformly scaled) probe quads; run with -origFind for Standard / Standard (Specular setup).
+par | _KW=-_EMISSION;_KW=-_NORMALMAP;_KW=+_PARALLAXMAP;_MainTex=ramp:u:x/x/x/1;_Color=1:1:1:1;_Glossiness=0.3;_OcclusionStrength=1;_Mode=0;_SrcBlend=1;_DstBlend=0;_ZWrite=1 | _ParallaxMap=0:0:0:1,1:1:1:1,0.25:0.25:0.25:1 | _Parallax=0.02,0.08 | amb,L0 | 45
+parv | _KW=-_EMISSION;_KW=-_NORMALMAP;_KW=+_PARALLAXMAP;_MainTex=ramp:v:x/x/x/1;_Color=1:1:1:1;_Glossiness=0.3;_OcclusionStrength=1;_Mode=0;_SrcBlend=1;_DstBlend=0;_ZWrite=1 | _ParallaxMap=0:0:0:1,1:1:1:1 | _Parallax=0.02,0.08 | amb,L0 | -30
+par0 | _KW=-_EMISSION;_KW=-_NORMALMAP;_KW=+_PARALLAXMAP;_MainTex=ramp:u:x/x/x/1;_Color=1:1:1:1;_Glossiness=0.3;_OcclusionStrength=1;_Mode=0;_SrcBlend=1;_DstBlend=0;_ZWrite=1 | _ParallaxMap=0:0:0:1,1:1:1:1 | _Parallax=0.08 | amb | 0

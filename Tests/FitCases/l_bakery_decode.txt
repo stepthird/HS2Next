@@ -1,0 +1,6 @@
+# Bakery/Standard with the Bakery vertex lightmap keywords (bushitsu table / plant / pot, BAKERY_VERTEXLM*): does the vertex
+# colour act as the lightmap? Built-in decode on the bundle copy; lightmapped and not, vertex colour swept.
+base | _MainTex=0.8:0.6:0.4:1;_KW=-_METALLICGLOSSMAP;_KW=-_NORMALMAP | _VCOL=1:1:1:1,0:0:0:1,0.5:0.2:0.1:1,0.5:0.2:0.1:0 | | amb,L0,L150 |
+lm | _MainTex=0.8:0.6:0.4:1;_KW=-_METALLICGLOSSMAP;_KW=-_NORMALMAP;_LM=0.4:0.3:0.2:1 | _VCOL=1:1:1:1,0:0:0:1,0.5:0.2:0.1:1,0.5:0.2:0.1:0 | | amb,L0,L150 |
+lm_nokw | _MainTex=0.8:0.6:0.4:1;_KW=-_METALLICGLOSSMAP;_KW=-_NORMALMAP;_LM=0.4:0.3:0.2:1;_KW=-BAKERY_VERTEXLM;_KW=-BAKERY_VERTEXLMDIR;_KW=-BAKERY_VERTEXLMMASK;_KW=-BAKERY_VERTEXLMSH | _VCOL=1:1:1:1,0.5:0.2:0.1:1 | | amb,L0 |
+lm_std | _MainTex=0.8:0.6:0.4:1;_KW=-_METALLICGLOSSMAP;_KW=-_NORMALMAP;_LM=0.4:0.3:0.2:1;_KW=-BAKERY_VERTEXLM;_KW=-BAKERY_VERTEXLMDIR;_KW=-BAKERY_VERTEXLMMASK;_KW=-BAKERY_VERTEXLMSH;_KW=-BAKERY_SH;_KW=-BAKERY_SHNONLINEAR;_KW=-BAKERY_RNM;_KW=-BAKERY_LMSPEC | _VCOL=1:1:1:1 | | amb,L0 |

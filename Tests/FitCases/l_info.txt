@@ -1,0 +1,2 @@
+# one cell (map information only)
+info | | | | amb |

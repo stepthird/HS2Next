@@ -1,0 +1,612 @@
+{
+  "nodes": [
+    {
+      "id": "6f1c0e4a9b2d4c3e8f7a6b5c4d3e2f10",
+      "kind": "chara",
+      "name": null,
+      "parent": null,
+      "order": 0,
+      "transform": {
+        "pos": [0.0, 0.0, 0.0],
+        "rot": [0.0, 180.0, 0.0],
+        "scale": [1.0, 1.0, 1.0],
+        "inheritScale": false
+      },
+      "visible": true,
+      "ui": {
+        "expanded": true,
+        "expandedGroups": [0, 8],
+        "expandedPoints": [
+          "N_Hair_pony",
+          "N_Hand_R"
+        ]
+      },
+      "chara": {
+        "anime": {
+          "ref": {
+            "source": "illusion.hs2",
+            "group": 1,
+            "category": 2,
+            "no": 3
+          },
+          "speed": 1.0,
+          "pattern": 0.5,
+          "time": 0.25,
+          "forceLoop": false,
+          "optionVisible": true,
+          "params": [0.0, 0.75]
+        },
+        "hands": [0, 3],
+        "face": {
+          "eyebrow": 1,
+          "eyes": 2,
+          "eyesOpen": 0.75,
+          "blink": false,
+          "mouth": 4,
+          "mouthOpen": 0.25,
+          "lipSync": true,
+          "tears": 0.0,
+          "cheek": 0.5,
+          "eyebrowOpenMax": 1.0,
+          "mouthOpenMin": 0.0,
+          "mouthOpenMax": 1.0,
+          "mouthFixed": false,
+          "mouthAdjustWidth": true,
+          "hideHighlight": false
+        },
+        "look": {
+          "eyes": 4,
+          "neck": 4,
+          "target": [0.0, 0.0, 0.25],
+          "neckFix": {
+            "cf_J_Head": [0.0, 0.1, 0.0, 0.9949874],
+            "cf_J_Neck": [0.0, 0.0, 0.0, 1.0]
+          },
+          "eyeRotations": {
+            "left": [0.0, 0.05, 0.0, 0.99875],
+            "right": [0.0, -0.05, 0.0, 0.99875]
+          }
+        },
+        "fk": {
+          "enabled": true,
+          "groups": {
+            "hair": false,
+            "neck": true,
+            "breast": false,
+            "body": true,
+            "rightHand": true,
+            "leftHand": false,
+            "skirt": false
+          },
+          "bones": {
+            "c_J_hair_F01": [0.0, 0.0, 10.0],
+            "cf_J_Head": [5.0, 0.0, 0.0]
+          },
+          "hipsOffset": -0.25,
+          "hipsPosition": [0.0, 11.5, 0.25]
+        },
+        "ik": {
+          "enabled": false,
+          "groups": {
+            "body": true,
+            "rightLeg": true,
+            "leftLeg": false,
+            "rightArm": true,
+            "leftArm": true
+          },
+          "targets": {
+            "Body": {
+              "pos": [0.0, 9.5, 0.0],
+              "rot": [0.0, 0.0, 0.0]
+            },
+            "LeftShoulder": {
+              "pos": [1.0, 13.0, 0.0],
+              "rot": [0.0, 0.0, 0.0]
+            },
+            "LeftArmChain": {
+              "pos": [2.5, 11.0, -0.5],
+              "rot": [0.0, 0.0, 0.0]
+            },
+            "LeftHand": {
+              "pos": [3.0, 9.0, 0.5],
+              "rot": [0.0, 90.0, 0.0]
+            },
+            "RightShoulder": {
+              "pos": [-1.0, 13.0, 0.0],
+              "rot": [0.0, 0.0, 0.0]
+            },
+            "RightArmChain": {
+              "pos": [-2.5, 11.0, -0.5],
+              "rot": [0.0, 0.0, 0.0]
+            },
+            "RightHand": {
+              "pos": [-3.0, 9.0, 0.5],
+              "rot": [0.0, -90.0, 0.0]
+            },
+            "LeftThigh": {
+              "pos": [0.75, 8.5, 0.0],
+              "rot": [0.0, 0.0, 0.0]
+            },
+            "LeftLegChain": {
+              "pos": [0.75, 5.0, 0.5],
+              "rot": [0.0, 0.0, 0.0]
+            },
+            "LeftFoot": {
+              "pos": [0.75, 0.75, 0.0],
+              "rot": [10.0, 0.0, 0.0]
+            },
+            "RightThigh": {
+              "pos": [-0.75, 8.5, 0.0],
+              "rot": [0.0, 0.0, 0.0]
+            },
+            "RightLegChain": {
+              "pos": [-0.75, 5.0, 0.5],
+              "rot": [0.0, 0.0, 0.0]
+            }
+          }
+        },
+        "correction": [true, false, false, false, false, false, false, true],
+        "state": {
+          "clothes": [0, 1, 0, 0, 2, 0, 0, 0],
+          "accessories": {
+            "0a1b2c3d4e5f60718293a4b5c6d7e8f9": true,
+            "3f2a6b1c9d8e4f7a0b1c2d3e4f5a6b7c": false
+          },
+          "liquid": [0, 0, 1, 0, 2],
+          "nipple": 0.5,
+          "wet": 0.25,
+          "gloss": 0.0,
+          "son": {
+            "visible": false,
+            "length": 1.0
+          },
+          "silhouette": {
+            "enabled": false,
+            "color": [0.0, 0.0, 1.0, 1.0]
+          }
+        },
+        "voice": {
+          "list": [
+            {
+              "source": "illusion.hs2",
+              "group": 0,
+              "category": 1,
+              "no": 7
+            }
+          ],
+          "repeat": "shuffle"
+        }
+      },
+      "ext": {
+        "example.plugin": {
+          "pose": "kept"
+        }
+      }
+    },
+    {
+      "id": "7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a",
+      "kind": "camera",
+      "name": "Camera 1",
+      "parent": {
+        "node": "6f1c0e4a9b2d4c3e8f7a6b5c4d3e2f10",
+        "point": "N_Hair_pony"
+      },
+      "order": 0,
+      "transform": {
+        "pos": [0.0, 2.0, -5.0],
+        "rot": [10.0, 0.0, 0.0],
+        "scale": [1.0, 1.0, 1.0],
+        "inheritScale": false
+      },
+      "visible": true,
+      "ui": {
+        "expanded": false
+      },
+      "camera": {
+        "active": false,
+        "fov": 30.0
+      }
+    },
+    {
+      "id": "0a1b2c3d4e5f60718293a4b5c6d7e8f9",
+      "kind": "item",
+      "name": null,
+      "parent": {
+        "node": "6f1c0e4a9b2d4c3e8f7a6b5c4d3e2f10",
+        "point": "N_Hand_R"
+      },
+      "order": 0,
+      "transform": {
+        "pos": [0.0, 0.0, 0.0],
+        "rot": [0.0, 0.0, 90.0],
+        "scale": [0.5, 0.5, 0.5],
+        "inheritScale": true
+      },
+      "visible": true,
+      "ui": {
+        "expanded": true
+      },
+      "item": {
+        "ref": "illusion.hs2#399",
+        "group": 0,
+        "category": 0,
+        "anime": {
+          "pattern": 1,
+          "speed": 1.0,
+          "time": 0.5
+        },
+        "colors": [
+          {
+            "main": [1.0, 0.0, 0.0, 1.0],
+            "metallic": 0.0,
+            "glossiness": 0.5,
+            "pattern": {
+              "item": "illusion.hs2#3",
+              "file": null,
+              "color": [1.0, 1.0, 1.0, 1.0],
+              "clamp": true,
+              "uv": [0.0, 0.0, 1.0, 1.0],
+              "rot": 0.0
+            }
+          },
+          {
+            "main": [1.0, 1.0, 1.0, 1.0],
+            "metallic": 0.0,
+            "glossiness": 0.0,
+            "pattern": {
+              "item": null,
+              "file": {
+                "res": "res/7777777777777777777777777777777777777777777777777777777777777777.png"
+              },
+              "color": [0.5, 0.5, 0.5, 1.0],
+              "clamp": false,
+              "uv": [0.0, 0.0, 2.0, 2.0],
+              "rot": 0.25
+            }
+          },
+          {
+            "main": [1.0, 1.0, 1.0, 1.0],
+            "metallic": 0.0,
+            "glossiness": 0.0,
+            "pattern": {
+              "item": null,
+              "file": null,
+              "color": [1.0, 1.0, 1.0, 1.0],
+              "clamp": true,
+              "uv": [0.0, 0.0, 1.0, 1.0],
+              "rot": 0.0
+            }
+          },
+          {
+            "main": [0.5, 0.75, 1.0, 0.25],
+            "metallic": 0.0,
+            "glossiness": 0.0,
+            "pattern": {
+              "item": null,
+              "file": null,
+              "color": [1.0, 1.0, 1.0, 1.0],
+              "clamp": true,
+              "uv": [0.0, 0.0, 1.0, 1.0],
+              "rot": 0.0
+            }
+          }
+        ],
+        "alpha": 1.0,
+        "emission": {
+          "color": [1.0, 0.5, 0.0, 1.0],
+          "intensity": 2.0,
+          "power": 0.5
+        },
+        "lightCancel": 0.0,
+        "panel": {
+          "hs2": "DefaultData/bg/panel.png"
+        },
+        "fk": {
+          "enabled": false,
+          "bones": {
+            "j_blade": [0.0, 15.0, 0.0]
+          }
+        },
+        "dynamicBones": true,
+        "options": [true, false]
+      }
+    },
+    {
+      "id": "1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b",
+      "kind": "light",
+      "name": null,
+      "parent": {
+        "node": "0a1b2c3d4e5f60718293a4b5c6d7e8f9",
+        "point": null
+      },
+      "order": 0,
+      "transform": {
+        "pos": [0.0, 1.0, 0.0],
+        "rot": [90.0, 0.0, 0.0],
+        "scale": [1.0, 1.0, 1.0],
+        "inheritScale": false
+      },
+      "visible": true,
+      "ui": {
+        "expanded": false
+      },
+      "light": {
+        "ref": "illusion.hs2#1",
+        "color": [1.0, 0.9, 0.8, 1.0],
+        "intensity": 1.5,
+        "range": 10.0,
+        "spotAngle": 45.0,
+        "shadow": true,
+        "enabled": true,
+        "showTarget": false
+      }
+    },
+    {
+      "id": "2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c",
+      "kind": "folder",
+      "name": "フォルダー",
+      "parent": null,
+      "order": 1,
+      "transform": {
+        "pos": [10.0, 0.0, 0.0],
+        "rot": [0.0, 0.0, 0.0],
+        "scale": [1.0, 1.0, 1.0],
+        "inheritScale": false
+      },
+      "visible": false,
+      "ui": {
+        "expanded": true
+      },
+      "folder": {},
+      "futureNodeMember": {
+        "a": 1
+      }
+    },
+    {
+      "id": "3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d",
+      "kind": "route",
+      "name": "ルート",
+      "parent": {
+        "node": "2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c",
+        "point": null
+      },
+      "order": 0,
+      "transform": {
+        "pos": [0.0, 0.0, 0.0],
+        "rot": [0.0, 0.0, 0.0],
+        "scale": [1.0, 1.0, 1.0],
+        "inheritScale": false
+      },
+      "visible": true,
+      "ui": {
+        "expanded": false
+      },
+      "route": {
+        "playing": true,
+        "loop": true,
+        "showLine": false,
+        "orient": "xy",
+        "color": [0.0, 0.0, 1.0, 1.0],
+        "points": [
+          {
+            "id": "4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e",
+            "pos": [0.0, 0.0, 0.0],
+            "rot": [0.0, 45.0, 0.0],
+            "speed": 2.0,
+            "ease": "linear",
+            "connection": "line",
+            "link": false,
+            "aid": null
+          },
+          {
+            "id": "5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f",
+            "pos": [10.0, 0.0, 5.0],
+            "rot": [0.0, 0.0, 0.0],
+            "speed": 1.5,
+            "ease": "easeInOutSine",
+            "connection": "curve",
+            "link": true,
+            "aid": {
+              "pos": [2.0, 0.0, 1.0],
+              "init": true
+            }
+          },
+          {
+            "id": "6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a",
+            "pos": [0.0, 0.0, 10.0],
+            "rot": [0.0, 0.0, 0.0],
+            "speed": 2.0,
+            "ease": "easeFutureCurve",
+            "connection": "line",
+            "link": false,
+            "aid": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b",
+      "kind": "particleSystem",
+      "name": "a node kind from a newer writer",
+      "parent": {
+        "node": "2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c",
+        "point": null
+      },
+      "order": 1,
+      "transform": {
+        "pos": [1.0, 2.0, 3.0],
+        "rot": [0.0, 0.0, 0.0],
+        "scale": [1.0, 1.0, 1.0],
+        "inheritScale": false
+      },
+      "particleSystem": {
+        "rate": 25.0,
+        "emitters": [
+          {
+            "shape": "cone"
+          }
+        ]
+      },
+      "ext": {
+        "example.plugin": true
+      }
+    },
+    {
+      "id": "9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c",
+      "kind": "folder",
+      "name": "child of the unknown node",
+      "parent": {
+        "node": "8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b",
+        "point": null
+      },
+      "order": 0,
+      "transform": {
+        "pos": [0.0, 0.0, 0.0],
+        "rot": [0.0, 0.0, 0.0],
+        "scale": [1.0, 1.0, 1.0],
+        "inheritScale": false
+      },
+      "visible": true,
+      "ui": {
+        "expanded": false
+      },
+      "folder": {}
+    }
+  ],
+  "scene": {
+    "map": {
+      "ref": "illusion.hs2#10",
+      "pos": [0.0, -1.0, 0.0],
+      "rot": [0.0, 90.0, 0.0],
+      "options": true,
+      "lights": false
+    },
+    "effects": {
+      "colorGrading": {
+        "lut": "illusion.hs2#2",
+        "blend": 0.5,
+        "saturation": 15,
+        "brightness": -20,
+        "contrast": 40
+      },
+      "ambientOcclusion": {
+        "enabled": true,
+        "intensity": 0.2,
+        "thickness": 2.0,
+        "color": [0.0, 0.0, 0.0, 1.0]
+      },
+      "bloom": {
+        "enabled": true,
+        "intensity": 2.0,
+        "threshold": 1.0,
+        "softKnee": 0.76,
+        "clamp": true,
+        "diffusion": 7.0,
+        "color": [0.7490196, 0.7490196, 0.7490196, 1.0]
+      },
+      "depthOfField": {
+        "enabled": true,
+        "focus": "0a1b2c3d4e5f60718293a4b5c6d7e8f9",
+        "focalSize": 0.4,
+        "aperture": 0.6
+      },
+      "vignette": {
+        "enabled": true,
+        "intensity": 0.35
+      },
+      "ssr": {
+        "enabled": true
+      },
+      "reflectionProbe": {
+        "enabled": false,
+        "cubemap": null,
+        "intensity": 1.0
+      },
+      "fog": {
+        "enabled": false,
+        "excludeFarPixels": false,
+        "height": 50.0,
+        "heightDensity": 0.01,
+        "color": [0.5411765, 0.65882355, 0.796078444, 1.0],
+        "density": 0.0005
+      },
+      "sunShafts": {
+        "enabled": true,
+        "caster": "1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b",
+        "thresholdColor": [0.5019608, 0.5019608, 0.5019608, 1.0],
+        "color": [1.0, 1.0, 1.0, 1.0],
+        "distanceFalloff": 0.75,
+        "blurSize": 5.0,
+        "intensity": 5.0
+      },
+      "shadows": {
+        "enabled": true
+      },
+      "ambient": {
+        "sky": [0.6666667, 0.7372549, 0.9529412, 1.0],
+        "equator": [0.7254902, 0.7647059, 0.8039216, 1.0],
+        "ground": [0.8, 0.427450985, 0.160784319, 1.0]
+      },
+      "sky": {
+        "enabled": false,
+        "pattern": "illusion.hs2#0"
+      }
+    },
+    "camera": {
+      "current": {
+        "pivot": [0.0, 10.0, 0.0],
+        "rot": [10.0, 180.0, 0.0],
+        "distance": 30.0,
+        "fov": 23.0
+      },
+      "slots": [
+        null,
+        {
+          "pivot": [0.0, 12.0, 0.0],
+          "rot": [0.0, 0.0, 0.0],
+          "distance": 20.0,
+          "fov": 30.0
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "charaLight": {
+      "color": [1.0, 1.0, 1.0, 1.0],
+      "intensity": 1.0,
+      "rot": [10.0, -20.0],
+      "shadow": true
+    },
+    "sound": {
+      "bgm": {
+        "ref": "illusion.hs2#3",
+        "play": true,
+        "repeat": "all"
+      },
+      "userAudio": {
+        "file": {
+          "user": "audio/ambience.ogg"
+        },
+        "play": false,
+        "repeat": "none"
+      }
+    },
+    "background": {
+      "res": "res/8888888888888888888888888888888888888888888888888888888888888888.jpg"
+    },
+    "frame": {
+      "hs2": "DefaultData/frame/frame_01.png"
+    }
+  },
+  "ext": {
+    "example.scene.plugin": {
+      "timeline": [0.0, 0.5, 1.0]
+    }
+  }
+}

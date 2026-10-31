@@ -1,0 +1,8 @@
+# Particles/Standard Unlit (Editor built-in) vs HS2Next: modes by keyword and blend factors (fade / additive / premultiply /
+# opaque), colour mode multiply, emission, two backgrounds.
+p0 | _KW=+_ALPHABLEND_ON;_SrcBlend=5;_DstBlend=10;_ZWrite=0;_Cull=0;_BG=0:0:0 | _Color=1:1:1:1,1:0.5:0.2:0.6 | _MainTex=1:1:1:1,0.8:0.4:0.2:0.5 | amb
+p1 | _KW=+_ALPHABLEND_ON;_SrcBlend=5;_DstBlend=10;_ZWrite=0;_Cull=0;_BG=0.3:0.5:0.7 | _Color=1:1:1:1,1:0.5:0.2:0.6 | _VCOL=1:1:1:1,0.5:1:0.25:0.6 | amb
+p2 | _KW=+_ALPHAPREMULTIPLY_ON;_SrcBlend=1;_DstBlend=10;_ZWrite=0;_Cull=0;_BG=0.3:0.5:0.7 | _Color=1:1:1:1,1:0.5:0.2:0.6 | _MainTex=1:1:1:1,0.8:0.4:0.2:0.5 | amb
+p3 | _SrcBlend=5;_DstBlend=1;_ZWrite=0;_Cull=0;_BG=0.3:0.5:0.7 | _Color=1:1:1:1,1:0.5:0.2:0.6 | _MainTex=1:1:1:1,0.8:0.4:0.2:0.5 | amb
+p4 | _KW=+_ALPHABLEND_ON;_KW=+_EMISSION;_SrcBlend=5;_DstBlend=10;_ZWrite=0;_Cull=0;_BG=0.3:0.5:0.7;_EmissionMap=1:1:1:1 | _EmissionColor=0:0:0:1,0.5:0.2:0.1:1 | _Color=1:1:1:1,1:0.5:0.2:0.6 | amb
+p5 | _BG=0:0:0 | _Color=1:1:1:1,1:0.5:0.2:0.6 | _MainTex=1:1:1:1,0.8:0.4:0.2:0.5 | amb

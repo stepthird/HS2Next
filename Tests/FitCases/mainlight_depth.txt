@@ -1,0 +1,5 @@
+# SkinFit.Sweep cases for AIT/main Light (depth fade and depth test): label | set | sweep | sweep2 | lights | tilt
+depth fade       | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0;_DEPTHTEX=1;_BGDEPTH=1;_BGTEX=0:0:0:1 | _BGZ=-0.05,-0.1,-0.25,-0.5,-0.75,-1,-1.5,-3 | _Float0=1,0.2 | amb
+depth fade bg    | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0;_DEPTHTEX=1;_BGDEPTH=1;_BGTEX=0.5:0.5:0.5:1 | _BGZ=-0.25,-0.5 | _Float0=1 | amb
+no depthtex      | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0;_BGDEPTH=1;_BGTEX=0:0:0:1 | _BGZ=-0.25,-0.5 | _Float0=1 | amb
+ztest front      | _Color=1:1:1:1;_Float1=1;_ColorMask=0:0:0:0;_BGTEX=0.2:0.2:0.2:1 | _BGZ=0.3,-0.3 | _Float0=1 | amb

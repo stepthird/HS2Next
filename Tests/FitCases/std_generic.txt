@@ -1,0 +1,8 @@
+# Standard-like mod copies (two-sided, Bakery, ...) against a Standard-family replacement: the material's own keywords
+# (bundle copies are stripped to them), neutral textures, values swept; front, back (tilt 180) and grazing back views.
+f | | _Glossiness=0.2,0.7 | _Color=1:1:1:1,0.5:0.3:0.2:1 | amb,L0,L60,L150,L180
+b | | _Glossiness=0.2,0.7 | _Color=1:1:1:1,0.5:0.3:0.2:1 | amb,L0,L60,L150,L180 | 180
+b120 | _Glossiness=0.5 | | | amb,L0,L60,L120,L180,L-120 | 120
+m | | _Metallic=0,0.5,1 | | amb,L0,L30 
+src | _MainTex=src;_BumpMap=src;_MetallicGlossMap=src;_SpecGlossMap=src;_OcclusionMap=src;_EmissionMap=src | | | amb,L0,L30,L150,L180
+srcb | _MainTex=src;_BumpMap=src;_MetallicGlossMap=src;_SpecGlossMap=src;_OcclusionMap=src;_EmissionMap=src | | | amb,L0,L150,L180 | 180
