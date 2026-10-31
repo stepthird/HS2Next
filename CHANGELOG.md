@@ -7,7 +7,7 @@ keep working within a major version ([CONTRIBUTING.md](CONTRIBUTING.md), "Compat
 
 ## 1.0.0
 
-The first public version. Release date: set when the release is published.
+The first public version, released on 2026-10-31 (UTC).
 
 ### Reading what you own
 
