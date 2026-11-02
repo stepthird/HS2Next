@@ -12,6 +12,9 @@
 //     FT4 face preset pushes (H4's heads; a head with a Preset column and no asset → the head change only, F5)
 //     FT5 linked-eye edits, eye copies and resets through the realization: snapshots = fresh nodes
 //     FT6 layout pushes (mole row 4, paint rows 0 / 5): snapshots = fresh nodes
+//     FT7 heads with their own compositing materials (after 1.0.0): the element's rules on synthetic input; BR-Chan →
+//         the first installed redirected female head → another redirected head → her own head: the passes' bundle, paint mask
+//         and eyeshadow / cheek / lip layouts = the head's bundle, both passes rebuilt on each change, snapshots = fresh nodes
 //   RunRender (graphics): the RT read-back hashes after FT1's selective rebuilds = after a rebuild of every creator (BR-Chan,
 //     HERO107); the face gloss state; UF7 (W10: the drawn o_head slot 0 of a card using such a head); RT statistics.
 //   RunTiming (graphics): targets (WARN above the target, FAIL above 2× without a recorded reason) and UF1, UF2, UF5, UF6.
@@ -221,10 +224,11 @@ public static class MakerFaceTest
                 if (Want("FT4")) Guard("FT4", () => FT4(h));
                 if (Want("FT5")) Guard("FT5", () => FT5(h));
                 if (Want("FT6")) Guard("FT6", () => FT6(h));
+                if (Want("FT7")) Guard("FT7", () => FT7(h));
             }
         }
         finally { FaceSetup.Seed = fseed; CharaEditFlush.ForcePreview = false; }
-        Finish("maker_face_report.txt", "MakerFaceTest FT1-FT6", sw);
+        Finish("maker_face_report.txt", "MakerFaceTest FT1-FT7", sw);
     }
 
     static void Guard(string id, Action a)
@@ -279,6 +283,86 @@ public static class MakerFaceTest
             finally { live?.Dispose(); h.ReleaseBundles(); }
         }
         Check("FT1: every family rebuilds exactly the creators of the table", fams > 0 && ok == fams, $"{ok} of {fams}");
+    }
+
+    // ---------------------------------------------------------------- FT7 heads with their own compositing materials
+
+    static void FT7(MakerCoreTest.Harness h)
+    {
+        FT7Rules(h);
+        var lists = MakerCatalog.For(h.Catalog);
+        var heads = h.Catalog.EntriesOf(HeadBundleRedirect.FemaleHeadCategory);
+        var redirected = heads.Where(e => HeadBundleRedirect.RedirectOf(e) != null && lists.IsListed(210, 1, e.Key))
+                              .OrderBy(e => e.Key.ToString(), StringComparer.Ordinal).ToList();
+        Info($"FT7 female heads {heads.Count}, redirected and listed {redirected.Count}");
+        // two heads of different bundles, so the second change reloads from one redirect to another
+        var a = redirected.FirstOrDefault();
+        var b = redirected.FirstOrDefault(e => a != null && HeadBundleRedirect.RedirectOf(e) != HeadBundleRedirect.RedirectOf(a));
+        if (!Check("FT7 two installed heads with different redirects", a != null && b != null, $"{redirected.Count} redirected heads")) return;
+        using (var n = NodeOf(h, FemaleCard))
+        {
+            var ids = new[] { n.Id };
+            string own = n.Stored.Chara.Face.Head;
+            PassesFrom(h, n, "FT7 BR-Chan (" + own + ")", HeadBundleRedirect.VanillaBundle, null, null);
+            foreach (var (head, label) in new[] { (a.Key.ToString(), "a"), (b.Key.ToString(), "b"), (own, "own") })
+            {
+                var x = n.Real.Context.Edit;
+                var before = RebuildCounts(x);
+                var res = n.Ops.ChangeItem(ids, "appearance.chara.face.head", head, User);
+                Check($"FT7 head → {head} ({label}): ok", res.Ok && n.Stored.Chara.Face.Head == head, res.ToString());
+                ContentId.TryParse(head, out var hid);
+                var row = h.Catalog.GetEntry(HeadBundleRedirect.FemaleHeadCategory, hid);
+                PassesFrom(h, n, $"FT7 {head} ({label})", HeadBundleRedirect.BundleFor(row), row, before);
+                var d = VsFresh(h, n);
+                Check($"FT7 {head} ({label}): snapshot = a fresh node", d.Equal, d.ToString());
+            }
+        }
+        h.ReleaseBundles();
+    }
+
+    /// <summary>The face passes of the node draw copies of <paramref name="bundle"/>'s materials (the paint mask object and the
+    /// eyeshadow / cheek / lip layouts, which no input overwrites); with <paramref name="before"/>, both were rebuilt since.</summary>
+    static void PassesFrom(MakerCoreTest.Harness h, MakerEditTest.Node n, string label, string bundle, ListEntry head, Dictionary<string, int> before)
+    {
+        var ctx = n.Real.Context;
+        var detail = new List<string>();
+        bool ok = true;
+        foreach (var (c, mat) in new[] { (ctx.FaceSkin, FaceC), (ctx.FaceDetail, FaceD) })
+        {
+            var src = TexCreator.Source(h.Catalog, bundle, bundle == HeadBundleRedirect.VanillaBundle ? null : head, mat);
+            if (c == null || !src || !c.Mat) { ok = false; detail.Add(mat + ": no pass or no source"); continue; }
+            bool same = c.Bundle == bundle && c.Mat.GetTexture("_PaintMask") == src.GetTexture("_PaintMask")
+                        && new[] { "_Texture9UV", "_Texture10UV", "_Texture11UV" }.All(k => c.Mat.GetVector(k) == src.GetVector(k));
+            ok &= same;
+            detail.Add($"{mat}: {c.Bundle}, mask {(c.Mat.GetTexture("_PaintMask") ? c.Mat.GetTexture("_PaintMask").width : 0)}, eyeshadow {c.Mat.GetVector("_Texture11UV")}");
+        }
+        if (before != null)
+        {
+            var after = RebuildCounts(ctx.Edit);
+            bool rebuilt = new[] { FaceC, FaceD }.All(k => after.TryGetValue(k, out int v) && before.TryGetValue(k, out int w) && v > w);
+            ok &= rebuilt;
+            detail.Add("both rebuilt " + rebuilt);
+        }
+        Check(label + ": the face passes from " + bundle + (before != null ? ", both rebuilt" : ""), ok, string.Join("; ", detail));
+    }
+
+    /// <summary>rules on synthetic input: the element's attributes, and the head rows it applies to.</summary>
+    static void FT7Rules(MakerCoreTest.Harness h)
+    {
+        var r = HeadBundleRedirect.Read("<Head_Bundle_Redirect Slot=\"727\" Path=\"chara\\mm_base-x.unity3d\" />");
+        Check("FT7 rules: Slot and Path read (backslashes as slashes)", r.HasValue && r.Value.slot == 727 && r.Value.path == "chara/mm_base-x.unity3d", r?.ToString() ?? "null");
+        Check("FT7 rules: no integer Slot, no Path or no XML redirect nothing",
+              HeadBundleRedirect.Read("<Head_Bundle_Redirect Path=\"a.unity3d\" />") == null && HeadBundleRedirect.Read("<Head_Bundle_Redirect Slot=\"x\" Path=\"a.unity3d\" />") == null
+              && HeadBundleRedirect.Read("<Head_Bundle_Redirect Slot=\"1\" />") == null && HeadBundleRedirect.Read("<Head_Bundle_Redirect Slot=\"1\" Path=\"\" />") == null
+              && HeadBundleRedirect.Read("not xml") == null && HeadBundleRedirect.Read(null) == null);
+        var real = h.Catalog.EntriesOf(HeadBundleRedirect.FemaleHeadCategory).FirstOrDefault(e => HeadBundleRedirect.RedirectOf(e) != null);
+        if (real == null) return;
+        var male = new ListEntry { Category = 110, Key = real.Key, Zipmod = real.Zipmod };
+        var otherId = new ListEntry { Category = 210, Key = new ContentId(real.Key.SourceGuid, real.Key.Id + 1), Zipmod = real.Zipmod };
+        var vanilla = h.Catalog.GetEntry(210, ContentId.Vanilla(0));
+        Check("FT7 rules: a male head row, another id of the zipmod and a vanilla head are not redirected",
+              HeadBundleRedirect.RedirectOf(male) == null && HeadBundleRedirect.RedirectOf(otherId) == null && HeadBundleRedirect.BundleFor(vanilla) == HeadBundleRedirect.VanillaBundle
+              && HeadBundleRedirect.BundleFor(null) == HeadBundleRedirect.VanillaBundle);
     }
 
     sealed class Disposer : IDisposable

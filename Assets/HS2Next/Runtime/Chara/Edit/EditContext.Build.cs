@@ -146,7 +146,11 @@ namespace HS2Next.Chara.Edit
             var prefab = Catalog.LoadAsset<GameObject>(e, "MainAB", dk);
             if (!prefab) { Log.Add($"{name}: prefab not found ({Name(e)} {e["MainAB"]}/{e[dk]})"); return null; }
             if (e[dk] != "p_dummy") PartsLoaded++;
-            return Spawn(prefab, name, parent);
+            var go = Spawn(prefab, name, parent);
+            RegisterBodyMaterialTargets(go);
+            RegisterBodyCuts(go);
+            RegisterAdditionalBones(go, e, e["MainAB"], e[dk]);
+            return go;
         }
 
         public static GameObject Spawn(GameObject prefab, string name, Transform parent)
@@ -170,17 +174,25 @@ namespace HS2Next.Chara.Edit
             return d;
         }
 
-        // but keeping index alignment when a bone is missing (the original bone stays in its slot).
+        // but keeping index alignment when a bone is missing (the original bone stays in its slot). A part with bone
+        // implants (after 1.0.0) first moves those bones under the skeleton; its renderers then
+        // keep the implanted bones and get null for a bone that is neither implanted nor in the skeleton. A part with
+        // additional bones (after 1.0.0) moves them under the skeleton too; a renderer bone the skeleton lacks by name
+        // keeps an additional bone.
         public void Rebind(GameObject obj, Dictionary<string, Transform> dict, string delTop, Transform rootBone)
         {
+            var implanted = ImplantBones(obj, dict);
+            var added = MoveAdditionalBones(obj);
             int missing = 0;
             foreach (var smr in obj.GetComponentsInChildren<SkinnedMeshRenderer>(true))
             {
                 var bones = smr.bones;
                 for (int i = 0; i < bones.Length; i++)
                 {
-                    if (bones[i] && dict.TryGetValue(bones[i].name, out var t)) bones[i] = t;
-                    else if (bones[i]) missing++;
+                    if (!bones[i] || (implanted != null && implanted.Contains(bones[i]))) continue;
+                    if (dict.TryGetValue(bones[i].name, out var t)) bones[i] = t;
+                    else if (added != null && added.Contains(bones[i])) continue;
+                    else { missing++; if (implanted != null) bones[i] = null; }
                 }
                 smr.bones = bones;
                 smr.localBounds = PartBounds;
@@ -189,7 +201,180 @@ namespace HS2Next.Chara.Edit
             }
             var del = Find(obj.transform, delTop);
             if (del) { del.SetParent(null); Object.DestroyImmediate(del.gameObject); }
-            if (missing > 0) Log.Add($"{obj.name}: {missing} bones kept (not in skeleton)");
+            if (missing > 0) Log.Add(implanted != null ? $"{obj.name}: {missing} bones neither implanted nor in the skeleton (set to null)"
+                                                       : $"{obj.name}: {missing} bones kept (not in skeleton)");
+        }
+
+        // (after 1.0.0): a part's bone implants, each a pair (trfSrc, trfDst) of transforms of its
+        // skeleton copy. trfSrc and everything under it move under the skeleton bone named like trfDst with trfSrc's local
+        // transform; the moved roots are kept per part and destroyed with it (ReleasePart). Colliders on the moved bones are
+        // found by the dynamic-bone stage's scan of the body skeleton.
+        readonly Dictionary<GameObject, List<Transform>> implants = new Dictionary<GameObject, List<Transform>>();
+
+        /// <summary>The bones implanted for <paramref name="part"/> (their roots), or null.</summary>
+        public IReadOnlyList<Transform> ImplantsOf(GameObject part) => part && implants.TryGetValue(part, out var l) ? l : null;
+
+        /// <summary>Implants the part's bones; returns every implanted transform, or null when the part has no implant.</summary>
+        HashSet<Transform> ImplantBones(GameObject obj, Dictionary<string, Transform> dict)
+        {
+            var procs = obj.GetComponentsInChildren<ModBoneImplantor.BoneImplantProcess>(true);
+            if (procs.Length == 0) return null;
+            var all = new HashSet<Transform>();
+            var roots = new List<Transform>();
+            foreach (var p in procs)
+            {
+                if (!p.trfSrc || !p.trfDst || p.trfSrc == p.trfDst) { Log.Add($"{obj.name}: a bone implant without two different transforms"); continue; }
+                if (!dict.TryGetValue(p.trfDst.name, out var dst) || !dst) { Log.Add($"{obj.name}: bone implant target {p.trfDst.name} is not in the skeleton"); continue; }
+                p.trfSrc.SetParent(dst, false);
+                roots.Add(p.trfSrc);
+                foreach (var t in p.trfSrc.GetComponentsInChildren<Transform>(true)) all.Add(t);
+            }
+            if (roots.Count > 0)
+            {
+                implants[obj] = roots;
+                Log.Add($"{obj.name}: {all.Count} bones implanted under {string.Join(", ", roots.Select(r => r.parent.name).Distinct())}");
+            }
+            return all;
+        }
+
+        /// <summary>Destroys the bones implanted for <paramref name="part"/> (they live under the skeleton, not under the part).</summary>
+        public int DestroyImplants(GameObject part)
+        {
+            if (!part || !implants.TryGetValue(part, out var roots)) return 0;
+            implants.Remove(part);
+            int n = 0;
+            foreach (var r in roots) if (r) { r.SetParent(null, false); Object.DestroyImmediate(r.gameObject); n++; }
+            return n;
+        }
+
+        // (after 1.0.0): BonesFramework's additional bones. The part loader reads the line of
+        // the part bundle's additional_bones for the prefab; the rebind walks the part from its root's children, depth first:
+        // a transform the line names moves, with everything under it and its local transform, under the first transform named
+        // like its parent in a depth-first search from p_cf_anim (else p_cm_anim) under the part's parent, else from the part's
+        // parent (a head: p_cf_head_bone), the part itself left out; it is not descended into. The moved roots are kept per
+        // part and destroyed with it (ReleasePart). G6 as Place does for parts: a full build has a bone's own children first,
+        // then the moved roots in the build order of their parts, then what is made after the parts (the look targets); an
+        // edit puts a moved root where the build would.
+        readonly Dictionary<GameObject, HashSet<string>> additionalNames = new Dictionary<GameObject, HashSet<string>>();
+        readonly Dictionary<GameObject, List<Transform>> additionalBones = new Dictionary<GameObject, List<Transform>>();
+        // the part's build rank: its unit's place in the flush order (unknown: after every part)
+        readonly Dictionary<GameObject, int> additionalRank = new Dictionary<GameObject, int>();
+
+        /// <summary>The additional bones moved for <paramref name="part"/> (their roots), or null.</summary>
+        public IReadOnlyList<Transform> AdditionalBonesOf(GameObject part) => part && additionalBones.TryGetValue(part, out var l) ? l : null;
+
+        /// <summary>The live parts with moved additional bones.</summary>
+        public IEnumerable<GameObject> PartsWithAdditionalBones => additionalBones.Keys.Where(p => p);
+
+        /// <summary>Registers the bone names the additional_bones of <paramref name="bundlePath"/> lists for a part just made from
+        /// its prefab <paramref name="prefab"/> (the part loader, the head); returns how many.</summary>
+        public int RegisterAdditionalBones(GameObject part, ListEntry e, string bundlePath, string prefab)
+        {
+            if (!part) return 0;
+            var text = Catalog.LoadOptionalAt<TextAsset>(e, bundlePath, AdditionalBones.Asset);
+            var names = text ? AdditionalBones.Parse(text.text, prefab) : null;
+            if (names == null) return 0;
+            additionalNames[part] = names;
+            additionalRank[part] = UnitRank();
+            return names.Count;
+        }
+
+        /// <summary>Registers the additional bone names of a part directly (tests).</summary>
+        public void RegisterAdditionalBones(GameObject part, IEnumerable<string> names)
+        {
+            if (!part) return;
+            additionalNames[part] = new HashSet<string>(names, StringComparer.Ordinal);
+            additionalRank[part] = UnitRank();
+        }
+
+        int UnitRank()
+        {
+            var units = Editor?.Units;
+            if (units != null && CurrentUnit != null)
+                for (int i = 0; i < units.Count; i++) if (units[i].Id == CurrentUnit) return i;
+            return int.MaxValue;
+        }
+
+        /// <summary>Moves the part's registered additional bones; returns every moved transform, or null when none moved.</summary>
+        HashSet<Transform> MoveAdditionalBones(GameObject obj)
+        {
+            if (!obj || !additionalNames.TryGetValue(obj, out var names)) return null;
+            additionalNames.Remove(obj);
+            var parent = obj.transform.parent;
+            var from = parent ? parent.Find("p_cf_anim") ?? parent.Find("p_cm_anim") ?? parent : null;
+            int rank = additionalRank.TryGetValue(obj, out var k) ? k : int.MaxValue;
+            // in an edit: the build rank of every moved root, for the placement
+            var ranks = InBuild ? null : new Dictionary<Transform, int>();
+            if (ranks != null)
+                foreach (var kv in additionalBones)
+                {
+                    int r = additionalRank.TryGetValue(kv.Key, out var kr) ? kr : int.MaxValue;
+                    foreach (var t in kv.Value) if (t) ranks[t] = r;
+                }
+            var roots = new List<Transform>();
+            var all = new HashSet<Transform>();
+            var lost = new List<string>();
+            void Walk(Transform t)
+            {
+                for (int i = 0; i < t.childCount; i++)
+                {
+                    var c = t.GetChild(i);
+                    if (!names.Contains(c.name)) { Walk(c); continue; }
+                    // (the plugin parents a bone whose parent name it does not find to nothing, at the scene root)
+                    var dst = from ? FindOutside(from, t.name, obj.transform) : null;
+                    if (!dst) { lost.Add($"{c.name} (parent {t.name})"); continue; }
+                    c.SetParent(dst, false);
+                    if (ranks != null) { PlaceMoved(c, dst, rank, ranks); ranks[c] = rank; }
+                    i--;
+                    roots.Add(c);
+                    foreach (var b in c.GetComponentsInChildren<Transform>(true)) all.Add(b);
+                }
+            }
+            Walk(obj.transform);
+            if (lost.Count > 0) Log.Add($"{obj.name}: additional bones left in the part (no transform named like their parent): {string.Join(", ", lost)}");
+            if (roots.Count == 0) return null;
+            additionalBones[obj] = roots;
+            Log.Add($"{obj.name}: {all.Count} additional bones moved under {string.Join(", ", roots.Select(r => r.parent.name).Distinct())}");
+            return all;
+        }
+
+        // Depth first from t (t itself first) without entering skip: the first transform named name.
+        static Transform FindOutside(Transform t, string name, Transform skip)
+        {
+            if (t == skip) return null;
+            if (t.name == name) return t;
+            for (int i = 0; i < t.childCount; i++) { var r = FindOutside(t.GetChild(i), name, skip); if (r) return r; }
+            return null;
+        }
+
+        // An edit's moved root goes after the parent's own skeleton children and the moved roots of parts built no later,
+        // before anything else (a part object directly under the same transform is not ranked).
+        void PlaceMoved(Transform root, Transform dst, int rank, Dictionary<Transform, int> ranks)
+        {
+            int at = -1, me = root.GetSiblingIndex();
+            for (int i = 0; i < dst.childCount; i++)
+            {
+                var c = dst.GetChild(i);
+                if (c != root && (SkeletonOwn(c) || ranks.TryGetValue(c, out int r) && r <= rank)) at = i;
+            }
+            root.SetSiblingIndex(at < me ? at + 1 : at);
+        }
+
+        bool SkeletonOwn(Transform t) =>
+            Ctx.BodyBones != null && Ctx.BodyBones.TryGetValue(t.name, out var b) && b == t
+            || Ctx.HeadBones != null && Ctx.HeadBones.TryGetValue(t.name, out var h) && h == t;
+
+        /// <summary>Destroys the additional bones moved for <paramref name="part"/> (they live under the skeleton, not under the part).</summary>
+        public int DestroyAdditionalBones(GameObject part)
+        {
+            if (!part) return 0;
+            additionalNames.Remove(part);
+            additionalRank.Remove(part);
+            if (!additionalBones.TryGetValue(part, out var roots)) return 0;
+            additionalBones.Remove(part);
+            int n = 0;
+            foreach (var r in roots) if (r) { r.SetParent(null, false); Object.DestroyImmediate(r.gameObject); n++; }
+            return n;
         }
 
         // (copyDynamicBone): m_Root, each m_Exclusions[i] and each m_notRolls[i] of every DynamicBone in the
@@ -254,8 +439,11 @@ namespace HS2Next.Chara.Edit
         // sharedMaterials; later calls return that copy. Bundle materials are shared by every character using the asset and
         // are never written. As with Unity's instancing, an empty slot gets a copy of the default material.
         // Ownership is by identity (Context.OwnedMaterials: these copies, the draw materials, the extension modules' copies).
+        // A body-material target has no material of its own: null / none, nothing is written
+        // (the game's writes to it are discarded on the next frame).
         public Material OwnMaterial(Renderer r)
         {
+            if (Ctx.DrawsBodyMaterials(r)) return null;
             var mats = r.sharedMaterials;
             if (mats.Length == 0) return null;
             if (!mats[0] || !Owned.Contains(mats[0])) { mats[0] = Instance(mats[0]); r.sharedMaterials = mats; }
@@ -264,6 +452,7 @@ namespace HS2Next.Chara.Edit
 
         public Material[] OwnMaterials(Renderer r)
         {
+            if (Ctx.DrawsBodyMaterials(r)) return new Material[0];
             var mats = r.sharedMaterials;
             bool changed = false;
             for (int i = 0; i < mats.Length; i++)
@@ -295,13 +484,15 @@ namespace HS2Next.Chara.Edit
 
         // After the extension stage: every renderer slot still holding a material this character did not make (bundle
         // materials of parts nothing wrote, e.g. hair-type accessories, uncoloured clothes parts, eyes' sub-meshes) gets its
-        // copy, so no character renders a shared material. Returns the number of copies made.
+        // copy, so no character renders a shared material. Returns the number of copies made. Body-material targets
+        // are skipped (they get the body's materials in the same step).
         public int OwnAll(GameObject scope)
         {
             if (!scope) return 0;
             int n = Owned.Count;
             foreach (var r in scope.GetComponentsInChildren<Renderer>(true))
             {
+                if (Ctx.DrawsBodyMaterials(r)) continue;
                 var mats = r.sharedMaterials;
                 bool changed = false;
                 for (int i = 0; i < mats.Length; i++)
@@ -338,16 +529,131 @@ namespace HS2Next.Chara.Edit
             return c;
         }
 
-        /// <summary>Destroys the owned materials of a subtree's renderers and forgets them (a part swap).</summary>
+        /// <summary>Destroys the owned materials of a subtree's renderers and forgets them (a part swap); the
+        /// body's materials a body-material target draws are not its own and stay.</summary>
         public int DestroyOwnedMaterials(GameObject scope)
         {
             if (!scope) return 0;
             var dead = new HashSet<Material>();
             foreach (var r in scope.GetComponentsInChildren<Renderer>(true))
+            {
+                if (Ctx.DrawsBodyMaterials(r)) continue;
                 foreach (var m in r.sharedMaterials)
                     if (m && Owned.Contains(m) && m != Ctx.BodyDraw && m != Ctx.FaceDraw) dead.Add(m);
+            }
             foreach (var m in dead) { Owned.Remove(m); Object.DestroyImmediate(m); }
             return dead.Count;
+        }
+
+        // (after 1.0.0): a part's ChaCopyBodyMaterial components name renderers that draw the
+        // body renderer's materials. The part loader registers them (enabled components only, as only those start in the
+        // game; non-null renderers inside the part); the unit copy.bodyMaterial then runs in this flush and, while the
+        // character has targets, after every earlier unit of a flush.
+        /// <summary>Registers the body-material targets of a part just instantiated (the part loader); returns how many.</summary>
+        public int RegisterBodyMaterialTargets(GameObject part)
+        {
+            if (!part) return 0;
+            int n = 0;
+            foreach (var c in part.GetComponentsInChildren<ChaCopyBodyMaterial>(true))
+            {
+                if (!c.enabled || c.RendTarget == null) continue;
+                foreach (var r in c.RendTarget)
+                    if (r && r.transform.IsChildOf(part.transform) && Ctx.BodyMaterialTargets.Add(r)) n++;
+            }
+            if (n == 0) return 0;
+            if (Editor?.Unit(UnitMap.BodyMaterialCopy) is Units.BodyMaterialCopyUnit u) u.Watching = true;
+            Editor?.MarkUnit(UnitMap.BodyMaterialCopy);
+            Log.Add($"{part.name}: {n} renderers draw the body's materials");
+            return n;
+        }
+
+        /// <summary>Gives every live body-material target the body renderer's material array (the same objects) and drops the
+        /// destroyed ones; returns how many targets are live (the unit copy.bodyMaterial).</summary>
+        public int CopyBodyMaterials()
+        {
+            Ctx.BodyMaterialTargets.RemoveWhere(r => !r);
+            if (Ctx.BodyMaterialTargets.Count == 0) return 0;
+            // (in the build the context's body renderer is set by the first extension stage: looked up the same way here)
+            var rend = Ctx.BodyRenderer ? Ctx.BodyRenderer : Ctx.Body ? Find(Ctx.Body.transform, S.BodyMesh)?.GetComponent<SkinnedMeshRenderer>() : null;
+            if (!rend) { Log.Add($"body materials: no body renderer, {Ctx.BodyMaterialTargets.Count} targets kept"); return Ctx.BodyMaterialTargets.Count; }
+            var body = rend.sharedMaterials;
+            int set = 0;
+            foreach (var r in Ctx.BodyMaterialTargets)
+                if (!r.sharedMaterials.SequenceEqual(body)) { r.sharedMaterials = body; set++; }
+            if (set > 0) Log.Add($"body materials: {set} of {Ctx.BodyMaterialTargets.Count} targets set ({body.Length} slots)");
+            return Ctx.BodyMaterialTargets.Count;
+        }
+
+        // (after 1.0.0): a clothes part's BodyCut components each name a switch object
+        // (TopA[0]) and a cut body (TopA[1], a skinned copy of the body; TopA[2] a second one). While the component is live and
+        // its switch object active, the body renderer is off and the cut body on; otherwise the cut body is off (with TopA[2]:
+        // the second one on instead, the body staying off). The cut bodies draw the body renderer's first material in their
+        // first slot. Inert on a male body (the game looks for the female body renderer by name).
+        bool bodyCutsSwitched;
+
+        /// <summary>Registers the body cuts of a part just instantiated (the part loader); returns how many.</summary>
+        public int RegisterBodyCuts(GameObject part)
+        {
+            if (!part) return 0;
+            int n = 0;
+            foreach (var c in part.GetComponentsInChildren<MdgqBodyChange.BodyCut>(true))
+            {
+                if (!c.enabled || c.TopA == null || c.TopA.Count < 2 || !c.TopA[0] || !c.TopA[1]) continue;
+                var cuts = c.TopA.Skip(1).Take(2).Select(g => g ? g.GetComponent<SkinnedMeshRenderer>() : null).ToList();
+                if (cuts.Any(r => !r)) { Log.Add($"{part.name}: a body cut without its cut-body renderer is inert"); continue; }
+                if (Ctx.IsMale) { Log.Add($"{part.name}: a body cut is inert on a male body"); continue; }
+                Ctx.BodyCuts.Add(c);
+                foreach (var r in cuts) Ctx.BodyCutRenderers.Add(r);
+                n++;
+            }
+            if (n == 0) return 0;
+            if (Editor?.Unit(UnitMap.BodyCut) is Units.BodyCutUnit u) u.Watching = true;
+            Editor?.MarkUnit(UnitMap.BodyCut);
+            Log.Add($"{part.name}: {n} body cuts");
+            return n;
+        }
+
+        /// <summary>Switches the body and the cut bodies by the cuts' switch objects (the unit body.cut, and the scene after the
+        /// clothes state) and drops the destroyed cuts; returns how many cuts are live.</summary>
+        public int ApplyBodyCuts()
+        {
+            Ctx.BodyCuts.RemoveAll(c => !c);
+            Ctx.BodyCutRenderers.RemoveWhere(r => !r);
+            if (Ctx.BodyCuts.Count == 0 && !bodyCutsSwitched) return 0;
+            var body = Ctx.BodyRenderer ? Ctx.BodyRenderer : Ctx.Body ? Find(Ctx.Body.transform, S.BodyMesh)?.GetComponent<SkinnedMeshRenderer>() : null;
+            if (!body) { Log.Add($"body cuts: no body renderer, {Ctx.BodyCuts.Count} cuts kept"); return Ctx.BodyCuts.Count; }
+            var skin = body.sharedMaterials.Length > 0 ? body.sharedMaterials[0] : null;
+            // a body the card hides (Invisible Body) stays hidden, and so do the cut bodies
+            bool shown = !Ctx.Stats.InvisibleBody;
+            bool bodyOff = false;
+            foreach (var c in Ctx.BodyCuts)
+            {
+                var cut = c.TopA[1].GetComponent<SkinnedMeshRenderer>();
+                var second = c.TopA.Count == 3 ? c.TopA[2].GetComponent<SkinnedMeshRenderer>() : null;
+                SetFirstSlot(cut, skin);
+                if (second) SetFirstSlot(second, skin);
+                if (!c.enabled || !c.gameObject.activeInHierarchy) { cut.enabled = false; if (second) second.enabled = false; continue; }
+                if (c.TopA.Count > 3) continue;   // the game switches nothing then (its first-slot copy only)
+                bool on = c.TopA[0] && c.TopA[0].activeInHierarchy;
+                cut.enabled = shown && on;
+                if (second) second.enabled = shown && !on;
+                bodyOff |= on || second;
+            }
+            body.enabled = shown && !bodyOff;
+            bodyCutsSwitched = Ctx.BodyCuts.Count > 0;
+            return Ctx.BodyCuts.Count;
+        }
+
+        // The cut body's first slot gets the body's first material; the part's own copy that held the slot is destroyed.
+        void SetFirstSlot(SkinnedMeshRenderer r, Material skin)
+        {
+            var mats = r.sharedMaterials;
+            if (mats.Length == 0) mats = new Material[1];
+            if (mats[0] == skin) return;
+            var old = mats[0];
+            mats[0] = skin;
+            r.sharedMaterials = mats;
+            if (old && old != Ctx.BodyDraw && old != Ctx.FaceDraw && Owned.Contains(old) && !mats.Contains(old)) { Owned.Remove(old); Object.DestroyImmediate(old); }
         }
 
         // ---------------------------------------------------------------- small helpers

@@ -1,7 +1,8 @@
 // The remaining units: profile (root name), the plugin
 // texture stage (KSOX, KCOX, MaterialEditor), the plugin final stage (pushUp stored, AAC, ABMX, DBE, InvisibleBody),
 // ownership (every renderer slot holds a material of the character; in an edit only the new subtrees, then the URP
-// mapping in place) and the dynamic bones (an edit rebuilds the chains in the order of a full build).
+// mapping in place), the body's materials on the parts' body-material targets (after 1.0.0
+// 8) and the dynamic bones (an edit rebuilds the chains in the order of a full build).
 using System.Linq;
 using HS2Next.Chara.Ext;
 using HS2Next.Motion.DynamicBones;
@@ -75,6 +76,38 @@ namespace HS2Next.Chara.Edit.Units
         }
     }
 
+    /// <summary>Step 8 after ownership (after 1.0.0): the body-material targets of the parts
+    /// get the body renderer's material array. The game copies on every frame; here every flush that ran an earlier unit
+    /// copies while the character has targets (<see cref="Watching"/>), so whatever an earlier step did to the body's
+    /// materials reaches the targets in the same flush.</summary>
+    public sealed class BodyMaterialCopyUnit : UnitBase
+    {
+        public BodyMaterialCopyUnit() : base(UnitMap.BodyMaterialCopy, EditStep.Ownership, 100) { }
+
+        /// <summary>True while the character has targets (set by the part loader's registration and by every run).</summary>
+        public bool Watching;
+
+        public override bool FollowsEarlierSteps => Watching;
+
+        public override void Apply(EditContext x) => Watching = x.CopyBodyMaterials() > 0;
+    }
+
+    /// <summary>Step 8 after copy.bodyMaterial (after 1.0.0): the body cuts of the clothes
+    /// parts switch the body and their cut bodies by their switch objects. The game switches on every frame; here every flush
+    /// that ran an earlier unit switches while the character has cuts (<see cref="Watching"/>), and the scene switches again
+    /// after it realized the clothes state.</summary>
+    public sealed class BodyCutUnit : UnitBase
+    {
+        public BodyCutUnit() : base(UnitMap.BodyCut, EditStep.Ownership, 110) { }
+
+        /// <summary>True while the character has cuts (set by the part loader's registration and by every run).</summary>
+        public bool Watching;
+
+        public override bool FollowsEarlierSteps => Watching;
+
+        public override void Apply(EditContext x) => Watching = x.ApplyBodyCuts() > 0;
+    }
+
     /// <summary>Step 9 (edits): the dynamic-bone stage rebuilt from the parts in the order of a full build (chains of
     /// destroyed parts gone, new parts' chains in place, colliders from the body; new chains start from the bones).
     /// Phase 4.3: the light re-derivation restores the chains, re-applies the hair
@@ -95,6 +128,9 @@ namespace HS2Next.Chara.Edit.Units
             if (x.InBuild) return;
             var stage = x.Ctx.Motion != null ? x.Ctx.Motion.Get<DynamicBoneStage>() : null;
             if (stage == null) return;
+            // the heels' body lift of the current shoes first (after 1.0.0), so the chains
+            // start from the body as it stands, as in a fresh build (the lift is applied before the chains are built)
+            x.Ctx.Motion.Get<HS2Next.Motion.Heels.HeelsLift>()?.Step(default);
             // physics history from the old shape / parts goes: the chain bones back to their rest pose first, the chains
             // re-derived (or rebuilt in full-build order), then every chain starts with its particles at the bones
             // (chains of destroyed parts are skipped: their component and bones are gone)

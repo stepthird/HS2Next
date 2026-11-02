@@ -88,6 +88,8 @@ namespace HS2Next.UI.Core
 
         // help
         public const string HelpKeys = "help.keys", HelpAbout = "help.about";
+        /// <summary>Help ▸ Check for updates (after 1.0.0).</summary>
+        public const string HelpCheckUpdates = "help.checkUpdates";
 
         // ui (language, layout)
         public const string UiLanguage = "ui.language", UiResetLayout = "ui.resetLayout";
@@ -253,6 +255,7 @@ namespace HS2Next.UI.Core
 
             A(ActionIds.HelpKeys, G);
             A(ActionIds.HelpAbout, G);
+            A(ActionIds.HelpCheckUpdates, G);
             A(ActionIds.UiLanguage, G);
             A(ActionIds.UiResetLayout, G);
 

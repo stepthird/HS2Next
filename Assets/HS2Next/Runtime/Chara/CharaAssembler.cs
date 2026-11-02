@@ -84,6 +84,8 @@ namespace HS2Next.Chara
             yield return new BustNormalsUnit();   // Phase 4.2: the breast normals (step 6, after shape.body)
             yield return new ExtFinalUnit();
             yield return new OwnershipUnit();
+            yield return new BodyMaterialCopyUnit();   // after 1.0.0: the body's materials on the parts' targets (step 8)
+            yield return new BodyCutUnit();            // after 1.0.0: the body cuts of the clothes parts (step 8)
             yield return new BustUnit();
             yield return new DynBoneUnit();
             yield return new AnimRefreshUnit();

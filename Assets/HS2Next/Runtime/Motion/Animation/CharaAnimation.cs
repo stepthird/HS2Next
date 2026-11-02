@@ -250,6 +250,10 @@ namespace HS2Next.Motion.Animation
                 if (heightParam.Length > 0 && !IsHPlaying) driver.SetFloat(heightParam, BodyHeight);
                 if (breastParam.Length > 0 && !IsHPlaying) driver.SetFloat(breastParam, BodyBust);
             }
+            // the captures hold the body's own cf_N_height: the heels' lift off for them and back at once, so the later units of
+            // the flush (the bust chains) see the body as it stands
+            var lift = ctx.Motion?.Get<Heels.HeelsLift>();
+            lift?.Unlift();
             shapeGuard?.Recapture();
             NoteShapeRecapture();
             if (shapeGuard != null && restBones != null)
@@ -259,6 +263,7 @@ namespace HS2Next.Motion.Animation
                     if (restBones[i] && shapeSet.Contains(restBones[i]))
                     { restPos[i] = restBones[i].localPosition; restRot[i] = restBones[i].localRotation; restScale[i] = restBones[i].localScale; }
             }
+            lift?.Apply();
         }
 
         void CaptureRest(CharaContext ctx)
@@ -285,7 +290,14 @@ namespace HS2Next.Motion.Animation
         }
 
         /// <summary>Re-capture the shape-bone values after a body shape edit (otherwise deviation (a) would restore the old shape).</summary>
-        public void RecaptureShapeBones() { shapeGuard?.Recapture(); NoteShapeRecapture(); }
+        public void RecaptureShapeBones()
+        {
+            var lift = Context?.Motion?.Get<Heels.HeelsLift>();   // as RefreshBodyShape: the capture without the heels' lift
+            lift?.Unlift();
+            shapeGuard?.Recapture();
+            NoteShapeRecapture();
+            lift?.Apply();
+        }
 
         // A capture taken while a bust mask is on holds the masked values: opening the masks then evaluates the shapes again.
         void NoteShapeRecapture()

@@ -337,9 +337,12 @@ namespace HS2Next.Chara.Ext
             for (int i = 0; i < t.childCount; i++) CollectBody(t.GetChild(i), l);
         }
 
-        // The renderer's materials, made per-character (copies of shared bundle materials) on first use.
+        // The renderer's materials, made per-character (copies of shared bundle materials) on first use. A renderer that draws
+        // the body's materials has none of its own (after 1.0.0): items addressed to it apply
+        // to nothing.
         static Material[] Mats(State s, Renderer r)
         {
+            if (s.Ctx.DrawsBodyMaterials(r) || s.Ctx.DrawsBodySkin(r)) return new Material[0];
             if (s.Mats.TryGetValue(r, out var a)) return a;
             var mats = r.sharedMaterials;
             bool changed = false;

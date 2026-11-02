@@ -19,6 +19,12 @@ namespace HS2Next.Chara.Edit
         /// <summary>The breast normals of the female body (Phase 4.2): step 6 after shape.body,
         /// marked by every body.shape change and by the build.</summary>
         public const string BustNormals = "bust.normals";
+        /// <summary>The body's materials on the parts' body-material targets (after 1.0.0):
+        /// step 8 after ownership, marked by the part loader and following every earlier step while there are targets.</summary>
+        public const string BodyMaterialCopy = "copy.bodyMaterial";
+        /// <summary>The body cuts of the clothes parts (after 1.0.0): step 8 after
+        /// copy.bodyMaterial, marked by the part loader and following every earlier step while there are cuts.</summary>
+        public const string BodyCut = "body.cut";
         public const string AccPrefix = "acc:";
 
         /// <summary>Hair part names in HS2 order (back, front, side, option) and their unit ids.</summary>

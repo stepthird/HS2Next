@@ -101,6 +101,7 @@ namespace HS2Next.Chara.Edit.Units
                 }
                 if (skip) { x.Log.Add(k == 1 ? "bot: skipped (one-piece top)" : "inner_b: skipped (one-piece inner)"); return; }
                 x.Ctx.ClothesEntries[k] = e;
+                if (k == 7 && !x.InBuild) Heels(x);
                 if (e == null || e[x.DataKey(e)] == "p_dummy") return;
                 x.BeginPartLoad();
                 go = x.LoadPart(e, ClothesNames.Objects[k], x.Ctx.BodyTop.transform);
@@ -130,6 +131,17 @@ namespace HS2Next.Chara.Edit.Units
                 if (!swap && !x.InBuild && x.Report != null) x.Report.ClothesObjectsReset[k] = true;
             }
             if (swap) x.Log.Add($"{ClothesNames.Objects[k]}: {x.Name(e)}");
+        }
+
+        /// <summary>After 1.0.0: a shoe change lifts or lowers the body at once, before the
+        /// motion units of this flush; when the height changed, the bust chains start again from the body as it stands (the
+        /// body-shape re-derivation), as in a fresh build, where the body is lifted before the chains are built.</summary>
+        static void Heels(EditContext x)
+        {
+            var lift = x.Ctx.Motion?.Get<HS2Next.Motion.Heels.HeelsLift>();
+            if (lift == null || !lift.Apply()) return;
+            x.BustRederive = true;
+            x.Editor.MarkUnit(UnitMap.Bust);
         }
 
         /// <summary>The dynamic-bone chains whose component lies under <paramref name="part"/> put their bones back to the

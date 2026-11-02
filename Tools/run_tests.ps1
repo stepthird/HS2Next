@@ -1436,6 +1436,20 @@ Row 'PluginLoaderTest.play'    graphics 'plugins,ui,bridge'      'PluginLoaderTe
 # without HS2 content, the banner, setup.json skipped; -setup reopens the guide), SG1 (the settings page keeps unknown members,
 # comments and order; a command-line value is locked), SG2 (an unknown key: the log line, the toast, app.settings.unknownKeys)
 Row 'SetupTest.play'           graphics 'setup,ui,bridge'        'SetupTest.Run' @() 'Spike\out\setup\setup_play_report.txt' -NoQuit -TimeoutMin 20
+# UpdateCheck.play (after 1.0.0; about 3 min): python -I Tools\update_check_test.py - a local
+# release server on 127.0.0.1:17641, then BridgeServe with the UI (-ui -updateCheck -updateCheckUrl; the script starts it through
+# unity_batch, which takes the Unity lock): the dialog at start for a newer release, Skip this version, by hand the latest / HTTP
+# 403 / no server, the request headers. Never reaches GitHub; the project's UserData\config\update_check.json is put back.
+# Report Spike\out\update_check\report.txt (last line "RESULT: PASS|FAIL (n failed)"); exit 0 pass, 1 fail.
+Row 'UpdateCheck.play' graphics 'setup,ui' -Run {
+    $id = 'UpdateCheck.play'
+    $script = Join-Path $PSScriptRoot 'update_check_test.py'
+    $rep = Join-Path $Project 'Spike\out\update_check\report.txt'
+    if (Test-Path -LiteralPath $rep) { Remove-Item -LiteralPath $rep -Force }
+    $p = Invoke-Process $id 'python' @('-I', $script) 25 $false
+    $last = if (Test-Path -LiteralPath $rep) { @(Get-Content -LiteralPath $rep -Encoding UTF8 | Where-Object { $_ -like 'RESULT:*' } | Select-Object -Last 1) -join '' } else { '' }
+    Add-Result $id $(if ($p.Code -eq 0) { 'PASS' } else { 'FAIL' }) $p.Minutes ("exit $($p.Code); " + $(if ($last) { $last } else { 'no report' })) $(if (Test-Path -LiteralPath $rep) { $rep } else { $null })
+}
 
 # ---- player group (Phase 2.5; not with -Quick)
 Row 'PlayerBuild.app' player 'player,shaders,setup' -Run { $null = Invoke-PlayerBuild 'PlayerBuild.app' 'PlayerBuild.BuildApp' 'Builds\App.build_report.txt' $true }

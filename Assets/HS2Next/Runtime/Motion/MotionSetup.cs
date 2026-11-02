@@ -22,6 +22,9 @@ namespace HS2Next.Motion
             Run(ctx, "correct", Corrective.CorrectSetup.Attach);
             Run(ctx, "look", Look.LookSetup.Attach);
             Run(ctx, "face", Face.FaceSetup.Attach);
+            // after 1.0.0: the Heelz body lift and foot joints, before the dynamic bones so that their chains
+            // start from the lifted body, as the game lifts it when the shoes load
+            Run(ctx, "heels", Heels.HeelsSetup.Attach);
             Run(ctx, "dynbone", DynamicBones.DynamicBoneSetup.Attach);
         }
 

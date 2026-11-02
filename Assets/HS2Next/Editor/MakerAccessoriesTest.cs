@@ -28,15 +28,29 @@
 //     XT10 colliders after accessory swaps: the collider earring fijas.accessories.earrings01#1 in slot 0 and a chain accessory in
 //          slot 3; swapping slot 3's item and slot 0's item give the chains (collider lists) of a fresh build
 //     XT12 the accessory digest sections (materials, objects) change exactly when the edits say
+//     XT13 skinned accessories (added after 1.0.0): the fingernails whinny.halloweenspecial02.accs#4 (361) in a free slot,
+//          after an item swap and in slot 25 have every listed renderer on the character's rig (bone by bone against the
+//          prefab and the merge table), the rig copy destroyed, the baked vertices at the hands (and the unmerged prefab away
+//          from them); the mask [Blake]Monster Mask#0 (351) binds its face bones to the head rig; the rules on built objects
+//          (a null entry keeps the copy, a copy that is the slot object stays, no component = untouched); edit = fresh build
+//     XT14 (added after 1.0.0) the waist accessory roy12.skindentations#0 (358, a SkinnedAccessory and a
+//          ChaCopyBodyMaterial): merged as XT13, its renderers draw the body's materials, a colour edit of the slot leaves the
+//          body's materials unchanged, the removal keeps them alive; G1; edit = fresh build
 //   RunRender (graphics): the materials of XT1 / XT2 after edits = a fresh build's; the hair-type materials use supported
 //     replacement shaders; a 64² RT of the head region with 351#40 rendered twice hashes equal.
 //   RunTiming (graphics, its own Unity session): XU1 (item swap warm / cold, type change, parent change), XU2 (colour drag
 //     frame, transform step), XU3 (the draw-type switch with 4 hair-type slots and the 4 hair parts) with the 1 × 1 copy fence.
 //   RunS1Explain (headless, for T): S1 targets + 20 (or -all / -targets) vs the baselines: every differing line classified
 //     (acc.hairType: materials of a hair-type slot's renderers; acc.alpha4: _Glossiness4 / _Metallic4 of alpha renderers;
-//     acc.visibility: slot object activity / the read show flag) or printed.
+//     acc.visibility: slot object activity / the read show flag; acc.skinned: object, bone and renderer lines inside a slot
+//     object with a SkinnedAccessory; part.bodyMaterial: renderer and material lines of a renderer that draws the
+//     body's materials; part.bodyCut: renderer and material lines of the body and of a cut body;
+//     face.headBundle: the face pass lines of a head with its own compositing materials; part.heels: the
+//     cf_N_height and foot joint lines while heels are in effect; part.additionalBones: the lines of the
+//     bones moved by a part's additional_bones, its renderers, the chains on those bones and the ABMX modifiers that now
+//     find them) or printed.
 // Run: -executeMethod MakerAccessoriesTest.Run [-only UM,XT1]; .RunRender; .RunTiming [-reps N]; .RunS1Explain [-all|-targets]
-//      [-only a.png,b.png] [-limit N].
+//      [-only a.png,b.png (or a.png+b.png)] [-limit N].
 // Reports: Spike/out/maker/maker_accessories_report.txt, maker_accessories_render_report.txt,
 // maker_accessories_timing_report.txt, maker_accessories_s1explain_report.txt. Content rule: numbers only (material values,
 // transforms, chain states, hashes); nothing is rendered to a file or viewed; SFW targets; items appear as data names only.
@@ -244,6 +258,8 @@ public static class MakerAccessoriesTest
                 if (Want("XT11")) Guard("XT11 «髪の毛の色を取得»", () => XT11(h));
                 if (Want("XT10")) Guard("XT10 colliders after accessory swaps", () => XT10(h));
                 if (Want("XT12")) Guard("XT12 digest sections", () => XT12(h));
+                if (Want("XT13")) Guard("XT13 skinned accessories", () => XT13(h));
+                if (Want("XT14")) Guard("XT14 a skinned accessory drawn with the body's materials", () => XT14(h));
             }
         }
         finally
@@ -251,7 +267,7 @@ public static class MakerAccessoriesTest
             FaceSetup.Seed = fseed;
             defaults = null;
         }
-        Finish("maker_accessories_report.txt", "MakerAccessoriesTest UM, XT1-XT6, XT8-XT12 (XT7 is CharaStateTest S11)", sw);
+        Finish("maker_accessories_report.txt", "MakerAccessoriesTest UM, XT1-XT6, XT8-XT14 (XT7 is CharaStateTest S11)", sw);
     }
 
     // ---------------------------------------------------------------- UM
@@ -778,6 +794,264 @@ public static class MakerAccessoriesTest
         h.ReleaseBundles();
     }
 
+    // ---------------------------------------------------------------- XT13
+
+    const string SkinnedNails = "whinny.halloweenspecial02.accs#4";   // 361, default parent N_Hand_R (the 1.0.0 bug report)
+    const string SkinnedMask = "[Blake]Monster Mask#0";               // 351, no rig copy, weighted on face bones of the head rig
+
+    static void XT13(MakerCoreTest.Harness h)
+    {
+        using (var bb = new Disposer(BuildOk(h, FemaleCard, "BR-Chan")))
+        {
+            var live = bb.B;
+            if (!live.Ok) return;
+            var ctx = live.Context;
+            if (Installed(h, 361, SkinnedNails, "XT13 nails"))
+            {
+                int s = Table(ctx).FreeSlot();
+                var e = Put(live, s, 361, SkinnedNails);
+                SkinnedOk($"XT13 361:{SkinnedNails} in slot {s}", h, ctx, s, true);
+                NearHands($"XT13 361:{SkinnedNails}", h, ctx, s);
+                FreshOk("XT13 nails", h, live);
+                SetItem(live, e, 361, MultiSlot);
+                Check("XT13 nails → 361#30: a plain row, no SkinnedAccessory", ObjOf(ctx, s) && ObjOf(ctx, s).GetComponent<SkinnedAccessory>() == null);
+                FreshOk("XT13 nails → 361#30", h, live);
+                SetItem(live, e, 361, SkinnedNails);
+                SkinnedOk("XT13 361#30 → nails (the edit reload)", h, ctx, s, true);
+                FreshOk("XT13 361#30 → nails", h, live);
+                Put(live, 25, 361, SkinnedNails);
+                SkinnedOk("XT13 nails in slot 25 (MoreAccessories)", h, ctx, 25, true);
+                FreshOk("XT13 slot 25", h, live);
+            }
+            if (Installed(h, 351, SkinnedMask, "XT13 mask"))
+            {
+                int s = Table(ctx).FreeSlot();
+                Put(live, s, 351, SkinnedMask);
+                SkinnedOk($"XT13 351:{SkinnedMask} in slot {s}", h, ctx, s, false);
+                var smr = ObjOf(ctx, s).GetComponent<SkinnedAccessory>().meshRenderers[0];
+                var face = smr.bones.Where(b => b && b.name.StartsWith("cf_J_Face", StringComparison.Ordinal)).ToList();
+                Check("XT13 mask: its face bones are the head rig's (p_cf_head_bone)",
+                      face.Count > 0 && face.All(b => ctx.HeadBones.TryGetValue(b.name, out var hb) && hb == b),
+                      string.Join(",", face.Select(b => b.name)));
+                FreshOk("XT13 mask", h, live);
+            }
+            XT13Rules(ctx);
+        }
+        h.ReleaseBundles();
+    }
+
+    // ---------------------------------------------------------------- XT14
+
+    const string SkinLegs = "roy12.skindentations#0";   // 358 "Skindentation Legs 00": a SkinnedAccessory and a ChaCopyBodyMaterial
+
+    static void XT14(MakerCoreTest.Harness h)
+    {
+        using (var bb = new Disposer(BuildOk(h, FemaleCard, "BR-Chan")))
+        {
+            var live = bb.B;
+            if (!live.Ok || !Installed(h, 358, SkinLegs, "XT14 legs")) return;
+            var ctx = live.Context;
+            int s = Table(ctx).FreeSlot();
+            var e = Put(live, s, 358, SkinLegs);
+            SkinnedOk($"XT14 358:{SkinLegs} in slot {s}", h, ctx, s, true);
+            MakerClothesTest.BodyMaterialsOk($"XT14 358:{SkinLegs}", live, ObjOf(ctx, s));
+            FreshOk("XT14 legs", h, live);
+            string bodyBefore = FaceDigest.MaterialsText(ctx, "body");
+            SetA(live, e, "colors[0].color", () => e.Colors[0].Color = new Color4(0.3f, 0.6f, 0.9f, 1f));
+            Check("XT14 a colour edit of the slot: the body's materials unchanged", FaceDigest.MaterialsText(ctx, "body") == bodyBefore);
+            MakerClothesTest.BodyMaterialsOk("XT14 after the colour edit", live, ObjOf(ctx, s));
+            FreshOk("XT14 colour edit", h, live);
+            var bodyMats = ctx.BodyRenderer.sharedMaterials;
+            ctx.Coord.Accessories.Remove(e);
+            ctx.Editor.MarkDirty("coord.accessories");
+            ctx.Editor.Flush();
+            var snap = live.Snapshot();
+            Check("XT14 removed: the body's materials alive, owned and the body's; no targets left; G1",
+                  !ObjOf(ctx, s) && bodyMats.All(m => m && ctx.OwnedMaterials.Contains(m)) && ctx.BodyRenderer.sharedMaterials.SequenceEqual(bodyMats)
+                  && ctx.BodyMaterialTargets.Count == 0 && snap.G1Pass, $"targets {ctx.BodyMaterialTargets.Count}; G1 {snap.G1Text}");
+            FreshOk("XT14 removed", h, live);
+        }
+        h.ReleaseBundles();
+    }
+
+    // The merge table states it, written again here: pre-order from cf_J_Root, the last transform of a name
+    // wins, the subtrees of cf_t_root and the 54 attach points left out.
+    static Dictionary<string, Transform> MergeTable(CharaContext ctx)
+    {
+        var stops = new HashSet<string>(DocEnum.AttachPoints) { "cf_t_root" };
+        var d = new Dictionary<string, Transform>();
+        void Walk(Transform t)
+        {
+            d[t.name] = t;
+            foreach (Transform c in t) if (!stops.Contains(c.name)) Walk(c);
+        }
+        Walk(ctx.BodyBones["cf_J_Root"]);
+        return d;
+    }
+
+    /// <summary>The slot's skinned accessory after the load: per listed renderer, every bone the prefab names with a name of the
+    /// merge table is that table's transform and every other bone is the instance's own (destroyed with the rig copy when it
+    /// lay inside it); root bone cf_J_Root, the wide bounds, enabled; the rig copy gone; no transform under the slot object
+    /// carries a name of the body rig.</summary>
+    static void SkinnedOk(string label, MakerCoreTest.Harness h, CharaContext ctx, int slot, bool hasCopy)
+    {
+        var go = ObjOf(ctx, slot);
+        var sa = go ? go.GetComponent<SkinnedAccessory>() : null;
+        if (!Check(label + ": loaded with a SkinnedAccessory", sa != null && sa.meshRenderers != null && sa.meshRenderers.Count > 0)) return;
+        var prefab = h.Catalog.LoadAsset<GameObject>(SlotOf(ctx, slot).Entry, "MainAB", "MainData");
+        var psa = prefab ? prefab.GetComponent<SkinnedAccessory>() : null;
+        if (!Check(label + ": the prefab's component", psa != null && psa.meshRenderers.Count == sa.meshRenderers.Count)) return;
+        var table = MergeTable(ctx);
+        var jRoot = ctx.BodyBones["cf_J_Root"];
+        var bad = new List<string>();
+        int mapped = 0, keptGone = 0, keptOwn = 0;
+        for (int k = 0; k < sa.meshRenderers.Count; k++)
+        {
+            var r = sa.meshRenderers[k];
+            var pb = psa.meshRenderers[k].bones;
+            var b = r.bones;
+            if (b.Length != pb.Length) { bad.Add($"{r.name}: {b.Length} bones, prefab {pb.Length}"); continue; }
+            for (int i = 0; i < b.Length; i++)
+            {
+                if (!pb[i]) { if ((object)b[i] != null && b[i]) bad.Add($"{r.name}[{i}] not null"); continue; }
+                if (table.TryGetValue(pb[i].name, out var want)) { if (b[i] == want) mapped++; else bad.Add($"{r.name}[{i}] {pb[i].name}: not the rig's"); }
+                else if (!b[i] && psa.skeleton && pb[i].IsChildOf(psa.skeleton.transform)) keptGone++;
+                else if (b[i] && b[i].IsChildOf(go.transform) && b[i].name == pb[i].name) keptOwn++;
+                else bad.Add($"{r.name}[{i}] {pb[i].name}: {(b[i] ? b[i].name : "null")}");
+            }
+            if (r.rootBone != jRoot) bad.Add($"{r.name}: rootBone {(r.rootBone ? r.rootBone.name : "null")}");
+            if (r.localBounds.center != new Vector3(0, 10, 0) || r.localBounds.size != new Vector3(20, 20, 20)) bad.Add($"{r.name}: bounds {r.localBounds}");
+            if (!r.enabled) bad.Add($"{r.name}: disabled");
+        }
+        Check($"{label}: {sa.meshRenderers.Count} renderers on the rig ({mapped} bones the rig's, {keptGone} kept and gone with the copy, {keptOwn} kept own), root cf_J_Root, the wide bounds",
+              bad.Count == 0 && mapped > 0, Short(string.Join(" | ", bad), 800));
+        // (without a copy the prefab's own bones stay under the slot object, names and all, as in the game)
+        var rigNames = go.GetComponentsInChildren<Transform>(true).Where(t => t != go.transform && ctx.BodyBones.ContainsKey(t.name)).Select(t => t.name).ToList();
+        Check(hasCopy ? $"{label}: the rig copy destroyed, no body-rig name under the slot object" : $"{label}: the prefab has no rig copy",
+              !sa.skeleton && hasCopy == (bool)psa.skeleton && (!hasCopy || rigNames.Count == 0), Short(string.Join(",", rigNames), 300));
+    }
+
+    /// <summary>World positions of a renderer's vertices skinned on the CPU from its bones, bind poses and the four weights
+    /// (null when the mesh is not readable; a weighted bone that is missing counts in <paramref name="lost"/>).</summary>
+    static Vector3[] SkinnedVertices(SkinnedMeshRenderer r, out int lost)
+    {
+        lost = 0;
+        var m = r.sharedMesh;
+        if (!m || !m.isReadable) return null;
+        var v = m.vertices; var bw = m.boneWeights; var bp = m.bindposes; var b = r.bones;
+        if (bw.Length != v.Length || bp.Length != b.Length) return null;
+        var mats = new Matrix4x4[b.Length];
+        var have = new bool[b.Length];
+        for (int i = 0; i < b.Length; i++) if (b[i]) { mats[i] = b[i].localToWorldMatrix * bp[i]; have[i] = true; }
+        var o = new Vector3[v.Length];
+        int missing = 0;
+        for (int k = 0; k < v.Length; k++)
+        {
+            var w = bw[k];
+            Vector3 p = Vector3.zero;
+            void Add(int i, float x) { if (x <= 0) return; if (i < 0 || i >= have.Length || !have[i]) { missing++; return; } p += x * mats[i].MultiplyPoint3x4(v[k]); }
+            Add(w.boneIndex0, w.weight0); Add(w.boneIndex1, w.weight1); Add(w.boneIndex2, w.weight2); Add(w.boneIndex3, w.weight3);
+            o[k] = p;
+        }
+        lost = missing;
+        return o;
+    }
+
+    /// <summary>The skinned vertices of the slot's first listed renderer lie at the hands, while the same prefab placed as
+    /// 1.0.0 left it (its own rig copy under the anchor) lies away from them.</summary>
+    static void NearHands(string label, MakerCoreTest.Harness h, CharaContext ctx, int slot)
+    {
+        var hand = ctx.BodyBones.Where(kv => kv.Key.StartsWith("cf_J_Hand_", StringComparison.Ordinal) && kv.Value).Select(kv => kv.Value.position).ToList();
+        float span = Vector3.Distance(ctx.BodyBones["cf_J_Hand_R"].position, ctx.BodyBones["cf_J_Hand_Middle03_R"].position);
+        (float mean, float max, int n) Dist(SkinnedMeshRenderer r)
+        {
+            var v = SkinnedVertices(r, out int lost);
+            if (v == null || v.Length == 0 || lost > 0) return (float.NaN, float.NaN, 0);
+            double sum = 0; float mx = 0;
+            foreach (var w in v)
+            {
+                float d = hand.Min(q => Vector3.Distance(q, w));
+                sum += d; mx = Mathf.Max(mx, d);
+            }
+            return ((float)(sum / v.Length), mx, v.Length);
+        }
+        var go = ObjOf(ctx, slot);
+        // (the CPU skinning, because BakeMesh in a -nographics Editor returns the mesh unskinned)
+        var now = Dist(go.GetComponent<SkinnedAccessory>().meshRenderers[0]);
+        if (now.n == 0) { Warn(label, "the mesh is not readable or a weighted bone is missing: the position check is skipped"); return; }
+        var prefab = h.Catalog.LoadAsset<GameObject>(SlotOf(ctx, slot).Entry, "MainAB", "MainData");
+        var old = Object.Instantiate(prefab, go.transform.parent, false);
+        (float mean, float max, int n) was;
+        try
+        {
+            old.transform.localPosition = go.transform.localPosition; old.transform.localRotation = go.transform.localRotation; old.transform.localScale = go.transform.localScale;
+            was = Dist(old.GetComponent<SkinnedAccessory>().meshRenderers[0]);
+        }
+        finally { Object.DestroyImmediate(old); }
+        Info($"{label}: {now.n} vertices; nearest hand bone: merged mean {G(now.mean)} max {G(now.max)}, unmerged (1.0.0) mean {G(was.mean)} max {G(was.max)}; hand span {G(span)}");
+        Check($"{label}: every vertex within one hand span of a hand bone (merged)", now.max <= span, $"max {G(now.max)} span {G(span)}");
+        Check($"{label}: the unmerged prefab lies away from the hands (the 1.0.0 symptom)", was.mean > 2 * span, $"mean {G(was.mean)} span {G(span)}");
+    }
+
+    // The rules on built objects: a full list merges and destroys the copy; a null entry stops the merge there
+    // and keeps the copy; a copy that is the slot object itself is never destroyed; an object without the component is
+    // untouched.
+    static void XT13Rules(CharaContext ctx)
+    {
+        var x = ctx.Edit;
+        var jRoot = ctx.BodyBones["cf_J_Root"];
+        var hips = ctx.BodyBones["cf_J_Hips"];
+        var made = new List<GameObject>();
+        (GameObject go, SkinnedAccessory sa, GameObject copy, Transform copyHips, Transform tip, List<SkinnedMeshRenderer> r) Make(string name, int renderers)
+        {
+            var go = new GameObject("xt13_" + name); made.Add(go);
+            go.AddComponent<CmpAccessory>();
+            var sa = go.AddComponent<SkinnedAccessory>();
+            var copy = new GameObject("cf_J_Root"); copy.transform.SetParent(go.transform, false);
+            var ch = new GameObject("cf_J_Hips").transform; ch.SetParent(copy.transform, false);
+            var tip = new GameObject("xt13_tip").transform; tip.SetParent(ch, false);
+            var rs = new List<SkinnedMeshRenderer>();
+            for (int i = 0; i < renderers; i++)
+            {
+                var o = new GameObject("xt13_r" + i); o.transform.SetParent(go.transform, false);
+                var r = o.AddComponent<SkinnedMeshRenderer>();
+                r.bones = new[] { ch, tip, null };
+                r.rootBone = ch;
+                rs.Add(r);
+            }
+            sa.skeleton = copy;
+            sa.meshRenderers = new List<SkinnedMeshRenderer>(rs);
+            return (go, sa, copy, ch, tip, rs);
+        }
+        bool Merged(SkinnedMeshRenderer r) => r.rootBone == jRoot && r.bones[0] == hips && r.bones[2] == null;
+        var self = new AccessorySlot { Slot = 99, Type = 361 };
+        try
+        {
+            var a = Make("full", 2);
+            x.MergeSkinnedAccessory(a.go, self);
+            Check("XT13 rules: a full list: both renderers on the rig, the unknown bone kept and gone with the destroyed copy",
+                  a.r.All(Merged) && a.r.All(r => !r.bones[1]) && !a.copy && a.go);
+            var b = Make("null", 2);
+            b.sa.meshRenderers.Insert(1, null);
+            x.MergeSkinnedAccessory(b.go, self);
+            Check("XT13 rules: a null entry: the renderer before it merged, the one after it untouched, the copy kept",
+                  Merged(b.r[0]) && b.r[1].rootBone == b.copyHips && b.r[1].bones[0] == b.copyHips && b.copy && b.copy.transform.parent == b.go.transform);
+            var c = Make("self", 1);
+            c.sa.skeleton = c.go;
+            x.MergeSkinnedAccessory(c.go, self);
+            Check("XT13 rules: a copy that is the slot object: merged, the object kept", Merged(c.r[0]) && c.go && c.copy);
+            var d = new GameObject("xt13_plain"); made.Add(d);
+            d.AddComponent<CmpAccessory>();
+            var dr = new GameObject("xt13_r").AddComponent<SkinnedMeshRenderer>(); dr.transform.SetParent(d.transform, false);
+            var dch = new GameObject("cf_J_Hips").transform; dch.SetParent(d.transform, false);
+            dr.bones = new[] { dch };
+            x.MergeSkinnedAccessory(d, self);
+            Check("XT13 rules: no SkinnedAccessory: untouched", dr.bones[0] == dch && dch);
+            Check("XT13 rules: the body bones are unchanged (the table holds no slot object)", ctx.BodyBones["cf_J_Hips"] == hips && hips.IsChildOf(ctx.Anim.transform));
+        }
+        finally { foreach (var g in made) if (g) Object.DestroyImmediate(g); }
+    }
+
     // ================================================================ the op-level cases (scene nodes; package B's ops)
 
     static TreeNode TN(MakerEditTest.Node n) => n.Session.Model.Find(n.Id);
@@ -1279,7 +1553,7 @@ public static class MakerAccessoriesTest
         string only = Arg("-only");
         if (!string.IsNullOrEmpty(only))
         {
-            var names = new HashSet<string>(only.Split(',').Select(x => x.Trim()).Where(x => x.Length > 0), StringComparer.OrdinalIgnoreCase);
+            var names = new HashSet<string>(only.Split(',', '+').Select(x => x.Trim()).Where(x => x.Length > 0), StringComparer.OrdinalIgnoreCase);
             cards = MakerCoreTest.AllCards().Where(f => names.Contains(System.IO.Path.GetFileName(f))).ToList();
             what = "the cards of -only (" + names.Count + " named)";
         }
@@ -1324,7 +1598,7 @@ public static class MakerAccessoriesTest
         foreach (var kv in cls.Lines) Info($"class {kv.Key}: {kv.Value} lines on {cls.PerCard[kv.Key].Count} cards");
         foreach (var kc in cls.PerCard) foreach (var oc in kc.Value) Info($"{kc.Key} card: {oc.Key} ({oc.Value} lines)");
         foreach (var o in Flag("-other") ? others : others.Take(40)) Info("other: " + o);
-        Check("S1 explain: every differing line is classified (acc.hairType, acc.alpha4, acc.visibility); 0 other", failed == 0 && !cls.Lines.ContainsKey("other"),
+        Check("S1 explain: every differing line is classified (acc.hairType, acc.alpha4, acc.visibility, acc.skinned, part.bodyMaterial, part.bodyCut, part.heels, motion.stages, face.headBundle, part.additionalBones); 0 other", failed == 0 && !cls.Lines.ContainsKey("other"),
               $"other {(cls.Lines.TryGetValue("other", out var on) ? on : 0)} lines");
         Finish("maker_accessories_s1explain_report.txt", "MakerAccessoriesTest.RunS1Explain", sw);
     }
@@ -1334,13 +1608,81 @@ public static class MakerAccessoriesTest
     /// "acc.hairType" for a material line of a renderer under a hair-type slot object (the hair shader, texture and colours);
     /// "acc.alpha4" for a material line of an alpha renderer of a non-hair slot whose differing tokens are _Glossiness4 and / or
     /// _Metallic4; "acc.visibility" for an object line of a slot object whose only difference is the activity, or the slot's
-    /// context line whose only difference is the read show flag. Public so that other explains can recognise these lines.
+    /// context line whose only difference is the read show flag; "acc.skinned" (after 1.0.0) for an object, bone or renderer
+    /// line inside a slot object with a SkinnedAccessory; "part.bodyMaterial" (after 1.0.0) for a renderer or
+    /// material line of a renderer that draws the body's materials; "part.bodyCut" (after 1.0.0) for a renderer
+    /// or material line of the body renderer or of a cut body while the character has body cuts; "face.headBundle" (after 1.0.0,
+    /// 10) for a face pass line when the passes come from a head's own bundle. Public so that other explains can
+    /// recognise these lines.
     /// </summary>
     public static string AccessoryClass(CharaContext ctx, Dictionary<Transform, string> paths, string key, string before, string after)
     {
-        if (ctx?.Accessories == null || before == null || after == null) return null;
+        if (ctx?.Accessories == null) return null;
+        // part.bodyMaterial (after 1.0.0): a renderer or material line of a renderer that draws the body's
+        // materials (its slots and their count are the body's), also when the line is new or gone
+        if (key.StartsWith("rend|", StringComparison.Ordinal) || key.StartsWith("mat|", StringComparison.Ordinal))
+        {
+            string rp = key.Substring(key.IndexOf('|') + 1);
+            int dup = rp.LastIndexOf('#');
+            if (dup > 0 && rp.Substring(dup + 1).All(char.IsDigit)) rp = rp.Substring(0, dup);
+            if (key[0] == 'm') { int br = rp.LastIndexOf('['); if (br > 0) rp = rp.Substring(0, br); }
+            foreach (var r in ctx.BodyMaterialTargets)
+                if (r && paths.TryGetValue(r.transform, out var tp) && tp == rp) return "part.bodyMaterial";
+            // part.bodyCut (after 1.0.0): the body renderer (switched off) and the cut bodies (switched on, the
+            // body's first material in their first slot) while the character has body cuts
+            if (ctx.BodyCuts.Count > 0)
+                foreach (var r in ctx.BodyCutRenderers.Append(ctx.BodyRenderer))
+                    if (r && paths.TryGetValue(r.transform, out var tp) && tp == rp) return "part.bodyCut";
+        }
+        // face.headBundle (after 1.0.0): the two face passes take their materials from the head's own bundle
+        if (key.StartsWith("creator|face.", StringComparison.Ordinal) && ctx.FaceSkin != null
+            && ctx.FaceSkin.Bundle != HS2Next.Content.Maker.HeadBundleRedirect.VanillaBundle)
+            return "face.headBundle";
+        // part.heels (after 1.0.0): the lifted cf_N_height and the posed foot joints while the worn shoes' heel
+        // data is in effect
+        if (key.StartsWith("bone|", StringComparison.Ordinal) && ctx.Motion?.Get<HS2Next.Motion.Heels.HeelsLift>()?.State.Active != null)
+        {
+            string bone = key.Substring(key.LastIndexOf('/') + 1);
+            int hash = bone.LastIndexOf('#');
+            if (hash > 0 && bone.Substring(hash + 1).All(char.IsDigit)) bone = bone.Substring(0, hash);
+            if (bone == "cf_N_height" || bone.StartsWith("cf_J_Foot0", StringComparison.Ordinal) || bone.StartsWith("cf_J_Toes01_", StringComparison.Ordinal))
+                return "part.heels";
+        }
+        // motion.stages (after 1.0.0): the stage list with the two heel stages inserted; a line whose stage on
+        // either side is a stage the character still has (only the index moved) - a stage gone or renamed stays "other"
+        if (key.StartsWith("motion|stage[", StringComparison.Ordinal) && ctx.Motion?.Get<HS2Next.Motion.Heels.HeelsLift>() != null)
+        {
+            var types = new HashSet<string>(ctx.Motion.Stages.Select(s => s.GetType().Name));
+            string TypeOf(string line) { var p = line.Split('|'); return p.Length > 2 ? p[2].Split(' ')[0] : null; }
+            if ((before == null || types.Contains(TypeOf(before))) && (after == null || types.Contains(TypeOf(after)))) return "motion.stages";
+        }
+        // part.additionalBones (after 1.0.0)
+        var addClass = AdditionalBonesClass(ctx, paths, key, before, after);
+        if (addClass != null) return addClass;
+        // acc.skinned (after 1.0.0): an object, bone or renderer line inside a slot object that carries a SkinnedAccessory
+        // (the rig copy's transforms gone, the listed renderers' bones, root bone and bounds), also when the line is gone
+        if (key.StartsWith("obj|", StringComparison.Ordinal) || key.StartsWith("bone|", StringComparison.Ordinal) || key.StartsWith("rend|", StringComparison.Ordinal))
+        {
+            string path = key.Substring(key.IndexOf('|') + 1);
+            int hash = path.LastIndexOf('#');
+            if (hash > 0 && path.Substring(hash + 1).All(char.IsDigit)) path = path.Substring(0, hash);
+            foreach (var a in ctx.Accessories)
+                if (a?.Object && a.Object.GetComponent<SkinnedAccessory>() != null && paths.TryGetValue(a.Object.transform, out var sp)
+                    && (path == sp || path.StartsWith(sp + "/", StringComparison.Ordinal)))
+                    return "acc.skinned";
+        }
+        if (before == null || after == null) return null;
         var tokens = TokenNames(before, after);
         if (tokens.Count == 0) return null;
+        // part.heels: a renderer's world bounds moved with the lifted body
+        if (key.StartsWith("rend|", StringComparison.Ordinal) && tokens.All(x => x == "bounds")
+            && ctx.Motion?.Get<HS2Next.Motion.Heels.HeelsLift>()?.State.Active != null)
+            return "part.heels";
+        // part.heels: the dynamic-bone chains are built in the lifted body's world frame, which rounds their
+        // lengths, radii and end points differently in the last bits (every differing number within 1e-4 relative)
+        if (key.StartsWith("motion|chain[", StringComparison.Ordinal) && ctx.Motion?.Get<HS2Next.Motion.Heels.HeelsLift>()?.State.Active != null
+            && ChainRounding(before, after))
+            return "part.heels";
         if (key.StartsWith("mat|", StringComparison.Ordinal))
         {
             string rend = key.Substring(4); int br = rend.LastIndexOf('[');
@@ -1374,20 +1716,152 @@ public static class MakerAccessoriesTest
         return null;
     }
 
+    /// <summary>
+    /// "part.additionalBones" (after 1.0.0) for a line of the bones a part's additional_bones moved under the
+    /// skeleton: their object and bone lines (also new ones), a renderer of such a part whose bones and / or bounds differ, an
+    /// object whose only difference is its sibling index under a transform that holds moved bones (the moved roots precede
+    /// it), a dynamic-bone chain whose root or owner is a moved bone and its particles (also new chains), the body colliders a
+    /// stage lists once it has chains on moved bones, the stage line whose differing tokens are the chain and collider counts.
+    /// Null otherwise.
+    /// </summary>
+    static string AdditionalBonesClass(CharaContext ctx, Dictionary<Transform, string> paths, string key, string before, string after)
+    {
+        var parts = ctx?.Edit?.PartsWithAdditionalBones.ToList();
+        if (parts == null || parts.Count == 0) return null;
+        var roots = parts.SelectMany(p => ctx.Edit.AdditionalBonesOf(p)).Where(t => t).ToList();
+        var rootPaths = roots.Select(t => paths.TryGetValue(t, out var p) ? p : null).Where(p => p != null).ToList();
+        var stage = ctx.Motion?.Get<DynamicBoneStage>();
+        bool Moved(Transform t) => t && roots.Any(r => t == r || t.IsChildOf(r));
+        bool Under(string p, List<string> under) => p != null && under.Any(r => p == r || p.StartsWith(r + "/", StringComparison.Ordinal));
+        // a path at the start of s, followed by '/', ' ' or the end
+        bool Starts(string s, List<string> under) => s != null && under.Any(r => s.StartsWith(r, StringComparison.Ordinal)
+                                                                    && (s.Length == r.Length || s[r.Length] == '/' || s[r.Length] == ' '));
+        string KeyPath()
+        {
+            string p = key.Substring(key.IndexOf('|') + 1);
+            int hash = p.LastIndexOf('#');
+            return hash > 0 && p.Substring(hash + 1).All(char.IsDigit) ? p.Substring(0, hash) : p;
+        }
+        if ((key.StartsWith("bone|", StringComparison.Ordinal) || key.StartsWith("obj|", StringComparison.Ordinal)) && Under(KeyPath(), rootPaths))
+            return "part.additionalBones";
+        if (key.StartsWith("motion|chain[", StringComparison.Ordinal))
+        {
+            bool OnMoved(string line)
+            {
+                if (line == null) return false;
+                if (key.Contains("].p["))
+                {
+                    int bar = line.IndexOf('|', "motion|".Length);
+                    return bar > 0 && Starts(line.Substring(bar + 1), rootPaths);
+                }
+                foreach (var field in new[] { " root=", " owner=" })
+                {
+                    int i = line.IndexOf(field, StringComparison.Ordinal);
+                    if (i >= 0 && Starts(line.Substring(i + field.Length), rootPaths)) return true;
+                }
+                return false;
+            }
+            if (OnMoved(before) || OnMoved(after)) return "part.additionalBones";
+            // the chain as the stage holds it (a tip particle's line names no transform)
+            int close = key.IndexOf(']');
+            if (stage != null && close > 13 && int.TryParse(key.Substring(13, close - 13), NumberStyles.None, CultureInfo.InvariantCulture, out int ci)
+                && ci < stage.Chains.Count && stage.Chains[ci] != null && (Moved(stage.Chains[ci].Root) || Moved(stage.Chains[ci].Owner)))
+                return "part.additionalBones";
+        }
+        // the body colliders, listed once the stage has chains on moved bones (a stage without chains lists none)
+        if (key.StartsWith("motion|collider[", StringComparison.Ordinal) && before == null && stage != null
+            && stage.Chains.Any(ch => ch != null && (Moved(ch.Root) || Moved(ch.Owner))))
+            return "part.additionalBones";
+        if (before == null || after == null) return null;
+        var tokens = TokenNames(before, after);
+        if (tokens.Count == 0) return null;
+        if (key.StartsWith("rend|", StringComparison.Ordinal) && tokens.All(t => t == "bones" || t == "bounds"))
+        {
+            var partPaths = parts.Select(p => paths.TryGetValue(p.transform, out var pp) ? pp : null).Where(p => p != null).ToList();
+            if (Under(KeyPath(), partPaths)) return "part.additionalBones";
+        }
+        if (key.StartsWith("obj|", StringComparison.Ordinal) && tokens.All(t => t == "sib"))
+        {
+            string path = KeyPath();
+            int slash = path.LastIndexOf('/');
+            var holders = roots.Select(t => t.parent && paths.TryGetValue(t.parent, out var pp) ? pp : null).Where(p => p != null);
+            if (slash > 0 && holders.Contains(path.Substring(0, slash))) return "part.additionalBones";
+        }
+        if (key == "motion|dynbone" && tokens.All(t => t == "chains" || t == "colliders")) return "part.additionalBones";
+        return null;
+    }
+
+    // Two snapshot lines whose tokens differ only in numbers (hex float bits or decimals, comma-separated) that agree within
+    // 1e-4 relative.
+    static bool ChainRounding(string before, string after)
+    {
+        var a = before.Split(' '); var b = after.Split(' ');
+        if (a.Length != b.Length) return false;
+        for (int i = 0; i < a.Length; i++)
+        {
+            if (a[i] == b[i]) continue;
+            int ea = a[i].IndexOf('='), eb = b[i].IndexOf('=');
+            if (ea < 0 || ea != eb || string.CompareOrdinal(a[i], 0, b[i], 0, ea) != 0) return false;
+            var va = a[i].Substring(ea + 1).Split(','); var vb = b[i].Substring(eb + 1).Split(',');
+            if (va.Length != vb.Length) return false;
+            for (int k = 0; k < va.Length; k++)
+            {
+                if (!Num(va[k], out double x) || !Num(vb[k], out double y)) return false;
+                if (Math.Abs(x - y) > 1e-4 * Math.Max(1, Math.Max(Math.Abs(x), Math.Abs(y)))) return false;
+            }
+        }
+        return true;
+    }
+
+    static bool Num(string s, out double v)
+    {
+        v = 0;
+        if (s.Length == 8 && uint.TryParse(s, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out uint bits))
+        {
+            v = BitConverter.Int32BitsToSingle(unchecked((int)bits));
+            return !double.IsNaN(v) && !double.IsInfinity(v);
+        }
+        return double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out v);
+    }
+
     static void Classify(MakerCoreTest.Built b, CharaSnapshot basis, CharaSnapshot now, Classes cls, List<string> others)
     {
         string card = System.IO.Path.GetFileName(b.File);
         var paths = MakerClothesTest.SnapPaths(b.Root.transform);
         var a = Keyed(basis.Lines); var c = Keyed(now.Lines);
+        bool gained = BonemodsGainedOnMoved(b.Context, paths, a, c);
         foreach (var kv in a.Concat(c.Where(x => !a.ContainsKey(x.Key))))
         {
             a.TryGetValue(kv.Key, out var la); c.TryGetValue(kv.Key, out var lc);
             if (la == lc) continue;
-            string klass = AccessoryClass(b.Context, paths, kv.Key, la, lc) ?? "other";
+            string klass = (gained && (kv.Key.StartsWith("ctx|bonemod[", StringComparison.Ordinal) || kv.Key == "ctx|ext" && AbmxCountsOnly(la, lc)
+                                       || kv.Key.StartsWith("obj|", StringComparison.Ordinal) && la != null && lc != null && lc.Replace("BoneModifierApplier,", "") == la)
+                            ? "part.additionalBones" : null)
+                           ?? AccessoryClass(b.Context, paths, kv.Key, la, lc) ?? "other";
             if (klass == "other") others.Add($"{card} {Short(kv.Key, 160)}: " + (la != null && lc != null ? "tokens [" + string.Join(",", TokenNames(la, lc)) + "] " : "") + $"{Short(la, 160)} <> {Short(lc, 160)}");
             cls.Add(klass, card);
         }
     }
+
+    // part.additionalBones (after 1.0.0): ABMX modifiers whose bone is a moved bone resolve now. The modifier
+    // lines are sorted, so the lines after a new one shift: true when the new lines are the old ones plus lines on moved bones.
+    static bool BonemodsGainedOnMoved(CharaContext ctx, Dictionary<Transform, string> paths, Dictionary<string, string> before, Dictionary<string, string> after)
+    {
+        var parts = ctx?.Edit?.PartsWithAdditionalBones.ToList();
+        if (parts == null || parts.Count == 0) return false;
+        var roots = parts.SelectMany(p => ctx.Edit.AdditionalBonesOf(p)).Where(t => t && paths.ContainsKey(t)).Select(t => paths[t]).ToList();
+        List<string> Mods(Dictionary<string, string> d) =>
+            d.Where(kv => kv.Key.StartsWith("ctx|bonemod[", StringComparison.Ordinal)).Select(kv => kv.Value.Substring(kv.Value.IndexOf('|', 4) + 1)).ToList();
+        var added = Mods(after);
+        foreach (var m in Mods(before)) if (!added.Remove(m)) return false;   // a line gone: something else changed
+        return added.Count > 0 && added.All(m => roots.Any(r => m.StartsWith(r + "/", StringComparison.Ordinal) || m.StartsWith(r + " ", StringComparison.Ordinal)));
+    }
+
+    static readonly System.Text.RegularExpressions.Regex AbmxCounts = new System.Text.RegularExpressions.Regex(@"_abmx_\d+/\d+_\(identity_\d+,_unknown_\d+\)");
+
+    // The extension summary lines differ only in ABMX's resolved / unknown counts.
+    static bool AbmxCountsOnly(string a, string b) =>
+        a != null && b != null && AbmxCounts.IsMatch(a) && AbmxCounts.Replace(a, "_abmx_") == AbmxCounts.Replace(b, "_abmx_");
 
     static Dictionary<string, string> Keyed(List<string> lines)
     {

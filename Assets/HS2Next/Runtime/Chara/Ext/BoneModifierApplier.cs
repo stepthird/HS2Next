@@ -83,6 +83,25 @@ namespace HS2Next.Chara.Ext
             }
         }
 
+        /// <summary>What one pass writes on <paramref name="t"/> from the base (lp, lr, ls), as the pass combines that bone's
+        /// modifiers; false (the base returned) when no modifier names it. For another latch-style writer of the same bone (the
+        /// heels' foot joints): a bone that holds this value was not rewritten since.</summary>
+        public bool Predict(Transform t, Vector3 lp, Quaternion lr, Vector3 ls, out Vector3 p, out Quaternion r, out Vector3 s)
+        {
+            p = lp; r = lr; s = ls;
+            if (!t) return false;
+            if (dirty) Rebuild();
+            foreach (var b in bones)
+            {
+                if (b.T != t) continue;
+                s = b.HasScale ? Vector3.Scale(ls, b.Scale) : ls;
+                p = b.HasLength ? lp * b.Length + b.Position : b.HasPosition ? lp + b.Position : lp;
+                r = b.HasRotation ? lr * Quaternion.Euler(b.Rotation) : lr;
+                return true;
+            }
+            return false;
+        }
+
         /// <summary>One pass now (edit-mode flushes, where no LateUpdate runs, see the
         /// state play mode reaches; the base is re-detected for bones a shape re-evaluation wrote).</summary>
         public void ApplyNow() => Apply();

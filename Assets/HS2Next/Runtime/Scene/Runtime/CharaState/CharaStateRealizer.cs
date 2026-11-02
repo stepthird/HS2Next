@@ -218,6 +218,11 @@ namespace HS2Next.Scenes.Runtime
             if (real.Assembler != null && real.Assembler.MaskRenderersMissing.Count > 0)
                 real.Runtime.ReportOnce(FindingSeverity.Info, "chara.maskRendererMissing", real.NodeId,
                     "no mask reference renderer in the worn part: " + string.Join(", ", real.Assembler.MaskRenderersMissing) + " (as in HS2, those parts get no clothes mask)");
+            // the body cuts follow the switch objects this state set (after 1.0.0)
+            Ctx.Edit?.ApplyBodyCuts();
+            // the heels apply while the shoes are on (after 1.0.0; the stored state, not the silhouette's hiding)
+            var heels = Ctx.Motion?.Get<HS2Next.Motion.Heels.HeelsLift>();
+            if (heels != null) heels.State.ShoesOn = e[7] == On;
             LastClothesMs = sw.Elapsed.TotalMilliseconds;
         }
 
@@ -264,7 +269,9 @@ namespace HS2Next.Scenes.Runtime
         IEnumerable<Material> Owned(Renderer r)
         {
             // every slot holds a material of this character's build, whether or not the extension stage
-            // registered it in OwnedMaterials
+            // registered it in OwnedMaterials; a renderer that draws the body's materials has none of its own (after 1.0.0,
+            // 8)
+            if (Ctx != null && Ctx.DrawsBodyMaterials(r)) yield break;
             foreach (var m in r.sharedMaterials) if (m) yield return m;
         }
 

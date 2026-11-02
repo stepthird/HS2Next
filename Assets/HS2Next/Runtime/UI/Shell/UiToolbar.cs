@@ -208,7 +208,7 @@ namespace HS2Next.UI
             return l;
         }
 
-        List<MenuItem> HelpMenu() => new List<MenuItem> { Item(ActionIds.HelpKeys), Item(ActionIds.HelpAbout) };
+        List<MenuItem> HelpMenu() => new List<MenuItem> { Item(ActionIds.HelpKeys), Item(ActionIds.HelpCheckUpdates), Item(ActionIds.HelpAbout) };
 
         public void Refresh()
         {

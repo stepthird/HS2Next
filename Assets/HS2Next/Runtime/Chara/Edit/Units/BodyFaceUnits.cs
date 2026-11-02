@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using AIChara;
 using HS2Next.Content;
+using HS2Next.Content.Maker;
 using HS2Next.Save;
 using UnityEngine;
 using EM = HS2Next.Chara.Edit.EditMaterials;
@@ -181,6 +182,7 @@ namespace HS2Next.Chara.Edit.Units
             x.BeginPartLoad();
             var prefab = gd.LoadAssetAt<GameObject>(he, headAB, he[x.DataKey(he)]);   // through the texture guard, like LoadPart
             var head = EditContext.Spawn(prefab, "ct_head", null);
+            x.RegisterAdditionalBones(head, he, headAB, he[x.DataKey(he)]);   // BonesFramework
             x.PartsLoaded++;
             if (swapped)
             {
@@ -201,6 +203,7 @@ namespace HS2Next.Chara.Edit.Units
             var oHead = EditContext.Find(head.transform, "o_head")?.GetComponent<SkinnedMeshRenderer>();
             if (oHead) EditContext.SetBaseMaterial(oHead, faceDraw);
             x.Ctx.Head = head;
+            x.Ctx.HeadRow = he;
             x.Ctx.FaceDraw = faceDraw;
             DefaultExpression(head);
 
@@ -303,12 +306,24 @@ namespace HS2Next.Chara.Edit.Units
             var faceDraw = x.Ctx.FaceDraw;
             var skin = x.Row(x.S.SkinF, f.Skin, "ChaFileFace.skinId", PartKeys.FaceSkin, "face.skin");
             bool fresh = x.FaceSkin == null;
+            var bundle = Bundle(x);
+            var owner = bundle == HeadBundleRedirect.VanillaBundle ? null : x.Ctx.HeadRow;   // a head's own bundle is in its zipmod
+            bool reloaded = false;
             if (fresh)
             {
-                x.FaceSkin = new CompositeInputs("create_skin_face", new TexCreator(x.Catalog, "create_skin_face", 2048, 2048));
-                x.FaceDetail = new CompositeInputs("create_skin detail_face", new TexCreator(x.Catalog, "create_skin detail_face", 2048, 2048));
+                x.FaceSkin = new CompositeInputs("create_skin_face", new TexCreator(x.Catalog, "create_skin_face", 2048, 2048, bundle, owner));
+                x.FaceDetail = new CompositeInputs("create_skin detail_face", new TexCreator(x.Catalog, "create_skin detail_face", 2048, 2048, bundle, owner));
                 x.Ctx.FaceSkin = x.FaceSkin.Creator; x.Ctx.FaceDetail = x.FaceDetail.Creator;
             }
+            else if (x.FaceSkin.Creator.Bundle != bundle)
+            {
+                // a head with other compositing materials: the passes take fresh copies of them (every input is written
+                // below, the RTs and skin layers stay) and are rebuilt, as the game makes the passes anew with each head
+                x.FaceSkin.Creator.Reload(x.Catalog, bundle, owner);
+                x.FaceDetail.Creator.Reload(x.Catalog, bundle, owner);
+                reloaded = true;
+            }
+            if (reloaded || (fresh && bundle != HeadBundleRedirect.VanillaBundle)) x.Log.Add("face: compositing materials from " + bundle);
             var c0i = x.FaceSkin; var c1i = x.FaceDetail;
             var c0 = c0i.Creator; var c1 = c1i.Creator;
             c0.Main = x.Tex(skin, "MainAB", "MainTex"); c0i.Ref("Main", skin, "MainAB", "MainTex");
@@ -331,9 +346,20 @@ namespace HS2Next.Chara.Edit.Units
             c0.Mat.SetVector("_Texture12UV", new Vector4(Mathf.Lerp(5, 1, ml.x), Mathf.Lerp(5, 1, ml.y), Mathf.Lerp(0.3f, -0.3f, ml.z), Mathf.Lerp(0.3f, -0.3f, ml.w)));
             // every input is written (above); only the creators whose inputs changed are rebuilt
             // with HS2's per-layer dirty kinds (a colour drag rebuilds one 2048² RT)
-            UnitMap.SkinCreators(Id, DirtyPaths, DirtyAll || fresh || x.InBuild, out bool col, out bool det);
+            UnitMap.SkinCreators(Id, DirtyPaths, DirtyAll || fresh || reloaded || x.InBuild, out bool col, out bool det);
             if (col) x.Rebuild(c0i, faceDraw, "_MainTex", fresh);
             if (det) x.Rebuild(c1i, faceDraw, "_DetailMainTex", fresh);
+        }
+
+        /// <summary>The bundle of the face compositing materials for the current head: its
+        /// redirect when that bundle has both materials, else chara/mm_base.unity3d.</summary>
+        static string Bundle(EditContext x)
+        {
+            var b = HeadBundleRedirect.BundleFor(x.Ctx.HeadRow);
+            if (b == HeadBundleRedirect.VanillaBundle) return b;
+            if (TexCreator.Source(x.Catalog, b, x.Ctx.HeadRow, "create_skin_face") && TexCreator.Source(x.Catalog, b, x.Ctx.HeadRow, "create_skin detail_face")) return b;
+            x.Log.Add($"face: {b} lacks the compositing materials; {HeadBundleRedirect.VanillaBundle} is used");
+            return HeadBundleRedirect.VanillaBundle;
         }
 
         static void Layer(EditContext x, CompositeInputs c0i, CompositeInputs c1i, string n, ListEntry e, MakeupLayer l)

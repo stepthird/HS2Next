@@ -174,6 +174,9 @@ def start(exe, env, out_log):
     # a bare exe only on a data root of this check: without HS2NEXT_DATA_ROOT it would write into the owner's per-user folder
     if not env.get("HS2NEXT_DATA_ROOT"):
         raise RuntimeError("refusing a bare start without HS2NEXT_DATA_ROOT (the per-user folder is the owner's)")
+    # the distributed exe checks GitHub for a newer release at start: never from a test
+    env = dict(env)
+    env.setdefault("HS2NEXT_UPDATE_CHECK", "off")
     return subprocess.Popen([exe], cwd=os.path.dirname(exe), env=env, stdout=out_log, stderr=subprocess.STDOUT)
 
 

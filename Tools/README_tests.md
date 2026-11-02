@@ -155,7 +155,7 @@ or `curl -s -X POST http://127.0.0.1:17322/ -d '{"cmd":"ping"}'` (always 127.0.0
 
 ## The everyday rows (`-Quick`)
 
-`-List` prints the full set (161 rows with `-Full`). The `-Quick` rows:
+`-List` prints the full set (162 rows with `-Full`). The `-Quick` rows:
 
 | Row | Group | Areas |
 | --- | --- | --- |

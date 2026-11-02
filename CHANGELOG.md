@@ -3,7 +3,38 @@
 HS2Next follows semantic versioning: the save format, the plugin API and the bridge commands not marked experimental
 keep working within a major version ([CONTRIBUTING.md](CONTRIBUTING.md), "Compatibility").
 
-## Unreleased
+## 1.1.0
+
+Released on 2026-11-02 (UTC).
+
+### Additions
+
+- Update check: at start the distributed app asks GitHub once whether a newer release exists (nothing about you, your files
+  or your characters is sent) and, when one does, offers to open its download page in the web browser, to skip that version
+  or to ask later. Help > Check for updates asks at any time; File > Options > General turns the check at start off. The
+  app never downloads or installs anything by itself.
+
+### Fixes
+
+- Skinned accessories (mod accessories with the HooahComponents `SkinnedAccessory` component, such as fingernails, arm
+  pieces and bodysuits sold as accessories) are drawn on the character's own skeleton, as in the game. 1.0.0 drew them
+  away from the body.
+- Clothes and accessories with HS2_CopyChaBodyMat's `ChaCopyBodyMaterial` component (skin pressed out by tight clothes,
+  such as GDC's tight series and roy12's Skindentations) draw those skin pieces with the character's own skin, as in the
+  game. 1.0.0 drew them grey-white.
+- Mod heads that bring their own face compositing materials (HeadBundleRedirect's `Head_Bundle_Redirect` in the zipmod
+  manifest, as many of cunihinx's heads do) lay out the eyeshadow, cheek and lip layers and the face paint mask with those
+  materials, as in the game. 1.0.0 used the game's layouts on every head.
+- Clothes with MdgqBodyChange's `BodyCut` component (squeeze stockings and a few tops) hide the body while their cut body is
+  shown, and the cut body draws the character's skin, as in the game. 1.0.0 drew the body and the cut body on top of each
+  other.
+- Clothes with ModBoneImplantor's `BoneImplantProcess` component keep the extra bones they bring (moved under the body
+  skeleton), as in the game. 1.0.0 lost those bones with the part's own skeleton copy.
+- Heel shoes with Heelz data (`AI_HeelsData` in the zipmod manifest) lift the body and pose the ankles, feet and toes as the
+  plugin does in the Studio. 1.0.0 left the feet flat and sunk into the floor.
+- Heads, hair and clothes that bring extra bones for BonesFramework (an `additional_bones` list in their bundle, as roy12's
+  heads and some skirts, sleeves and coats have) keep those bones, moved under the character's skeleton, as in the game.
+  1.0.0 lost them with the part's own skeleton copy, so such heads were drawn with a stretched, broken face.
 
 ## 1.0.0
 

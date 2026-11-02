@@ -1117,11 +1117,16 @@ public static class MakerFileTest
         var counts = new SortedDictionary<string, int>(StringComparer.Ordinal);
         var bad = new List<string>();
         int total = 0;
+        // the first-run player rows stage the forward-compatibility documents (future enum values and node kinds, whose
+        // warnings are the point) in their data roots: not user files
+        string firstRun = Path.Combine(root, "Spike", "out", "player", "firstrun");
+        int fixtures = 0;
         foreach (var top in new[] { "UserData", Path.Combine("Spike", "out"), "Cache" })
             foreach (var f in Walk(Path.Combine(root, top)))
             {
                 string ext = Path.GetExtension(f).ToLowerInvariant();
                 if (!exts.Contains(ext)) continue;
+                if (f.StartsWith(firstRun, StringComparison.OrdinalIgnoreCase)) { fixtures++; continue; }
                 total++;
                 counts[top + " " + ext] = counts.TryGetValue(top + " " + ext, out var c) ? c + 1 : 1;
                 var w = new FindingList();
@@ -1139,6 +1144,7 @@ public static class MakerFileTest
                     bad.Add(f.Substring(root.Length).TrimStart('\\', '/') + ": " + (error ?? string.Join("; ", noisy.Take(3).Select(x => x.ToString()))));
             }
         foreach (var kv in counts) Info($"{kv.Key}: {kv.Value}");
+        Info($"first-run forward-compatibility documents not read: {fixtures}");
         foreach (var b in bad) Info("FAILED " + b);
         Check($"every .hs2n* file ({total}) loads with no error and no warning", total > 0 && bad.Count == 0, $"{bad.Count} failed");
         Finish("maker_file_userfiles_report.txt", "MakerFileTest.userfiles (Phase 4.6, the frozen reader)", sw);

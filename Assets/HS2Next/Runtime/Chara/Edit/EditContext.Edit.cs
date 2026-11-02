@@ -203,14 +203,16 @@ namespace HS2Next.Chara.Edit
             foreach (var c in new[] { BodySkin, BodyDetail, FaceSkin, FaceDetail }) if (c?.Creator.Target) keep.Add(c.Creator.Target);
             var rts = new HashSet<RenderTexture>();
             foreach (var r in go.GetComponentsInChildren<Renderer>(true))
-                foreach (var m in r.sharedMaterials)
+                foreach (var m in Ctx.DrawsBodyMaterials(r) ? new Material[0] : r.sharedMaterials)
                 {
-                    if (!m) continue;
+                    if (!m || m == Ctx.BodyDraw || m == Ctx.FaceDraw) continue;   // (a cut body draws the body's material)
                     foreach (var id in m.GetTexturePropertyNameIDs())
                         if (m.GetTexture(id) is RenderTexture rt && rt && !keep.Contains(rt)) rts.Add(rt);
                 }
             foreach (var rt in rts) { if (RenderTexture.active == rt) RenderTexture.active = null; rt.Release(); Object.DestroyImmediate(rt); }
             DestroyOwnedMaterials(go);
+            DestroyImplants(go);
+            DestroyAdditionalBones(go);
             foreach (var a in alphaActive.Keys.Where(k => !k || k.transform.IsChildOf(go.transform)).ToList()) alphaActive.Remove(a);
             ForgetMissing(unitId);
             go.transform.SetParent(null, false);
@@ -342,6 +344,7 @@ namespace HS2Next.Chara.Edit
             if (!go) return null;
             acc.Object = go;
             if (headWeighted) Rebind(go, Ctx.HeadBones, "cf_J_FaceRoot", Ctx.Hips);
+            MergeSkinnedAccessory(go, acc);
             string key = acc.ParentKey ?? "";
             if (key == "" || fixedRow) key = e["Parent"];
             if (!headWeighted && key != "0" && key != "none")
@@ -373,6 +376,69 @@ namespace HS2Next.Chara.Edit
                 return null;
             }
             return root ? Walk(root) : null;
+        }
+
+        // Skinned accessories: a mod accessory may carry a SkinnedAccessory next to its CmpAccessory. Its listed
+        // renderers are then drawn by the character's skeleton: every bone whose name the body rig has is replaced by the
+        // character's bone (other bones stay in their slots), the root bone is cf_J_Root and the bounds a wide fixed box;
+        // then the prefab's own rig copy, which hangs under the attach point, is destroyed at once so no later name lookup
+        // finds it. A null entry in the list stops the merge there and keeps the copy, as the game does.
+        static readonly Bounds SkinnedAccessoryBounds = new Bounds(new Vector3(0, 10, 0), new Vector3(20, 20, 20));
+        static readonly HashSet<string> SkinnedAccessoryStops = new HashSet<string>(HS2Next.Save.DocEnum.AttachPoints) { "cf_t_root" };
+
+        /// <summary>Puts the listed renderers of the slot object's SkinnedAccessory on the character's skeleton and destroys
+        /// the prefab's rig copy (the accessory loader, after the head rebinding); nothing without the component.</summary>
+        public void MergeSkinnedAccessory(GameObject go, AccessorySlot self)
+        {
+            var sa = go.GetComponent<SkinnedAccessory>();
+            if (sa == null || sa.meshRenderers == null || go.GetComponent<CmpAccessory>() == null) return;
+            if (Ctx.BodyBones == null || !Ctx.BodyBones.TryGetValue("cf_J_Root", out var jRoot) || !jRoot) return;
+            var bones = SkinnedAccessoryBones(jRoot, go, self);
+            int merged = 0;
+            bool stopped = false;
+            foreach (var smr in sa.meshRenderers)
+            {
+                if (!smr) { stopped = true; break; }
+                if (!Own(smr, go)) continue;
+                var b = smr.bones;
+                for (int i = 0; i < b.Length; i++)
+                    if (b[i] && bones.TryGetValue(b[i].name, out var t)) b[i] = t;
+                smr.rootBone = jRoot;
+                smr.bones = b;
+                smr.enabled = true;
+                smr.localBounds = SkinnedAccessoryBounds;
+                merged++;
+            }
+            var copy = sa.skeleton;
+            bool destroyed = false;
+            if (!stopped && copy && copy.transform.IsChildOf(go.transform) && !go.transform.IsChildOf(copy.transform))
+            {
+                copy.transform.SetParent(null);
+                Object.DestroyImmediate(copy);
+                destroyed = true;
+            }
+            Log.Add($"acc{self.Slot}: skinned, {merged} renderers on the body rig, rig copy {(destroyed ? "destroyed" : stopped ? "kept (null entry)" : "none")}");
+        }
+
+        // The bone table of a skinned accessory: pre-order from cf_J_Root, a later transform of a name
+        // replacing an earlier one (the head rig under cf_J_Head_s included); the subtrees of cf_t_root and of the 54 attach
+        // points (the accessories hang there) are left out, and so are scene node holders and slot objects.
+        Dictionary<string, Transform> SkinnedAccessoryBones(Transform root, GameObject go, AccessorySlot self)
+        {
+            var skip = new HashSet<Transform> { go.transform };
+            foreach (var a in Ctx.Accessories) if (a != null && a != self && a.Object) skip.Add(a.Object.transform);
+            var d = new Dictionary<string, Transform>();
+            void Walk(Transform t)
+            {
+                d[t.name] = t;
+                for (int i = 0; i < t.childCount; i++)
+                {
+                    var c = t.GetChild(i);
+                    if (!SkinnedAccessoryStops.Contains(c.name) && !skip.Contains(c) && !Scenes.Runtime.SceneNodeHolder.IsHolder(c)) Walk(c);
+                }
+            }
+            Walk(root);
+            return d;
         }
 
         // A renderer of the accessory's own instance. A prefab may reference a renderer of another prefab asset (a stale

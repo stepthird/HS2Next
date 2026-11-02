@@ -32,6 +32,34 @@
 //     WT12 ClothesInfo's facts cache: after an item change, an option toggle, a one-piece swap, a coordinate apply, an undo
 //          and a redo the facts of every kind (asked before the change, so a stale entry would show) = the facts of a fresh
 //          report; a repeated request comes from the cache; the gate checks of a first show (26) cold and warm, timed
+//     WT13 (added after 1.0.0) parts drawn with the body's materials: the rules on objects made under the body top
+//          (registration, a target owns no material, the ownership step and a release leave the body's materials, KCOX passes
+//          over targets, the copy, destroyed targets dropped); the socks roy12.skindentations#1 on BR-Chan: o_socks_thigh2
+//          draws the body's array (the same objects) after the load, a socks colour edit (the body's materials unchanged),
+//          skin colour and gloss edits; the release keeps the body's materials; G1; edit = fresh build
+//     WT14 (added after 1.0.0) bone implants: the rules on objects made under the body top (the implant moves trfSrc
+//          under the skeleton bone named like trfDst with its local transform, a renderer bone neither implanted nor in the
+//          skeleton becomes null, invalid pairs and unknown targets are skipped, a part without implants keeps its missing
+//          bones, DestroyImplants); the top roy12.piggytop#0 on BR-Chan: cf_J_Belly_Pivot under cf_J_Kosi01_s with the
+//          prefab's local transform, every renderer bone the skeleton's or implanted (20 slots on implanted bones), the skeleton
+//          copy gone, the part's dynamic bone rooted on the implant; the release destroys the implant; G1; edit = fresh build
+//     WT15 (added after 1.0.0) body cuts: the rules on objects made under the body top (registration, the switch, the
+//          first slot and its replaced copy, a disabled component, the second cut body, Invisible Body, a destroyed part); the
+//          top K044#725044 on a BR-Chan node: dressed = the body off and the cut body on with the body's first material; half
+//          and off = the body on; dressed again; socks com.3dh9527.newsqueezestocking.x6#77778 on top of it (switch always
+//          active); the top and then the socks taken off = the body on, no cuts; G1; node = a fresh node in each state
+//     WT16 (added after 1.0.0) heels: the element's registration and parse rules and one joint's pose on synthetic
+//          input; the first installed heel shoes with fixed toes and clamped rolls on BR-Chan, the motion stepped by hand: the
+//          body lifted by root.y, the six foot joints = an independent computation from their bases, still steps do not
+//          accumulate (also with a bone modifier on a foot joint), shoes off = no lift and the bases back, a body-height edit
+//          then the card's shoes = no lift left behind; through a BR-Chan node the clothes state sets ShoesOn; G1
+//     WT17 (added after 1.0.0) additional bones: the line rules of additional_bones and the move on objects made under
+//          the body top and under the head bone (a listed bone moves under the transform named like its parent with its local
+//          transform, a renderer keeps it unless the skeleton has its name, a bone whose parent name is nowhere stays in the
+//          part, a part without a line keeps its missing bones, DestroyAdditionalBones); the head Roy12.Sarah#76 on BR-Chan:
+//          cf_J_CustomBones and cf_J_CustomMouth under the head skeleton, every o_head bone the skeleton's or moved; the top
+//          tAOb_Nico_Robin_NewWorld#444440986: three back bones under cf_J_Spine03 with their dynamic bones as chains; the
+//          releases destroy the moved bones; G1; edit = fresh build
 //   RunRender (graphics): the creators' RT read-backs after WT1 / WT2 / WT4 edits = a fresh build's (and a full pass's);
 //     a KCOX-grown top (a synthetic 2× overlay): the creator keeps its RT live at the grown size, edits = a fresh build,
 //     a detail edit leaves the colour RT (with the overlay) alone, every creator material / RT destroyed after the release;
@@ -308,6 +336,11 @@ public static class MakerClothesTest
                 if (Want("WT10")) Guard("WT10 digest sections", () => WT10(h));
                 if (Want("WT11")) Guard("WT11 item swap with colliders, animated", () => WT11(h));
                 if (Want("WT12")) Guard("WT12 the facts cache of ClothesInfo", () => WT12(h));
+                if (Want("WT13")) Guard("WT13 parts drawn with the body's materials", () => WT13(h));
+                if (Want("WT14")) Guard("WT14 bone implants", () => WT14(h));
+                if (Want("WT15")) Guard("WT15 body cuts", () => WT15(h));
+                if (Want("WT16")) Guard("WT16 heels", () => WT16(h));
+                if (Want("WT17")) Guard("WT17 additional bones", () => WT17(h));
             }
         }
         finally
@@ -316,7 +349,7 @@ public static class MakerClothesTest
             ClothesPartUnit.RestoreChainsBeforeRelease = true;
             CharaStateRealizer.ReapplyAfterObjectsReset = true;
         }
-        Finish("maker_clothes_report.txt", "MakerClothesTest UM, WT1-WT11", sw);
+        Finish("maker_clothes_report.txt", "MakerClothesTest UM, WT1-WT17", sw);
     }
 
     /// <summary>"on" / "off" / "absent": the catalog's per-asset redirect switch (ContentCatalog.SideloaderAssetRedirect)
@@ -1374,6 +1407,727 @@ public static class MakerClothesTest
         }
         finally { ClothesInfo.UseCache = keep; n.Dispose(); }
         h.ReleaseBundles();
+    }
+
+    // ---------------------------------------------------------------- WT17 (after 1.0.0)
+
+    const string SarahHead = "Roy12.Sarah#76";                      // 210 "sarah": cf_J_CustomBones, cf_J_CustomMouth
+    const string RobinTop = "tAOb_Nico_Robin_NewWorld#444440986";   // 240: eight arm bones and three back bones with dynamic bones
+
+    static void WT17(MakerCoreTest.Harness h)
+    {
+        WT17Lines();
+        using (var bb = new Disposer(BuildOk(h, FemaleCard, "BR-Chan")))
+        {
+            var live = bb.B;
+            if (!live.Ok) return;
+            WT17Rules(live.Context);
+            if (Installed(h, 210, SarahHead, "WT17 head")) WT17Head(h, live);
+            if (Installed(h, 240, RobinTop, "WT17 top")) WT17Top(h, live);
+        }
+        h.ReleaseBundles();
+    }
+
+    /// <summary>Renderer bone slots of <paramref name="part"/>: on a transform of <paramref name="moved"/>, without a bone (null,
+    /// or lost with the skeleton copy), and on any other transform outside <paramref name="skeleton"/>.</summary>
+    static (int moved, int lost, int other) Slots(GameObject part, HashSet<Transform> moved, HashSet<Transform> skeleton)
+    {
+        int m = 0, l = 0, o = 0;
+        foreach (var smr in part.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+            foreach (var b in smr.bones)
+            {
+                if (!b) l++;
+                else if (moved.Contains(b)) m++;
+                else if (!skeleton.Contains(b)) o++;
+            }
+        return (m, l, o);
+    }
+
+    static int NullSlots(GameObject prefab) =>
+        prefab ? prefab.GetComponentsInChildren<SkinnedMeshRenderer>(true).Sum(r => r.bones.Count(b => !b)) : -1;
+
+    static HashSet<Transform> Below(IEnumerable<Transform> roots) =>
+        new HashSet<Transform>((roots ?? Enumerable.Empty<Transform>()).Where(r => r).SelectMany(r => r.GetComponentsInChildren<Transform>(true)));
+
+    static void WT17Head(MakerCoreTest.Harness h, MakerCoreTest.Built live)
+    {
+        var ctx = live.Context;
+        string was = ctx.Chara.Face.Head;
+        var row = RowOf(h.Catalog, 210, SarahHead);
+        var prefab = h.Catalog.LoadAsset<GameObject>(row, "MainAB", ctx.Edit.DataKey(row));
+        SetM(live, "chara.face.head", () => ctx.Chara.Face.Head = SarahHead);
+        var head = ctx.Head;
+        var roots = ctx.Edit.AdditionalBonesOf(head)?.ToList() ?? new List<Transform>();
+        ctx.HeadBones.TryGetValue("cf_J_FaceBase", out var faceBase);
+        ctx.HeadBones.TryGetValue("cf_J_MouthMove", out var mouthMove);
+        bool Placed(string name, Transform parent)
+        {
+            var r = roots.FirstOrDefault(t => t && t.name == name);
+            var src = prefab ? EditContext.Find(prefab.transform, name) : null;
+            return r && src && parent && r.parent == parent && !r.IsChildOf(head.transform)
+                   && r.localPosition == src.localPosition && r.localRotation == src.localRotation && r.localScale == src.localScale;
+        }
+        Check("WT17 210:" + SarahHead + ": cf_J_CustomBones under the head skeleton's cf_J_FaceBase, cf_J_CustomMouth under its cf_J_MouthMove, with the prefab's local transforms",
+              head && roots.Count == 2 && Placed("cf_J_CustomBones", faceBase) && Placed("cf_J_CustomMouth", mouthMove),
+              string.Join(", ", roots.Select(r => r ? r.name + " under " + (r.parent ? r.parent.name : "-") : "destroyed")));
+        var moved = Below(roots);
+        var (m, l, o) = head ? Slots(head, moved, new HashSet<Transform>(ctx.HeadBones.Values)) : (0, -1, 0);
+        int pn = NullSlots(prefab);
+        Check("WT17 every renderer bone of the head is the head skeleton's or moved (113 slots on moved bones, none lost); the skeleton copy is gone",
+              m == 113 && l == pn && o == 0 && head && !EditContext.Find(head.transform, "cf_J_FaceRoot"), $"moved {m}, without a bone {l} (prefab {pn}), other {o}");
+        var s = live.Snapshot();
+        Check("WT17 Sarah head: G1", s.G1Pass, s.G1Text);
+        FreshOk("WT17 Sarah head", h, live);
+        SetM(live, "chara.face.head", () => ctx.Chara.Face.Head = was);
+        Check("WT17 Sarah head -> the card's head: the moved bones destroyed with the head",
+              roots.All(r => !r) && faceBase && !EditContext.Find(faceBase, "cf_J_CustomBones") && mouthMove && !EditContext.Find(mouthMove, "cf_J_CustomMouth")
+              && ctx.Edit.AdditionalBonesOf(ctx.Head) == null);
+        s = live.Snapshot();
+        Check("WT17 after the head release: G1", s.G1Pass, s.G1Text);
+        FreshOk("WT17 head back", h, live);
+    }
+
+    static void WT17Top(MakerCoreTest.Harness h, MakerCoreTest.Built live)
+    {
+        var ctx = live.Context;
+        string was = PartOf(ctx, 0).Item;
+        SetItem(live, 0, RobinTop);
+        var part = ctx.Clothes[0];
+        var roots = ctx.Edit.AdditionalBonesOf(part)?.ToList() ?? new List<Transform>();
+        Transform Bone(string n) => ctx.BodyBones.TryGetValue(n, out var t) ? t : null;
+        var back = roots.Where(r => r && r.name.StartsWith("cf_J_back_01_", StringComparison.Ordinal)).ToList();
+        var arms = roots.Where(r => r && r.name.StartsWith("cf_J_ArmOut", StringComparison.Ordinal)).ToList();
+        Check("WT17 240:" + RobinTop + ": three back bones under the skeleton's cf_J_Spine03, eight arm bones under cf_J_ArmUp00_L / _R",
+              part && roots.Count == 11 && back.Count == 3 && arms.Count == 8 && back.All(r => r.parent == Bone("cf_J_Spine03"))
+              && arms.All(r => r.parent == Bone(r.name.EndsWith("_L", StringComparison.Ordinal) ? "cf_J_ArmUp00_L" : "cf_J_ArmUp00_R"))
+              && roots.All(r => !r.IsChildOf(part.transform)),
+              string.Join(", ", roots.Select(r => r ? r.name + " under " + (r.parent ? r.parent.name : "-") : "destroyed")));
+        var moved = Below(roots);
+        var (m, l, o) = part ? Slots(part, moved, new HashSet<Transform>(ctx.BodyBones.Values)) : (0, -1, 0);
+        int pn = NullSlots(h.Catalog.LoadAsset<GameObject>(RowOf(h.Catalog, 240, RobinTop), "MainAB", ctx.Edit.DataKey(RowOf(h.Catalog, 240, RobinTop))));
+        Check("WT17 the top's renderer slots on moved bones (44), none lost; the skeleton copy is gone",
+              m == 44 && l == pn && part && !EditContext.Find(part.transform, "cf_J_Root"), $"moved {m}, without a bone {l} (prefab {pn}), other {o}");
+        // the dynamic bones sit on the back bones and move with them under the skeleton: chains of the stage, outside the part
+        var dbs = back.SelectMany(r => r.GetComponentsInChildren<global::DynamicBone>(true)).ToList();
+        var stage = ctx.Motion?.Get<DynamicBoneStage>();
+        Check("WT17 the three dynamic bones on the back bones are chains (category other: no longer under the part), rooted on moved bones",
+              dbs.Count == 3 && stage != null && dbs.All(db => db.m_Root && moved.Contains(db.m_Root)
+                  && stage.Chains.Any(ch => ch.Source == db && ch.Category == DynamicBoneCategory.Other)),
+              string.Join(", ", dbs.Select(db => (db.m_Root ? db.m_Root.name : "null") + " " + (stage?.Chains.FirstOrDefault(ch => ch.Source == db)?.Category.ToString() ?? "no chain"))));
+        var s = live.Snapshot();
+        Check("WT17 Robin top: G1", s.G1Pass, s.G1Text);
+        FreshOk("WT17 Robin top", h, live);
+        var spine = Bone("cf_J_Spine03");
+        SetItem(live, 0, was);
+        Check("WT17 Robin top -> the card's top: the moved bones destroyed with the part, no chain left on them",
+              roots.All(r => !r) && spine && !EditContext.Find(spine, "cf_J_back_01_C") && ctx.Edit.AdditionalBonesOf(part) == null
+              && (stage == null || stage.Chains.All(ch => ch.Source)));
+        s = live.Snapshot();
+        Check("WT17 after the top release: G1", s.G1Pass, s.G1Text);
+        FreshOk("WT17 top back", h, live);
+    }
+
+    /// <summary>line rules of additional_bones (Unity-free).</summary>
+    static void WT17Lines()
+    {
+        const string text = "p_a\tx\ty\r\n\r\np_b\tz\t\np_b\tw\n";
+        var a = AdditionalBones.Parse(text, "p_a");
+        var b = AdditionalBones.Parse(text, "p_b");
+        var only = AdditionalBones.Parse("p_a", "p_a");
+        Check("WT17 lines: the first line naming the prefab (CRLF and LF, empty lines dropped, empty fields kept), names compared ordinally",
+              a != null && a.SetEquals(new[] { "x", "y" }) && b != null && b.SetEquals(new[] { "z", "" }) && only != null && only.Count == 0
+              && AdditionalBones.Parse(text, "P_A") == null && AdditionalBones.Parse(text, "p_c") == null && AdditionalBones.Parse("", "p_a") == null,
+              $"p_a [{(a == null ? "null" : string.Join(",", a))}], p_b [{(b == null ? "null" : string.Join(",", b))}]");
+    }
+
+    /// <summary>move rules on objects made under the character's body top and head bone (parts with a skeleton copy,
+    /// bones and a skinned renderer, rebound to the body or head skeleton).</summary>
+    static void WT17Rules(CharaContext ctx)
+    {
+        var x = ctx.Edit;
+        Transform Child(Transform p, string n) { var t = new GameObject(n).transform; t.SetParent(p, false); return t; }
+        // a body part: cf_J_Root/cf_J_Kosi01_s/wt17_extra/{wt17_tip, cf_J_Kosi02}, cf_J_Root/wt17_nowhere/wt17_lost, wt17_stray
+        var part = Child(ctx.BodyTop.transform, "wt17_part");
+        var copy = Child(part, "cf_J_Root");
+        var kosi = Child(copy, "cf_J_Kosi01_s");
+        var extra = Child(kosi, "wt17_extra");
+        extra.localPosition = new Vector3(0.1f, 0.2f, 0.3f); extra.localRotation = Quaternion.Euler(10, 20, 30); extra.localScale = new Vector3(1, 2, 1);
+        var tip = Child(extra, "wt17_tip");
+        var named = Child(extra, "cf_J_Kosi02");
+        var lost = Child(Child(copy, "wt17_nowhere"), "wt17_lost");
+        var stray = Child(part, "wt17_stray");
+        var smr = Child(part, "o_wt17").gameObject.AddComponent<SkinnedMeshRenderer>();
+        smr.bones = new[] { kosi, extra, tip, named, lost, stray, null };
+        // a head part first under p_cf_head_bone, so a search through it would find its own cf_J_FaceBase first
+        var head = Child(ctx.HeadBone.transform, "wt17_head");
+        head.SetSiblingIndex(0);
+        var ownBase = Child(Child(head, "cf_J_FaceRoot"), "cf_J_FaceBase");
+        var face = Child(ownBase, "wt17_face");
+        var hsmr = Child(head, "o_wt17_head").gameObject.AddComponent<SkinnedMeshRenderer>();
+        hsmr.bones = new[] { ownBase, face };
+        // a part without a line
+        var plain = Child(ctx.BodyTop.transform, "wt17_plain");
+        var plainExtra = Child(Child(Child(plain, "cf_J_Root"), "cf_J_Kosi01_s"), "wt17_plain_extra");
+        var psmr = Child(plain, "o_wt17_plain").gameObject.AddComponent<SkinnedMeshRenderer>();
+        psmr.bones = new[] { plainExtra };
+        try
+        {
+            x.RegisterAdditionalBones(part.gameObject, new[] { "wt17_extra", "wt17_lost", "" });
+            x.RegisterAdditionalBones(head.gameObject, new[] { "wt17_face" });
+            x.Rebind(part.gameObject, ctx.BodyBones, "cf_J_Root", ctx.Hips);
+            x.Rebind(head.gameObject, ctx.HeadBones, "cf_J_FaceRoot", null);
+            x.Rebind(plain.gameObject, ctx.BodyBones, "cf_J_Root", ctx.Hips);
+            ctx.BodyBones.TryGetValue("cf_J_Kosi01_s", out var skelKosi);
+            ctx.BodyBones.TryGetValue("cf_J_Kosi02", out var skelKosi2);
+            ctx.HeadBones.TryGetValue("cf_J_FaceBase", out var skelBase);
+            var bones = smr.bones;
+            Check("WT17 rules: a listed bone moves under the skeleton bone named like its parent with its local transform, its children with it",
+                  extra && extra.parent == skelKosi && extra.localPosition == new Vector3(0.1f, 0.2f, 0.3f) && extra.localRotation == Quaternion.Euler(10, 20, 30)
+                  && extra.localScale == new Vector3(1, 2, 1) && tip && tip.parent == extra && named && named.parent == extra
+                  && x.AdditionalBonesOf(part.gameObject)?.Count == 1, $"extra under {(extra && extra.parent ? extra.parent.name : "-")}");
+            Check("WT17 rules: the renderer keeps the moved bones, takes the skeleton's for a skeleton name (also inside a moved bone), keeps a missing bone outside the copy; a bone whose parent name is nowhere stays in the part and goes with the copy; a null stays null",
+                  bones.Length == 7 && bones[0] == skelKosi && bones[1] == extra && bones[2] == tip && bones[3] == skelKosi2 && !bones[4] && bones[5] == stray && bones[6] == null,
+                  string.Join(", ", bones.Select(b => ReferenceEquals(b, null) ? "null" : b ? b.name + (b.parent ? " < " + b.parent.name : "") : "destroyed")));
+            Check("WT17 rules: a head part searches from p_cf_head_bone without entering itself: its bone under the head skeleton's cf_J_FaceBase",
+                  face && face.parent == skelBase && hsmr.bones[0] == skelBase && hsmr.bones[1] == face && x.AdditionalBonesOf(head.gameObject)?.Count == 1,
+                  $"face under {(face && face.parent ? face.parent.name + (face.parent == skelBase ? " (skeleton)" : " (other)") : "-")}");
+            Check("WT17 rules: a part without a line moves nothing (its missing bone stays in its slot and goes with the copy, 1.0 behaviour)",
+                  x.AdditionalBonesOf(plain.gameObject) == null && !plainExtra && !psmr.bones[0] && skelKosi && !EditContext.Find(skelKosi, "wt17_plain_extra"));
+            int n = x.DestroyAdditionalBones(part.gameObject) + x.DestroyAdditionalBones(head.gameObject);
+            Check("WT17 rules: DestroyAdditionalBones removes the moved bones from the skeletons", n == 2 && !extra && !face
+                  && x.AdditionalBonesOf(part.gameObject) == null && x.AdditionalBonesOf(head.gameObject) == null);
+        }
+        finally
+        {
+            x.DestroyAdditionalBones(part.gameObject); x.DestroyAdditionalBones(head.gameObject);
+            Object.DestroyImmediate(part.gameObject); Object.DestroyImmediate(head.gameObject); Object.DestroyImmediate(plain.gameObject);
+        }
+    }
+
+    // ---------------------------------------------------------------- WT16 (after 1.0.0)
+
+    static readonly string[] HeelJoints = { "cf_J_Foot01_L", "cf_J_Foot02_L", "cf_J_Foot01_R", "cf_J_Foot02_R", "cf_J_Toes01_L", "cf_J_Toes01_R" };
+
+    static void WT16(MakerCoreTest.Harness h)
+    {
+        WT16Rules();
+        var lists = MakerCatalog.For(h.Catalog);
+        var rows = h.Catalog.EntriesOf(HeelsData.FemaleShoesCategory).Where(e => HeelsData.For(e) != null && lists.IsListed(247, 1, e.Key))
+                    .OrderBy(e => e.Key.ToString(), StringComparer.Ordinal).ToList();
+        var row = rows.FirstOrDefault(e => { var x = HeelsData.For(e); return x.Toes.Fixed && x.Ankle.RollMax != Vector3.zero && x.Root.y > 0; });
+        Info($"WT16 female shoe rows with heel data {rows.Count}; using {row?.Key}");
+        if (!Check("WT16 installed heel shoes with fixed toes and clamped rolls", row != null, rows.Count + " rows")) return;
+        var heel = HeelsData.For(row);
+        using (var bb = new Disposer(BuildOk(h, FemaleCard, "BR-Chan")))
+        {
+            var live = bb.B;
+            if (!live.Ok) return;
+            var ctx = live.Context;
+            var lift = ctx.Motion?.Get<HS2Next.Motion.Heels.HeelsLift>();
+            var foot = ctx.Motion?.Get<HS2Next.Motion.Heels.HeelsFoot>();
+            if (!Check("WT16 the heel stages are attached", lift != null && foot != null && lift.Height && foot.Joints.All(j => j))) return;
+            string was = PartOf(ctx, 7).Item;
+            ctx.Motion.Step(1f / 60f);
+            Check("WT16 the card's shoes: no lift, the joints untouched", !lift.Lifted && !foot.Written && lift.Height.localPosition == Vector3.zero);
+            SetItem(live, 7, row.Key.ToString());
+            var joints = foot.Joints;
+            var bp = joints.Select(j => j.localPosition).ToArray(); var br = joints.Select(j => j.localRotation).ToArray(); var bs = joints.Select(j => j.localScale).ToArray();
+            ctx.Motion.Step(1f / 60f);
+            Check($"WT16 247:{row.Key}: the body lifted by root.y", lift.Lifted && lift.Height.localPosition == new Vector3(0, heel.Root.y, 0), lift.Height.localPosition.ToString("F4"));
+            string Expect(out bool ok)
+            {
+                // independent: local = base · AngleAxis(x, right) · AngleAxis(y, up) · AngleAxis(z, forward); "fixed" first takes the
+                // parent's world rotation (toes: the posed foot), position + move, scale = the heel's
+                ok = true;
+                var sb = new StringBuilder();
+                var parts = new[] { heel.Ankle, heel.Foot, heel.Ankle, heel.Foot, heel.Toes, heel.Toes };
+                for (int i = 0; i < 6; i++)
+                {
+                    var j = parts[i];
+                    bool clamp = j.RollMin != Vector3.zero || j.RollMax != Vector3.zero;
+                    float C(float v, float lo, float hi) => clamp ? Mathf.Clamp(v, lo, hi) : v;
+                    var start = br[i];
+                    if (j.Fixed) start = Quaternion.Inverse(joints[i].parent.rotation) * Quaternion.Euler(joints[i].parent.eulerAngles);
+                    var e = start * Quaternion.AngleAxis(C(j.Roll.x, j.RollMin.x, j.RollMax.x), Vector3.right) * Quaternion.AngleAxis(C(j.Roll.y, j.RollMin.y, j.RollMax.y), Vector3.up)
+                            * Quaternion.AngleAxis(C(j.Roll.z, j.RollMin.z, j.RollMax.z), Vector3.forward);
+                    float ang = Quaternion.Angle(e, joints[i].localRotation);
+                    bool pos = (joints[i].localPosition - (bp[i] + j.Move)).sqrMagnitude < 1e-10f, scl = joints[i].localScale == j.Scale;
+                    if (ang > 0.01f || !pos || !scl) { ok = false; sb.Append($"{HeelJoints[i]}: {ang:F4}° pos {pos} scale {scl}; "); }
+                }
+                return sb.ToString();
+            }
+            string d1 = Expect(out bool ok1);
+            Check("WT16 the six foot joints = the independent computation from their bases", ok1 && foot.Written, d1);
+            var after1 = joints.Select(j => j.localRotation).ToArray();
+            for (int k = 0; k < 3; k++) ctx.Motion.Step(1f / 60f);
+            Check("WT16 three more still steps: the joints and the lift unchanged (no accumulation)",
+                  joints.Select(j => j.localRotation).Zip(after1, (a, b) => Quaternion.Angle(a, b)).All(a => a < 1e-3f) && lift.Height.localPosition.y == heel.Root.y);
+            // a bone modifier on the left foot joint: the two latch-style writers do not feed each other on a still pose
+            var mod = new HS2Next.Chara.Ext.BoneModifierApplier.Modifier { Target = joints[1], Bone = HeelJoints[1], Source = "wt16", Rotation = new Vector3(10, 0, 0) };
+            bool own = !ctx.Bones;   // a card without bone modifiers has no component: one for the check, removed after it
+            if (own) ctx.Bones = ctx.Root.AddComponent<HS2Next.Chara.Ext.BoneModifierApplier>();
+            ctx.Bones.Add(mod);
+            var seen = new List<Quaternion>();
+            for (int k = 0; k < 4; k++) { ctx.Motion.Step(1f / 60f); ctx.Bones.ApplyNow(); seen.Add(joints[1].localRotation); }
+            Check("WT16 with a bone modifier on cf_J_Foot02_L: steps and modifier passes alternate without accumulating",
+                  seen.Skip(1).All(q => Quaternion.Angle(q, seen[0]) < 1e-3f), string.Join(", ", seen.Select(q => q.eulerAngles.ToString("F2"))));
+            ctx.Bones.Remove("wt16");
+            ctx.Bones.ApplyNow();   // the removal restores the bone at the next pass (the LateUpdate in play)
+            if (own) { Object.DestroyImmediate(ctx.Bones); ctx.Bones = null; }
+            ctx.Motion.Step(1f / 60f);
+            string d2 = Expect(out bool ok2);
+            Check("WT16 the modifier removed: the joints = the computation again", ok2, d2);
+            lift.State.ShoesOn = false;
+            ctx.Motion.Step(1f / 60f);
+            Check("WT16 shoes off: no lift, the joints back to their bases", !lift.Lifted && lift.Height.localPosition == Vector3.zero && !foot.Written
+                  && Enumerable.Range(0, 6).All(i => Quaternion.Angle(joints[i].localRotation, br[i]) < 1e-3f && joints[i].localScale == bs[i]));
+            lift.State.ShoesOn = true;
+            ctx.Motion.Step(1f / 60f);
+            // a body-height edit re-captures the shape bones (cf_N_height among them) while the body is lifted
+            SetM(live, "chara.body.shape[0]", () => ctx.Chara.Body.Shape[0] = 0.62f);
+            SetItem(live, 7, was);
+            for (int k = 0; k < 3; k++) ctx.Motion.Step(1f / 60f);
+            Check("WT16 a height edit while lifted, then the card's shoes: no lift left behind", !lift.Lifted && lift.Height.localPosition == Vector3.zero,
+                  lift.Height.localPosition.ToString("F4"));
+            var s = live.Snapshot();
+            Check("WT16 after the heels: G1", s.G1Pass, s.G1Text);
+        }
+        h.ReleaseBundles();
+        // the scene's clothes state reaches the stage
+        var c = MakerEditTest.Import(h, FemaleCard, out string err);
+        if (!Check("WT16 BR-Chan imported", c != null, err)) return;
+        var n = MakerEditTest.NewNode(h, c, "BR-Chan");
+        try
+        {
+            if (!Check("WT16 node built", n.Ok, n.Error)) return;
+            var ids = new[] { n.Id };
+            n.Ops.ChangeItem(ids, "appearance.coord.clothes.shoes.item", row.Key.ToString(), User); n.Apply();
+            var st = n.Real.Context.Motion.Get<HS2Next.Motion.Heels.HeelsLift>().State;
+            bool on = st.ShoesOn && st.Active != null;
+            n.Ops.SetClothes(ids, 7, ClothesStateSet.Off, false, User); n.Apply();
+            bool off = !st.ShoesOn && st.Active == null;
+            n.Ops.SetClothes(ids, 7, ClothesStateSet.On, false, User); n.Apply();
+            Check("WT16 node: shoes on = heels in effect, off = none, on again = in effect", on && off && st.ShoesOn && st.Active == heel);
+        }
+        finally { n.Dispose(); h.ReleaseBundles(); }
+    }
+
+    /// <summary>rules on synthetic input: registration order and stops, the vector parse, defaults, and one joint's pose.</summary>
+    static void WT16Rules()
+    {
+        string X(string heels) => "<AI_HeelsData>" + heels + "</AI_HeelsData>";
+        const string H = "<root vec=\"0,0.5,0\"/><foot01><roll vec=\"20,0,0\" min=\"0,0,0\" max=\"30,0,0\"/></foot01><foot02><roll vec=\"-5,0,0\"/></foot02><toes01 fixed=\"1\"><roll vec=\"-10, 0 ,0\"/></toes01>";
+        var ids = new HashSet<int> { 0, 3, 7 };
+        var t1 = HeelsData.Read(X($"<heel id=\"3\">{H}</heel><heel id=\"-1\">{H}</heel><heel id=\"0\">{H}</heel><heel id=\"9\">{H}</heel><heel id=\"7\">{H}</heel>"), ids);
+        Check("WT16 rules: entries register in order, a negative id is skipped, id 0 is a shoe, an id that is no shoe row stops the rest",
+              t1.Count == 2 && t1.ContainsKey(3) && t1.ContainsKey(0) && !t1.ContainsKey(7), string.Join(",", t1.Keys));
+        var t2 = HeelsData.Read(X($"<heel id=\"3\">{H}</heel><heel id=\"3\">{H}</heel><heel id=\"7\">{H}</heel>"), ids);
+        var t3 = HeelsData.Read(X($"<heel id=\"x\">{H}</heel><heel id=\"7\">{H}</heel>"), ids);
+        Check("WT16 rules: an id registered twice stops the rest; an id that is no integer stops the manifest", t2.Count == 1 && t3.Count == 0);
+        var e = t1[3];
+        Check("WT16 rules: root, roll with min / max, fixed, spaces in a vector, defaults (move 0, scale 1)",
+              e.Root == new Vector3(0, 0.5f, 0) && e.Ankle.Roll == new Vector3(20, 0, 0) && e.Ankle.RollMax == new Vector3(30, 0, 0) && e.Foot.Roll.x == -5
+              && e.Toes.Fixed && !e.Ankle.Fixed && e.Toes.Roll == new Vector3(-10, 0, 0) && e.Ankle.Move == Vector3.zero && e.Foot.Scale == Vector3.one);
+        var t4 = HeelsData.Read(X("<heel id=\"7\"><root vec=\"0,1\"/><foot01><scale vec=\"1,1,1.2\"/></foot01></heel>"), ids);
+        var f = t4[7];
+        Check("WT16 rules: a vector of two numbers is the default; a missing joint element leaves the joint all zero (scale 0, as the plugin)",
+              f.Root == Vector3.zero && f.Ankle.Scale == new Vector3(1, 1, 1.2f) && f.Foot.Scale == Vector3.zero && f.Toes.Scale == Vector3.zero);
+        Check("WT16 rules: a male shoe row (147) and no row have no heel data",
+              HeelsData.For(new ListEntry { Category = 147, Key = new ContentId("x", 3) }) == null && HeelsData.For(null) == null);
+        // one joint: the roll clamps to [min, max] when either is set; the rolls go about the joint's own axes in x, y, z order
+        var root = new GameObject("wt16_parent"); var child = new GameObject("wt16_joint"); child.transform.SetParent(root.transform, false);
+        try
+        {
+            root.transform.rotation = Quaternion.Euler(0, 40, 0);
+            child.transform.localRotation = Quaternion.Euler(5, 0, 0);
+            var j = new HeelsData.Joint { Roll = new Vector3(-10, 50, 7), RollMin = new Vector3(0, 0, 0), RollMax = new Vector3(30, 20, 10), Scale = new Vector3(1, 1, 1.1f), Move = new Vector3(0, 0.01f, 0) };
+            HS2Next.Motion.Heels.HeelsFoot.Pose(child.transform, j);
+            var exp = Quaternion.Euler(5, 0, 0) * Quaternion.AngleAxis(0, Vector3.right) * Quaternion.AngleAxis(20, Vector3.up) * Quaternion.AngleAxis(7, Vector3.forward);
+            Check("WT16 rules: one joint posed (clamped rolls about its own axes, move added, scale set)",
+                  Quaternion.Angle(child.transform.localRotation, exp) < 1e-3f && child.transform.localScale == j.Scale && (child.transform.localPosition - j.Move).sqrMagnitude < 1e-10f,
+                  child.transform.localRotation.eulerAngles.ToString("F3"));
+            child.transform.localRotation = Quaternion.Euler(30, 0, 0);
+            HS2Next.Motion.Heels.HeelsFoot.Pose(child.transform, new HeelsData.Joint { Fixed = true, Scale = Vector3.one });
+            Check("WT16 rules: fixed = the parent's world rotation (no roll)", Quaternion.Angle(child.transform.rotation, root.transform.rotation) < 1e-3f);
+        }
+        finally { Object.DestroyImmediate(root); }
+    }
+
+    // ---------------------------------------------------------------- WT15 (after 1.0.0)
+
+    const string CutTop = "K044#725044";                                   // 240 "Code:Hanabi": a body cut switched by objTopDef
+    const string CutSocks = "com.3dh9527.newsqueezestocking.x6#77778";     // 246: a body cut whose switch object is always active
+
+    static void WT15(MakerCoreTest.Harness h)
+    {
+        using (var bb = new Disposer(BuildOk(h, FemaleCard, "BR-Chan")))
+            if (bb.B.Ok) WT15Rules(bb.B.Context);
+        h.ReleaseBundles();
+        if (!Installed(h, 240, CutTop, "WT15 top")) return;
+        var c = MakerEditTest.Import(h, FemaleCard, out string err);
+        if (!Check("WT15 BR-Chan imported", c != null, err)) return;
+        var n = MakerEditTest.NewNode(h, c, "BR-Chan");
+        try
+        {
+            if (!Check("WT15 node built", n.Ok, n.Error)) return;
+            var ids = new[] { n.Id };
+            string top = PartOf(n.Real.Context, 0).Item, socks = PartOf(n.Real.Context, 6).Item;
+            var r0 = n.Ops.ChangeItem(ids, "appearance.coord.clothes.top.item", CutTop, User); n.Apply();
+            var ctx = n.Real.Context;
+            Check("WT15 240:" + CutTop + ": one body cut registered", r0.Ok && ctx.BodyCuts.Count == 1, $"{r0}; cuts {ctx.BodyCuts.Count}");
+            if (ctx.BodyCuts.Count != 1) return;
+            var cut = ctx.BodyCuts[0].TopA[1].GetComponent<SkinnedMeshRenderer>();
+            var body = ctx.BodyRenderer;
+            string State() => $"body {body.enabled}, cut {cut.enabled}, cut slot 0 {(cut.sharedMaterials.Length > 0 && cut.sharedMaterials[0] ? cut.sharedMaterials[0].name : "null")}";
+            bool Skin() => cut.sharedMaterials.Length > 0 && cut.sharedMaterials[0] == body.sharedMaterials[0];
+            void Fresh(string what, int topState)
+            {
+                using (var fresh = MakerEditTest.NewNode(h, n.Session.Model.File.ExtractCharacter(n.Id), "BR-Chan (fresh)"))
+                {
+                    if (!Check("WT15 fresh node built", fresh.Ok, fresh.Error)) return;
+                    if (topState != ClothesStateSet.On) { fresh.Ops.SetClothes(new[] { fresh.Id }, 0, topState, false, User); fresh.Apply(); }
+                    var d = CharaSnapshot.Compare(fresh.Snapshot(), n.Snapshot(), 12);
+                    Check("WT15 " + what + ": = a fresh node", d.Equal, d.ToString());
+                }
+            }
+            Check("WT15 dressed: the body off, the cut body on with the body's first material", !body.enabled && cut.enabled && Skin(), State());
+            var s = n.Snapshot();
+            Check("WT15 dressed: G1", s.G1Pass, s.G1Text);
+            Fresh("dressed", ClothesStateSet.On);
+            n.Ops.SetClothes(ids, 0, ClothesStateSet.Half, false, User); n.Apply();
+            if (n.Real.StateRealizer.Realized[0] == ClothesStateSet.Half)
+            {
+                Check("WT15 half (objTopDef inactive): the body on, the cut body off", body.enabled && !cut.enabled && Skin(), State());
+                Fresh("half", ClothesStateSet.Half);
+            }
+            else Info("WT15 the top offers no half state (realized " + n.Real.StateRealizer.Realized[0] + "): skipped");
+            n.Ops.SetClothes(ids, 0, ClothesStateSet.Off, false, User); n.Apply();
+            Check("WT15 off (the part inactive): the body on, the cut body off", body.enabled && !cut.enabled, State());
+            n.Ops.SetClothes(ids, 0, ClothesStateSet.On, false, User); n.Apply();
+            Check("WT15 dressed again: the body off, the cut body on", !body.enabled && cut.enabled && Skin(), State());
+            if (Installed(h, 246, CutSocks, "WT15 socks"))
+            {
+                n.Ops.ChangeItem(ids, "appearance.coord.clothes.socks.item", CutSocks, User); n.Apply();
+                Check("WT15 + socks with a body cut: two cuts, the body off, both cut bodies on", ctx.BodyCuts.Count == 2 && !body.enabled
+                      && ctx.BodyCuts.All(b => b.TopA[1].GetComponent<SkinnedMeshRenderer>().enabled), $"cuts {ctx.BodyCuts.Count}, {State()}");
+                n.Ops.ChangeItem(ids, "appearance.coord.clothes.top.item", top, User); n.Apply();
+                Check("WT15 the top taken off: one cut left (the socks'), the body still off", ctx.BodyCuts.Count == 1 && !body.enabled, $"cuts {ctx.BodyCuts.Count}, body {body.enabled}");
+                Fresh("socks", ClothesStateSet.On);
+                n.Ops.ChangeItem(ids, "appearance.coord.clothes.socks.item", socks, User); n.Apply();
+            }
+            else { n.Ops.ChangeItem(ids, "appearance.coord.clothes.top.item", top, User); n.Apply(); }
+            var unit = ctx.Editor.Unit(UnitMap.BodyCut) as BodyCutUnit;
+            Check("WT15 the cuts taken off: the body on, no cuts, the unit stops following", body.enabled && ctx.BodyCuts.Count == 0 && ctx.BodyCutRenderers.Count == 0 && unit != null && !unit.Watching,
+                  $"body {body.enabled}, cuts {ctx.BodyCuts.Count}");
+            s = n.Snapshot();
+            Check("WT15 after the release: G1", s.G1Pass, s.G1Text);
+            Fresh("cuts taken off", ClothesStateSet.On);
+        }
+        finally { n.Dispose(); h.ReleaseBundles(); }
+    }
+
+    /// <summary>rules on objects made under the character's body top.</summary>
+    static void WT15Rules(CharaContext ctx)
+    {
+        var x = ctx.Edit;
+        var body = ctx.BodyRenderer;
+        var part = new GameObject("wt15_part"); part.transform.SetParent(ctx.BodyTop.transform, false);
+        var sw = new GameObject("wt15_switch"); sw.transform.SetParent(part.transform, false);
+        SkinnedMeshRenderer R(string name) { var g = new GameObject(name); g.transform.SetParent(part.transform, false); return g.AddComponent<SkinnedMeshRenderer>(); }
+        var cut = R("wt15_cut"); var second = R("wt15_second");
+        var own0 = x.Instance(ctx.BodyDraw); var own1 = x.Instance(ctx.BodyDraw);
+        cut.sharedMaterials = new[] { own0, own1 };
+        var noRenderer = new GameObject("wt15_plain"); noRenderer.transform.SetParent(part.transform, false);
+        bool invisible = ctx.Stats.InvisibleBody;
+        try
+        {
+            var c = part.AddComponent<MdgqBodyChange.BodyCut>();
+            c.TopA = new List<GameObject> { sw, cut.gameObject };
+            var inert = part.AddComponent<MdgqBodyChange.BodyCut>();
+            inert.TopA = new List<GameObject> { sw, noRenderer };
+            var off = part.AddComponent<MdgqBodyChange.BodyCut>();
+            off.enabled = false; off.TopA = new List<GameObject> { sw, cut.gameObject };
+            int n = x.RegisterBodyCuts(part);
+            Check("WT15 rules: an enabled cut with its cut-body renderer registers (a cut without one and a disabled component not)",
+                  n == 1 && ctx.BodyCuts.Count == 1 && ctx.DrawsBodySkin(cut) && !ctx.DrawsBodySkin(second), $"registered {n}");
+            x.ApplyBodyCuts();
+            Check("WT15 rules: switch active = the body off, the cut body on; its first slot the body's first material, the replaced copy destroyed, the second slot kept",
+                  !body.enabled && cut.enabled && cut.sharedMaterials[0] == body.sharedMaterials[0] && cut.sharedMaterials[1] == own1 && !own0 && !ctx.OwnedMaterials.Contains(own0));
+            sw.SetActive(false); x.ApplyBodyCuts();
+            Check("WT15 rules: switch inactive = the body on, the cut body off", body.enabled && !cut.enabled);
+            sw.SetActive(true); c.enabled = false; x.ApplyBodyCuts();
+            Check("WT15 rules: a component disabled after the start = the body on, the cut body off", body.enabled && !cut.enabled);
+            c.enabled = true;
+            c.TopA = new List<GameObject> { sw, cut.gameObject, second.gameObject };
+            sw.SetActive(false); x.ApplyBodyCuts();
+            Check("WT15 rules: with a second cut body, switch inactive = the second on, the first off, the body off; switch active = the first on",
+                  !body.enabled && !cut.enabled && second.enabled && second.sharedMaterials[0] == body.sharedMaterials[0]
+                  && SwitchOn(sw, x) && cut.enabled && !second.enabled && !body.enabled);
+            c.TopA = new List<GameObject> { sw, cut.gameObject };
+            ctx.Stats.InvisibleBody = true; x.ApplyBodyCuts();
+            Check("WT15 rules: a body the card hides (Invisible Body) stays hidden, and the cut body too", !body.enabled && !cut.enabled);
+            ctx.Stats.InvisibleBody = invisible;
+            Object.DestroyImmediate(part);
+            int live = x.ApplyBodyCuts();
+            Check("WT15 rules: the part destroyed = the body on, no cuts", live == 0 && body.enabled && ctx.BodyCuts.Count == 0 && ctx.BodyCutRenderers.Count == 0);
+            Check("WT15 rules: the body draw material survives", ctx.BodyDraw && body.sharedMaterials[0] == ctx.BodyDraw);
+        }
+        finally { ctx.Stats.InvisibleBody = invisible; if (part) Object.DestroyImmediate(part); x.ApplyBodyCuts(); }
+    }
+
+    static bool SwitchOn(GameObject sw, EditContext x) { sw.SetActive(true); x.ApplyBodyCuts(); return true; }
+
+    // ---------------------------------------------------------------- WT14 (after 1.0.0)
+
+    const string PigTop = "roy12.piggytop#0";   // 240 "Pig Top": its belly bones cf_J_Belly_Pivot.. implant under cf_J_Kosi01_s
+
+    static void WT14(MakerCoreTest.Harness h)
+    {
+        using (var bb = new Disposer(BuildOk(h, FemaleCard, "BR-Chan")))
+        {
+            var live = bb.B;
+            if (!live.Ok) return;
+            var ctx = live.Context;
+            WT14Rules(ctx);
+            if (!Installed(h, 240, PigTop, "WT14 top")) return;
+            string was = PartOf(ctx, 0).Item;
+            var row = RowOf(h.Catalog, 240, PigTop);
+            var prefab = h.Catalog.LoadAsset<GameObject>(row, "MainAB", ctx.Edit.DataKey(row));
+            var proc = prefab ? prefab.GetComponentInChildren<ModBoneImplantor.BoneImplantProcess>(true) : null;
+            SetItem(live, 0, PigTop);
+            var part = ctx.Clothes[0];
+            var roots = ctx.Edit.ImplantsOf(part);
+            var root = roots != null && roots.Count == 1 ? roots[0] : null;
+            ctx.BodyBones.TryGetValue("cf_J_Kosi01_s", out var kosi);
+            Check("WT14 240:" + PigTop + ": one implant, cf_J_Belly_Pivot under the skeleton's cf_J_Kosi01_s with the prefab's local transform",
+                  proc != null && root && root.name == "cf_J_Belly_Pivot" && kosi && root.parent == kosi && !root.IsChildOf(part.transform)
+                  && root.localPosition == proc.trfSrc.localPosition && root.localRotation == proc.trfSrc.localRotation && root.localScale == proc.trfSrc.localScale,
+                  $"implants {roots?.Count ?? 0}, root {(root ? root.name + " under " + root.parent.name : "-")}");
+            var implanted = root ? new HashSet<Transform>(root.GetComponentsInChildren<Transform>(true)) : new HashSet<Transform>();
+            var skeleton = new HashSet<Transform>(ctx.BodyBones.Values);
+            int slots = 0, bad = 0;
+            foreach (var smr in part.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+                foreach (var b in smr.bones)
+                {
+                    if (b && implanted.Contains(b)) slots++;
+                    else if (!b || !skeleton.Contains(b)) bad++;
+                }
+            Check("WT14 every renderer bone of the part is the skeleton's or implanted (20 slots on implanted bones); the skeleton copy is gone",
+                  slots == 20 && bad == 0 && !EditContext.Find(part.transform, "cf_J_Root"), $"implanted slots {slots}, other {bad}");
+            // the pig top's dynamic bone sits on the implanted bones and moves with them: the stage collects it under the root
+            var dbs = part.GetComponentsInChildren<global::DynamicBone>(true).Concat(root ? root.GetComponentsInChildren<global::DynamicBone>(true) : new global::DynamicBone[0]).ToList();
+            var stage = ctx.Motion?.Get<DynamicBoneStage>();
+            Check("WT14 the part's dynamic bone is rooted on the implanted bones and has a chain", dbs.Count > 0 && dbs.All(d => d.m_Root && implanted.Contains(d.m_Root))
+                  && (stage == null || dbs.All(d => stage.Chains.Any(ch => ch.Source == d))),
+                  string.Join(", ", dbs.Select(d => (d.m_Root ? d.m_Root.name : "null") + (implanted.Contains(d.transform) ? " (on an implanted bone)" : ""))) + (stage == null ? "; no stage" : ""));
+            var s = live.Snapshot();
+            Check("WT14 with the implant: G1", s.G1Pass, s.G1Text);
+            FreshOk("WT14 pig top", h, live);
+            SetItem(live, 0, was);
+            Check("WT14 pig top -> the card's top: the implanted bones destroyed with the part", !root && ctx.Edit.ImplantsOf(part) == null
+                  && !EditContext.Find(kosi, "cf_J_Belly_Pivot"));
+            s = live.Snapshot();
+            Check("WT14 after the release: G1", s.G1Pass, s.G1Text);
+            FreshOk("WT14 top back", h, live);
+        }
+        h.ReleaseBundles();
+    }
+
+    /// <summary>rules on objects made under the character's body top (a part with a skeleton copy cf_J_Root, bones and a
+    /// skinned renderer, rebound to the body skeleton).</summary>
+    static void WT14Rules(CharaContext ctx)
+    {
+        var x = ctx.Edit;
+        GameObject Part(string name, bool implants)
+        {
+            var part = new GameObject(name); part.transform.SetParent(ctx.BodyTop.transform, false);
+            var copy = new GameObject("cf_J_Root"); copy.transform.SetParent(part.transform, false);
+            var kosi = new GameObject("cf_J_Kosi01_s"); kosi.transform.SetParent(copy.transform, false);
+            var extra = new GameObject("wt14_extra"); extra.transform.SetParent(kosi.transform, false);
+            extra.transform.localPosition = new Vector3(0.1f, 0.2f, 0.3f); extra.transform.localRotation = Quaternion.Euler(10, 20, 30);
+            var tip = new GameObject("wt14_tip"); tip.transform.SetParent(extra.transform, false);
+            var stray = new GameObject("wt14_stray"); stray.transform.SetParent(part.transform, false);
+            var g = new GameObject("o_wt14"); g.transform.SetParent(part.transform, false);
+            var smr = g.AddComponent<SkinnedMeshRenderer>();
+            smr.bones = new[] { kosi.transform, extra.transform, tip.transform, stray.transform, null };
+            if (implants)
+            {
+                var ok = part.AddComponent<ModBoneImplantor.BoneImplantProcess>(); ok.trfSrc = extra.transform; ok.trfDst = kosi.transform;
+                var same = part.AddComponent<ModBoneImplantor.BoneImplantProcess>(); same.trfSrc = tip.transform; same.trfDst = tip.transform;
+                var unknown = part.AddComponent<ModBoneImplantor.BoneImplantProcess>(); unknown.trfSrc = stray.transform; unknown.trfDst = stray.transform.parent;
+            }
+            return part;
+        }
+        var withImplants = Part("wt14_part", true);
+        var without = Part("wt14_plain", false);
+        try
+        {
+            var extra = EditContext.Find(withImplants.transform, "wt14_extra");
+            var tip = EditContext.Find(withImplants.transform, "wt14_tip");
+            x.Rebind(withImplants, ctx.BodyBones, "cf_J_Root", ctx.Hips);
+            var bones = withImplants.GetComponentInChildren<SkinnedMeshRenderer>(true).bones;
+            ctx.BodyBones.TryGetValue("cf_J_Kosi01_s", out var kosi);
+            Check("WT14 rules: trfSrc moves under the skeleton bone named like trfDst with its local transform (its children with it)",
+                  extra && extra.parent == kosi && extra.localPosition == new Vector3(0.1f, 0.2f, 0.3f) && tip && tip.parent == extra
+                  && x.ImplantsOf(withImplants)?.Count == 1, $"extra under {(extra && extra.parent ? extra.parent.name : "-")}");
+            Check("WT14 rules: the renderer keeps the skeleton's and the implanted bones; a bone neither implanted nor in the skeleton becomes null; a null stays null",
+                  bones.Length == 5 && bones[0] == kosi && bones[1] == extra && bones[2] == tip && bones[3] == null && bones[4] == null,
+                  string.Join(", ", bones.Select(b => b ? b.name : "null")));
+            Check("WT14 rules: an invalid pair (trfSrc = trfDst) and a target outside the skeleton implant nothing; the skeleton copy is gone",
+                  EditContext.Find(withImplants.transform, "wt14_stray") && !EditContext.Find(withImplants.transform, "cf_J_Root"));
+            x.Rebind(without, ctx.BodyBones, "cf_J_Root", ctx.Hips);
+            var plain = without.GetComponentInChildren<SkinnedMeshRenderer>(true).bones;
+            Check("WT14 rules: a part without implants keeps a missing bone in its slot (1.0 behaviour)",
+                  plain[0] == kosi && !plain[1] && plain[3] && plain[3].name == "wt14_stray" && x.ImplantsOf(without) == null,
+                  string.Join(", ", plain.Select(b => b ? b.name : "null")));
+            int n = x.DestroyImplants(withImplants);
+            Check("WT14 rules: DestroyImplants removes the implanted bones from the skeleton", n == 1 && !extra && x.ImplantsOf(withImplants) == null);
+        }
+        finally { Object.DestroyImmediate(withImplants); Object.DestroyImmediate(without); }
+    }
+
+    // ---------------------------------------------------------------- WT13 (after 1.0.0)
+
+    const string SkinSocks = "roy12.skindentations#1";   // 246 "Skindentation Socks 02": o_socks_thigh2 draws the body's materials
+
+    /// <summary>The renderers the part's enabled ChaCopyBodyMaterial components name inside it.</summary>
+    static List<Renderer> BodyTargetsOf(GameObject part) =>
+        part ? part.GetComponentsInChildren<ChaCopyBodyMaterial>(true).Where(c => c.enabled && c.RendTarget != null).SelectMany(c => c.RendTarget)
+                   .Where(r => r && r.transform.IsChildOf(part.transform)).Distinct().ToList() : new List<Renderer>();
+
+    static BodyMaterialCopyUnit CopyUnit(CharaContext ctx) => ctx.Editor.Unit(UnitMap.BodyMaterialCopy) as BodyMaterialCopyUnit;
+
+    /// <summary>on one part: every target is registered and draws the body renderer's material array (the same objects);
+    /// the part's other renderers draw owned materials that are not the body's; the body draw keeps the skin RT; G1 passes.</summary>
+    public static bool BodyMaterialsOk(string label, MakerCoreTest.Built live, GameObject part)
+    {
+        var ctx = live.Context;
+        var targets = BodyTargetsOf(part);
+        if (!Check(label + ": the part names targets", targets.Count > 0, part ? part.name : "no part")) return false;
+        var body = ctx.BodyRenderer.sharedMaterials;
+        var bad = new List<string>();
+        foreach (var r in targets)
+        {
+            if (!ctx.DrawsBodyMaterials(r)) bad.Add(r.name + " not registered");
+            if (!r.sharedMaterials.SequenceEqual(body)) bad.Add(r.name + " [" + string.Join(",", r.sharedMaterials.Select(m => m ? m.name : "null")) + "]");
+        }
+        foreach (var r in part.GetComponentsInChildren<Renderer>(true).Where(r => !targets.Contains(r)))
+            foreach (var m in r.sharedMaterials)
+                if (m && (body.Contains(m) || !ctx.OwnedMaterials.Contains(m))) bad.Add(r.name + ": " + m.name + (body.Contains(m) ? " is the body's" : " not owned"));
+        var skin = ctx.Edit?.BodySkin?.Creator.Target;
+        if (!(ctx.BodyDraw && skin && ctx.BodyDraw.HasProperty("_MainTex") && ctx.BodyDraw.GetTexture("_MainTex") == skin)) bad.Add("body draw _MainTex is not the skin RT");
+        var s = live.Snapshot();
+        if (!s.G1Pass) bad.Add("G1 " + s.G1Text);
+        return Check(label + $": {targets.Count} targets draw the body's {body.Length} materials, the part's other renderers their own, body draw = the skin RT, G1",
+                     bad.Count == 0, string.Join("; ", bad.Take(8)));
+    }
+
+    static void WT13(MakerCoreTest.Harness h)
+    {
+        using (var bb = new Disposer(BuildOk(h, FemaleCard, "BR-Chan")))
+        {
+            var live = bb.B;
+            if (!live.Ok) return;
+            var ctx = live.Context;
+            WT13Rules(ctx);
+            Check("WT13 BR-Chan has no targets: copy.bodyMaterial does not follow the earlier steps", ctx.BodyMaterialTargets.Count == 0 && !CopyUnit(ctx).Watching);
+            if (!Installed(h, 246, SkinSocks, "WT13 socks")) return;
+            var p = PartOf(ctx, 6);
+            string was = p.Item;
+            var r = SetItem(live, 6, SkinSocks);
+            Check("WT13 the item load ran copy.bodyMaterial", r.Units.Contains(UnitMap.BodyMaterialCopy), string.Join(",", r.Units));
+            BodyMaterialsOk("WT13 246:" + SkinSocks, live, ctx.Clothes[6]);
+            FreshOk("WT13 socks", h, live);
+            // the clothes colour pass of the edit writes nothing into the body's materials (HS2 discards its writes to a target)
+            string bodyBefore = FaceDigest.MaterialsText(ctx, "body");
+            r = SetM(live, Doc(6) + ".colors[0].base", () => p.Colors[0].Base = new Color4(0.2f, 0.7f, 0.3f, 1f));
+            string bodyAfter = FaceDigest.MaterialsText(ctx, "body");
+            Check("WT13 a socks colour edit: copy.bodyMaterial ran, the body's materials unchanged", r.Units.Contains(UnitMap.BodyMaterialCopy) && bodyAfter == bodyBefore,
+                  string.Join(",", r.Units) + "; " + FirstDiff(bodyBefore, bodyAfter));
+            BodyMaterialsOk("WT13 after the colour edit", live, ctx.Clothes[6]);
+            FreshOk("WT13 colour edit", h, live);
+            // skin edits: the targets follow the body's materials
+            var b = ctx.Chara.Body;
+            SetM(live, "chara.body.skin.color", () => b.Skin.Color = new Color4(0.5f, 0.4f, 0.3f, 1f));
+            BodyMaterialsOk("WT13 after a skin colour edit", live, ctx.Clothes[6]);
+            SetM(live, "chara.body.skin.gloss", () => b.Skin.Gloss = 0.35f);
+            BodyMaterialsOk("WT13 after a skin gloss edit", live, ctx.Clothes[6]);
+            FreshOk("WT13 skin edits", h, live);
+            // the release of the part keeps the body's materials alive; the targets are dropped and the unit stops following
+            var bodyMats = ctx.BodyRenderer.sharedMaterials;
+            SetItem(live, 6, was);
+            Check("WT13 socks → the card's socks: the body's materials alive, owned and the body's; no targets left; the unit stops following",
+                  bodyMats.All(m => m && ctx.OwnedMaterials.Contains(m)) && ctx.BodyRenderer.sharedMaterials.SequenceEqual(bodyMats)
+                  && ctx.BodyMaterialTargets.Count == 0 && !CopyUnit(ctx).Watching, $"targets {ctx.BodyMaterialTargets.Count}");
+            var s = live.Snapshot();
+            Check("WT13 after the release: G1", s.G1Pass, s.G1Text);
+            FreshOk("WT13 socks back", h, live);
+            r = SetM(live, Doc(6) + ".colors[0].base", () => p.Colors[0].Base = new Color4(0.6f, 0.2f, 0.2f, 1f));
+            Check("WT13 no targets: a colour edit runs no copy.bodyMaterial", !r.Units.Contains(UnitMap.BodyMaterialCopy), string.Join(",", r.Units));
+        }
+        h.ReleaseBundles();
+    }
+
+    /// <summary>rules on objects made under the character's body top: registration (an enabled component's non-null
+    /// renderers inside the part; a null entry, a renderer outside the part and a disabled component's renderers not), a
+    /// target owns no material (OwnMaterial / OwnMaterials / Mats give nothing, the ownership step copies none of its slots),
+    /// the copy (the body's array, the same objects; other renderers untouched), KCOX's target choice passes over targets, a
+    /// release destroys only the part's own materials, the destroyed targets are dropped by the unit's next run.</summary>
+    static void WT13Rules(CharaContext ctx)
+    {
+        var x = ctx.Edit;
+        var part = new GameObject("wt13_part"); part.transform.SetParent(ctx.BodyTop.transform, false);
+        var outside = new GameObject("wt13_outside"); outside.transform.SetParent(ctx.BodyTop.transform, false);
+        SkinnedMeshRenderer R(string n, Transform parent) { var g = new GameObject(n); g.transform.SetParent(parent, false); return g.AddComponent<SkinnedMeshRenderer>(); }
+        var t1 = R("t1", part.transform); var t2 = R("t2", part.transform); var other = R("other", part.transform);
+        var off = R("off", part.transform); var far = R("far", outside.transform);
+        var foreign = new Material(ctx.BodyDraw) { name = "wt13_foreign" };
+        try
+        {
+            var c = part.AddComponent<ChaCopyBodyMaterial>();
+            c.RendTarget = new List<Renderer> { t1, null, far, t2 };
+            var d = part.AddComponent<ChaCopyBodyMaterial>();
+            d.enabled = false;
+            d.RendTarget = new List<Renderer> { off };
+            int n = x.RegisterBodyMaterialTargets(part);
+            Check("WT13 rules: an enabled component's renderers inside the part register (a null entry, a renderer outside, a disabled component's not)",
+                  n == 2 && ctx.DrawsBodyMaterials(t1) && ctx.DrawsBodyMaterials(t2) && !ctx.DrawsBodyMaterials(far) && !ctx.DrawsBodyMaterials(off) && !ctx.DrawsBodyMaterials(other)
+                  && CopyUnit(ctx).Watching, $"registered {n}");
+            t1.sharedMaterials = new Material[1];
+            other.sharedMaterials = new Material[1];
+            Check("WT13 rules: a target owns no material (OwnMaterial null, OwnMaterials / Mats none, its empty slot kept)",
+                  x.OwnMaterial(t1) == null && x.OwnMaterials(t1).Length == 0 && x.Mats(t1).Length == 0 && t1.sharedMaterials.Length == 1 && !t1.sharedMaterials[0]);
+            var om = x.OwnMaterial(other);
+            Check("WT13 rules: another renderer's empty slot gets its owned instance", om && ctx.OwnedMaterials.Contains(om) && other.sharedMaterials[0] == om);
+            t2.sharedMaterials = new[] { foreign };
+            int owned0 = ctx.OwnedMaterials.Count;
+            x.OwnAll(part);
+            Check("WT13 rules: the ownership step copies no slot of a target", t2.sharedMaterial == foreign && ctx.OwnedMaterials.Count == owned0, $"owned {owned0} → {ctx.OwnedMaterials.Count}");
+            int live0 = x.CopyBodyMaterials();
+            var body = ctx.BodyRenderer.sharedMaterials;
+            Check("WT13 rules: the copy gives the targets the body's array (the same objects); the other renderer keeps its own",
+                  live0 == 2 && t1.sharedMaterials.SequenceEqual(body) && t2.sharedMaterials.SequenceEqual(body) && other.sharedMaterials.Length == 1 && other.sharedMaterials[0] == om,
+                  $"live {live0}, body slots {body.Length}");
+            var cmp = part.AddComponent<CmpClothes>();
+            cmp.rendNormal01 = new List<Renderer> { t1, other };
+            cmp.rendNormal02 = new List<Renderer> { t2 };
+            var kt = HS2Next.Chara.Ext.ClothesOverlayApplier.Targets(ctx, cmp);
+            Check("WT13 rules: KCOX passes over targets (rendNormal01's first other renderer; rendNormal02 holds a target only)", kt.Count == 1 && kt[0] == other,
+                  string.Join(",", kt.Select(k => k.name)));
+            int destroyed = x.DestroyOwnedMaterials(part);
+            Check("WT13 rules: a release destroys the part's own material only; the body's stay alive and owned",
+                  destroyed == 1 && !om && body.All(m => m && ctx.OwnedMaterials.Contains(m)), $"destroyed {destroyed}");
+        }
+        finally
+        {
+            Object.DestroyImmediate(part);
+            Object.DestroyImmediate(outside);
+            Object.DestroyImmediate(foreign);
+        }
+        ctx.Editor.MarkUnit(UnitMap.BodyMaterialCopy);
+        var fr = ctx.Editor.Flush();
+        Check("WT13 rules: the unit's next run drops the destroyed targets and stops following", ctx.BodyMaterialTargets.Count == 0 && !CopyUnit(ctx).Watching && fr.Units.Contains(UnitMap.BodyMaterialCopy),
+              $"targets {ctx.BodyMaterialTargets.Count}, units {string.Join(",", fr.Units)}");
     }
 
     // ================================================================ RunRender (graphics)

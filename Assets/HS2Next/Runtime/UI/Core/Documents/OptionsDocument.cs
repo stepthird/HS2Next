@@ -105,6 +105,8 @@ namespace HS2Next.UI.Core
         // keys used by code (constants so call sites are checked)
         public const string Language = "general.language", UiScale = "general.uiScale", KeyPreset = "general.keyPreset",
             ConfirmDelete = "general.confirmDelete", RecentCount = "general.recentCount";
+        /// <summary>The update check at start (after 1.0.0; default on).</summary>
+        public const string UpdateCheck = "general.updateCheck";
         public const string CameraRotSpeedX = "camera.rotSpeedX", CameraRotSpeedY = "camera.rotSpeedY", CameraSpeed = "camera.speed",
             CameraConstantSpeed = "camera.constantSpeed", CameraRequireAlt = "camera.requireAlt", CameraKeySpeed = "camera.keySpeed",
             CameraInvertY = "camera.invertY", CameraWheelDolly = "camera.wheelDolly";
@@ -168,6 +170,7 @@ namespace HS2Next.UI.Core
             C(KeyPreset, Keymap.DefaultPreset, new[] { Keymap.DefaultPreset, Keymap.Hs2StudioPreset }, "general");
             B(ConfirmDelete, false, "general");
             I(RecentCount, 8, 0, 20, "general");
+            B(UpdateCheck, true, "general");   // after 1.0.0: the start check of the distributed build
 
             F(CameraRotSpeedX, 1, 0.1, 4, "camera", "cameraSpeedX");
             F(CameraRotSpeedY, 1, 0.1, 4, "camera", "cameraSpeedY");

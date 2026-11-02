@@ -123,6 +123,8 @@ namespace HS2Next.Chara
         public HS2Next.Chara.Ext.MaterialEditorApplier.Cache MaterialEditorCache;
 
         public GameObject Root, BodyTop, Anim, HeadBone, Body, Head;
+        /// <summary>The list row of <see cref="Head"/> (its face compositing bundle).</summary>
+        public ListEntry HeadRow;
         /// <summary>The character's motion orchestrator on Root (Runtime/Motion/CharaMotion.cs); stages (dynamic bones, look, expression, corrections) register here.</summary>
         public HS2Next.Motion.CharaMotion Motion;
         /// <summary>Hair objects by kind: 0 back (ct_hairB), 1 front, 2 side, 3 option (null when absent).</summary>
@@ -150,6 +152,21 @@ namespace HS2Next.Chara
         /// copies). Every other material is shared (bundle) and is never written: a module copies it first through
         /// <see cref="HS2Next.MaterialCopies"/> and adds the copy here. After the build every renderer slot holds one.</summary>
         public readonly HashSet<Material> OwnedMaterials = new HashSet<Material>();
+        /// <summary>Renderers of hair, clothes and accessory parts that draw the body renderer's materials (after 1.0.0,
+        /// the parts' ChaCopyBodyMaterial lists), registered by the part loader; the unit
+        /// copy.bodyMaterial gives them the body's material array. A target owns no material: the writers skip it. Destroyed
+        /// renderers stay until the unit's next run drops them.</summary>
+        public readonly HashSet<Renderer> BodyMaterialTargets = new HashSet<Renderer>();
+        /// <summary>True for a live body-material target (<see cref="BodyMaterialTargets"/>).</summary>
+        public bool DrawsBodyMaterials(Renderer r) => r && BodyMaterialTargets.Contains(r);
+        /// <summary>The body cuts of the clothes parts (after 1.0.0, the parts' BodyCut
+        /// components), registered by the part loader; the unit body.cut and the scene's clothes state switch the body and the
+        /// cut bodies between them. Destroyed components stay until the next switch drops them.</summary>
+        public readonly List<MdgqBodyChange.BodyCut> BodyCuts = new List<MdgqBodyChange.BodyCut>();
+        /// <summary>The cut-body renderers of <see cref="BodyCuts"/>: their first slot draws the body's first material.</summary>
+        public readonly HashSet<Renderer> BodyCutRenderers = new HashSet<Renderer>();
+        /// <summary>True for a live cut-body renderer (<see cref="BodyCutRenderers"/>).</summary>
+        public bool DrawsBodySkin(Renderer r) => r && BodyCutRenderers.Contains(r);
         /// <summary>The meshes made for this character (Phase 4.2, the per-character
         /// copies of the body mesh the breast normals are blended into; same name and vertex count as the drawn mesh they
         /// copy). Destroyed with the content (<see cref="ReleaseOwnedMeshes"/>, from the realization's ReleaseContent).</summary>

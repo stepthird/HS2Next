@@ -147,6 +147,7 @@ action.add.folder	Folder	フォルダー	文件夹	zh?
 action.add.route	Route	ルート	路径	zh?
 action.help.keys	Key bindings	キー一覧	快捷键一览	zh?
 action.help.about	About HS2Next	HS2Next について	关于 HS2Next	zh?
+action.help.checkUpdates	Check for updates	更新を確認	检查更新	zh?
 action.ui.language	Language	言語	语言	zh?
 action.ui.resetLayout	Reset layout	レイアウトをリセット	重置布局	zh?
 action.tree.prev	Previous row	前の行	上一行	zh?
@@ -196,6 +197,7 @@ option.general.uiScale	UI scale (%)	UI の大きさ (%)	界面缩放（%）	zh?
 option.general.keyPreset	Key preset	キー設定	按键预设	zh?
 option.general.confirmDelete	Confirm before deleting	削除の前に確認する	删除前确认	zh?
 option.general.recentCount	Recent files	最近使ったファイルの数	最近文件数	zh?
+option.general.updateCheck	Check for updates at start	起動時に更新を確認する	启动时检查更新	zh?
 option.camera.rotSpeedX	Rotation speed X	回転速度 X	旋转速度 X	zh?
 option.camera.rotSpeedY	Rotation speed Y	回転速度 Y	旋转速度 Y	zh?
 option.camera.speed	Move / dolly speed	移動・ズーム速度	移动 / 推拉速度	zh?
@@ -587,6 +589,13 @@ dialog.rename.title	Rename	名前の変更	重命名	zh?
 dialog.quit.title	Quit	終了	退出	zh?
 dialog.quit.message	The scene has unsaved changes. Quit anyway?	シーンに保存していない変更があります。終了しますか?	场景有未保存的更改。仍要退出吗？	zh?
 dialog.about.message	HS2Next {0}\nUnity {1}	HS2Next {0}\nUnity {1}	HS2Next {0}\nUnity {1}	
+dialog.update.title	HS2Next updates	HS2Next の更新	HS2Next 更新	zh?
+dialog.update.newer	HS2Next {0} is available. You are using {1}.\nThe download page opens in your web browser.	HS2Next {0} が公開されています。お使いの版は {1} です。\nダウンロードのページはブラウザで開きます。	HS2Next {0} 已发布。当前使用的版本为 {1}。\n下载页面将在浏览器中打开。	zh?
+dialog.update.latest	You have the latest version ({0}).	最新の版です ({0})。	已是最新版本（{0}）。	zh?
+dialog.update.failed	Could not check for updates.\n{0}	更新を確認できませんでした。\n{0}	无法检查更新。\n{0}	zh?
+dialog.update.open	Open the download page	ダウンロードのページを開く	打开下载页面	zh?
+dialog.update.skip	Skip this version	この版は知らせない	跳过此版本	zh?
+dialog.update.later	Later	後で	稍后	zh?
 msg.opFailed	{0}: {1}	{0}: {1}	{0}：{1}	zh?
 msg.saved	Saved {0}	{0} を保存しました	已保存 {0}	zh?
 msg.transformCopied	Transform copied	トランスフォームをコピーしました	已复制变换	zh?

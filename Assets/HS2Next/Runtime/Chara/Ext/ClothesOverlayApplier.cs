@@ -1,8 +1,8 @@
 // KCOX clothes overlays, applied after the clothes colour compositing
 // (the ChangeCustomClothes postfix of the plugin). Per main overlay id (ct_clothesTop .. ct_shoes = kind 0..7):
 // targets are the first renderer of rendNormal01 (or, when that group is empty, of rendNormal03) and the first of
-// rendNormal02; the target's material _MainTex must be the colour RenderTexture (items without a colour creator are
-// skipped). Override clears that RT to transparent black first ([nil, true] = cleared, nothing drawn); a texture is
+// rendNormal02, renderers that draw the body's materials passed over (after 1.0.0); the target's material _MainTex must
+// be the colour RenderTexture (items without a colour creator are skipped). Override clears that RT to transparent black first ([nil, true] = cleared, nothing drawn); a texture is
 // then composited with its Override flag and BlendingMode (Default alpha over / LinearAlpha). The RT is the shared
 // creator output, so every renderer of the group shows the result; slot 2 gets the same image in its own UV layout.
 // Size: an overlay (or TextureSizeOverride) larger than the colour pass's base size (its main texture)
@@ -43,6 +43,16 @@ namespace HS2Next.Chara.Ext
             ctx.Log.Add("kcox: " + string.Join("; ", log) + (OverlayCompositor.HasGpu ? "" : " (no graphics device: decoded, not drawn)"));
         }
 
+        /// <summary>The renderers whose colour RenderTexture an overlay of the item goes into: the first of rendNormal01 (of
+        /// rendNormal03 when 01 is empty) and the first of rendNormal02. A renderer that draws the body's materials is passed
+        /// over (after 1.0.0, its _MainTex is the body skin's).</summary>
+        public static List<Renderer> Targets(CharaContext ctx, CmpClothes cmp)
+        {
+            Renderer First(List<Renderer> g) => g?.FirstOrDefault(r => r && !(ctx != null && ctx.DrawsBodyMaterials(r)));
+            var t1 = cmp.rendNormal01 != null && cmp.rendNormal01.Count > 0 ? First(cmp.rendNormal01) : First(cmp.rendNormal03);
+            return new[] { t1, First(cmp.rendNormal02) }.Where(r => r).ToList();
+        }
+
         static string One(CharaContext ctx, ClothesOverlayData data, CharaExtOptions o, string id, ClothesTexData e, List<string> log)
         {
             var st = ctx.Stats;
@@ -53,9 +63,7 @@ namespace HS2Next.Chara.Ext
             if (!go) return "no clothes in the slot";
             var cmp = go.GetComponent<CmpClothes>();
             if (cmp == null) return "no CmpClothes";
-            Renderer First(List<Renderer> g) => g?.FirstOrDefault(r => r);
-            var t1 = cmp.rendNormal01 != null && cmp.rendNormal01.Count > 0 ? First(cmp.rendNormal01) : First(cmp.rendNormal03);
-            var targets = new[] { t1, First(cmp.rendNormal02) }.Where(r => r).ToList();
+            var targets = Targets(ctx, cmp);
             if (targets.Count == 0) return "no target renderer";
 
             Texture2D tex = null; string key = null;

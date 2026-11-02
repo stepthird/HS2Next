@@ -14,8 +14,11 @@ namespace HS2Next.Chara
     public class TexCreator
     {
         public static string DebugDir;   // when set, every rebuilt RT is also saved as PNG (sRGB)
-        public readonly Material Mat;
+        public Material Mat { get; private set; }
+        /// <summary>The bundle <see cref="Mat"/> was copied from (chara/mm_base.unity3d, or a head's own copy of it).</summary>
+        public string Bundle { get; private set; }
         public Texture Main;
+        readonly string material;
         RenderTexture rt;
         public readonly List<SkinLayer> Under = new List<SkinLayer>(), Over = new List<SkinLayer>();
         /// <summary>The output RT (bound to the draw material by the caller of Rebuild).</summary>
@@ -23,13 +26,33 @@ namespace HS2Next.Chara
         /// <summary>Layers drawn (or, without a graphics device, decoded) by the last Rebuild.</summary>
         public int LayersDrawn { get; private set; }
 
-        public TexCreator(ContentCatalog gd, string createMaterial, int w, int h)
+        /// <param name="owner">The list row whose zipmod ships <paramref name="bundle"/> when it is not an abdata bundle (a head's
+        /// own compositing bundle); null for an abdata bundle.</param>
+        public TexCreator(ContentCatalog gd, string createMaterial, int w, int h, string bundle = "chara/mm_base.unity3d", ListEntry owner = null)
         {
-            var src = gd.LoadAsset<Material>("chara/mm_base.unity3d", createMaterial);
+            Bundle = bundle; material = createMaterial;
+            var src = Source(gd, bundle, owner, createMaterial);
             Mat = MaterialCopies.Copy(src);
             Main = src.HasProperty("_MainTex") ? src.GetTexture("_MainTex") : null;
             rt = new RenderTexture(w, h, 0, RenderTextureFormat.ARGB32) { useMipMap = true, autoGenerateMips = true, name = createMaterial };
         }
+
+        /// <summary>Replaces <see cref="Mat"/> by a fresh copy of the material of the same name from <paramref name="bundle"/>
+        /// (the old copy is destroyed; the output RT and the skin layers stay). False, with nothing changed, when that bundle
+        /// has no such material.</summary>
+        public bool Reload(ContentCatalog gd, string bundle, ListEntry owner = null)
+        {
+            var src = Source(gd, bundle, owner, material);
+            if (!src) return false;
+            if (Mat) Object.DestroyImmediate(Mat);
+            Mat = MaterialCopies.Copy(src);
+            Bundle = bundle;
+            return true;
+        }
+
+        /// <summary>The source material: from the owner row's bundle (its zipmod first), else from the abdata bundle.</summary>
+        public static Material Source(ContentCatalog gd, string bundle, ListEntry owner, string material) =>
+            owner != null ? gd.LoadAssetAt<Material>(owner, bundle, material) : gd.LoadAsset<Material>(bundle, material);
 
         /// <summary>Replaces the output RT by one of another size (cleared) and returns the previous one, which the caller
         /// unbinds and releases.</summary>

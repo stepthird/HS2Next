@@ -1,4 +1,4 @@
-# HS2Next 1.0.0
+# HS2Next 1.1.0
 
 HS2Next is a scene and character editor for Honey Select 2 content, built anew on Unity 6. It puts the work of HS2
 Studio and of the game's character maker in one window: characters, items, maps, lights, cameras, animation, FK / IK,
@@ -32,7 +32,7 @@ are frozen: later 1.x versions read every 1.0 file and load every 1.0 plugin. Wh
 
 ## Using the release
 
-The release zip (`HS2Next-1.0.0-win64.zip`, with its SHA-256 next to it) holds the program. Extract it anywhere and start
+The release zip (`HS2Next-1.1.0-win64.zip`, with its SHA-256 next to it) holds the program. Extract it anywhere and start
 `HS2Next.exe`; there is no installer. The program is not code-signed, so Windows SmartScreen may ask once ("More info",
 then "Run anyway"). A first-run guide asks for the language, the Honey Select 2 folder, extra mods folders and the cache
 folder, then builds the content index (a few seconds to a few minutes, depending on the mods and the disk).

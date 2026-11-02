@@ -55,6 +55,13 @@ needs the token in UserData\Bridge\token (a new token at each start), sent in th
 bridge off, use File > Options > Automation or set "bridge": {"enabled": false} in the settings file.
 
 
+Update check
+------------
+At each start HS2Next asks GitHub whether a newer release has been published (one request to api.github.com;
+nothing about you, your files or your characters is sent). When there is one, a dialog offers to open its download
+page in your web browser; HS2Next never downloads or installs anything by itself. Help > Check for updates asks at
+any time. To turn the check at start off, untick "Check for updates at start" in File > Options > General.
+
 Graphics problems
 -----------------
 HS2Next starts with Direct3D 12. If the window stays black or the graphics driver resets, start it with Direct3D 11:

@@ -1342,6 +1342,19 @@ namespace HS2Next.Content
             return b ? GuardLoad<T>(b, asset, Label(e?.Zipmod, bundlePath)) : null;
         }
 
+        /// <summary>Like <see cref="LoadAssetAt{T}(ListEntry, string, string)"/> for an asset most bundles lack (a plugin's
+        /// optional data, such as BonesFramework's <c>additional_bones</c>): null, without a load, when the bundle that would
+        /// serve the name does not contain it. On a path several sources ship only a zipmod copy that lists the name serves
+        /// it (the game's own files hold no plugin data, and no other copy is opened for the question).</summary>
+        public T LoadOptionalAt<T>(ListEntry e, string bundlePath, string asset) where T : UnityEngine.Object
+        {
+            if (string.IsNullOrEmpty(asset) || asset == "0" || string.IsNullOrEmpty(bundlePath) || bundlePath == "0") return null;
+            AssetBundle b;
+            if (Redirects(bundlePath, asset, out var served)) b = served.HasName ? OpenServed(served, bundlePath) : null;
+            else b = LoadBundle(e, bundlePath);
+            return b && b.Contains(asset) ? LoadAssetAt<T>(e, bundlePath, asset) : null;
+        }
+
         /// <summary>Loads an asset from an abdata bundle (a fixed path: chara/oo_base, chara/mm_base, list/customshape, ...).
         /// A path a zipmod also ships follows the per-asset redirect.</summary>
         public T LoadAsset<T>(string abdataBundle, string asset) where T : UnityEngine.Object
