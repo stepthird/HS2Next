@@ -556,6 +556,14 @@ namespace HS2Next.Save
             if (coord?.Clothes != null && coord.Clothes.HasPartExt()) WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.ClothesPartExtVersion);
         }
 
+        /// <summary>Raises <see cref="WriteFormatVersion"/> to what a scene node needs: format 3 when a character's
+        /// state.nippleThroughClothes is false (after 1.1.0).</summary>
+        public void Covers(SceneNode node)
+        {
+            if (node?.State is CharaNodeState c && c.State != null && !c.State.NippleThroughClothes)
+                WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.NippleThroughClothesVersion);
+        }
+
         void AddExtEntry(string ns, string scope, string root, int version, bool required, JsonLeftovers unknown)
         {
             string key = root + "\u0000" + scope + "\u0000" + ns;

@@ -3,6 +3,56 @@
 HS2Next follows semantic versioning: the save format, the plugin API and the bridge commands not marked experimental
 keep working within a major version ([CONTRIBUTING.md](CONTRIBUTING.md), "Compatibility").
 
+## 1.2.0
+
+Released on 2026-11-03 (UTC).
+
+### Additions
+
+- Favourites and recently added: the character, item, animation, map, light and pose lists have «★ Favourites» and
+  «Recently added» at the top of their folders or groups. Right-click a card or row (or press the menu key) and choose
+  Favourite to mark it; favourites show a star. Recently added lists files newest first by the date they were placed in
+  their folder; in the item, animation, map and light lists it shows only rows from mods, newest zipmod first. The outfit
+  lists have favourites too.
+- A right-click menu on the character, outfit, pose, item, animation, map and light lists: Favourite, Details… (for files
+  the name, character name, kind, path, size, dates, the plugin data and the mods a card needs that are not installed; for
+  mod rows the zipmod's GUID, name, version, author and website and the bundle), Show in Explorer, Copy path / Copy ID, and
+  for character, outfit and pose files Delete…, which moves the file to the Windows recycle bin after a confirmation and
+  never deletes it for good (HS2's own files too, with a note that they leave HS2 as well). 1.1.0 deleted only HS2Next
+  pose files.
+- Pose browser: poses without a picture of their own (most HS2 pose files) show a stick figure drawn from the pose, with
+  the left and right limbs in two colours and the face's direction marked, instead of a tile with the name. PoseTools
+  pictures and HS2Next pose thumbnails stay as they were. A figure is drawn the first time its cell shows and kept in the
+  app's cache.
+- Field of view: the Cameras tab has a Field of view row (1 to 60, reset to 23) for the current view, the free camera or
+  the camera you look through; the readout at the top right of the view opens the same slider on a click, changes the
+  value with the mouse wheel, resets it on a double click and names the keys in its tooltip; the Camera menu has Widen /
+  Narrow / Reset the field of view, and Ctrl+Home resets it in the default key map. 1.1.0 changed it only with Ctrl+wheel
+  or the HS2 Studio keys.
+- A per-character switch in the State tab, «Nipple shape through clothes», on by default: off, the nipples stay flat while
+  a top or a bra is on (bone modifiers on them included); the body's own shape returns when the top and the bra are
+  half-off or off. It is saved in the scene; 1.1.0 opens such scenes with a note that they are newer and keeps the switch.
+- File > Options > Advanced lists the plugins whose data in mod packages HS2Next reads since 1.1.0 (BonesFramework,
+  HS2_CopyChaBodyMat, HeadBundleRedirect, Heelz, HooahGameExtension, MdgqBodyChange, ModBoneImplantor), and its paragraph
+  covers the data that plugins keep in mod packages.
+
+### Fixes
+
+- Arms, legs, hands, stockings and skirts no longer show thin streaks along the model's edges that moved with the view;
+  they now shade as in the game. 1.1.0 used the game's shadow bias numbers for the chara light, which are far too small
+  in HS2Next's renderer, so the light shadowed the character's own surface.
+- A character added, changed, reshaped, posed, moved or loaded while the scene is paused (or while its own animation is
+  paused or at speed 0) shows its breasts, hips, hair and clothes at rest at once, and the animation stays on its frame.
+  1.1.0 showed the breasts and hips stretched toward the scene's origin, or left behind after a move, until Resume.
+- A character that appears away from the scene's origin no longer swings its breasts and hips in from the origin during
+  its first second (1.1.0: about 11 cm on the first frame at a typical placement).
+- The nipple stand («乳首») in the State tab keeps its effect while an animation plays; 1.1.0 lost it at the next frame.
+- The Costume tab's «読込» keeps the outfit list's order, chosen card and scroll; 1.1.0 showed the list again in name order
+  at the top. The outfit and character load dialogs keep their sort, search and scroll when opened again.
+- Texts stay inside narrow panels: the Cameras tab's "No cameras yet …" text and status line, the inspector's notes, the
+  character and pose lists' count and status lines wrap, and list column titles are cut with … (the whole title in a
+  tooltip; the pose list's titles also follow the UI language now). 1.1.0 let them run out of the sidebar.
+
 ## 1.1.0
 
 Released on 2026-11-02 (UTC).

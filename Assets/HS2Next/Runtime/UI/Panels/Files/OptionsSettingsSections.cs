@@ -10,8 +10,8 @@
 // Advanced ends with the about part: the build (kind, version, commit), the notice on the compatible shaders (HS2Next's own
 // replacements of mod and asset-pack shaders, written from measurements, not the original authors' work; the shader families
 // with the number of their HS2Next/Compatible/ shaders from ShaderMap.CompatibleFamilies), the notice on the plugin data it
-// reads for compatibility (the plugins of PluginDataNames) and Unity's trademark and copyright lines, in English in every
-// language.
+// reads for compatibility (the plugins of PluginDataNames: their data in cards, outfits, pose files and mod packages) and
+// Unity's trademark and copyright lines, in English in every language.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -489,12 +489,18 @@ namespace HS2Next.UI.Panels
         // ---------------------------------------------------------------- Advanced: the about part
 
         /// <summary>The community plugins whose data HS2Next reads with its own code: those whose character-card, outfit-card
-        /// or pose-file data it decodes, ExtendedSave (the container format that holds that data) and Sideloader (its zipmod
-        /// packages and resolve entries); a plugin whose data is only kept as opaque bytes is not listed. Ordinal order.</summary>
+        /// or pose-file data it decodes, those whose data in mod packages it reads (manifest entries: HeadBundleRedirect's head
+        /// layouts, Heelz's heel data, MaterialEditor's shader bundles; asset bundles: the components of HooahGameExtension,
+        /// HS2_CopyChaBodyMat, MdgqBodyChange and ModBoneImplantor, BonesFramework's bone lists), ExtendedSave (the container
+        /// format that holds the card data) and Sideloader (its zipmod packages and resolve entries). A plugin whose data is
+        /// only kept as opaque bytes, or whose behaviour HS2Next follows without reading any data of it, is not listed. Each
+        /// name is the plugin's own name without spaces and, where the plugin exists for several games, without the game's
+        /// tag (as ABMX, Heelz and HooahGameExtension). Ordinal order.</summary>
         public static IReadOnlyList<string> PluginDataNames { get; } = Array.AsReadOnly(new[]
         {
-            "ABMX", "AdditionalAccessoryControls", "DynamicBoneEditor", "ExtendedSave", "InvisibleBody", "KCOX", "KSOX",
-            "MaterialEditor", "MoreAccessories", "PoseTools", "PushUp", "Sideloader", "UncensorSelector",
+            "ABMX", "AdditionalAccessoryControls", "BonesFramework", "DynamicBoneEditor", "ExtendedSave", "HS2_CopyChaBodyMat",
+            "HeadBundleRedirect", "Heelz", "HooahGameExtension", "InvisibleBody", "KCOX", "KSOX", "MaterialEditor",
+            "MdgqBodyChange", "ModBoneImplantor", "MoreAccessories", "PoseTools", "PushUp", "Sideloader", "UncensorSelector",
         });
 
         /// <summary>Unity's notice, shown in English in every language (a trademark notice is not translated).</summary>

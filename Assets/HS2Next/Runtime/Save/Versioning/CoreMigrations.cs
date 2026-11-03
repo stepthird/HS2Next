@@ -2,8 +2,9 @@
 // JObjects of one file from formatVersion n to n + 1 before the documents are bound; migrations
 // must be idempotent for members they add (they never overwrite an existing member). The
 // registry holds exactly one migration per From version up to the supported revision S; a gap is a
-// startup error. The registry of this build has S = 2 with one empty, silent migration 1 → 2 (revision 2 only adds an
-// optional member, the clothes parts' inline ext): a v1 file loads exactly as before, with no finding.
+// startup error. The registry of this build has S = 3 with the empty, silent migrations 1 → 2 (revision 2 only adds an
+// optional member, the clothes parts' inline ext) and 2 → 3 (after 1.1.0: a character node's state.nippleThroughClothes):
+// v1 and v2 files load exactly as before, with no finding.
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
@@ -43,8 +44,8 @@ namespace HS2Next.Save
     public sealed class CoreMigrationRegistry
     {
         /// <summary>The registry of this build: supported revision <see cref="SaveFormats.SupportedVersion"/> with the empty,
-        /// silent migration 1 → 2.</summary>
-        public static readonly CoreMigrationRegistry Default = new CoreMigrationRegistry(SaveFormats.SupportedVersion, Empty(1));
+        /// silent migrations 1 → 2 and 2 → 3.</summary>
+        public static readonly CoreMigrationRegistry Default = new CoreMigrationRegistry(SaveFormats.SupportedVersion, Empty(1), Empty(2));
 
         /// <summary>A migration From → From + 1 that changes nothing and reports nothing (a revision that only adds optional
         /// members); the registry adds no <c>migrate.core</c> info for it.</summary>

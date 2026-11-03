@@ -145,7 +145,33 @@ namespace HS2Next.Scenes.Runtime
             lastScale = Holder.lossyScale;
             ApplyAll();
             Runtime.QueueCharaBuilt(this);
+            // built while paused: the chains were set up where the assembler built the character (the origin), so they settle
+            // on the placed body at the next step
+            WantSettle();
         }
+
+        // ------------------------------------------------------------ the paused scene (after 1.1.0)
+
+        /// <summary>
+        /// Switch (default on): a change that builds or reshapes the character while the scene is paused settles its physics at
+        /// once (CharaMotion.RequestSettle through the runtime, after the current drag). False = the behaviour before (tests).
+        /// </summary>
+        public static bool SettleWhilePaused = true;
+
+        /// <summary>
+        /// The character changed in a way the physics must follow (a build, a revive or reparent, a Maker edit that reshapes or
+        /// swaps parts, a pose, an animation frame, clothes or nipple state): while no time passes for it (the scene is paused,
+        /// or the character itself through its motion switches: paused or time scale 0) the runtime asks its motion for a settle
+        /// once no drag is open. Running, nothing happens (the physics follow by themselves).
+        /// </summary>
+        internal void WantSettle()
+        {
+            if (!SettleWhilePaused || State != RealizationState.Built || !Motion || !StandsStill) return;
+            Runtime.QueueSettle(this);
+        }
+
+        /// <summary>True while no time passes for this character: the global pause, or its motion paused or at time scale 0.</summary>
+        public bool StandsStill => Runtime.Paused || (Motion && (Motion.Paused || Motion.TimeScale <= 0f));
 
         /// <summary>The finding code of a character whose MaterialEditor shader swaps name shaders HS2Next cannot draw.</summary>
         public const string MeShaderUnavailableCode = "me.shaderUnavailable";
@@ -339,6 +365,7 @@ namespace HS2Next.Scenes.Runtime
                 }
                 foreach (var b in Motion.GetAll<HS2Next.Motion.DynamicBones.BustStage>()) b.Reset();
             });
+            WantSettle();
         }
 
         /// <summary>After the holder transform was applied: a scale change re-arms the option item scales.</summary>
@@ -346,6 +373,7 @@ namespace HS2Next.Scenes.Runtime
         {
             if (!Holder) return;
             ResetPhysicsIfPending();
+            WantSettle();   // moved or turned while paused: the chains come to rest on the body as it now stands
             var s = Holder.lossyScale;
             if (s == lastScale) return;
             bool first = float.IsNaN(lastScale.x);
@@ -575,6 +603,15 @@ namespace HS2Next.Scenes.Runtime
                 if (CharaPoseDrivers.Ik != null && FieldPath.Overlaps(p, "chara.ik")) Step("ik", () => CharaPoseDrivers.Ik.OnChanged(this, p));
             }
             if (applied) MarkApplied();
+            foreach (var p in SettlePaths)
+                if (Touches(paths, p)) { WantSettle(); break; }
         }
+
+        /// <summary>The scene state that moves the body or reshapes it (a settle while paused, WantSettle).</summary>
+        static readonly string[] SettlePaths =
+        {
+            "chara.anime.ref", "chara.anime.time", "chara.anime.pattern", "chara.fk", "chara.ik",
+            "chara.state.clothes", "chara.state.nipple", "chara.state.silhouette", "chara.state.nippleThroughClothes",
+        };
     }
 }

@@ -11,7 +11,7 @@
 // SceneCharaLight: a directional Light child of the view camera, local Euler (rot[0], rot[1], 0) (HS2's CameraLightCtrl
 // rotates `Cam Light` itself), folded like the Studio lights (Phase 3.3, colour =
 // rgb × intensity, intensity 1, the state values on BundleLightOriginal), shadows Soft/None with strength 1 (HS2's
-// `Cam Light`), HS2's biases 0.1 / 0.3 per light (U14), HS2's culling mask (RenderingLayers.CharaLightCullingMask:
+// `Cam Light`), per-light biases 3 / 0.75 in URP units (HS2's 0.1 / 0.3 are Built-in units), HS2's culling mask (RenderingLayers.CharaLightCullingMask:
 // Chara and MapNoShadow, not Default or Map) and the matching rendering layers (Phase 3.2).
 // Render settings (Phase 3.3): the camera's culling mask, clear flags,
 // background, HDR, post-processing, AA, shadows and volume mask come from `Setup` (HS2Next.ViewSetup), applied in LateApply
@@ -250,8 +250,13 @@ namespace HS2Next.Scenes.Runtime
 
     public sealed class SceneCharaLight : ISceneRuntimePart
     {
-        /// <summary>HS2's `Cam Light` shadow biases (serialized, kept by CameraLightCtrl.Reflect; H3), used per light (U14).</summary>
-        public const float CharaLightShadowBias = 0.1f, CharaLightShadowNormalBias = 0.3f;
+        /// <summary>
+        /// The chara light's per-light shadow biases in URP units. HS2's `Cam Light` keeps 0.1 / 0.3 in Built-in units; the same
+        /// numbers in URP's per-light fields give about a tenth of the depth bias and self-shadow streaks along the edge loops of
+        /// curved skin and clothes. 3 / 0.75 matches the Built-in self shadow of the same characters closest without more light
+        /// leaking at contacts.
+        /// </summary>
+        public const float CharaLightShadowBias = 3f, CharaLightShadowNormalBias = 0.75f;
 
         SceneRuntime runtime;
         GameObject go;
@@ -283,9 +288,8 @@ namespace HS2Next.Scenes.Runtime
             Light.shadowStrength = 1f;
             Light.cullingMask = RenderingLayers.CharaLightCullingMask;
             RenderingLayers.ApplyToLight(Light);
-            // U14 (Phase 3.3): HS2's `Cam Light` biases 0.1 / 0.3 in Unity's per-light fields, which URP reads with the same scale
-            // (per-light 1 / 1 renders bit-equal to the asset's 1 / 1); no acne on BR-Chan at 4096 / 4 cascades, slightly more
-            // contact shadow than the asset's 1 / 1
+            // Per-light biases in URP units (per-light 1 / 1 renders bit-equal to the asset's 1 / 1). URP scales them by the
+            // cascade's texel size and the soft-shadow kernel, Built-in by its own rule, so HS2's 0.1 / 0.3 are not copied as numbers.
             Light.GetComponent<UniversalAdditionalLightData>().usePipelineSettings = false;
             Light.shadowBias = CharaLightShadowBias;
             Light.shadowNormalBias = CharaLightShadowNormalBias;

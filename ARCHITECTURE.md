@@ -77,7 +77,11 @@ the keywords a material had when it was loaded (the Unity Editor would otherwise
 decoders: extra accessory slots, ABMX bone modifiers, MaterialEditor, KSOX and KCOX overlays, push-up, DynamicBoneEditor,
 InvisibleBody, Additional Accessory Controls, the Sideloader resolve information, the uncensor selection) and keeps every
 other plugin's data as raw bytes. `Assets/HS2Next/Runtime/Chara/Ext` applies the decoded data at fixed points of the build.
-The uncensor selection is kept as data only and never applied.
+The uncensor selection is kept as data only and never applied. Some plugins keep their data in the mod packages instead
+of the cards: heel data in the zipmod manifest (`Runtime/Content/HeelsData.cs`, applied by `Runtime/Motion/Heels`), a
+head's own face compositing materials (`Runtime/Content/Maker/Unity/HeadBundleRedirect.cs`), extra bone lists in the
+bundles (`Runtime/Content/AdditionalBones.cs`) and part components (skinned accessories, body material copies, body cuts,
+bone implants) handled where the part is built (`Runtime/Chara/Edit`).
 
 **Editing.** The maker pages edit a character through edit units: each unit (head, skin compositing, eyes, shape, bust,
 each hair slot, each clothes kind, masks, accessories, dynamic bones, the plugin stages) knows what it depends on, and an

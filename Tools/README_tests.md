@@ -67,7 +67,7 @@ first line `SUMMARY: ...` or `N passed, M failed`.
 | Input | Rows | Without it |
 | --- | --- | --- |
 | the game install (`hs2Root`) | almost every Editor and player row | the row fails at its start (missing content) |
-| `Tools/targets.json` | in `-Quick`: `TestTargets`, `ImportTest`, `SceneRuntimeTest`, `ItemMotionTest` (and `.play`), `FkWriterTest`, `IkSolverTest`, `PoseImportTest`, `IkDriverTest`, `UiOpsTest`, `PauseTest`, `CharaStateTest`, `UiShellTest.play`, `HAnimeTest`, `MosaicTest`, `BridgeCoreTest`, `AssetRedirectTest` and the Maker rows (`MakerCoreTest`, `MakerUnitTest`, `MakerEditTest`, `MakerFaceTest`, `MakerBodyTest`, `MakerHairTest`, `MakerClothesTest`, `MakerAccessoriesTest`, `MakerFileTest`, `MakerSchemaTest`); also `CharaRenderTest`, `PlayerSmoke`, `CommandsDoc` and the player acceptance rows | WARN (development input absent) |
+| `Tools/targets.json` | in `-Quick`: `TestTargets`, `ImportTest`, `SceneRuntimeTest`, `ItemMotionTest` (and `.play`), `FkWriterTest`, `IkSolverTest`, `PoseImportTest`, `IkDriverTest`, `UiOpsTest`, `PauseTest`, `PausedEditTest`, `CharaStateTest`, `UiShellTest.play`, `UiListsV12Test.play`, `HAnimeTest`, `MosaicTest`, `BridgeCoreTest`, `AssetRedirectTest` and the Maker rows (`MakerCoreTest`, `MakerUnitTest`, `MakerEditTest`, `MakerFaceTest`, `MakerBodyTest`, `MakerHairTest`, `MakerClothesTest`, `MakerAccessoriesTest`, `MakerFileTest`, `MakerSchemaTest`); also `CharaRenderTest`, `StreakProbe.check`, `PlayerSmoke`, `CommandsDoc` and the player acceptance rows | WARN (development input absent) |
 | recordings of the running game (`Tools/compare_poses.json`, `Cache/compare`, `Cache/shapemeasure`) | `PoseImportTest`, `IkDriverTest`, `CompareTest`, `ShapeMapTest.*` | WARN (development input absent) |
 | the S1 baselines (`Cache/maker/baseline`) | `MakerCoreTest` | WARN (development input absent) |
 | census texts of the reference install (`Tools/survey/redirect_step0_census.txt`) | `AssetRedirectTest` | WARN (development input absent) |
@@ -77,7 +77,7 @@ first line `SUMMARY: ...` or `N passed, M failed`.
 | the .NET SDK | the plugin rows (sample and test plugins are built with `Tools/plugins.ps1`) | the plugin rows FAIL |
 
 Each row declares its development-only inputs in `Tools/run_tests.ps1` (`-DevInputs`); `-List` marks a row whose input is
-absent ("WARN, not started here"). Without any of them, `-Quick` runs 33 of its 66 rows and reports the other 33 as WARN; with
+absent ("WARN, not started here"). Without any of them, `-Quick` runs 35 of its 70 rows and reports the other 35 as WARN; with
 only your own `Tools/targets.json`, 5 rows remain WARN (`PoseImportTest`, `IkDriverTest`, `CompareTest`, `MakerCoreTest`,
 `AssetRedirectTest`) and the five `ShapeMapTest` rows, which have no measured sets to compare. The rows outside `-Quick`
 (graphics, player, full) need `Tools/targets.json` and often the recordings as well; only the rows named above declare them so far.
@@ -155,7 +155,7 @@ or `curl -s -X POST http://127.0.0.1:17322/ -d '{"cmd":"ping"}'` (always 127.0.0
 
 ## The everyday rows (`-Quick`)
 
-`-List` prints the full set (162 rows with `-Full`). The `-Quick` rows:
+`-List` prints the full set (168 rows with `-Full`). The `-Quick` rows:
 
 | Row | Group | Areas |
 | --- | --- | --- |
@@ -187,10 +187,14 @@ or `curl -s -X POST http://127.0.0.1:17322/ -d '{"cmd":"ping"}'` (always 127.0.0
 | IkDriverTest | headless | motion, pose, scene |
 | UiOpsTest | headless | ui, scene, bridge |
 | PauseTest | headless | routes, motion, scene, bridge |
+| PausedEditTest | headless | routes, motion, scene, chara-build, save, ui |
 | RouteTest | headless | routes, scene, bridge |
 | CharaStateTest | headless | ui, chara-build, scene |
 | UiCoreTest | headless | ui |
 | UiShellTest.play | headless | ui, bridge |
+| UiListsV12Test.play | headless | ui |
+| PoseThumbTest | headless | pose, ui |
+| PoseBrowserWidthTest.play | headless | ui |
 | CompareTest | headless | compare, motion, pose, chara-build |
 | ShapeMapTest.female_body | headless | chara-build, compare |
 | ShapeMapTest.female_face | headless | chara-build, compare |

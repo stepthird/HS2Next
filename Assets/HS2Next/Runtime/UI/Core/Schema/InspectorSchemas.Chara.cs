@@ -80,6 +80,10 @@ namespace HS2Next.UI.Core
             var nip = s.FloatClamped("chara.state.nipple", "nipple", 0, 1);
             nip.Gate = SchemaGates.CharaFemale;
             nip.Group = "state.other";
+            // after 1.1.0: whether the nipple shape shows on a top or a bra that is on (off: flat nipples while one covers the chest)
+            var nipCover = s.Bool("chara.state.nippleThroughClothes", "nippleThroughClothes");
+            nipCover.Gate = SchemaGates.CharaFemale;
+            nipCover.Group = "state.other";
             s.FloatClamped("chara.state.gloss", "gloss", 0, 1).Group = "state.other";
             s.FloatClamped("chara.state.wet", "wet", 0, 1).Group = "state.other";
             s.Bool("chara.state.silhouette.enabled", "silhouette").Group = "state.other";

@@ -1,4 +1,4 @@
-# HS2Next 1.1.0
+# HS2Next 1.2.0
 
 HS2Next is a scene and character editor for Honey Select 2 content, built anew on Unity 6. It puts the work of HS2
 Studio and of the game's character maker in one window: characters, items, maps, lights, cameras, animation, FK / IK,
@@ -32,7 +32,7 @@ are frozen: later 1.x versions read every 1.0 file and load every 1.0 plugin. Wh
 
 ## Using the release
 
-The release zip (`HS2Next-1.1.0-win64.zip`, with its SHA-256 next to it) holds the program. Extract it anywhere and start
+The release zip (`HS2Next-1.2.0-win64.zip`, with its SHA-256 next to it) holds the program. Extract it anywhere and start
 `HS2Next.exe`; there is no installer. The program is not code-signed, so Windows SmartScreen may ask once ("More info",
 then "Run anyway"). A first-run guide asks for the language, the Honey Select 2 folder, extra mods folders and the cache
 folder, then builds the content index (a few seconds to a few minutes, depending on the mods and the disk).
@@ -94,12 +94,13 @@ The folders under `Assets/HS2Next/Runtime/` and `Assets/HS2Next/Shaders/` have R
   ILLUSION. "Honey Select 2" is named only to say whose data HS2Next reads.
 - HS2Next contains no game data. No model, texture, animation, list or card of the game or of mods is part of this
   repository or of a release.
-- It reads the copy of Honey Select 2 that you own, and your mods, where they are installed. It never writes into the game
-  folder.
+- It reads the copy of Honey Select 2 that you own, and your mods, where they are installed. It writes nothing into the
+  game folder, except when you delete a character, outfit or pose file of the game from a list yourself: then it moves
+  that file to the Windows recycle bin.
 - It was made so that the characters, outfits and community mods you already own stay usable.
 - For that, HS2Next has its own compatible shaders for the shaders of mods and asset packs (named `HS2Next/Compatible/…`),
-  and it reads, with its own code, the data that community plugins store in character cards, outfit cards and pose files,
-  and Sideloader's zipmod packages. Neither is the original authors' work, and they have not endorsed or supported
+  and it reads, with its own code, Sideloader's zipmod packages and the data that community plugins store in character
+  cards, outfit cards, pose files and those mod packages. Neither is the original authors' work, and they have not endorsed or supported
   HS2Next; the end of File > Options > Advanced lists them.
 - Honey Select 2 is a game for adults. Use HS2Next only where you may use the game itself.
 - stp3 made HS2Next with AI coding tools: the tools wrote most of the code, and stp3 set the design, directed the work and

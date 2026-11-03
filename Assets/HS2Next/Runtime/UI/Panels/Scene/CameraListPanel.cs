@@ -1,10 +1,13 @@
 // The cameras panel (v0.3 trial 2; right sidebar tab «Cameras» by default): the scene's camera objects as a list —
-// a header with «Add from the view» (a camera at the current view, one entry) and «Free camera» (back to the free view);
+// a header with «Add from the view» (a camera at the current view, one entry) and «Free camera» (back to the free view),
+// then the «Field of view» row of the current view (a slider 1–60 with ↺ = 23, live while dragging: the free camera's
+// view state as the keys write it, or the camera looked through, one entry "Camera" per drag);
 // one row per camera node in tree order: a mark of the camera the view looks through, the name (click selects the node,
 // double click looks through it), «View» (look through it, again = back to the free camera), «Update» (the camera to the
 // current view: position, rotation, field of view; one entry) and «×» (delete). The list is virtualised (any number of
-// cameras) and follows the scene's changes. Also the actions add.cameraFromView and camera.lookThrough (the selected camera;
-// on the camera already looked through, or with no camera selected while one is in use: back to the free camera).
+// cameras) and follows the scene's changes. The empty-state text and the status line wrap at any panel width. Also the
+// actions add.cameraFromView and camera.lookThrough (the selected camera; on the camera already looked through, or with no
+// camera selected while one is in use: back to the free camera).
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +15,7 @@ using HS2Next.Save;
 using HS2Next.Scenes;
 using HS2Next.Scenes.Runtime;
 using HS2Next.UI.Core;
+using HS2Next.UI.Viewport;
 using HS2Next.UI.Widgets;
 using UnityEngine.UIElements;
 
@@ -65,6 +69,11 @@ namespace HS2Next.UI.Panels
         /// <summary>The camera node ids in the list, in order (tests).</summary>
         public IReadOnlyList<string> Ids => ids;
         public ListView List => list;
+        /// <summary>The «Field of view» row of the current view.</summary>
+        public FovRow Fov { get; }
+        /// <summary>The empty-state text («No cameras yet …») and the status line (tests).</summary>
+        public Label Empty => empty;
+        public Label Status => status;
 
         public CameraListPanel(UiContext ctx)
         {
@@ -82,6 +91,13 @@ namespace HS2Next.UI.Panels
             header.Add(add);
             header.Add(free);
             Add(header);
+            var fovBox = new VisualElement { name = "cameras-fov-box" };
+            fovBox.AddToClassList("hs-panel__header");
+            fovBox.style.flexDirection = FlexDirection.Column;
+            fovBox.style.alignItems = Align.Stretch;
+            Fov = new FovRow(ctx, "cameras-fov");
+            fovBox.Add(Fov);
+            Add(fovBox);
             list = new ListView
             {
                 name = "cameras-list", fixedItemHeight = 26, virtualizationMethod = CollectionVirtualizationMethod.FixedHeight,
@@ -102,6 +118,10 @@ namespace HS2Next.UI.Panels
             footer.AddToClassList("hs-panel__footer");
             status = new Label { name = "cameras-status" };
             status.AddToClassList("hs-status-text");
+            // a long camera name wraps the line instead of running out of a narrow panel
+            status.style.whiteSpace = WhiteSpace.Normal;
+            status.style.flexShrink = 1;
+            status.style.minWidth = 0;
             footer.Add(status);
             Add(footer);
             ctx.SceneChanged += _ => dirty = true;   // names, adds, deletes, camera.fov, camera.active (the rows compare cheaply)

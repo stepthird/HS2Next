@@ -3356,7 +3356,7 @@ Number-only dump of a built character's clothes realization: states, supported s
 
 ### `chara.state`
 
-Other state members of characters (liquid, nipple, wet, gloss, son, silhouette; tears, cheek of the face), stored as given (one undo entry).
+Other state members of characters (liquid, nipple, wet, gloss, son, silhouette, nippleThroughClothes; tears, cheek of the face), stored as given (one undo entry).
 
 - flags `mutates`; owner `core`; since 1.0.0; timeout 60 s
 
@@ -3364,7 +3364,7 @@ Other state members of characters (liquid, nipple, wet, gloss, son, silhouette; 
 |---|---|---|---|---|
 | `key` | `node` |  |  | a character |
 | `keys` | `array<node>` |  |  | several characters (one entry) |
-| `set` | `object` | yes |  | {liquid: [5 levels 0-2] \| "liquid[i]": level, nipple, wet, gloss, son: {visible, length} \| "son.length", silhouette: {enabled, color} \| "silhouette.color": [r,g,b,a], tears, cheek} |
+| `set` | `object` | yes |  | {liquid: [5 levels 0-2] \| "liquid[i]": level, nipple, wet, gloss, son: {visible, length} \| "son.length", silhouette: {enabled, color} \| "silhouette.color": [r,g,b,a], nippleThroughClothes: bool (false = flat nipples while a top or a bra is on), tears, cheek} |
 
 | Returns | Type | Always | Description |
 |---|---|---|---|

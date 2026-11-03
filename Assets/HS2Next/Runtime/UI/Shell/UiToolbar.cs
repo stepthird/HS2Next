@@ -1,14 +1,15 @@
 // The toolbar and the status bar. Toolbar, left to right: File menu · Undo /
 // Redo (labels "Undo <entry>", history drop-down) · Add menu · tools Select / Move / Rotate / Scale · space · pivot ·
-// snap · camera menu (reset, frame, slots, active camera / free camera) · view menu (toggles, panels) ·
-// language · help. Every button runs an action of the registry (one behaviour for keys, menus, toolbar and ui.action);
-// buttons are named "tb-<action id>" for ui.query. Status bar: selection summary, the latest finding ≥ warning (click
-// shows the findings), dirty mark and file name, FPS / frame ms (option view.fps).
+// snap · camera menu (reset, frame, the field of view: widen / narrow / reset, slots, active camera / free camera) ·
+// view menu (toggles, panels) · language · help. Every button runs an action of the registry (one behaviour for
+// keys, menus, toolbar and ui.action); buttons are named "tb-<action id>" for ui.query. Status bar: selection summary,
+// the latest finding ≥ warning (click shows the findings), dirty mark and file name, FPS / frame ms (option view.fps).
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using HS2Next.Scenes;
 using HS2Next.UI.Core;
+using HS2Next.UI.Viewport;
 using HS2Next.UI.Widgets;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -183,11 +184,25 @@ namespace HS2Next.UI
             return new List<MenuItem>
             {
                 Item(ActionIds.CameraReset), Item(ActionIds.CameraFrame), Item(ActionIds.CameraResetAngles),
+                // the field of view of the current view (the free camera, or the camera looked through: one entry "Camera");
+                // the rows show the keys of the key map, which change the free camera only
+                MenuItem.Sep(), FovItem(ActionIds.CameraFovUp, ViewFov.MenuStep), FovItem(ActionIds.CameraFovDown, -ViewFov.MenuStep), FovItem(ActionIds.CameraFovReset, 0),
+                MenuItem.Sep(),
                 new MenuItem { Id = "slots", Text = ctx.L10n.Get("camera.slots"), Submenu = slots },
                 new MenuItem { Id = "slotsSave", Text = ctx.L10n.Get("camera.slotsSave"), Submenu = saves },
                 new MenuItem { Id = "active", Text = ctx.L10n.Get("camera.active"), Submenu = cams },
                 MenuItem.Sep(), Item(ActionIds.AddCameraFromView), Item(ActionIds.CameraLookThrough),
             };
+        }
+
+        /// <summary>A Camera menu row for a field-of-view action: one step of <paramref name="step"/> degrees (0 = reset to 23)
+        /// on the current view; the held actions do nothing from a menu.</summary>
+        MenuItem FovItem(string id, float step)
+        {
+            var it = Item(id);
+            it.Disabled = false;
+            it.Run = () => { if (step == 0) ViewFov.Reset(ctx); else ViewFov.Step(ctx, step); };
+            return it;
         }
 
         List<MenuItem> ViewMenu() => new List<MenuItem>

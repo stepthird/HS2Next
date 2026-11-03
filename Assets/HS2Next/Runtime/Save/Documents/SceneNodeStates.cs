@@ -401,6 +401,9 @@ namespace HS2Next.Save
         public float Wet, Gloss;
         public CharaSonState Son = new CharaSonState();
         public CharaSilhouette Silhouette = new CharaSilhouette();
+        /// <summary>After 1.1.0: the nipple shape shows on a top or a bra that is on (true, the default and absent: as HS2); false =
+        /// while one covers the chest the nipples are flat (the scene file writes it only when false, format revision 3).</summary>
+        public bool NippleThroughClothes = true;
 
         internal override void ReadMembers(DocReader r)
         {
@@ -412,6 +415,7 @@ namespace HS2Next.Save
             Gloss = r.F32("gloss", Gloss);
             Son.ReadFrom(r.Obj("son"));
             Silhouette.ReadFrom(r.Obj("silhouette"));
+            NippleThroughClothes = r.Bool("nippleThroughClothes", NippleThroughClothes);
         }
 
         internal override void WriteMembers(CanonicalJsonWriter w)
@@ -424,6 +428,9 @@ namespace HS2Next.Save
             w.F32("gloss", Gloss);
             Son.WriteTo(w, "son");
             Silhouette.WriteTo(w, "silhouette");
+            // an optional member of revision 3: written only when it differs from its absent value, so every scene with the
+            // default stays byte-equal to 1.1.0's
+            if (!NippleThroughClothes) w.Bool("nippleThroughClothes", false);
         }
     }
 

@@ -47,6 +47,8 @@ namespace HS2Next.Scenes.Runtime
         readonly HashSet<string> builtThisApply = new HashSet<string>(StringComparer.Ordinal);
         readonly HashSet<string> reported = new HashSet<string>(StringComparer.Ordinal);
         readonly List<CharaRealization> pendingBuilt = new List<CharaRealization>();
+        // characters changed while paused whose physics settle once no drag is open (after 1.1.0)
+        readonly List<CharaRealization> pendingSettle = new List<CharaRealization>();
         readonly HashSet<string> partFaults = new HashSet<string>(StringComparer.Ordinal);
         bool structureDirty, scaleListDirty, applying, disposed;
 
@@ -497,6 +499,7 @@ namespace HS2Next.Scenes.Runtime
             visibilityDirty.Clear();
             nameDirty.Clear();
             pendingBuilt.Clear();
+            pendingSettle.Clear();
             reported.Clear();
             Graveyard.Clear();
             Scale.Clear();
@@ -527,6 +530,7 @@ namespace HS2Next.Scenes.Runtime
                     Scale.Rebuild(Model.PreOrder(), reals);
                 }
                 RaiseCharaBuilt();
+                if (pendingSettle.Count > 0) RequestSettles();
             }
             finally { applying = false; }
             ForParts(p => p.Apply(), "Apply");
@@ -798,6 +802,25 @@ namespace HS2Next.Scenes.Runtime
         internal void QueueCharaBuilt(CharaRealization c)
         {
             if (!pendingBuilt.Contains(c)) pendingBuilt.Add(c);
+        }
+
+        /// <summary>A character changed while paused (CharaRealization.WantSettle): its motion settles once no drag is open.</summary>
+        internal void QueueSettle(CharaRealization c)
+        {
+            if (c != null && !pendingSettle.Contains(c)) pendingSettle.Add(c);
+        }
+
+        /// <summary>Characters waiting for a settle (tests).</summary>
+        public int PendingSettles => pendingSettle.Count;
+
+        // During a drag (an open bus transaction) the requests wait: the drag's frames carry the chains as they are and the
+        // physics settle once, after the commit (the next Apply without an open transaction).
+        void RequestSettles()
+        {
+            if (Session?.Commands?.ActiveTransaction != null) return;
+            foreach (var c in pendingSettle)
+                if (c.State == RealizationState.Built && c.Motion && !c.InGraveyard && IsInModel(c)) c.Motion.RequestSettle();
+            pendingSettle.Clear();
         }
 
         void RaiseCharaBuilt()

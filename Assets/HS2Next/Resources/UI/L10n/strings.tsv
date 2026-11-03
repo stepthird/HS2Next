@@ -581,6 +581,16 @@ camera.slotsSave	Save camera slot	カメラスロットに保存	保存相机位
 camera.active	Active camera	使用中のカメラ	当前相机	zh?
 viewport.release	Release	解除	解除	zh?
 viewport.activeCamera	Camera: {0}	カメラ: {0}	相机：{0}	zh?
+viewport.fov	FOV {0}°	画角 {0}°	视场角 {0}°	zh?
+viewfov.label	Field of view	画角	视场角	zh?
+viewfov.reset	Back to {0}°	{0}° に戻す	恢复为 {0}°	zh?
+viewfov.popup.title	Field of view: {0}	画角: {0}	视场角：{0}	zh?
+viewfov.tip.free	Field of view of the free camera: {0}°	フリーカメラの画角: {0}°	自由相机的视场角：{0}°	zh?
+viewfov.tip.camera	Field of view of {0}, the camera the view looks through: {1}°	表示中のカメラ {0} の画角: {1}°	当前观看的相机 {0} 的视场角：{1}°	zh?
+viewfov.tip.keys	Keys: narrow {0} · widen {1} · reset {2}	キー: 狭める {0} · 広げる {1} · リセット {2}	按键：缩小 {0} · 扩大 {1} · 重置 {2}	zh?
+viewfov.tip.keysFreeOnly	The keys change the free camera only.	キーはフリーカメラにだけ効きます。	按键只对自由相机有效。	zh?
+viewfov.tip.readout	Click: a slider · wheel: change · double-click: back to {0}°	クリック: スライダー · ホイール: 変える · ダブルクリック: {0}° に戻す	单击：滑块 · 滚轮：调整 · 双击：恢复为 {0}°	zh?
+viewfov.tip.row	Also from the field of view at the top right of the view (click it).	ビュー右上の画角の表示をクリックしても変えられます。	也可以单击视图右上角的视场角显示来调整。	zh?
 history.empty	No history	履歴なし	没有历史记录	zh?
 history.origin	(start)	(最初)	（开始）	zh?
 dialog.delete.title	Delete	削除	删除	zh?
@@ -1593,7 +1603,7 @@ setup.nav.next	Next	次へ	下一步	zh?
 setup.nav.build	Build the index	索引を作る	建立索引	zh?
 setup.nav.finish	Start HS2Next	HS2Next を始める	开始使用 HS2Next	zh?
 setup.welcome.version	Version {0}	バージョン {0}	版本 {0}	zh?
-setup.welcome.text	HS2Next is a studio for scenes with Honey Select 2 characters. It reads your own Honey Select 2 install and never changes it. This guide sets up the folders it needs; it takes a few minutes.	HS2Next は Honey Select 2 のキャラクターでシーンを作るスタジオです。あなたの Honey Select 2 のインストールを読むだけで、変更はしません。この案内で必要なフォルダーを設定します（数分かかります）。	HS2Next 是使用 Honey Select 2 角色制作场景的工作室。它只读取你的 Honey Select 2 安装，从不修改它。本向导会设置所需的文件夹，需要几分钟。	zh?
+setup.welcome.text	HS2Next is a studio for scenes with Honey Select 2 characters. It reads your own Honey Select 2 install and changes nothing there, except that a file you delete from a list goes to the recycle bin. This guide sets up the folders it needs; it takes a few minutes.	HS2Next は Honey Select 2 のキャラクターでシーンを作るスタジオです。あなたの Honey Select 2 のインストールを読むだけで、変更はしません（一覧から削除を選んだファイルをごみ箱へ移すときを除きます）。この案内で必要なフォルダーを設定します（数分かかります）。	HS2Next 是使用 Honey Select 2 角色制作场景的工作室。它只读取你的 Honey Select 2 安装，从不修改它（在列表中删除你选定的文件、将其移到回收站时除外）。本向导会设置所需的文件夹，需要几分钟。	zh?
 setup.welcome.language	Language	言語	语言	zh?
 setup.welcome.machineNote	The Chinese text is a machine translation and has not been reviewed.	中国語の表示は機械翻訳で、見直されていません。	中文界面为机器翻译，尚未经过审校。	zh?
 setup.files.text	HS2Next keeps your characters, scenes, settings and caches in this folder:	HS2Next は、キャラクター・シーン・設定・キャッシュをこのフォルダーに置きます:	HS2Next 将你的角色、场景、设置和缓存保存在此文件夹中：	zh?
@@ -1610,7 +1620,7 @@ setup.migrate.progress	Copying: {0} of {1} files	コピー中: {1} 個中 {0} �
 setup.migrate.done	Copied {0} files ({1} MB). {2} conflicts kept as they were. The old folder was not changed; you may delete it after checking.	{0} 個のファイル（{1} MB）をコピーしました。食い違う {2} 個はそのままです。元のフォルダーは変更していません。確かめた後に消してかまいません。	已复制 {0} 个文件（{1} MB）。{2} 个冲突保持原样。旧文件夹未被修改；检查后可以删除。	zh?
 setup.migrate.refused	{0} links were not followed.	{0} 個のリンクはたどりませんでした。	未跟随 {0} 个链接。	zh?
 setup.migrate.failed	Nothing was copied: {0}	何もコピーしませんでした: {0}	未复制任何文件：{0}	zh?
-setup.hs2.text	Choose the folder of your Honey Select 2 install (the folder that holds abdata, mods and HoneySelect2.exe). HS2Next reads cards, coordinates and poses there in place and never writes into it.	Honey Select 2 のインストールのフォルダー（abdata・mods・HoneySelect2.exe があるフォルダー）を選びます。HS2Next はカード・コーデ・ポーズをその場で読み、そこには書き込みません。	选择你的 Honey Select 2 安装文件夹（包含 abdata、mods 和 HoneySelect2.exe 的文件夹）。HS2Next 在原处读取角色卡、服装和姿势，从不向其中写入。	zh?
+setup.hs2.text	Choose the folder of your Honey Select 2 install (the folder that holds abdata, mods and HoneySelect2.exe). HS2Next reads cards, coordinates and poses there in place and writes nothing into it, except that a file you delete from a list yourself goes to the Windows recycle bin.	Honey Select 2 のインストールのフォルダー（abdata・mods・HoneySelect2.exe があるフォルダー）を選びます。HS2Next はカード・コーデ・ポーズをその場で読み、一覧から削除を選んだファイルを Windows のごみ箱へ移すとき以外は、そこに書き込みません。	选择你的 Honey Select 2 安装文件夹（包含 abdata、mods 和 HoneySelect2.exe 的文件夹）。HS2Next 在原处读取角色卡、服装和姿势；除了将你在列表中选择删除的文件移到 Windows 回收站之外，从不向其中写入。	zh?
 setup.hs2.suggestions	Found on this computer	このコンピューターで見つかったもの	在此电脑上找到	zh?
 setup.hs2.searching	Searching…	探しています…	正在搜索…	zh?
 setup.hs2.noSuggestions	No install was found automatically. Type or paste the path, or use Browse…	自動では見つかりませんでした。パスを入力するか貼り付けるか、「参照…」を使ってください。	未能自动找到安装。请输入或粘贴路径，或使用“浏览…”。	zh?
@@ -1726,7 +1736,7 @@ about.line	Version {0} · {1}: {2} · {3}: {4}	バージョン {0} · {1}: {2} �
 about.compat.title	Compatible shaders	互換シェーダー	兼容着色器	zh?
 about.compat.text	So that the materials of mods and asset packs can be read, HS2Next has its own compatible shaders that match the names and property names of the shaders below. They were written from scratch by measuring rendered output. They are not the work of the original authors, who have not endorsed or supported HS2Next. Their names begin with HS2Next/Compatible/.	mod やアセットの素材を読めるように、HS2Next は次のシェーダーの名前とプロパティ名に合わせた互換シェーダーを持っています。互換シェーダーは描画結果を測って一から書いたもので、元の作者が作ったものではありません。元の作者の承認や支援も受けていません。名前は HS2Next/Compatible/ で始まります。	为了能够读取 mod 和资源包的材质，HS2Next 自带与下列着色器的名称和属性名称一致的兼容着色器。它们是通过测量渲染结果从零开始编写的。它们不是原作者的作品，原作者也未认可或支持 HS2Next。它们的名称以 HS2Next/Compatible/ 开头。	zh?
 about.plugins.title	Plugin data read for compatibility	互換のために読むプラグインのデータ	为兼容而读取的插件数据	zh?
-about.plugins.text	So that what you made with them stays usable, HS2Next reads, with its own code, the data that the community plugins below store in character cards, outfit cards and pose files, and the mod packages (zipmod) of Sideloader. It contains none of their code. HS2Next is not the work of their authors, who have not endorsed or supported it.	これまでに作ったものを使い続けられるように、HS2Next は次の有志のプラグインがキャラカード、衣装カード、ポーズファイルに保存したデータと、Sideloader の mod パッケージ（zipmod）を、自前のコードで読みます。プラグインのコードは含みません。HS2Next はこれらのプラグインの作者が作ったものではなく、作者の承認や支援も受けていません。	为了让你用这些插件制作的内容继续可用，HS2Next 用自己的代码读取下列社区插件保存在角色卡、服装卡和姿势文件中的数据，以及 Sideloader 的 mod 包（zipmod）。其中不包含这些插件的代码。HS2Next 不是这些插件作者的作品，作者也未认可或支持它。	zh?
+about.plugins.text	So that what you made with them stays usable, HS2Next reads, with its own code, the mod packages (zipmod) of Sideloader and the data that the community plugins below store in character cards, outfit cards, pose files and those mod packages (their manifests and asset bundles). It contains none of their code. HS2Next is not the work of their authors, who have not endorsed or supported it.	これまでに作ったものを使い続けられるように、HS2Next は Sideloader の mod パッケージ（zipmod）と、次の有志のプラグインがキャラカード、衣装カード、ポーズファイル、mod パッケージのマニフェストとアセットバンドルに保存したデータを、自前のコードで読みます。プラグインのコードは含みません。HS2Next はこれらのプラグインの作者が作ったものではなく、作者の承認や支援も受けていません。	为了让你用这些插件制作的内容继续可用，HS2Next 用自己的代码读取 Sideloader 的 mod 包（zipmod），以及下列社区插件保存在角色卡、服装卡、姿势文件和这些 mod 包（其清单和资源包）中的数据。其中不包含这些插件的代码。HS2Next 不是这些插件作者的作品，作者也未认可或支持它。	zh?
 settings.key.hs2Root	HS2 folder	HS2 のフォルダー	HS2 文件夹	zh?
 settings.key.modsFolders	More mods folders	ほかの mod のフォルダー	更多 mod 文件夹	zh?
 settings.key.userData	Your files (UserData)	あなたのファイル（UserData）	你的文件（UserData）	zh?
@@ -1750,3 +1760,72 @@ settings.key.mapAudioLink	Map audio link into the game data (development)	マッ
 settings.key.content.unloadUnusedMinSec	Seconds between unused-asset sweeps	使わない資産の片付けの最短間隔（秒）	清理未使用资源的最短间隔（秒）	zh?
 msg.migrationOffer	An earlier HS2Next folder holds your files: {0}. File ▸ Options ▸ Folders ▸ "Copy files from an earlier HS2Next folder…" copies them here (the old folder is not changed).	以前の HS2Next のフォルダーにあなたのファイルがあります: {0}。ファイル ▸ オプション ▸ フォルダー ▸「以前の HS2Next のフォルダーからファイルをコピー…」でここへコピーできます（元のフォルダーは変えません）。	以前的 HS2Next 文件夹中有你的文件：{0}。可通过 文件 ▸ 选项 ▸ 文件夹 ▸“从以前的 HS2Next 文件夹复制文件…”复制到这里（旧文件夹不会被修改）。	zh?
 setup.restart.unsaved	Save the changes to {0} before HS2Next restarts?	HS2Next を再起動する前に {0} の変更を保存しますか?	重新启动 HS2Next 前是否保存对 {0} 的更改？	zh?
+#L v1.2 package L: favourites, «Recently added» and the right-click menu of the browsers
+browser.view.favorites	★ Favourites	★ お気に入り	★ 收藏	zh?
+browser.view.recent	Recently added	最近追加	最近添加	zh?
+browser.view.favorites.tip	The files and rows you marked as favourites (right-click › Favourite), from every folder	お気に入りにしたファイルと行（右クリック › お気に入り）を、すべてのフォルダーから出します	你收藏的文件和行（右键 › 收藏），来自所有文件夹	zh?
+browser.view.recent.tipFiles	Every file, newest first by the date it was placed in its folder (the file's creation date), whatever the sort	すべてのファイルを、フォルダーに置いた日（ファイルの作成日時）の新しい順に並べます（並べ替えの設定によらず）	所有文件，按放入文件夹的日期（文件的创建时间）从新到旧排列，与排序设置无关	zh?
+browser.view.recent.tipRows	Rows of mods only, newest first by the date their zipmod file was placed (its creation date); rows of the base game are not listed	mod の行だけを、zipmod ファイルを置いた日（作成日時）の新しい順に並べます。本体の行は出ません	仅 mod 的行，按其 zipmod 文件放入的日期（创建时间）从新到旧排列；不列出本体的行	zh?
+browser.view.recent.status	{0} of {1} · newest first	{1} 件中 {0} 件 · 新しい順	{1} 项中的 {0} 项 · 从新到旧	zh?
+browser.view.recent.reading	{0} of {1} · reading the dates of the zipmods…	{1} 件中 {0} 件 · zipmod の日付を読み込み中…	{1} 项中的 {0} 项 · 正在读取 zipmod 的日期…	zh?
+browser.view.sortLocked	«Recently added» is always newest first	「最近追加」は常に新しい順です	“最近添加”始终从新到旧排列	zh?
+browser.added	Added {0}	追加日 {0}	添加于 {0}	zh?
+browser.col.added	Added	追加日	添加日期	zh?
+browser.favOnly	Favourites only	お気に入りだけ	仅收藏	zh?
+list.menu.favorite	Favourite	お気に入り	收藏	zh?
+list.menu.details	Details…	詳細…	详细信息…	zh?
+list.menu.reveal	Show in Explorer	エクスプローラーで表示	在资源管理器中显示	zh?
+list.menu.copyPath	Copy path	パスをコピー	复制路径	zh?
+list.menu.copyId	Copy ID	ID をコピー	复制 ID	zh?
+list.menu.delete	Delete…	削除…	删除…	zh?
+list.copied	Copied: {0}	コピーしました: {0}	已复制：{0}	zh?
+list.details.title	Details	詳細	详细信息	zh?
+list.details.copy	Copy all	すべてコピー	全部复制	zh?
+list.d.file	File	ファイル	文件	zh?
+list.d.name	Character	キャラ名	角色名	zh?
+list.d.poseName	Pose	ポーズ名	姿势名	zh?
+list.d.rowName	Name	名前	名称	zh?
+list.d.sex	Sex	性別	性别	zh?
+list.d.kind	Kind	種類	类型	zh?
+list.d.path	Path	パス	路径	zh?
+list.d.size	Size	サイズ	大小	zh?
+list.d.created	Created (placed)	作成日時（置いた日）	创建时间（放入日期）	zh?
+list.d.modified	Modified	更新日時	修改时间	zh?
+list.d.plugins	Plugin data	プラグインのデータ	插件数据	zh?
+list.d.missing	Mods it needs that are not installed	必要だが入っていない mod	需要但未安装的 mod	zh?
+list.d.none	none	なし	无	zh?
+list.d.reading	(reading the file…)	（ファイルを読み込み中…）	（正在读取文件…）	zh?
+list.d.problem	Could not read	読めなかった内容	无法读取	zh?
+list.d.id	ID	ID	ID	zh?
+list.d.group	Group	グループ	分组	zh?
+list.d.category	Category	カテゴリー	类别	zh?
+list.d.source	Source	提供元	来源	zh?
+list.d.baseGame	Base game (abdata)	本体（abdata）	本体（abdata）	zh?
+list.d.guid	Zipmod GUID	zipmod の GUID	zipmod 的 GUID	zh?
+list.d.modName	Zipmod name	zipmod の名前	zipmod 名称	zh?
+list.d.version	Version	バージョン	版本	zh?
+list.d.author	Author	作者	作者	zh?
+list.d.website	Website	ウェブサイト	网站	zh?
+list.d.zipmodCreated	Zipmod placed (created)	zipmod を置いた日（作成日時）	zipmod 放入日期（创建时间）	zh?
+list.d.bundle	Bundle	バンドル	资源包	zh?
+list.d.asset	Asset	アセット	资源	zh?
+list.sex.female	Female	女性	女性	zh?
+list.sex.male	Male	男性	男性	zh?
+list.sex.unknown	Unknown	不明	未知	zh?
+list.kind.hs2Card	HS2 character card	HS2 のキャラカード	HS2 角色卡	zh?
+list.kind.hs2nChara	HS2Next character file	HS2Next のキャラファイル	HS2Next 角色文件	zh?
+list.kind.hs2Coord	HS2 coordinate card	HS2 のコーデカード	HS2 服装卡	zh?
+list.kind.hs2nCoord	HS2Next coordinate file	HS2Next のコーデファイル	HS2Next 服装文件	zh?
+list.kind.hs2Pose	HS2 pose file	HS2 のポーズファイル	HS2 姿势文件	zh?
+list.kind.hs2nPose	HS2Next pose file	HS2Next のポーズファイル	HS2Next 姿势文件	zh?
+list.delete.title	Move to the recycle bin	ごみ箱へ移動	移到回收站	zh?
+list.delete.message	Move {0} to the Windows recycle bin?	{0} を Windows のごみ箱へ移動しますか?	是否将 {0} 移到 Windows 回收站？	zh?
+list.delete.messageHs2	Move {0} to the Windows recycle bin?\nIt is a file of HS2: it leaves HS2 too.	{0} を Windows のごみ箱へ移動しますか?\nHS2 のファイルなので、HS2 からも消えます。	是否将 {0} 移到 Windows 回收站？\n这是 HS2 的文件：它也会从 HS2 中消失。	zh?
+list.delete.button	Move to the recycle bin	ごみ箱へ移動	移到回收站	zh?
+list.delete.done	{0} was moved to the recycle bin	{0} をごみ箱へ移動しました	已将 {0} 移到回收站	zh?
+list.delete.refused	{0} was not deleted: {1}	{0} は削除しませんでした: {1}	未删除 {0}：{1}	zh?
+list.delete.noBin	the recycle bin is not available for this file, and files are never deleted for good	このファイルにはごみ箱が使えません（完全な削除はしません）	此文件无法使用回收站（不会永久删除）	zh?
+list.fav.corrupt	The favourites file could not be read: it was kept as {0} and the favourites start empty	お気に入りのファイルを読めませんでした。{0} として残し、お気に入りは空から始めます	无法读取收藏文件：已保留为 {0}，收藏从空开始	zh?
+list.fav.problem	The favourites: {0}	お気に入り: {0}	收藏：{0}	zh?
+#C12 (v1.2 package C: the switch for the nipple shape through clothes in the character's state tab)
+inspector.chara.state.nippleThroughClothes	Nipple shape through clothes	服の上に乳首の形を出す	在衣服上显示乳头形状	zh?

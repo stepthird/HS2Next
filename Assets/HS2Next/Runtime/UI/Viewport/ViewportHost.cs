@@ -5,9 +5,13 @@
 // element covers (S3a). The element stops NavigationMoveEvent (arrow keys would move the focus away, S1d). Pointer
 // routing: (1) gizmo handle → gizmo drag with pointer capture; (2) otherwise a pending click that becomes a
 // camera drag after 4 logical px or stays a click (pick on pointer up). Wheel → camera dolly / Ctrl+wheel FOV. Overlays
-// (absolute children): view info (FOV, active camera with "Release").
+// (absolute children): view info at the top right — the field of view readout ("FOV 23°"; its tooltip names the keys of
+// the active key map; a click opens a small popup with the field-of-view slider, the wheel over it changes the value, a
+// double click resets it to 23; it edits the free camera, or the camera object the view looks through), the active camera
+// line and "Release".
 using System;
 using HS2Next.Scenes.Runtime;
+using HS2Next.UI.Binding;
 using HS2Next.UI.Core;
 using HS2Next.UI.Gizmos;
 using UnityEngine;
@@ -21,7 +25,23 @@ namespace HS2Next.UI.Viewport
         public const float ClickSlop = 4f;
         readonly UiContext ctx;
         public VisualElement Element { get; }
+        /// <summary>The active camera line ("Camera: <name>"; empty for the free camera).</summary>
         public Label Info { get; }
+        /// <summary>The field of view readout (click: the popup slider, wheel: change, double click: reset).</summary>
+        public Label FovLabel { get; }
+        /// <summary>The field-of-view popup while it is open (tests), else null.</summary>
+        public VisualElement FovPopup { get; private set; }
+        VisualElement fovBlocker, fovKeyRoot;
+        EventCallback<KeyDownEvent> fovKeys;
+        // a run of wheel steps on a camera object: one UI edit, ended by a pause, the pointer leaving the readout, a key or a click
+        public const int WheelRunIdleMs = 600;
+        UiEdit wheelRun;
+        VisualElement wheelRunRoot;
+        IVisualElementScheduledItem wheelRunEnd;
+        readonly EventCallback<PointerDownEvent> wheelRunDown;
+        readonly EventCallback<KeyDownEvent> wheelRunKey;
+        /// <summary>A run of wheel steps over the readout is open (its entry is written when it ends; tests).</summary>
+        public bool WheelRunOpen => wheelRun != null && wheelRun.IsOpen;
         public Button ReleaseButton { get; }
         public CameraController Camera { get; }
         public ViewportPicker Picker { get; }
@@ -57,15 +77,27 @@ namespace HS2Next.UI.Viewport
             Element.RegisterCallback<PointerUpEvent>(OnUp);
             Element.RegisterCallback<PointerCaptureOutEvent>(_ => OnCaptureLost());
             Element.RegisterCallback<WheelEvent>(OnWheel);
+            // the top-right box: the field of view readout, the active camera line, «Release»
+            var infoBox = new VisualElement { name = "viewport-info-box", pickingMode = PickingMode.Ignore };
+            infoBox.AddToClassList("hs-viewport__info");
+            infoBox.style.alignItems = Align.FlexEnd;
+            Element.Add(infoBox);
+            FovLabel = new Label { name = "viewport-fov", pickingMode = PickingMode.Position };
+            FovLabel.AddToClassList("hs-viewport__fov");
+            FovLabel.RegisterCallback<PointerDownEvent>(OnFovDown);
+            FovLabel.RegisterCallback<PointerUpEvent>(e => e.StopPropagation());
+            FovLabel.RegisterCallback<WheelEvent>(OnFovWheel);
+            FovLabel.RegisterCallback<PointerLeaveEvent>(_ => EndWheelRun());
+            wheelRunDown = _ => EndWheelRun();
+            wheelRunKey = _ => EndWheelRun();
+            infoBox.Add(FovLabel);
             Info = new Label { name = "viewport-info", pickingMode = PickingMode.Ignore };
-            Info.AddToClassList("hs-viewport__info");
-            Element.Add(Info);
+            infoBox.Add(Info);
             ReleaseButton = new Button(() => ctx.Registry.Run(ActionIds.CameraRelease, "viewport")) { name = "viewport-release" };
             ReleaseButton.AddToClassList("hs-viewport__release");
-            ReleaseButton.style.position = Position.Absolute;
-            ReleaseButton.style.right = 8; ReleaseButton.style.top = 22;
+            ReleaseButton.style.marginTop = 2;
             Loc.Bind(ReleaseButton, "viewport.release");
-            Element.Add(ReleaseButton);
+            infoBox.Add(ReleaseButton);
             Camera = new CameraController(ctx, this);
             Picker = new ViewportPicker(ctx);
         }
@@ -268,25 +300,177 @@ namespace HS2Next.UI.Viewport
         }
 
         float infoAt;
-        void UpdateInfo()
+        /// <summary>Refreshes the view info now (else every 0.25 s; tests call it).</summary>
+        public void UpdateInfo(bool now = false)
         {
-            if (Time.unscaledTime < infoAt) return;
+            if (!now && Time.unscaledTime < infoAt) return;
             infoAt = Time.unscaledTime + 0.25f;
             var vc = ctx.Runtime?.GetPart<SceneViewCamera>();
             var cam = vc?.Camera;
             string active = vc?.ActiveCameraId;
-            string text = cam ? "FOV " + cam.fieldOfView.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture) : "";
+            string fov = cam ? ctx.L10n.Format("viewport.fov", ViewFov.Degrees(ViewFov.Current(ctx))) : "";
+            if (FovLabel.text != fov) FovLabel.text = fov;
+            FovLabel.style.display = cam ? DisplayStyle.Flex : DisplayStyle.None;
+            string tip = cam ? ViewFov.Tooltip(ctx, readout: true) : null;
+            if (FovLabel.tooltip != tip) FovLabel.tooltip = tip;
+            string text = "";
             if (active != null)
             {
                 var n = ctx.Model.Find(active);
-                text += "\n" + ctx.L10n.Format("viewport.activeCamera", n != null ? n.Label : active);
+                text = ctx.L10n.Format("viewport.activeCamera", n != null ? n.Label : active);
             }
             Info.text = text;
+            Info.style.display = text.Length > 0 ? DisplayStyle.Flex : DisplayStyle.None;
             ReleaseButton.style.display = active != null ? DisplayStyle.Flex : DisplayStyle.None;
+            if (FovPopup != null)
+            {
+                var title = FovPopup.Q<Label>("viewport-fov-popup-title");
+                string t = PopupTitle();
+                if (title != null && title.text != t) title.text = t;
+            }
+        }
+
+        // ---------------- the field of view readout and its popup
+
+        void OnFovDown(PointerDownEvent e)
+        {
+            e.StopPropagation();
+            EndWheelRun();
+            if (e.button != 0) return;
+            if (e.clickCount >= 2) { ViewFov.Reset(ctx); CloseFovPopup(); }
+            else ToggleFovPopup();
+            UpdateInfo(true);
+        }
+
+        void OnFovWheel(WheelEvent e)
+        {
+            e.StopPropagation();
+            FovWheel(e.delta.y);
+        }
+
+        /// <summary>A wheel over the readout: up narrows, down widens, <see cref="ViewFov.WheelStep"/> a notch. On a camera
+        /// object a run of steps is one entry "Camera": the run ends after <see cref="WheelRunIdleMs"/> ms without a notch, when
+        /// the pointer leaves the readout, or at the next key or click anywhere (before that event is handled).</summary>
+        public void FovWheel(float deltaY)
+        {
+            float notches = -deltaY / 3f;   // UI Toolkit wheel delta: 3 per notch, down positive
+            if (Mathf.Abs(deltaY) > 0 && Mathf.Abs(deltaY) < 1) notches = -Mathf.Sign(deltaY);
+            if (notches == 0) return;
+            string target = ViewFov.Target(ctx);
+            if (target != null && !WheelRunOpen)
+            {
+                wheelRun = ctx.BeginEdit(OpLabels.Camera);
+                wheelRunRoot = Element.panel?.visualTree;
+                wheelRunRoot?.RegisterCallback(wheelRunDown, TrickleDown.TrickleDown);
+                wheelRunRoot?.RegisterCallback(wheelRunKey, TrickleDown.TrickleDown);
+            }
+            ViewFov.Step(ctx, -notches * ViewFov.WheelStep);
+            if (WheelRunOpen)
+            {
+                wheelRunEnd?.Pause();
+                wheelRunEnd = FovLabel.schedule.Execute(EndWheelRun).StartingIn(WheelRunIdleMs);
+            }
+            UpdateInfo(true);
+        }
+
+        /// <summary>Writes the open run of wheel steps as one entry (nothing when none is open).</summary>
+        public void EndWheelRun()
+        {
+            wheelRunEnd?.Pause();
+            wheelRunEnd = null;
+            if (wheelRunRoot != null)
+            {
+                wheelRunRoot.UnregisterCallback(wheelRunDown, TrickleDown.TrickleDown);
+                wheelRunRoot.UnregisterCallback(wheelRunKey, TrickleDown.TrickleDown);
+                wheelRunRoot = null;
+            }
+            var e = wheelRun;
+            wheelRun = null;
+            if (e != null && e.IsOpen) ctx.ShowResult(e.Commit());
+        }
+
+        string PopupTitle()
+        {
+            string id = ViewFov.Target(ctx);
+            var n = id != null ? ctx.Model.Find(id) : null;
+            return ctx.L10n.Format("viewfov.popup.title", id == null ? ctx.L10n.Get("camera.free") : n != null ? n.Label : id);
+        }
+
+        /// <summary>Opens the popup with the field-of-view slider below the readout, or closes it when it is open.</summary>
+        public void ToggleFovPopup()
+        {
+            EndWheelRun();
+            if (FovPopup != null) { CloseFovPopup(); return; }
+            var layer = ctx.Shell?.Overlay;
+            if (layer == null) return;
+            // a click outside closes it; a double click on the readout (its second click lands here) resets the value
+            fovBlocker = new VisualElement { name = "viewport-fov-blocker" };
+            fovBlocker.style.position = Position.Absolute;
+            fovBlocker.style.left = 0; fovBlocker.style.top = 0; fovBlocker.style.right = 0; fovBlocker.style.bottom = 0;
+            fovBlocker.RegisterCallback<PointerDownEvent>(e =>
+            {
+                e.StopPropagation();
+                if (e.clickCount >= 2 && FovLabel.worldBound.Contains(e.position)) ViewFov.Reset(ctx);
+                CloseFovPopup();
+                UpdateInfo(true);
+            });
+            fovBlocker.RegisterCallback<WheelEvent>(e =>
+            {
+                e.StopPropagation();
+                if (FovLabel.worldBound.Contains(e.mousePosition)) FovWheel(e.delta.y);
+            });
+            var box = new VisualElement { name = "viewport-fov-popup", focusable = true };
+            box.AddToClassList("hs-menu");
+            box.AddToClassList("hs-viewport__fov-popup");
+            box.style.position = Position.Absolute;
+            var title = new Label(PopupTitle()) { name = "viewport-fov-popup-title" };
+            title.AddToClassList("hs-text--dim");
+            box.Add(title);
+            var row = new FovRow(ctx, "viewport-fov-row");
+            row.style.width = 260;
+            box.Add(row);
+            // Esc closes it wherever the focus is (Enter too, unless the number field takes it as its commit)
+            fovKeys = e =>
+            {
+                bool esc = e.keyCode == KeyCode.Escape, enter = e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter;
+                if (!esc && !enter) return;
+                var fe = box.panel?.focusController?.focusedElement as VisualElement;
+                if (enter && (fe == null || !(fe == box || box.Contains(fe)) || fe == row.Slider.Field || row.Slider.Field.Contains(fe))) return;
+                e.StopPropagation();
+                CloseFovPopup();
+            };
+            fovKeyRoot = layer.panel?.visualTree;
+            fovKeyRoot?.RegisterCallback(fovKeys, TrickleDown.TrickleDown);
+            var wb = FovLabel.worldBound;
+            box.style.left = Mathf.Max(0, wb.xMax - 272);
+            box.style.top = wb.yMax + 2;
+            box.RegisterCallback<GeometryChangedEvent>(_ =>
+            {
+                float maxX = layer.layout.width - box.layout.width - 2, maxY = layer.layout.height - box.layout.height - 2;
+                if (maxX > 0 && box.layout.x > maxX + 0.5f) box.style.left = maxX;
+                if (maxY > 0 && box.layout.y > maxY + 0.5f) box.style.top = maxY;
+            });
+            layer.Add(fovBlocker);
+            layer.Add(box);
+            FovPopup = box;
+            box.Focus();
+        }
+
+        public void CloseFovPopup()
+        {
+            if (fovKeyRoot != null && fovKeys != null) fovKeyRoot.UnregisterCallback(fovKeys, TrickleDown.TrickleDown);
+            fovKeyRoot = null;
+            fovKeys = null;
+            fovBlocker?.RemoveFromHierarchy();
+            FovPopup?.RemoveFromHierarchy();
+            fovBlocker = null;
+            FovPopup = null;
         }
 
         public void Dispose()
         {
+            EndWheelRun();
+            CloseFovPopup();
             if (clearCam) UnityEngine.Object.Destroy(clearCam.gameObject);
         }
     }

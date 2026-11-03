@@ -272,7 +272,8 @@ public static class HAnimeTest
         try
         {
             var b = new ListBrowser<StudioAnime>(ctx, spec);
-            int facetRows = b.Groups?.itemsSource != null ? b.Groups.itemsSource.Count : -1;
+            // v1.2: the views «★» and «最近追加» stand above «All»
+            int facetRows = b.Groups?.itemsSource != null ? ((System.Collections.Generic.IList<string>)b.Groups.itemsSource).Count(k => !BrowserViews.Is(k)) : -1;
             Check("the browser element indexes every row; its group facet = \"All\" + the groups", b.Index.Rows.Count == rows.Count && facetRows == bGroups.Count + 1,
                 $"index {b.Index.Rows.Count}, facet rows {facetRows}");
         }

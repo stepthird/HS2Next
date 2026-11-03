@@ -23,10 +23,14 @@ namespace HS2Next.Save
         /// </summary>
         public const int FormatVersion = 1;
         /// <summary>The supported revision S: files up to it are read (older ones migrated), newer ones bound with
-        /// NewerFormat. Revision 2 adds the clothes parts' inline <c>ext</c> (an optional member; an empty migration).</summary>
-        public const int SupportedVersion = 2;
+        /// NewerFormat. Revision 2 adds the clothes parts' inline <c>ext</c>, revision 3 (after 1.1.0) a character node's
+        /// <c>state.nippleThroughClothes</c> (optional members; empty migrations).</summary>
+        public const int SupportedVersion = 3;
         /// <summary>The revision of the clothes parts' inline <c>ext</c>: a file in which any part carries one is written as it.</summary>
         public const int ClothesPartExtVersion = 2;
+        /// <summary>The revision of a character node's <c>state.nippleThroughClothes</c> (written only when false): a scene in
+        /// which any character has it is written as it.</summary>
+        public const int NippleThroughClothesVersion = 3;
         /// <summary>Written to <c>minReaderVersion</c>.</summary>
         public const int MinReaderVersion = 1;
         /// <summary>Written to <c>prerelease</c>: null since format v1 was frozen. Every later schema change is a new

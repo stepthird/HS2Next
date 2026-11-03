@@ -53,6 +53,18 @@ namespace HS2Next.Motion.DynamicBones
         Transform root;
         Vector3 objPrevPos, objMove;
         float objScale = 1f, acc, weight = 1f;
+        // The chain's frame (its first bone in the reference pose) at the start of the last simulated or held frame: a frame
+        // of no time carries the particles by the change of this frame.
+        Matrix4x4 heldFrame;
+        bool held;
+
+        /// <summary>
+        /// After 1.1.0 (the paused scene): true (default) = a frame of no time (dt 0: the global pause, a paused or stopped
+        /// character) carries the particles with the chain's frame when the body moved since the last frame (a move, an FK / IK
+        /// edit or a pose while paused), so the breasts and hips keep their last shape on the body instead of staying behind in
+        /// world space; nothing changes while the body stands still or time runs. False = the behaviour before (tests).
+        /// </summary>
+        public static bool CarryWithoutTime = true;
 
         public Vector3 Gravity;
         public int PtnNo { get; private set; }
@@ -260,6 +272,22 @@ namespace HS2Next.Motion.DynamicBones
             if (Active) InitTransforms();
         }
 
+        /// <summary>
+        /// After 1.1.0: the particles (and the object position the inertia reads) moved by <paramref name="d"/>, a rigid move of the
+        /// whole body (the build placing a character assembled at the origin); the chain then starts from the placed pose.
+        /// </summary>
+        public void CarryRigid(Matrix4x4 d)
+        {
+            if (x == null) return;
+            for (int i = 0; i < n; i++)
+            {
+                x[i] = d.MultiplyPoint3x4(x[i]);
+                p[i] = d.MultiplyPoint3x4(p[i]);
+            }
+            objPrevPos = d.MultiplyPoint3x4(objPrevPos);
+            if (held) heldFrame = d * heldFrame;
+        }
+
         /// <summary>ResetParticlesPosition.</summary>
         public void ResetParticlesPosition()
         {
@@ -269,6 +297,7 @@ namespace HS2Next.Motion.DynamicBones
             var last = n >= 2 ? tr[n - 2] : null;
             Vector3 tip = last ? last.TransformPoint(endOffset) : Vector3.zero;
             x[n - 1] = p[n - 1] = tip;
+            held = false;
         }
 
         /// <summary>Enable / disable with OnEnable (reset particles) / OnDisable (InitTransforms) semantics.</summary>
@@ -345,6 +374,9 @@ namespace HS2Next.Motion.DynamicBones
             if (weight <= 0f || n < 2) return;
             InitTransforms();
             if (!root) return;
+            if (dt <= 0f && held && CarryWithoutTime) CarryHeld();
+            heldFrame = ChainFrame();
+            held = true;
             objScale = Mathf.Abs(root.lossyScale.x);
             Vector3 rp = root.position;
             objMove = rp - objPrevPos;
@@ -448,6 +480,26 @@ namespace HS2Next.Motion.DynamicBones
             Vector3 y = m.inverse.MultiplyPoint3x4(xi);
             y = new Vector3(Mathf.Clamp(y.x, moveMin[i].x, moveMax[i].x), Mathf.Clamp(y.y, moveMin[i].y, moveMax[i].y), Mathf.Clamp(y.z, moveMin[i].z, moveMax[i].z));
             xi = m.MultiplyPoint3x4(y);
+        }
+
+        Matrix4x4 ChainFrame() => hasT[0] && tr[0] ? tr[0].localToWorldMatrix : root ? root.localToWorldMatrix : Matrix4x4.identity;
+
+        // A frame of no time after the body moved: the particles (and the object position the inertia reads) follow the chain's
+        // frame rigidly, so the write-back gives the bones the local shape of the last frame. Within 1e-5 per matrix element
+        // the frame counts as unchanged and nothing is touched (a still body keeps its values bit for bit).
+        void CarryHeld()
+        {
+            var now = ChainFrame();
+            bool same = true;
+            for (int k = 0; k < 16 && same; k++) same = Mathf.Abs(now[k] - heldFrame[k]) <= 1e-5f;
+            if (same) return;
+            var d = now * heldFrame.inverse;
+            for (int i = 0; i < n; i++)
+            {
+                x[i] = d.MultiplyPoint3x4(x[i]);
+                p[i] = d.MultiplyPoint3x4(p[i]);
+            }
+            objPrevPos = d.MultiplyPoint3x4(objPrevPos);
         }
 
         // vanilla skip update

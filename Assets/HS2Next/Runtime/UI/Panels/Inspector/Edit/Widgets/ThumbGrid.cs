@@ -18,6 +18,8 @@
 // grid has the keyboard focus, `hs-thumb-grid--focused`), and `hs-card--current` the value applied to the character (a thick
 // accent frame, a check badge and an accent text line). HintKey names a short text of what a click / double click does,
 // appended to every cell's tooltip. Keys reach the grid before the list view inside it (which took the arrow keys).
+// v1.2: a right click on a cell selects it and, on release, asks for its context menu (ContextRequested, with the pointer's
+// panel position); the menu key or Shift+F10 asks for the focus cell's menu (below the cell). Grids without a handler ignore both.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -114,6 +116,9 @@ namespace HS2Next.UI.Panels
         public event Action<T> SelectionChanged, Activated;
         /// <summary>A single click on a cell (after the selection moved to it).</summary>
         public event Action<T> Clicked;
+        /// <summary>A right click on a cell (released over it) or the menu key / Shift+F10 on the focus cell: the entry and the
+        /// panel position where its context menu opens. The cell is selected first.</summary>
+        public event Action<T, Vector2> ContextRequested;
         /// <summary>The pointer moved into a cell (its item) or left one (null); a cell scrolled under a resting pointer raises
         /// nothing. The keyboard's focus cell is SelectionChanged.</summary>
         public event Action<T> HoverChanged;
@@ -226,7 +231,7 @@ namespace HS2Next.UI.Panels
             float w = list.resolvedStyle.width;
             if (float.IsNaN(w) || w <= 0) w = resolvedStyle.width;
             if (float.IsNaN(w) || w <= 0) w = 600;
-            int cols = Mathf.Clamp((int)((w - 16) / (CellWidth + Gap)), 1, MaxColumns);
+            int cols = ColumnsFor(w);
             if (!force && cols == columns && rowIdx.Count == (index.Count + columns - 1) / columns) return;
             columns = cols;
             int n = (index.Count + columns - 1) / columns;
@@ -234,6 +239,9 @@ namespace HS2Next.UI.Panels
             for (int i = 0; i < n; i++) rowIdx.Add(i);
             list.RefreshItems();
         }
+
+        /// <summary>The columns the grid shows at a list width (px).</summary>
+        public int ColumnsFor(float width) => Mathf.Clamp((int)((width - 16) / (CellWidth + Gap)), 1, MaxColumns);
 
         IEnumerable<Cell> AllCells()
         {
@@ -259,6 +267,7 @@ namespace HS2Next.UI.Panels
                 cell.Root.Add(cell.Badge);
                 var cc = cell;
                 cell.Root.RegisterCallback<PointerDownEvent>(e => OnCellDown(cc, e));
+                cell.Root.RegisterCallback<PointerUpEvent>(e => OnCellUp(cc, e));
                 cell.Root.RegisterCallback<PointerEnterEvent>(e =>
                 {
                     cc.Root.AddToClassList(HoverClass);
@@ -429,6 +438,15 @@ namespace HS2Next.UI.Panels
 
         void OnCellDown(Cell cell, PointerDownEvent e)
         {
+            if (e.button == 1 && cell.Pos >= 0 && ContextRequested != null)
+            {
+                // a right click selects the cell; its menu opens on the release (a menu opened on the press would take the release)
+                Focus();
+                if (SelectedPos != cell.Pos) Select(cell.Pos);
+                rightPressed = cell;
+                e.StopPropagation();
+                return;
+            }
             if (e.button != 0 || cell.Pos < 0) return;
             Unpress(pressed);
             pressed = cell;
@@ -437,6 +455,30 @@ namespace HS2Next.UI.Panels
             Select(cell.Pos);
             if (e.clickCount == 2) Activate();
             else if (e.clickCount == 1) { var s = Selected; if (s != null) Clicked?.Invoke(s); }
+        }
+
+        Cell rightPressed;
+
+        void OnCellUp(Cell cell, PointerUpEvent e)
+        {
+            if (e.button != 1) return;
+            bool same = rightPressed == cell;
+            rightPressed = null;
+            if (!same || cell.Pos < 0 || cell.Pos >= index.Count || ContextRequested == null) return;
+            e.StopPropagation();
+            var item = rows[index[cell.Pos]];
+            ContextRequested(item, e.position);
+        }
+
+        /// <summary>Asks for the focus cell's context menu as the menu key does (below the cell); false without a focus cell or handler.</summary>
+        public bool RequestContextMenu()
+        {
+            var s = Selected;
+            if (s == null || ContextRequested == null) return false;
+            var el = CellAt(SelectedPos);
+            var wb = el != null ? el.worldBound : worldBound;
+            ContextRequested(s, new Vector2(wb.xMin + Mathf.Min(24f, wb.width * 0.5f), el != null ? wb.yMax : wb.yMin + 24f));
+            return true;
         }
 
         /// <summary>Moves the selection to <paramref name="pos"/> (-1 = none) and scrolls it into view.</summary>
@@ -483,6 +525,11 @@ namespace HS2Next.UI.Panels
         {
             int p = SelectedPos, last = index.Count - 1;
             if (last < 0) return;
+            if (e.keyCode == KeyCode.Menu || (e.keyCode == KeyCode.F10 && e.shiftKey && !e.ctrlKey && !e.altKey))
+            {
+                if (RequestContextMenu()) e.StopPropagation();
+                return;
+            }
             switch (e.keyCode)
             {
                 case KeyCode.Return:

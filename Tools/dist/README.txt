@@ -2,8 +2,9 @@ HS2Next
 =======
 
 HS2Next is a scene and character editor for Honey Select 2 content. It reads the game data, cards, coordinates and
-mods of your own Honey Select 2 installation where they are; it contains no game data and never writes into the game
-folder.
+mods of your own Honey Select 2 installation where they are; it contains no game data and writes nothing into the game
+folder, except when you delete a character, outfit or pose file of the game from a list yourself: then it moves that
+file to the Windows recycle bin.
 
 README_ja.txt is this text in Japanese; README_zh-Hans.txt in Simplified Chinese (machine translation).
 
@@ -71,8 +72,9 @@ make a shortcut to HS2Next.exe and add -force-d3d11 at the end of its target.
 Uninstalling
 ------------
 Delete the HS2Next folder. To remove your settings, scenes, characters and cache as well, delete
-%USERPROFILE%\AppData\LocalLow\stp3\HS2Next. HS2Next writes nothing into the game folder and makes no registry entries
-of its own; the engine remembers the window size under HKEY_CURRENT_USER\Software\stp3\HS2Next.
+%USERPROFILE%\AppData\LocalLow\stp3\HS2Next. HS2Next writes nothing into the game folder other than moving a file you
+delete from a list to the Windows recycle bin, and makes no registry entries of its own; the engine remembers the window
+size under HKEY_CURRENT_USER\Software\stp3\HS2Next.
 
 
 Licence

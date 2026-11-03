@@ -1,7 +1,8 @@
 // The pose browser's files (4,399 HS2 files in 155 folders, depth 4,
 // mostly .dat without an image): the HS2 install's `UserData/studio/pose` (read only; .dat and PoseTools .png, each file's
-// header: name, sex) and HS2Next's `<UserData>/pose/**/*.hs2npose` (manifest title). Delete is offered for HS2Next files only
-// (HS2 files are read only, decision). Unity-free.
+// header: name, sex) and HS2Next's `<UserData>/pose/**/*.hs2npose` (manifest title). v1.2 (owner's answer): every file of
+// the list may be deleted, to the recycle bin only; a file of the HS2 install leaves HS2 too.
+// The folder walk also keeps each file's creation time (the «最近追加» view). Unity-free.
 //
 // The scan runs in two steps off the main thread (v0.3 trial 2): List walks the folders (names, sizes and times only, no file
 // opened) and takes each file's header from the pose index when the index has the same path, size and time; Read then opens
@@ -52,15 +53,19 @@ namespace HS2Next.UI.Panels
         public bool HasImage;
         public long Size;
         public DateTime ModifiedUtc;
+        /// <summary>The file's creation time: the date it was placed in the folder («最近追加», newest first).</summary>
+        public DateTime CreatedUtc;
         public PoseEntryStatus Status = PoseEntryStatus.Pending;
 
         public string DisplayName => string.IsNullOrEmpty(Name) ? FileName : Name;
         public string SearchText => FileName + " " + (Name ?? "");
         public string FolderKey => Folder.Length == 0 ? Root : Root + "/" + Folder;
-        /// <summary>HS2 files are read only.</summary>
-        public bool CanDelete => IsHs2n;
+        /// <summary>Every listed file may go to the recycle bin (v1.2; before, HS2 files were read only).</summary>
+        public bool CanDelete => true;
+        /// <summary>The file went to the recycle bin (no longer listed).</summary>
+        public bool Removed;
         /// <summary>Shown in the browser: a pose, or a file not read yet that is not a PNG (a PNG may be a plain image).</summary>
-        public bool Listed => Status == PoseEntryStatus.Pose || Status == PoseEntryStatus.Pending && (IsHs2n || !HasImage);
+        public bool Listed => !Removed && (Status == PoseEntryStatus.Pose || Status == PoseEntryStatus.Pending && (IsHs2n || !HasImage));
     }
 
     /// <summary>The header of one pose file as read (or as the index remembers it).</summary>
@@ -191,7 +196,7 @@ namespace HS2Next.UI.Panels
                     Folder = slash < 0 ? "" : kv.Key.Substring(0, slash),
                     HasImage = !hs2n && string.Equals(f.Extension, ".png", StringComparison.OrdinalIgnoreCase),
                 };
-                try { e.Size = f.Length; e.ModifiedUtc = f.LastWriteTimeUtc; }
+                try { e.Size = f.Length; e.ModifiedUtc = f.LastWriteTimeUtc; e.CreatedUtc = f.CreationTimeUtc; }
                 catch (Exception x) { Problems.Add(e.FileName + ": " + x.Message); }
                 Entries.Add(e);
                 if (index.TryGetValue(e.FullPath, out var row) && row.Size == e.Size && row.Ticks == e.ModifiedUtc.Ticks)
@@ -336,6 +341,17 @@ namespace HS2Next.UI.Panels
 
         /// <summary>True when results wait for <see cref="TakeResults"/>.</summary>
         public bool HasResults => !results.IsEmpty;
+
+        /// <summary>Main thread: an entry whose file went away (a delete) is no longer listed (it stays in <see cref="Entries"/>, so
+        /// the positions the reader hands out keep their meaning) and the folders are recounted; false when it was not listed.
+        /// The pose index forgets the file at the next scan.</summary>
+        public bool Remove(PoseEntry e)
+        {
+            if (e == null || e.Removed || !Entries.Contains(e)) return false;
+            e.Removed = true;
+            Recount();
+            return true;
+        }
 
         /// <summary>The folder list from the listed entries (roots first, then "root/a/b" keys).</summary>
         public void Recount()

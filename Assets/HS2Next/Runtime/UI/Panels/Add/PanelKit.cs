@@ -5,6 +5,7 @@
 // events of `ui.input`.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using HS2Next.Scenes;
 using HS2Next.Scenes.Runtime;
 using HS2Next.UI.Core;
@@ -121,6 +122,47 @@ namespace HS2Next.UI.Panels
             if (sheet == null) sheet = Resources.Load<StyleSheet>("UI/C/panels-c");
             if (sheet != null && el != null && !el.styleSheets.Contains(sheet)) el.styleSheets.Add(sheet);
             return el;
+        }
+
+        /// <summary>The element name of a multi-column list's header title labels (Unity's).</summary>
+        public const string HeaderTitleName = "unity-multi-column-header-column-title";
+
+        /// <summary>
+        /// The column titles of a multi-column list never run out of their columns (v1.2; the narrow sidebar, 300 / 247 px): each
+        /// title is cut with an ellipsis and carries its full text as a tooltip. Applied whenever the list's layout changes
+        /// (the header is built by the list) and by <see cref="FitHeaders"/> after a title changed.
+        /// </summary>
+        public static void EllipsizeHeaders(MultiColumnListView lv)
+        {
+            if (lv == null) return;
+            lv.RegisterCallback<GeometryChangedEvent>(_ => FitHeaders(lv));
+            FitHeaders(lv);
+        }
+
+        public static void FitHeaders(MultiColumnListView lv)
+        {
+            if (lv == null) return;
+            foreach (var l in lv.Query<Label>().ToList())
+            {
+                if (l.name != HeaderTitleName && !l.ClassListContains(HeaderTitleName)) continue;
+                var st = l.style;
+                st.overflow = Overflow.Hidden;
+                st.textOverflow = TextOverflow.Ellipsis;
+                st.whiteSpace = WhiteSpace.NoWrap;
+                st.flexShrink = 1;
+                st.minWidth = 0;
+                if (l.tooltip != l.text) l.tooltip = l.text;
+            }
+        }
+
+        /// <summary>A footer's status line: it takes the rest of its row, and a row too narrow for it puts it on a line of its own,
+        /// where it wraps (v1.2: the count ran out of a 300 px sidebar).</summary>
+        public static void StatusLine(Label status)
+        {
+            if (status == null) return;
+            status.style.minWidth = 120;
+            status.style.flexShrink = 1;
+            status.style.whiteSpace = WhiteSpace.Normal;
         }
 
         public static Label Text(string text, string cls)

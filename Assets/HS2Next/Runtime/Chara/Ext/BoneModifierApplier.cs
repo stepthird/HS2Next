@@ -45,7 +45,26 @@ namespace HS2Next.Chara.Ext
 
         readonly List<Modifier> modifiers = new List<Modifier>();
         readonly List<BoneState> bones = new List<BoneState>();
+        readonly HashSet<Transform> suppressed = new HashSet<Transform>();
         bool dirty;
+
+        /// <summary>
+        /// After 1.1.0 (flat nipples under clothes): the modifiers of these bones are left out (their bones go back to their base
+        /// once) until the set changes; null or empty = every modifier applies (the default). False when nothing changed.
+        /// </summary>
+        public bool SetSuppressed(IEnumerable<Transform> ts)
+        {
+            var next = new HashSet<Transform>();
+            if (ts != null) foreach (var t in ts) if (t) next.Add(t);
+            if (next.SetEquals(suppressed)) return false;
+            suppressed.Clear();
+            suppressed.UnionWith(next);
+            dirty = true;
+            return true;
+        }
+
+        /// <summary>The bones whose modifiers are left out now.</summary>
+        public int SuppressedCount => suppressed.Count;
 
         public IReadOnlyList<Modifier> Modifiers => modifiers;
         /// <summary>Number of distinct transforms written.</summary>
@@ -115,7 +134,7 @@ namespace HS2Next.Chara.Ext
             var byT = new Dictionary<Transform, BoneState>();
             foreach (var m in modifiers)
             {
-                if (!m.Target) continue;
+                if (!m.Target || (suppressed.Count > 0 && suppressed.Contains(m.Target))) continue;
                 if (!byT.TryGetValue(m.Target, out var b))
                 {
                     b = old.TryGetValue(m.Target, out var o) ? o : new BoneState { T = m.Target };

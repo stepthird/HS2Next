@@ -190,7 +190,7 @@ namespace HS2Next.UI.Core.Tests
                 (ActionIds.CameraReset, "Home", "A"),
                 (ActionIds.CameraResetAngles, "Shift+Home", "Keypad5"),
                 (ActionIds.CameraRollReset, "", "Slash"),
-                (ActionIds.CameraFovReset, "", "Quote"),
+                (ActionIds.CameraFovReset, "Ctrl+Home", "Quote"),   // default: Ctrl+Home since the field-of-view work after 1.1.0
                 (ActionIds.CameraMoveForward, "UpArrow", "UpArrow"),
                 (ActionIds.CameraMoveUp, "PageUp", "PageUp"),
                 (ActionIds.CameraDollyIn, "Ctrl+UpArrow", "Home"),

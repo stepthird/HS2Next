@@ -92,6 +92,14 @@ namespace HS2Next.Scenes.Runtime
         public static object SourceOf(ICharaBuilder b, CharaAppearance a) =>
             a == null ? null : b is SubtreeCharaBuilder ? a.Stored : b is CardCharaBuilder ? a.Card : (object)a;
 
+        /// <summary>
+        /// After 1.1.0 (default on): the physics chains set up where the assembler built the character are carried rigidly to where
+        /// the root stands at the character's first step (CharaMotion.CarryChainsAtFirstStep), so a character that appears away from
+        /// the origin does not swing in from there (its breasts and hips used to whip for about a second). False = the behaviour
+        /// before (tests). A root at the assembly's place at that step (the origin) touches nothing.
+        /// </summary>
+        public static bool CarryChainsToPlacement = true;
+
         /// <summary>A copy of the services' extension options for one build (2.2 used the assembler default; equal values).</summary>
         public static CharaExtOptions CopyOf(CharaExtOptions o)
         {
@@ -116,10 +124,12 @@ namespace HS2Next.Scenes.Runtime
             try
             {
                 root = build(asm);
+                var assembled = root.transform.localToWorldMatrix;
                 root.transform.SetParent(ctx.Holder, false);
                 root.transform.localPosition = Vector3.zero;
                 root.transform.localRotation = Quaternion.identity;
                 root.transform.localScale = Vector3.one;
+                if (CarryChainsToPlacement) asm.Context?.Motion?.CarryChainsAtFirstStep(root.transform, assembled);
             }
             catch (Exception e)
             {

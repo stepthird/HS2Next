@@ -3,7 +3,8 @@
 
 HS2Next は、Honey Select 2 の内容を使うシーンとキャラクターのエディターです。お手持ちの Honey Select 2 の
 ゲームデータ、カード、コーディネート、mod を、置いてある場所のまま読みます。ゲームのデータは含まず、ゲームの
-フォルダーには書き込みません。
+フォルダーには、一覧から削除を選んだキャラクター・衣装・ポーズのファイルを Windows のごみ箱へ移すとき以外、
+何も書き込みません。
 
 README.txt は英語の同じ文書、README_zh-Hans.txt は簡体字中国語の機械翻訳です。
 
@@ -75,9 +76,9 @@ HS2Next は Direct3D 12 で起動します。画面が黒いままになる、�
 アンインストール
 ----------------
 HS2Next のフォルダーを削除します。設定、シーン、キャラクター、キャッシュも消す場合は
-%USERPROFILE%\AppData\LocalLow\stp3\HS2Next も削除します。HS2Next はゲームのフォルダーに何も書き込まず、独自の
-レジストリの項目も作りません。ウィンドウの大きさだけは、エンジンが HKEY_CURRENT_USER\Software\stp3\HS2Next に
-記録します。
+%USERPROFILE%\AppData\LocalLow\stp3\HS2Next も削除します。HS2Next は、一覧から削除を選んだファイルを Windows の
+ごみ箱へ移すとき以外はゲームのフォルダーに何も書き込まず、独自のレジストリの項目も作りません。ウィンドウの
+大きさだけは、エンジンが HKEY_CURRENT_USER\Software\stp3\HS2Next に記録します。
 
 
 ライセンス

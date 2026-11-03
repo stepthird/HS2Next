@@ -95,6 +95,11 @@
                summary as rows when the Unity rows are done (TOTAL passed / failed; FAIL on a build failure or any failed
                check). While Mono.scene runs, the Unity row SceneModelTest leaves the appearance fuzz out
                (HS2N_APPEARANCE_FUZZ=off; Phase 5.2, LQ16) and Mono.scene runs it at the default 2,000 x 200.
+    After 1.1.0: headless [PausedEditTest] (paused builds and reshapes settle at once, the placement carry, the per-character
+  nipple switch; a HeadlessBatch member), [UiListsV12Test.play] (favourites, recently added, the right-click menu and its
+  delete on a sandbox, the Costume tab's kept view state; -NoQuit, port 17651), [PoseThumbTest] (the stick-figure pose
+  thumbnails; -NoQuit; full: [PoseThumbTest.all], every pose file), [PoseBrowserWidthTest.play] (the pose browser in narrow
+  sidebars; -NoQuit, port 17652); graphics [StreakProbe.check] (the chara light's self-shadow streaks, Built-in vs URP).
   Before the first row the offline compile check (Tools\offline_compile.py) runs once; a tree that does not compile is a
   note in the summary and a warning on the console (the first Unity row's compile failure stops the suite as before);
   every row then passes -SkipOfflineCompile to unity_batch.
@@ -1032,10 +1037,28 @@ Row 'PoseImportTest.corpus' full   'pose,import,scene'           'PoseImportTest
 Row 'IkDriverTest'        headless 'motion,pose,scene'           'IkDriverTest.Run' @() 'Spike\out\pose\ik_driver_report.txt' -DevInputs 'Tools/targets.json,Tools/compare_poses.json'
 Row 'UiOpsTest'           headless 'ui,scene,bridge'             'UiOpsTest.Run' @() 'Spike\out\ui_ops\ui_ops_report.txt' -DevInputs 'Tools/targets.json'
 Row 'PauseTest'           headless 'routes,motion,scene,bridge'  'PauseTest.Run' @() 'Spike\out\pause\pause_report.txt' -DevInputs 'Tools/targets.json'
+# PausedEditTest (after 1.1.0, package C
+# 11.6): a character built / reshaped / posed / moved while the scene is paused settles at once (E1-E10), the placement carry
+# of a running add away from the origin (W1-W3), the character's own pause / time scale 0 (M1), the per-character switch
+# state.nippleThroughClothes (N1-N7); headless edit mode through SceneRuntime.Tick, a HeadlessBatch member (it restores its
+# switches); about 0.4 min of checks
+Row 'PausedEditTest'      headless 'routes,motion,scene,chara-build,save,ui' 'PausedEditTest.Run' @() 'Spike\out\pause\paused_edit_report.txt' -TimeoutMin 15 -DevInputs 'Tools/targets.json'
 Row 'RouteTest'           headless 'routes,scene,bridge'         'RouteTest.Run' @() 'Spike\out\routes\route_report.txt'
 Row 'CharaStateTest'      headless 'ui,chara-build,scene'        'CharaStateTest.Run' @() 'Spike\out\chara_state\chara_state_report.txt' -DevInputs 'Tools/targets.json'
 Row 'UiCoreTest'          headless 'ui'                          'UiCoreTest.Run' @() 'Spike\out\ui\ui_core_report.txt'
 Row 'UiShellTest.play'    headless 'ui,bridge'                   'UiShellTest.Run' @() 'Spike\out\ui\ui_shell_report.txt' -NoQuit -TimeoutMin 20 -DevInputs 'Tools/targets.json'
+# After 1.1.0 (4.30): UiListsV12Test.play (package L, headless play with the UI, port 17651, about
+# 4 min): FS the favourites store, RB delete refusals, P the pose browser, M6 / CB the Costume tab's kept view state, C the
+# character browser, L the list browsers and the view timings, K the coordinate dialog, W narrow sidebars, Z the recycle-bin
+# clean-up - every delete runs on its sandbox Spike\out\ui_lists_v12\sandbox (emptied at the start) and the test takes its
+# own recycled sandbox files out of the recycle bin again. PoseThumbTest (package P, -NoQuit: T8's next-session half; about
+# 2 min) the stick-figure pose thumbnails T1-T6, T8 (-all: every pose file of the install), cache Spike\out\pose_thumbs.
+# PoseBrowserWidthTest.play (package P, headless play with the UI, port 17652, under 1 min): the pose browser at 372 / 300 /
+# 247 px in ja and en.
+Row 'UiListsV12Test.play' headless 'ui'                          'UiListsV12Test.Run' @() 'Spike\out\ui\ui_lists_v12_report.txt' -NoQuit -TimeoutMin 25 -DevInputs 'Tools/targets.json'
+Row 'PoseThumbTest'       headless 'pose,ui'                     'PoseThumbTest.Run' @() 'Spike\out\pose_thumbs\pose_thumb_report.txt' -NoQuit -TimeoutMin 15
+Row 'PoseThumbTest.all'   full     'pose,ui'                     'PoseThumbTest.Run' @('-all') 'Spike\out\pose_thumbs\pose_thumb_report.txt' -NoQuit -TimeoutMin 20
+Row 'PoseBrowserWidthTest.play' headless 'ui'                    'PoseBrowserWidthTest.Run' @() 'Spike\out\ui\pose_width_report.txt' -NoQuit -TimeoutMin 15
 Row 'CompareTest'         headless 'compare,motion,pose,chara-build' 'CompareTest.Run' @() 'Spike\out\compare\compare_report.txt' -DevInputs 'Cache/compare'
 foreach ($set in 'female_body', 'female_face', 'male_body', 'male_face') {
     Row "ShapeMapTest.$set" headless 'chara-build,compare'       'ShapeMapTest.Run' @('-set', $set, '-label', "suite_$set") "Spike\out\shape\runs\suite_$set.txt" -DevInputs 'Cache/shapemeasure'
@@ -1343,6 +1366,11 @@ Row 'SceneTexturesTest.play'   graphics 'effects,maps,items,shaders' 'SceneTextu
 Row 'SkyAmbientTest'           graphics 'effects,shaders'        'SkyAmbientTest.Run' @() 'Spike\out\effects\sky_ambient_report.txt' -TimeoutMin 20
 Row 'SkyAmbientTest.render'    graphics 'effects,shaders,chara-render' 'SkyAmbientTest.RunRender' @('-syncShaders') 'Spike\out\effects\sky_ambient_render_report.txt' -TimeoutMin 20
 Row 'SkyAmbientTest.play'      graphics 'effects,maps'           'SkyAmbientTest.RunPlay' @() 'Spike\out\effects\sky_ambient_play_report.txt' -NoQuit -TimeoutMin 30
+# StreakProbe.check (after 1.1.0, package R): the visual targets built and drawn Built-in (HS2's
+# chara light biases) and URP (the app's chara light biases), shadows on / off: the self-shadow streaks along the edge loops
+# within Built-in's plus a margin, the contact shadows' IoU / leak; images under Spike\out\streaks\check, judged by numbers;
+# about 2.5 min
+Row 'StreakProbe.check'        graphics 'effects,chara-render'   'StreakProbe.RunCheck' @('-syncShaders') 'Spike\out\streaks\check\streak_check.txt' -TimeoutMin 20 -DevInputs 'Tools/targets.json'
 # MeReportTest.play (Phase 5.R package N): Editor play with the UI, port 17623 - NG1-NG4, the
 # me.shaderUnavailable finding of MaterialEditor swaps HS2Next cannot draw (the vanilla skin kept, the inspector badge and line)
 Row 'MeReportTest.play'        graphics 'chara-build,ui,effects' 'MeReportTest.RunPlay' @() 'Spike\out\mereport\me_report_play.txt' -NoQuit -TimeoutMin 20

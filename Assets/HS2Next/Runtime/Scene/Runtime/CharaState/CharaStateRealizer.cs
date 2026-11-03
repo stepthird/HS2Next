@@ -15,6 +15,10 @@
 //     body tongue, the head, hair, clothes and accessories hidden; the body's mosaic and the son stay as without it (HS2:
 //     the son object follows the son toggle only, and the simple body shows its own son and tongue with them); items attached
 //     to the character and animation option items are not touched. Everything returns when it is switched off.
+//   7 (after 1.1.0) nippleThroughClothes off: while a top or a bra is on and shown (the realized state On, its object active),
+//     the body engine evaluates the nipple ids flat and the bone modifiers of the nipple bones are left out; the body shape
+//     unit runs again through the edit flush (shapes, bust chains re-set, the bone modifiers on top, the shape captures), as
+//     after a body slider. Half, off, absent or hidden (silhouette) tops and bras leave the nipples as the card has them.
 // Materials are written in place: after the build every renderer slot holds a material of this character.
 // Data names only.
 using System;
@@ -137,6 +141,7 @@ namespace HS2Next.Scenes.Runtime
             if (touches("chara.state.nipple")) ApplyNipple(s.Nipple);
             if (touches("chara.state.son")) ApplySon(s.Son);
             if (sil) ApplySilhouette(s.Silhouette);
+            if (touches("chara.state.nippleThroughClothes")) ApplyNippleCover(s);
         }
 
         /// <summary>
@@ -223,7 +228,61 @@ namespace HS2Next.Scenes.Runtime
             // the heels apply while the shoes are on (after 1.0.0; the stored state, not the silhouette's hiding)
             var heels = Ctx.Motion?.Get<HS2Next.Motion.Heels.HeelsLift>();
             if (heels != null) heels.State.ShoesOn = e[7] == On;
+            ApplyNippleCover(s);
             LastClothesMs = sw.Elapsed.TotalMilliseconds;
+        }
+
+        // ------------------------------------------------------------ nipples under clothes (after 1.1.0)
+
+        /// <summary>True while a shown top or bra is on (the realized state On and its object active).</summary>
+        public bool ChestCovered
+        {
+            get
+            {
+                var objs = Ctx?.Clothes;
+                if (objs == null) return false;
+                bool On(int k) => k < objs.Length && objs[k] && objs[k].activeSelf && k < Realized.Length && Realized[k] == ClothesStateSet.On;
+                return On(ClothesStateSet.Top) || On(ClothesStateSet.Bra);
+            }
+        }
+
+        /// <summary>True while the nipples are flat for the clothes (nippleThroughClothes off and the chest covered).</summary>
+        public bool NipplesFlat => Ctx?.BodyShape != null && Ctx.BodyShape.NippleFlat;
+
+        /// <summary>Flat nipple re-applications (tests).</summary>
+        public int NippleCoverChanges { get; private set; }
+
+        /// <summary>
+        /// Rule 7: the flat state the switch and the clothes ask for. Only a change does anything: the engine's flat state, the
+        /// bone modifiers of the nipple bones left out (or back), and the body shape unit marked for the edit flush (which re-sets
+        /// the bust chains and re-captures the shapes as a body slider does). Females only; the default (on) never gets here.
+        /// </summary>
+        public void ApplyNippleCover(CharaState s)
+        {
+            var shape = Ctx?.BodyShape;
+            if (s == null || shape == null || !shape.HasBustMasks) return;
+            bool flat = !s.NippleThroughClothes && !Ctx.IsMale && ChestCovered;
+            if (shape.NippleFlat == flat) return;
+            shape.SetNippleFlat(flat);
+            var mods = Ctx.Bones;
+            if (mods) mods.SetSuppressed(flat ? shape.NippleBones : null);
+            NippleCoverChanges++;
+            var ed = Ctx.Editor;
+            if (ed != null)
+            {
+                ed.MarkUnit(HS2Next.Chara.Edit.UnitMap.ShapeBody);
+                CharaEditFlush.Request(real);
+            }
+            else
+            {
+                // no editor (a build without the Maker units): the full update, the modifiers on top, the captures, the bust chains
+                if (mods) mods.RestoreBases();
+                shape.Apply();
+                if (mods) mods.ApplyNow();
+                var anim = real.Animation;
+                if (anim) anim.RefreshBodyShape(Ctx);
+                Ctx.Motion?.Get<HS2Next.Motion.DynamicBones.BustStage>()?.ResetPosition();
+            }
         }
 
         /// <summary>
@@ -361,11 +420,23 @@ namespace HS2Next.Scenes.Runtime
             var values = Ctx.Chara?.Body?.Shape ?? Ctx.Card?.Body.Get("shapeValueBody").Floats();
             if (values != null && values.Length > 32) v = values[32];
             shape.SetValue(32, Mathf.Lerp(0f, 0.8f, v) + 0.2f * rate);
-            shape.Apply();
             lastNipple = rate;
             // the body shape unit adds the same 0.2 x rate when an edit re-applies the shapes
             if (Ctx.Edit != null) Ctx.Edit.NipStandRate = rate;
+            var ed = Ctx.Editor;
+            if (NippleStandThroughUnit && ed != null)
+            {
+                // after 1.1.0: through the body shape unit, as a slider edit, so the shape captures and the bone modifiers follow
+                // (a bare full update was undone by the animation's shape-bone guard at the next step)
+                ed.MarkUnit(HS2Next.Chara.Edit.UnitMap.ShapeBody);
+                CharaEditFlush.Request(real);
+            }
+            else shape.Apply();
         }
+
+        /// <summary>Diagnostic switch (default true): the nipple stand re-runs the body shape unit; false = the full update alone
+        /// (1.1.0's behaviour, which the animation's shape-bone guard undid at the next step).</summary>
+        public static bool NippleStandThroughUnit = true;
 
         /// <summary>The son object (the body's N_dan of the assembler) active with son.visible, with or without the silhouette
         /// (HS2: its rule in Studio reduces to the son toggle); the simple body's son object active with son.visible while the

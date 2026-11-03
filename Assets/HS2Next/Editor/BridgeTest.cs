@@ -298,6 +298,8 @@ public static partial class BridgeTest
     {
         var c = new AcceptanceCtx();
         var total = System.Diagnostics.Stopwatch.StartNew();
+        var targets = TestTargets.Load();
+        c.FemaleRel = BridgeCoreTest.RelTo(TestTargets.Abs(targets.visual.female), Path.Combine(TestTargets.UserData, "chara", "female"));   // RT1's paused add
         c.Client = new BridgeClient("http://127.0.0.1:" + Port + "/");
         c.Rep.AppendLine($"Bridge play test RT1 (Unity {Application.unityVersion}, graphics {SystemInfo.graphicsDeviceType}); {c.Url}");
         var ok = new bool[1];

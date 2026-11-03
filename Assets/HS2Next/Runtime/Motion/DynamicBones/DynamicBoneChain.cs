@@ -331,6 +331,22 @@ namespace HS2Next.Motion.DynamicBones
         static bool Bits(Vector3 a, Vector3 b) => Bits(a.x, b.x) && Bits(a.y, b.y) && Bits(a.z, b.z);
         static bool Bits(Quaternion a, Quaternion b) => Bits(a.x, b.x) && Bits(a.y, b.y) && Bits(a.z, b.z) && Bits(a.w, b.w);
 
+        /// <summary>
+        /// After 1.1.0: the particles (and the object position the inertia reads) moved by <paramref name="d"/>, a rigid move of the
+        /// whole body (the build placing a character assembled at the origin). A chain that has written its bones keeps its
+        /// snapshots (they hold local poses or are taken again at its next frame).
+        /// </summary>
+        public void CarryRigid(Matrix4x4 d)
+        {
+            if (x == null) return;
+            for (int i = 0; i < n; i++)
+            {
+                x[i] = d.MultiplyPoint3x4(x[i]);
+                p[i] = d.MultiplyPoint3x4(p[i]);
+            }
+            objPrevPos = d.MultiplyPoint3x4(objPrevPos);
+        }
+
         /// <summary>Particles at the current bone positions, no velocity (OnEnable / ResetParticlesPosition).</summary>
         public void ResetParticles()
         {

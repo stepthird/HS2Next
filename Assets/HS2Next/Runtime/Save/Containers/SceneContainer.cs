@@ -112,6 +112,7 @@ namespace HS2Next.Save
         internal override void Build(SaveSession s)
         {
             ExtDispatcher.Write(Instances(), s.Options.RegistryOrDefault, s.Findings);
+            foreach (var n in Scene.Nodes) s.Covers(n);
             s.AddDoc(SceneDocument.EntryName, Scene.Write);
             foreach (var n in Scene.Nodes)
                 if (n.State is ItemNodeState item && item.Group == AccessoryItemGroup) { s.AddRequirement(AccessoryItemsRequirement); break; }

@@ -218,6 +218,16 @@ namespace HS2Next.UI.Viewport
             SetView(new Vector3(v.Pivot.X, v.Pivot.Y, v.Pivot.Z), new Vector3(v.Rot.X, v.Rot.Y, v.Rot.Z), v.Distance, v.Fov);
         }
 
+        /// <summary>Sets the field of view, clamped to [FovMin, FovMax] (the cameras panel's row and the viewport's readout;
+        /// written with the next flush, as the keys are).</summary>
+        public void SetFov(float value)
+        {
+            if (!Enabled || float.IsNaN(value)) return;
+            Read();
+            fov = Mathf.Clamp(value, FovMin, FovMax);
+            Changed();
+        }
+
         public void ResetAngles() { if (!Enabled) return; Read(); rot.x = 0; rot.y = 0; Changed(); }
         public void ResetRoll() { if (!Enabled) return; Read(); rot.z = 0; Changed(); }
         public void ResetFov() { if (!Enabled) return; Read(); fov = FovDefault; Changed(); }

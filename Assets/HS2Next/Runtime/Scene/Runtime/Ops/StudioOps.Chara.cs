@@ -512,7 +512,7 @@ namespace HS2Next.Scenes.Runtime
         // ------------------------------------------------------------ other state members
 
         /// <summary>The members of <see cref="SetState"/> (relative names) and their full paths.</summary>
-        public static readonly string[] StateMembers = { "liquid", "nipple", "wet", "gloss", "son", "silhouette", "tears", "cheek" };
+        public static readonly string[] StateMembers = { "liquid", "nipple", "wet", "gloss", "son", "silhouette", "tears", "cheek", "nippleThroughClothes" };
 
         /// <summary>The full field path of a state member ("liquid[2]", "son.length", "silhouette.color", "tears", …); null when it is none.</summary>
         public static string StatePath(string member)
@@ -528,7 +528,7 @@ namespace HS2Next.Scenes.Runtime
         }
 
         /// <summary>
-        /// Sets `state` members (liquid, nipple, wet, gloss, son, silhouette; tears and cheek of the face) on every character, one
+        /// Sets `state` members (liquid, nipple, wet, gloss, son, silhouette, nippleThroughClothes; tears and cheek of the face) on every character, one
         /// entry "Character state". Values are stored as given (no clamping); a float must be finite.
         /// </summary>
         public OpResult SetState(IEnumerable<string> ids, IReadOnlyList<(string member, object value)> sets, ExecuteOptions o = default)

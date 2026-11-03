@@ -229,7 +229,9 @@ public static partial class LightCameraTest
                   NearC(cl.Light.color, 1.6f, 1.2f, 0.8f) && Near(cl.Light.intensity, 1) && co && NearC(co.Color, 0.8f, 0.6f, 0.4f) && Near(co.Intensity, 2) && Near(cl.Light.shadowStrength, 1)
                   && cl.Light.shadows == LightShadows.Soft && cl.Light.cullingMask == RenderingLayers.CharaLightCullingMask && cd && unchecked((uint)cd.renderingLayers) == unchecked((uint)RenderingLayers.CharaLightCullingMask),
                   $"{cl.Light.color} × {cl.Light.intensity}");
-            Check("chara light biases: HS2's Cam Light 0.1 / 0.3 per light (U14)", cd && !cd.usePipelineSettings && Near(cl.Light.shadowBias, 0.1f) && Near(cl.Light.shadowNormalBias, 0.3f),
+            Check("chara light biases: 3 / 0.75 per light in URP units (HS2's Cam Light 0.1 / 0.3 in Built-in units)", cd && !cd.usePipelineSettings
+                  && Near(cl.Light.shadowBias, SceneCharaLight.CharaLightShadowBias) && Near(cl.Light.shadowNormalBias, SceneCharaLight.CharaLightShadowNormalBias)
+                  && Near(SceneCharaLight.CharaLightShadowBias, 3f) && Near(SceneCharaLight.CharaLightShadowNormalBias, 0.75f),
                   $"pipeline {cd?.usePipelineSettings}, {cl.Light.shadowBias} / {cl.Light.shadowNormalBias}");
         }
     }

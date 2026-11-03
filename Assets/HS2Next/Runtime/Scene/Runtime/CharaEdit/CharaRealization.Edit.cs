@@ -138,6 +138,11 @@ namespace HS2Next.Scenes.Runtime
             if (st != null && (r.AccessorySlotsSwapped.Count > 0 || r.ExtFinalRan || r.AnySwap)) Step("edit.accessories", () => ApplyAccessories(st.State));
             if (r.EyesChanged && !r.HeadSwapped) Step("edit.eyes", () => Expression?.Materials?.Refresh());
             if (r.NewObjects.Count > 0) Step("edit.objects", () => PrepareNewObjects(r.NewObjects));
+            // while paused, an edit that reshapes the body or replaces parts settles the physics (after 1.1.0); a drag frame's
+            // preview waits for the commit
+            if (r.Mode == FlushMode.Normal && (r.BodyShapeChanged || r.FaceShapeChanged || r.AnySwap || r.DynBone != "none" || r.ExtFinalRan ||
+                                               r.NewObjects.Count > 0 || r.ClothesObjectsReset.Any(b => b)))
+                WantSettle();
             LastSceneStepMs = sw.Elapsed.TotalMilliseconds;
         }
 

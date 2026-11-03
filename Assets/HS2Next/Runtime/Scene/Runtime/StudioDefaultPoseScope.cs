@@ -15,6 +15,7 @@
 // CharaAnimation.Restore (re-creates option items through the option-items-loaded hook, so the scene layer maps
 // them to URP again), motion switches restored, CharaMotion.ResetAll(). A character that had no motion before keeps
 // none (Restore would fall back to the 0/0/0 row). Main thread only; the caller renders between Enter and Dispose.
+// After 1.1.0: in a paused scene Dispose asks the motion for a settle (the physics come to rest on the restored pose).
 using System;
 using System.Collections.Generic;
 using HS2Next.Content.Studio;
@@ -208,6 +209,10 @@ namespace HS2Next.Scenes.Runtime
                 motion.Paused = pausedSaved;
                 motion.TimeScale = timeScaleSaved;
                 motion.ResetAll();
+                // the scene is paused (its clock gives no time): the chains dropped their history above, so they settle on the
+                // restored pose at the next step instead of standing at their rest pose until the scene runs (after 1.1.0)
+                bool still = (motion.DeltaSource != null && motion.DeltaSource() == 0f) || motion.Paused || motion.TimeScale <= 0f;
+                if (still && CharaRealization.SettleWhilePaused) motion.RequestSettle();
             }
         }
     }

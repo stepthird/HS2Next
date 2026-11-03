@@ -7,6 +7,9 @@
 // nipple's own rows (NippleRowBones) are not bust rows: only a full update writes them, and a full update evaluates every
 // row with the slider values before the bust rows of a masked side are written again, so a mask never reaches the nipple
 // rows (as in HS2). All masks are open by default, which leaves every result unchanged.
+// Flat nipples (after 1.1.0, the scene state nippleThroughClothes): while on, the nipple ids (areola puff, nipple
+// thickness, stand) are evaluated at min(value, 0) on both sides and on every row they drive (bust rows and nipple rows);
+// off by default, which leaves every result unchanged.
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -81,6 +84,31 @@ namespace HS2Next.Chara
         /// <summary>True for the body engine (the only one with bust masks).</summary>
         public bool HasBustMasks { get; }
 
+        /// <summary>The body shape ids of the nipple: areola puff (7), nipple thickness (8), nipple stand (32).</summary>
+        public static readonly int[] NippleIds = { 7, 8, 32 };
+        bool nippleFlat;
+        Transform[] nippleBones = Array.Empty<Transform>();
+
+        /// <summary>True while the nipple ids are evaluated flat (<see cref="SetNippleFlat"/>).</summary>
+        public bool NippleFlat => nippleFlat;
+        /// <summary>The bones the rows of the nipple ids write (both sides; what a flat nipple changes).</summary>
+        public IReadOnlyList<Transform> NippleBones => nippleBones;
+
+        /// <summary>
+        /// Flat nipples on or off (body engine only): the nipple ids are evaluated again at min(value, 0) on both sides (on) or at
+        /// the values they were last given (off). The rows are written by the caller's next full update (<see cref="Apply"/>, as
+        /// after a shape edit). False when nothing changed.
+        /// </summary>
+        public bool SetNippleFlat(bool flat)
+        {
+            if (!HasBustMasks || nippleFlat == flat) return false;
+            nippleFlat = flat;
+            foreach (int id in NippleIds) if (values.TryGetValue(id, out float v)) SetValue(id, v);
+            return true;
+        }
+
+        static bool IsNippleId(int slider) => slider == 7 || slider == 8 || slider == 32;
+
         ShapeEngine(Transform root, byte[] keyData, string info, string map, bool bustMasks)
         {
             HasBustMasks = bustMasks;
@@ -130,7 +158,20 @@ namespace HS2Next.Chara
                 rows.Add(new Row { mask = mask, dst = t, op = c[2], args = ex, dstName = c[1], refs = parseRefs });
                 parseRefs = null;
             }
-            if (HasBustMasks) BuildSideRows();
+            if (HasBustMasks) { BuildSideRows(); BuildNippleBones(); }
+        }
+
+        // The distinct target bones of the rows that read a source of a nipple id.
+        void BuildNippleBones()
+        {
+            var srcs = new HashSet<string>(StringComparer.Ordinal);
+            foreach (int id in NippleIds)
+                if (sliders.TryGetValue(id, out var links))
+                    foreach (var l in links) srcs.Add(l.src);
+            var bones = new List<Transform>();
+            foreach (var r in rows)
+                if (r.refs.Overlaps(srcs) && !bones.Contains(r.dst)) bones.Add(r.dst);
+            nippleBones = bones.ToArray();
         }
 
         static int SideOf(string src) =>
@@ -220,6 +261,7 @@ namespace HS2Next.Chara
                 float lv = v;
                 bool lout = outside;
                 if (bit >= 0 && l.side >= 0 && !masksSuspended && (bustMask[l.side] & (1 << bit)) != 0) { lv = MaskedValue; lout = false; }
+                if (nippleFlat && lv > 0f && IsNippleId(slider)) { lv = 0f; lout = false; }
                 Key s;
                 if (lout) s = Extrapolated(l.src, k, lv);
                 else if (lv <= 0) s = k[0];

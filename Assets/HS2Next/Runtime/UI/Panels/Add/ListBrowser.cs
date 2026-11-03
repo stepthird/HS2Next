@@ -11,10 +11,20 @@
 // region too narrow for three columns puts the two facet lists one above the other in a column left of the list. The
 // sizes are set from the body's size whenever it changes. A facet row shows the name (cut with an ellipsis, the full text in its
 // tooltip) and its count right-aligned.
+// v1.2: two views stand at the top of the group facet list, above «All» and the groups — «★ お気に
+// 入り» (the favourite rows of every group) and «最近追加» (only rows from zipmods, newest first by the creation date of their
+// zipmod file, ties in list order; the base game's rows are not in it) — each with its count under the search; a browser
+// without groups (maps, lights) gets a small facet list of the two views and «All». The search applies in both. In «最近追加»
+// the order is fixed (the column headers do not sort) and every row's tooltip gives the date its zipmod was placed; the dates
+// are read off the main thread the first time the view is shown (one stat per zipmod; the list order stands meanwhile). A
+// favourite's row shows a star before its name. A right click on a row (or the menu key / Shift+F10 on the selected row) opens
+// its menu: favourite, details, Explorer (its zipmod, or the base game's bundle), copy the path or the id — no delete.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
+using HS2Next.Content;
 using HS2Next.Content.Studio;
 using HS2Next.Scenes;
 using HS2Next.Scenes.Runtime;
@@ -49,6 +59,11 @@ namespace HS2Next.UI.Panels
         public Func<T, DragPayload> Drag;
         /// <summary>Default sort (null = source order).</summary>
         public Dictionary<string, Comparison<T>> Sorts = new Dictionary<string, Comparison<T>>();
+        /// <summary>The catalog record of a row (null = not a catalog row, the maps' «None»): its zipmod for «最近追加», the menu's
+        /// details and paths (v1.2).</summary>
+        public Func<T, StudioRecord> Record;
+        /// <summary>The row's name in its menu's details (null = the first column's text).</summary>
+        public Func<T, string> Name;
     }
 
     /// <summary>The layout of a list browser's body: Stacked = the facet lists above the list (a tall region); Column = the
@@ -69,6 +84,16 @@ namespace HS2Next.UI.Panels
         readonly List<string> allGroupKeys = new List<string>(), allCategoryKeys = new List<string>();
         ListIndex<T> index;
         string group, category;
+        // v1.2: the view (BrowserViews key or null), the favourites, each row's content id, the zipmod dates of «最近追加»
+        string view;
+        readonly FavoriteStore favorites;
+        readonly ListView views;
+        readonly List<string> viewKeys = new List<string>();
+        Dictionary<T, string> refs = new Dictionary<T, string>();
+        Dictionary<T, long> rowTicks;
+        Task<Dictionary<T, long>> datesTask;
+        List<SortColumnDescription> savedSorting;
+        const string RecentSort = "\u0002recent";
 
         /// <summary>Milliseconds of the last filter + RefreshItems (U-M2 in Unity).</summary>
         public double LastFilterMs { get; private set; }
@@ -76,6 +101,16 @@ namespace HS2Next.UI.Panels
         public MultiColumnListView List => list;
         public ListView Groups => groups;
         public ListView Categories => categories;
+        /// <summary>The facet list of the two views and «All» of a browser without groups (maps, lights); null otherwise.</summary>
+        public ListView Views => views;
+        /// <summary>The view shown: BrowserViews.Favorites / Recent, or null (all / a group).</summary>
+        public string View => view;
+        /// <summary>True once the zipmod dates of «最近追加» are known (false before the view was first shown).</summary>
+        public bool DatesReady => rowTicks != null;
+        /// <summary>Main-thread milliseconds of the last view change (the filter, the order and the list refresh).</summary>
+        public double LastViewMs { get; private set; }
+        /// <summary>Main-thread milliseconds of applying the zipmod dates (the «最近追加» order) once they were read.</summary>
+        public double LastDatesMs { get; private set; }
         /// <summary>The body holding the facet lists (in <see cref="Facets"/>) and the list.</summary>
         public VisualElement Body { get; }
         /// <summary>The column or row of the facet lists (null for a browser without facets).</summary>
@@ -113,6 +148,13 @@ namespace HS2Next.UI.Panels
             Body.EnableInClassList("hs-browser__body--column", shape == BrowserShape.Column);
             Body.EnableInClassList("hs-browser__body--wide", shape == BrowserShape.Wide);
             var facetLists = new VisualElement[] { groups, categories };
+            // the views of a browser without groups: three rows, a group list's width beside the list
+            if (views != null)
+            {
+                float vh = 3 * FacetRowHeight + 6;
+                views.style.height = shape == BrowserShape.Wide ? StyleKeyword.Null : (StyleLength)vh;
+                views.style.width = shape == BrowserShape.Wide ? (StyleLength)GroupsMinWidth : StyleKeyword.Null;
+            }
             switch (shape)
             {
                 case BrowserShape.Stacked:
@@ -145,6 +187,7 @@ namespace HS2Next.UI.Panels
         {
             this.ctx = ctx;
             this.spec = spec;
+            favorites = Favorites.Of(ctx);
             name = spec.Id + "-browser"; PanelKit.Style(this);
             AddToClassList("hs-panel");
             AddToClassList("hs-browser");
@@ -161,7 +204,7 @@ namespace HS2Next.UI.Panels
             body.AddToClassList("hs-browser__body--stacked");
             body.AddToClassList("hs-grow");
             Body = body;
-            if (spec.GroupKey != null || spec.CategoryKey != null)
+            if (spec.GroupKey != null || spec.CategoryKey != null || spec.Record != null)
             {
                 Facets = new VisualElement { name = spec.Id + "-facets" };
                 Facets.AddToClassList("hs-browser__facets");
@@ -170,8 +213,17 @@ namespace HS2Next.UI.Panels
             }
             if (spec.GroupKey != null)
             {
-                groups = Facet(spec.Id + "-groups", groupKeys, k => k == null ? L10n.Get("common.all") : spec.GroupLabel(k), FacetCount("group"), k => { group = k; category = null; ApplyFacets(); });
+                groups = Facet(spec.Id + "-groups", groupKeys, k => k == null ? L10n.Get("common.all") : BrowserViews.Is(k) ? L10n.Get(BrowserViews.LabelKey(k)) : spec.GroupLabel(k), FacetCount("group"),
+                    k => { if (BrowserViews.Is(k)) { view = k; group = null; } else { view = null; group = k; } category = null; ApplyFacets(); });
                 Facets.Add(groups);
+            }
+            else if (spec.Record != null)
+            {
+                views = Facet(spec.Id + "-views", viewKeys, k => k == null ? L10n.Get("common.all") : L10n.Get(BrowserViews.LabelKey(k)), FacetCount("views"),
+                    k => { view = BrowserViews.Is(k) ? k : null; ApplyFacets(); });
+                views.RemoveFromClassList("hs-facet-list--categories");
+                views.AddToClassList("hs-facet-list--views");
+                Facets.Add(views);
             }
             if (spec.CategoryKey != null)
             {
@@ -188,17 +240,29 @@ namespace HS2Next.UI.Panels
                 sortingMode = spec.Sorts.Count > 0 ? ColumnSortingMode.Custom : ColumnSortingMode.None,
             };
             list.AddToClassList("hs-grow");
+            PanelKit.EllipsizeHeaders(list);
             foreach (var c in spec.Columns) AddColumn(c.id, c.titleKey, c.width, c.text);
             list.itemsChosen += _ => ActivateSelected();
             list.selectionChanged += _ => UpdateButton();
             list.columnSortingChanged += () =>
             {
+                if (view == BrowserViews.Recent) return;   // «最近追加» keeps its order (the headers were cleared)
                 var s = list.sortedColumns.FirstOrDefault();
                 if (s == null) index.SetSort(null);
                 else if (spec.Sorts.ContainsKey(s.columnName)) index.SetSort(s.columnName, s.direction == SortDirection.Descending);
                 Refresh();
             };
-            list.RegisterCallback<KeyDownEvent>(e => { if (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter) { ActivateSelected(); e.StopPropagation(); } });
+            list.RegisterCallback<KeyDownEvent>(e =>
+            {
+                if (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter) { ActivateSelected(); e.StopPropagation(); return; }
+                if (ListMenus.IsMenuKey(e) && Selected != null)
+                {
+                    var row = list.GetRootElementForIndex(list.selectedIndex);
+                    var wb = row != null ? row.worldBound : list.worldBound;
+                    ShowMenu(Selected, new Vector2(wb.xMin + 24, row != null ? wb.yMax : wb.yMin + 24));
+                    e.StopPropagation();
+                }
+            });
             body.Add(list);
             Add(body);
 
@@ -209,15 +273,33 @@ namespace HS2Next.UI.Panels
             footer.Add(action);
             status = new Label { name = spec.Id + "-status" };
             status.AddToClassList("hs-status-text");
+            PanelKit.StatusLine(status);
             footer.Add(status);
             Add(footer);
 
             Reload();
             ctx.SelectionChanged += _ => UpdateButton();
+            Favorites.Changed += k => { if (k == null || k == spec.Id) FavoritesChanged(); };
+            PanelKit.EveryFrame(this, Tick);
         }
 
         const string CatSep = "\u0001";
-        readonly Dictionary<string, SortedDictionary<string, int>> facetCounts = new Dictionary<string, SortedDictionary<string, int>>();
+        // the facet counts with what they depend on (v1.2: a view change or a list refresh does not count the 28k rows again):
+        // the groups' and «最近追加»'s counts follow the search only, the favourites' also the store, the categories also the group
+        readonly Dictionary<string, (string key, SortedDictionary<string, int> counts)> facetCounts = new Dictionary<string, (string, SortedDictionary<string, int>)>();
+        ListIndex<T> countedIndex;
+
+        string CountKey(string facet)
+        {
+            string q = index.Query ?? "";
+            switch (facet)
+            {
+                case "group":
+                case "recent": return q;
+                case "fav": return q + "\u0001" + favorites.Revision;
+                default: return q + "\u0001" + group + "\u0001" + view + "\u0001" + favorites.Revision;
+            }
+        }
 
         /// <summary>The height of a facet row (px).</summary>
         public const float FacetRowHeight = 20f;
@@ -225,17 +307,34 @@ namespace HS2Next.UI.Panels
         Func<string, int> FacetCount(string facet) => k =>
         {
             if (index == null || k == null) return -1;
+            // a view's count: its rows under the search (whatever group is selected)
+            if (BrowserViews.Is(k)) return Counts(k == BrowserViews.Favorites ? "fav" : "recent").TryGetValue("y", out int v) ? v : 0;
             string key = facet == "category" ? group + CatSep + k : k;
             return Counts(facet).TryGetValue(key, out int c) ? c : 0;
         };
 
         // the group counts ignore the category facet (categories exist inside one group: a selected category zeroed every
-        // other group, v0.2 "(0)")
+        // other group, v0.2 "(0)") and the views (a view and a group are not shown together); a view's count ignores the groups
         SortedDictionary<string, int> Counts(string facet)
         {
-            if (!facetCounts.TryGetValue(facet, out var counts))
-                facetCounts[facet] = counts = facet == "group" && spec.CategoryKey != null ? index.FacetCounts("group", "category") : index.FacetCounts(facet);
-            return counts;
+            if (!ReferenceEquals(countedIndex, index)) { facetCounts.Clear(); countedIndex = index; }
+            string ck = CountKey(facet);
+            if (!facetCounts.TryGetValue(facet, out var cached) || cached.key != ck)
+            {
+                SortedDictionary<string, int> counts;
+                if (facet == "fav" || facet == "recent")
+                {
+                    var skip = new List<string> { facet == "fav" ? "recent" : "fav" };
+                    if (spec.GroupKey != null) skip.Add("group");
+                    if (spec.CategoryKey != null) skip.Add("category");
+                    counts = index.FacetCounts(facet, skip.ToArray());
+                }
+                else if (facet == "group") counts = spec.CategoryKey != null ? index.FacetCounts("group", "category", "fav", "recent") : index.FacetCounts("group", "fav", "recent");
+                else counts = index.FacetCounts(facet);
+                facetCounts[facet] = (ck, counts);
+                return counts;
+            }
+            return cached.counts;
         }
 
         /// <summary>The facet rows shown: every value without a query; with one, the values that have matches (
@@ -248,10 +347,21 @@ namespace HS2Next.UI.Panels
             {
                 var gc = searching ? Counts("group") : null;
                 groupKeys.Clear();
+                if (spec.Record != null) { groupKeys.Add(BrowserViews.Favorites); groupKeys.Add(BrowserViews.Recent); }
                 groupKeys.Add(null);
                 foreach (var k in allGroupKeys) if (!searching || k == group || gc.ContainsKey(k)) groupKeys.Add(k);
                 groups.RefreshItems();
-                groups.SetSelectionWithoutNotify(new[] { Math.Max(0, groupKeys.IndexOf(group)) });
+                int sel = view != null ? groupKeys.IndexOf(view) : groupKeys.IndexOf(group);
+                groups.SetSelectionWithoutNotify(new[] { sel >= 0 ? sel : groupKeys.IndexOf(null) });
+            }
+            else if (views != null)
+            {
+                viewKeys.Clear();
+                viewKeys.Add(BrowserViews.Favorites);
+                viewKeys.Add(BrowserViews.Recent);
+                viewKeys.Add(null);
+                views.RefreshItems();
+                views.SetSelectionWithoutNotify(new[] { viewKeys.IndexOf(view) });
             }
             if (spec.CategoryKey != null)
             {
@@ -292,6 +402,9 @@ namespace HS2Next.UI.Panels
                     e.Q<Label>("facet-name").text = text;
                     e.Q<Label>("facet-count").text = c >= 0 ? c.ToString(System.Globalization.CultureInfo.InvariantCulture) : "";
                     e.tooltip = c >= 0 ? text + "  (" + c + ")" : text;
+                    e.EnableInClassList("hs-facet__row--view", BrowserViews.Is(k));
+                    e.name = BrowserViews.Is(k) ? id + "-" + (k == BrowserViews.Favorites ? "favorites" : "recent") : string.Empty;
+                    if (BrowserViews.Is(k)) e.tooltip += "\n" + L10n.Get(BrowserViews.TooltipKey(k, false));
                 },
             };
             lv.AddToClassList("hs-facet-list");
@@ -310,14 +423,18 @@ namespace HS2Next.UI.Panels
                 var l = new Label();
                 l.AddToClassList("hs-list-cell");
                 if (spec.Drag != null) DragController.MakeSource(l, _ => l.userData is T row ? spec.Drag(row) : null);
+                // a right click selects the row; its menu opens on the release
+                l.RegisterCallback<PointerDownEvent>(ev => { if (ev.button == 1 && l.userData is T row && spec.Record != null) { SelectInList(row); ev.StopPropagation(); } });
+                l.RegisterCallback<PointerUpEvent>(ev => { if (ev.button == 1 && l.userData is T row && spec.Record != null) { ShowMenu(row, ev.position); ev.StopPropagation(); } });
                 return l;
             };
             c.bindCell = (el, i) =>
             {
                 var row = index.Rows[index.Indices[i]];
                 var l = (Label)el;
-                l.text = text(row);
+                l.text = id == "name" && IsFavorite(row) ? BrowserViews.Star + text(row) : text(row);
                 l.userData = row;
+                l.tooltip = view == BrowserViews.Recent ? AddedTip(row) : null;
                 if (spec.RowClass != null)
                 {
                     foreach (var cls in l.GetClasses().Where(x => x.StartsWith("hs-row--", StringComparison.Ordinal)).ToList()) l.RemoveFromClassList(cls);
@@ -337,10 +454,17 @@ namespace HS2Next.UI.Panels
             bool descending = index?.Descending ?? false;
             index = new ListIndex<T>(rows, spec.SearchText, spec.ContentRef);
             foreach (var s in spec.Sorts) index.AddSort(s.Key, s.Value);
+            index.AddSort(RecentSort, CompareRecent);
             if (!string.IsNullOrEmpty(query)) index.SetQuery(query);
             if (sortName != null && spec.Sorts.ContainsKey(sortName)) index.SetSort(sortName, descending);
             if (spec.GroupKey != null) index.AddFacet("group", spec.GroupKey);
             if (spec.CategoryKey != null) index.AddFacet("category", r => spec.GroupKey(r) + CatSep + spec.CategoryKey(r));
+            // v1.2: each row's content id once (the favourites are looked up per row), the two views' facets
+            refs = new Dictionary<T, string>(rows.Count);
+            if (spec.ContentRef != null && spec.Record != null) foreach (var r in rows) { var rf = spec.ContentRef(r); if (rf != null && !refs.ContainsKey(r)) refs[r] = rf; }
+            rowTicks = null;
+            index.AddFacet("fav", r => IsFavorite(r) ? "y" : "n");
+            index.AddFacet("recent", r => ZipmodOf(r) != null ? "y" : "n");
             allGroupKeys.Clear();
             if (spec.GroupKey != null)
                 allGroupKeys.AddRange(rows.Select(spec.GroupKey).Distinct().OrderBy(k => spec.GroupOrder?.Invoke(k) ?? 0).ThenBy(k => k, StringComparer.Ordinal));
@@ -349,7 +473,11 @@ namespace HS2Next.UI.Panels
 
         void ApplyFacets()
         {
+            var sw = Stopwatch.StartNew();
             if (spec.GroupKey != null) index.SetFacet("group", group);
+            index.SetFacet("fav", view == BrowserViews.Favorites ? "y" : null);
+            index.SetFacet("recent", view == BrowserViews.Recent ? "y" : null);
+            ApplyViewOrder();
             if (spec.CategoryKey != null)
             {
                 allCategoryKeys.Clear();
@@ -360,6 +488,134 @@ namespace HS2Next.UI.Panels
                 categories.style.display = group != null ? DisplayStyle.Flex : DisplayStyle.None;
             }
             Refresh();
+            LastViewMs = sw.Elapsed.TotalMilliseconds;
+        }
+
+        // ------------------------------------------------------------------ v1.2: views, favourites, menu
+
+        ZipmodInfo ZipmodOf(T r) => spec.Record?.Invoke(r)?.Zipmod;
+
+        bool IsFavorite(T r) => favorites.RowsOf(spec.Id).Count > 0 && refs.TryGetValue(r, out var rf) && favorites.IsRow(spec.Id, rf);
+
+        // newest zipmod first; the index breaks ties in list order
+        int CompareRecent(T a, T b)
+        {
+            if (rowTicks == null) return 0;
+            rowTicks.TryGetValue(a, out long ta);
+            rowTicks.TryGetValue(b, out long tb);
+            return tb.CompareTo(ta);
+        }
+
+        /// <summary>«最近追加»: the fixed order (the column headers cleared and kept for later) and the dates read when first needed;
+        /// another view: the headers' order again.</summary>
+        void ApplyViewOrder()
+        {
+            if (view == BrowserViews.Recent)
+            {
+                if (savedSorting == null && spec.Sorts.Count > 0)
+                {
+                    savedSorting = list.sortColumnDescriptions.ToList();
+                    list.sortColumnDescriptions.Clear();
+                }
+                index.SetSort(RecentSort);
+                if (rowTicks == null && datesTask == null)
+                {
+                    // the dates and each row's date (one look-up per zipmod) on a worker; the main thread only sorts
+                    var rows = index.Rows;
+                    var zs = new List<ZipmodInfo>();
+                    foreach (var r in rows) { var z = ZipmodOf(r); if (z != null) zs.Add(z); }
+                    var rec = spec.Record;
+                    datesTask = ZipmodDates.Ensure(zs).ContinueWith(_ =>
+                    {
+                        var byZip = new Dictionary<ZipmodInfo, long>();
+                        var t = new Dictionary<T, long>(zs.Count);
+                        foreach (var r in rows)
+                        {
+                            var z = rec(r)?.Zipmod;
+                            if (z == null) continue;
+                            if (!byZip.TryGetValue(z, out long v)) byZip[z] = v = ZipmodDates.Ticks(z);
+                            t[r] = v;
+                        }
+                        return t;
+                    }, TaskScheduler.Default);
+                }
+                return;
+            }
+            if (savedSorting != null)
+            {
+                var keep = savedSorting;
+                savedSorting = null;
+                foreach (var d in keep) list.sortColumnDescriptions.Add(d);
+            }
+            var s = list.sortedColumns.FirstOrDefault();
+            if (s == null) index.SetSort(null);
+            else if (spec.Sorts.ContainsKey(s.columnName)) index.SetSort(s.columnName, s.direction == SortDirection.Descending);
+        }
+
+        void Tick()
+        {
+            if (datesTask == null || !datesTask.IsCompleted) return;
+            var task = datesTask;
+            datesTask = null;
+            var sw = Stopwatch.StartNew();
+            rowTicks = task.Status == TaskStatus.RanToCompletion && task.Result != null ? task.Result : new Dictionary<T, long>();
+            index.AddSort(RecentSort, CompareRecent);   // the order changed: the index sorts again
+            if (view == BrowserViews.Recent) { index.SetSort(null); index.SetSort(RecentSort); }
+            Refresh();
+            LastDatesMs = sw.Elapsed.TotalMilliseconds;
+        }
+
+        string AddedTip(T r)
+        {
+            var z = ZipmodOf(r);
+            if (z == null) return null;
+            long t = rowTicks != null && rowTicks.TryGetValue(r, out long v) ? v : 0;
+            string date = t > 0 ? new DateTime(t, DateTimeKind.Utc).ToLocalTime().ToString("yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture) : "…";
+            return L10n.Format("browser.added", date) + " · " + System.IO.Path.GetFileName(z.Path ?? "");
+        }
+
+        void FavoritesChanged()
+        {
+            if (index == null) return;
+            index.AddFacet("fav", r => IsFavorite(r) ? "y" : "n");   // the values changed: the facet is evaluated again
+            ApplyFacets();
+            list.RefreshItems();
+        }
+
+        /// <summary>Shows a view (BrowserViews key) or «All» (null) as a click on its facet row does (tests).</summary>
+        public void ShowView(string key)
+        {
+            view = BrowserViews.Is(key) ? key : null;
+            if (view != null) { group = null; category = null; }
+            ApplyFacets();
+        }
+
+        void SelectInList(T row)
+        {
+            for (int i = 0; i < index.Indices.Count; i++)
+                if (ReferenceEquals(index.Rows[index.Indices[i]], row)) { if (list.selectedIndex != i) list.SetSelection(i); return; }
+        }
+
+        /// <summary>The row's information for the shared menu.</summary>
+        public CatalogRow RowInfo(T r)
+        {
+            if (r == null) return null;
+            string gk = spec.GroupKey?.Invoke(r), ck = spec.CategoryKey?.Invoke(r);
+            return new CatalogRow
+            {
+                Kind = spec.Id, Ref = refs.TryGetValue(r, out var rf) ? rf : spec.ContentRef?.Invoke(r), Record = spec.Record?.Invoke(r),
+                Name = spec.Name != null ? spec.Name(r) : spec.Columns.Count > 0 ? spec.Columns[0].text(r) : null,
+                Group = gk != null ? spec.GroupLabel?.Invoke(gk) : null,
+                Category = gk != null && ck != null ? spec.CategoryLabel?.Invoke(gk, ck) : null,
+            };
+        }
+
+        /// <summary>The context menu of a row at a panel position (a row that is not a catalog row has none).</summary>
+        public void ShowMenu(T r, Vector2 at)
+        {
+            var info = RowInfo(r);
+            if (info?.Record == null || info.Ref == null) return;
+            ListMenus.ShowRow(ctx, info, at, spec.Id + "-context");
         }
 
         /// <summary>Filters and refreshes the list; returns the time (U-M2).</summary>
@@ -370,9 +626,8 @@ namespace HS2Next.UI.Panels
             if (list.itemsSource != index.Indices) { list.itemsSource = index.Indices; list.Rebuild(); }
             else if (ch != ListChange.Unchanged) list.RefreshItems();
             LastFilterMs = sw.Elapsed.TotalMilliseconds;
-            facetCounts.Clear();
             ShowFacetRows();
-            status.text = L10n.Format("search.results", index.Indices.Count, index.Rows.Count);
+            status.text = L10n.Format(view != BrowserViews.Recent ? "search.results" : rowTicks == null ? "browser.view.recent.reading" : "browser.view.recent.status", index.Indices.Count, index.Rows.Count);
             UpdateButton();
             return LastFilterMs;
         }
@@ -401,7 +656,7 @@ namespace HS2Next.UI.Panels
             return Refresh();
         }
 
-        public void SelectGroup(string key) { group = key; category = null; ApplyFacets(); }
+        public void SelectGroup(string key) { group = key; category = null; view = null; ApplyFacets(); }
     }
 
     /// <summary>The specs of the four list browsers.</summary>
@@ -432,6 +687,8 @@ namespace HS2Next.UI.Panels
                 ActionKey = "browser.add",
                 Activate = r => AddItem(ctx, r, null, null),
                 Drag = r => new AddPayload(r.Name, OpLabels.AddItem, (p, pt) => AddItem(ctx, r, p, pt)),
+                Record = r => r,
+                Name = r => r.Name,
             };
             s.Columns.Add(("name", "browser.col.name", 260, r => (r.Color != null && r.Color.FlagCount > 0 ? "● " : "") + r.Name));
             s.Columns.Add(("category", "browser.col.category", 160, r => CatName(r.Group, r.Category)));
@@ -471,6 +728,8 @@ namespace HS2Next.UI.Panels
                 CanActivate = () => ctx.SelectedOfKind(NodeKind.Chara).Count > 0,
                 Activate = r => ctx.Ops.SetAnimation(ctx.SelectedOfKind(NodeKind.Chara), r, 0f, null, null, null, UiContext.User()),
                 Drag = r => new ApplyPayload(r.Name, NodeKind.Chara, id => ctx.Ops.SetAnimation(new[] { id }, r, 0f, null, null, null, UiContext.User())),
+                Record = r => r,
+                Name = r => r.Name,
             };
             s.Columns.Add(("name", "browser.col.name", 260, r => r.Name));
             s.Columns.Add(("group", "browser.col.group", 160, r => GroupName(r.Group)));
@@ -505,6 +764,8 @@ namespace HS2Next.UI.Panels
                 RowClass = r => string.Equals(r.Ref, ctx.Model.Settings.Map.Ref, StringComparison.Ordinal) ? "hs-row--current" : null,
                 ActionKey = "browser.loadMap",
                 Activate = r => ctx.Ops.LoadMap(r.Ref, UiContext.User()),
+                Record = r => r.Map,
+                Name = r => r.Name,
             };
             s.Columns.Add(("name", "browser.col.name", 280, r => r.Name));
             s.Columns.Add(("source", "browser.col.source", 180, r => r.Map != null ? Source(r.Map) : ""));
@@ -523,6 +784,8 @@ namespace HS2Next.UI.Panels
                 ActionKey = "browser.add",
                 Activate = r => AddLight(ctx, r, null, null),
                 Drag = r => new AddPayload(r.Name, OpLabels.AddLight, (p, pt) => AddLight(ctx, r, p, pt)),
+                Record = r => r,
+                Name = r => r.Name,
             };
             s.Columns.Add(("name", "browser.col.name", 260, r => r.Name));
             s.Columns.Add(("target", "browser.col.target", 120, r => L10n.Get("browser.lightTarget." + r.TargetKind.ToString().ToLowerInvariant())));

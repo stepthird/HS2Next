@@ -28,7 +28,8 @@
 //   RunTiming (graphics, its own Unity session): VU1 coordinate thumbnail cold / warm (female, male), VU4 front / view
 //     capture and the preview, character save (front, with the write), coordinate save (thumbnail + write) against the phase's targets.
 //   RunUserFiles (headless, -Full): every .hs2n* file under the project's UserData, Spike/out and Cache loads with no error and
-//     no warning (the frozen reader).
+//     no warning (the frozen reader); the first-run rows' forward-compatibility documents and UiListsV12Test's sandbox are
+//     test fixtures and not read.
 //   RunCoordApply (headless, -Full row CoordApply.all; -limit N = the first N files of each sex; -sex female|male and
 //     -files "a.png|b.png;c.png" = only those files of that sex's folder, in that order, each ';' group on a fresh node):
 //     every installed coordinate
@@ -1120,13 +1121,16 @@ public static class MakerFileTest
         // the first-run player rows stage the forward-compatibility documents (future enum values and node kinds, whose
         // warnings are the point) in their data roots: not user files
         string firstRun = Path.Combine(root, "Spike", "out", "player", "firstrun");
-        int fixtures = 0;
+        // UiListsV12Test's sandbox holds the browsers' synthetic list entries (files named only, some not containers): not user files
+        string listsSandbox = Path.Combine(root, "Spike", "out", "ui_lists_v12", "sandbox") + Path.DirectorySeparatorChar;
+        int fixtures = 0, sandboxFiles = 0;
         foreach (var top in new[] { "UserData", Path.Combine("Spike", "out"), "Cache" })
             foreach (var f in Walk(Path.Combine(root, top)))
             {
                 string ext = Path.GetExtension(f).ToLowerInvariant();
                 if (!exts.Contains(ext)) continue;
                 if (f.StartsWith(firstRun, StringComparison.OrdinalIgnoreCase)) { fixtures++; continue; }
+                if (f.StartsWith(listsSandbox, StringComparison.OrdinalIgnoreCase)) { sandboxFiles++; continue; }
                 total++;
                 counts[top + " " + ext] = counts.TryGetValue(top + " " + ext, out var c) ? c + 1 : 1;
                 var w = new FindingList();
@@ -1145,6 +1149,7 @@ public static class MakerFileTest
             }
         foreach (var kv in counts) Info($"{kv.Key}: {kv.Value}");
         Info($"first-run forward-compatibility documents not read: {fixtures}");
+        Info($"list-browser test sandbox files not read: {sandboxFiles}");
         foreach (var b in bad) Info("FAILED " + b);
         Check($"every .hs2n* file ({total}) loads with no error and no warning", total > 0 && bad.Count == 0, $"{bad.Count} failed");
         Finish("maker_file_userfiles_report.txt", "MakerFileTest.userfiles (Phase 4.6, the frozen reader)", sw);

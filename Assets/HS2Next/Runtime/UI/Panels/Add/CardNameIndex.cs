@@ -225,6 +225,13 @@ namespace HS2Next.UI.Panels
             return n;
         }
 
+        /// <summary>Forgets one file of the session cache (it was deleted).</summary>
+        public static void Forget(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return;
+            lock (cacheLock) cache.Remove(path);
+        }
+
         /// <summary>Forgets the session cache (tests).</summary>
         public static void ClearCache()
         {

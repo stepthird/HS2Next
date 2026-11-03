@@ -109,7 +109,8 @@ public static partial class UiShellTest
             int allGroups = br.Index.Rows.Select(r => r.Group).Distinct().Count();
             br.Search("ハート");
             yield return PlayModeHarness.WaitFrames(2);
-            var shown = ((IList<string>)br.Groups.itemsSource).ToList();
+            // v1.2: the views «★» and «最近追加» stand above «All»
+            var shown = ((IList<string>)br.Groups.itemsSource).Where(k => !BrowserViews.Is(k)).ToList();
             var counts = br.Index.FacetCounts("group", "category");
             var shownKeys = shown.Where(k => k != null).ToList();
             c.Check(br.Index.Indices.Count > 0 && shown.Count > 1 && shown[0] == null, "F search: matches " + br.Index.Indices.Count + ", group rows " + shown.Count + " (All first)");
@@ -121,7 +122,7 @@ public static partial class UiShellTest
             {
                 br.SelectGroup(g0);
                 yield return PlayModeHarness.WaitFrames(1);
-                c.Check(br.Groups.selectedIndex == shown.IndexOf(g0), "F the selected group row follows the facet (" + br.Groups.selectedIndex + ")");
+                c.Check(br.Groups.selectedIndex == ((IList<string>)br.Groups.itemsSource).IndexOf(g0), "F the selected group row follows the facet (" + br.Groups.selectedIndex + ")");
                 var cats = ((IList<string>)br.Categories.itemsSource).Where(k => k != null).ToList();
                 var cc = br.Index.FacetCounts("category");
                 c.Check(cats.Count > 0 && cats.All(k => cc.TryGetValue(g0 + "\u0001" + k, out int n) && n > 0), "F categories of the group: only those with matches (" + cats.Count + ")");
@@ -129,7 +130,8 @@ public static partial class UiShellTest
             }
             br.Search("");
             yield return PlayModeHarness.WaitFrames(2);
-            c.Check(((IList<string>)br.Groups.itemsSource).Count == allGroups + 1, "F empty search: every group again (" + ((IList<string>)br.Groups.itemsSource).Count + ")");
+            int facetRows = ((IList<string>)br.Groups.itemsSource).Count(k => !BrowserViews.Is(k));
+            c.Check(facetRows == allGroups + 1, "F empty search: every group again (" + facetRows + ")");
             // M: the name column keeps its minimum (the right sidebar since the v0.3 trial)
             var headers = br.List.Query(className: "unity-multi-column-header__column").ToList().Where(h => h.worldBound.width > 0).ToList();
             float nameW = headers.Count > 0 ? headers[0].worldBound.width : 0;

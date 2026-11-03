@@ -4,7 +4,8 @@
 （本说明为机器翻译，以英文版 README.txt 为准。）
 
 HS2Next 是一个使用 Honey Select 2 内容的场景与角色编辑器。它直接在原位置读取您自己安装的 Honey Select 2 的游戏
-数据、角色卡、服装和 mod；本软件不包含任何游戏数据，也从不写入游戏文件夹。
+数据、角色卡、服装和 mod；本软件不包含任何游戏数据。除了在列表中删除您选定的角色、服装或姿势文件时将其移到
+Windows 回收站之外，它从不写入游戏文件夹。
 
 README.txt 为英文版，README_ja.txt 为日文版。
 
@@ -69,7 +70,8 @@ HS2Next 以 Direct3D 12 启动。如果窗口一直是黑的或显卡驱动被�
 卸载
 ----
 删除 HS2Next 文件夹即可。如需同时删除设置、场景、角色和缓存，请删除 %USERPROFILE%\AppData\LocalLow\stp3\HS2Next。
-HS2Next 不会向游戏文件夹写入任何内容，也不创建自己的注册表项；只有窗口大小由引擎记录在
+除了将您在列表中删除的文件移到 Windows 回收站之外，HS2Next 不会向游戏文件夹写入任何内容，
+也不创建自己的注册表项；只有窗口大小由引擎记录在
 HKEY_CURRENT_USER\Software\stp3\HS2Next 下。
 
 

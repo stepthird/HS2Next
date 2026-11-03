@@ -1,7 +1,8 @@
 // The files of the character browser: the HS2 install's card folder of one sex
 // (`UserData/chara/female` or `male`, every *.png recursively; 74 % of the female cards sit in subfolders, so the browser
 // shows a folder tree) and HS2Next's own `<UserData>/chara/**/*.hs2nchara` (sex from the manifest, read by the name index).
-// The scan lists files and their size / mtime only (no file is opened); it runs off the main thread. Unity-free.
+// The scan lists files and their size / mtime / creation time only (no file is opened); it runs off the main thread.
+// Unity-free.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,6 +22,8 @@ namespace HS2Next.UI.Panels
         public string Folder;
         public long Size;
         public DateTime ModifiedUtc;
+        /// <summary>The file's creation time: the date it was placed in the folder («最近追加», newest first).</summary>
+        public DateTime CreatedUtc;
         /// <summary>True for HS2Next .hs2nchara files.</summary>
         public bool IsHs2n;
 
@@ -109,7 +112,7 @@ namespace HS2Next.UI.Panels
                 Entries.Add(new CardEntry
                 {
                     FullPath = f, FileName = Path.GetFileNameWithoutExtension(f), Root = id, Folder = rel,
-                    Size = fi.Length, ModifiedUtc = fi.LastWriteTimeUtc, IsHs2n = hs2n,
+                    Size = fi.Length, ModifiedUtc = fi.LastWriteTimeUtc, CreatedUtc = fi.CreationTimeUtc, IsHs2n = hs2n,
                 });
             }
         }

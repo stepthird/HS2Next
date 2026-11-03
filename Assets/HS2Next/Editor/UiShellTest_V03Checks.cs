@@ -282,7 +282,7 @@ public static partial class UiShellTest
                 ListView cats = (ib as ListBrowser<StudioItem>)?.Categories ?? (ib as ListBrowser<StudioAnime>)?.Categories;
                 var list = (VisualElement)(ib as ListBrowser<StudioItem>)?.List ?? (ib as ListBrowser<StudioAnime>)?.List;
                 if (groups == null) { c.Check(false, "T5 " + pid + " browser"); continue; }
-                string g0 = ((IList<string>)groups.itemsSource).FirstOrDefault(k => k != null);
+                string g0 = ((IList<string>)groups.itemsSource).FirstOrDefault(k => k != null && !BrowserViews.Is(k));   // v1.2: the views come first
                 (ib as ListBrowser<StudioItem>)?.SelectGroup(g0); (ib as ListBrowser<StudioAnime>)?.SelectGroup(g0);
                 yield return Frames(4);
                 var shape = (ib as ListBrowser<StudioItem>)?.BodyShape ?? (ib as ListBrowser<StudioAnime>)?.BodyShape ?? BrowserShape.Stacked;

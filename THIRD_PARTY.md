@@ -234,13 +234,16 @@ that existing data loads; no code of their owners is included.
   | simple_two_side | 1 | `simple_two_side` |
 
 - **Plugin data read for compatibility**: so that what users made with them stays usable, HS2Next reads, with its own
-  code, the data that the community plugins below store in character cards, outfit cards and pose files, under the data
-  ids those plugins use, and the mod packages (zipmod) of Sideloader. It contains none of their code, and none of it runs.
-  HS2Next is not the work of their authors, who have not endorsed or supported it. The end of File > Options > Advanced
-  lists them: ABMX, AdditionalAccessoryControls, DynamicBoneEditor, ExtendedSave, InvisibleBody, KCOX, KSOX,
-  MaterialEditor, MoreAccessories, PoseTools, PushUp, Sideloader, UncensorSelector. ExtendedSave is listed for its
-  container format of the extension data, PoseTools for the data it adds to pose files. The data of other plugins is kept
-  as stored and written back unchanged, not read.
+  code, the mod packages (zipmod) of Sideloader and the data that the community plugins below store in character cards,
+  outfit cards and pose files, under the data ids those plugins use, and in those mod packages (their manifests and asset
+  bundles). It contains none of their code, and none of it runs. HS2Next is not the work of their authors, who have not
+  endorsed or supported it. The end of File > Options > Advanced lists them: ABMX, AdditionalAccessoryControls,
+  BonesFramework, DynamicBoneEditor, ExtendedSave, HS2_CopyChaBodyMat, HeadBundleRedirect, Heelz, HooahGameExtension,
+  InvisibleBody, KCOX, KSOX, MaterialEditor, MdgqBodyChange, ModBoneImplantor, MoreAccessories, PoseTools, PushUp,
+  Sideloader, UncensorSelector. ExtendedSave is listed for its container format of the extension data, PoseTools for the
+  data it adds to pose files; BonesFramework, HS2_CopyChaBodyMat, HeadBundleRedirect, Heelz, HooahGameExtension,
+  MdgqBodyChange and ModBoneImplantor for the data they keep in mod packages. The card data of other plugins is kept as
+  stored and written back unchanged, not read.
 - **Other data names** in code and tests: bone and transform names, list columns and categories, material property names,
   enum numbers and zipmod GUIDs as the game data and the mods define them.
 - These names identify the original works so that their data can be read. They do not imply that the authors of those

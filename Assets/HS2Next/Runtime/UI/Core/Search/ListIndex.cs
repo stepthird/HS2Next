@@ -47,6 +47,7 @@ namespace HS2Next.UI.Core
     {
         sealed class Facet
         {
+            public string Name;
             public Func<T, string> Value;
             public string Selected;   // null = all
         }
@@ -62,7 +63,8 @@ namespace HS2Next.UI.Core
         string[] keys;
         string[] refGuids, refIds;
         readonly Dictionary<string, Facet> facets = new Dictionary<string, Facet>(StringComparer.Ordinal);
-        readonly List<string> facetOrder = new List<string>();
+        // the facets in their order, for the per-row filter (no look-up by name per row: browsers carry four facets over 28k rows)
+        readonly List<Facet> facetList = new List<Facet>();
         readonly Dictionary<string, Sort> sorts = new Dictionary<string, Sort>(StringComparer.Ordinal);
         SearchQuery query = SearchQuery.Empty;
         string sortName;
@@ -124,8 +126,10 @@ namespace HS2Next.UI.Core
 
         public void AddFacet(string name, Func<T, string> value)
         {
-            if (!facets.ContainsKey(name)) facetOrder.Add(name);
-            facets[name] = new Facet { Value = value };
+            var f = new Facet { Name = name, Value = value };
+            int at = facetList.FindIndex(x => x.Name == name);
+            if (at >= 0) facetList[at] = f; else facetList.Add(f);
+            facets[name] = f;
             dirty = true;
         }
 
@@ -170,11 +174,12 @@ namespace HS2Next.UI.Core
 
         bool Passes(int i, string skipFacet, string[] skipMore = null)
         {
-            foreach (var name in facetOrder)
+            for (int k = 0; k < facetList.Count; k++)
             {
-                if (name == skipFacet || (skipMore != null && Array.IndexOf(skipMore, name) >= 0)) continue;
-                var f = facets[name];
-                if (f.Selected != null && !string.Equals(f.Value(rows[i]), f.Selected, StringComparison.Ordinal)) return false;
+                var f = facetList[k];
+                if (f.Selected == null) continue;
+                if (f.Name == skipFacet || (skipMore != null && Array.IndexOf(skipMore, f.Name) >= 0)) continue;
+                if (!string.Equals(f.Value(rows[i]), f.Selected, StringComparison.Ordinal)) return false;
             }
             return query.IsEmpty || query.Matches(keys[i], refGuids[i], refIds[i]);
         }

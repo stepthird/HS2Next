@@ -89,9 +89,9 @@ namespace HS2Next.App.Commands
                 .Arg("show", ArgTypes.Object, "{<accessory id> or <build slot number (0-based; the slot table of the first key)>: bool}")
                 .Return("accessories", ArgTypes.Object, "{<id>: bool} (first key)").Return("changed", ArgTypes.ArrayOf(ArgTypes.String), "accessory ids that changed")
                 .WithFlags(CommandFlags.Mutates), Accessories);
-            CommandKit.Register(r, app, CommandKit.Spec("chara.state", "Other state members of characters (liquid, nipple, wet, gloss, son, silhouette; tears, cheek of the face), stored as given (one undo entry).", "ui scene")
+            CommandKit.Register(r, app, CommandKit.Spec("chara.state", "Other state members of characters (liquid, nipple, wet, gloss, son, silhouette, nippleThroughClothes; tears, cheek of the face), stored as given (one undo entry).", "ui scene")
                 .Arg("key", ArgTypes.Node, "a character").Arg("keys", ArgTypes.ArrayOf(ArgTypes.Node), "several characters (one entry)")
-                .Arg("set", ArgTypes.Object, "{liquid: [5 levels 0-2] | \"liquid[i]\": level, nipple, wet, gloss, son: {visible, length} | \"son.length\", silhouette: {enabled, color} | \"silhouette.color\": [r,g,b,a], tears, cheek}", true)
+                .Arg("set", ArgTypes.Object, "{liquid: [5 levels 0-2] | \"liquid[i]\": level, nipple, wet, gloss, son: {visible, length} | \"son.length\", silhouette: {enabled, color} | \"silhouette.color\": [r,g,b,a], nippleThroughClothes: bool (false = flat nipples while a top or a bra is on), tears, cheek}", true)
                 .Return("changed", ArgTypes.ArrayOf(ArgTypes.String), "members that changed (as given)").Return("noop", ArgTypes.ArrayOf(ArgTypes.String), "members that already had the value")
                 .Example("{\"cmd\":\"chara.state\",\"key\":\"<id>\",\"set\":{\"wet\":0.5,\"gloss\":0.3}}")
                 .WithFlags(CommandFlags.Mutates), State);

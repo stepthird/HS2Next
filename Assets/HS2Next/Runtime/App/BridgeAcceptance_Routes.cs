@@ -6,6 +6,9 @@
 //   (bit-equal); scene.step {n: 30} → τ + 30 × 1/60 exactly; screenshot {mode: custom, 2560 × 1440} → a 2560 × 1440 PNG in
 //   <UserData>/cap; scene.images {background: hs2:DefaultData/bg/<first>} → stored as an hs2 reference; save → new → load →
 //   the route plays from τ 0, the image reference equal; a new route's edits undone back to the start point alone.
+//   After 1.1.0, while paused: chara.load (BR-Chan) and obj.transform (3, 1, 2) → after 3 frames the character has settled
+//   (CharaMotion.Settles ≥ 1, none pending), its motion time is still 0, every breast / hip chain segment is shorter than 1 unit
+//   (1.1.0 left them stretched toward the scene origin, 3.7 units for this placement); the character deleted.
 using System;
 using System.Collections;
 using System.IO;
@@ -21,6 +24,36 @@ namespace HS2Next.App
 {
     public static partial class BridgeAcceptance
     {
+        /// <summary>After 1.1.0: a character added and placed while the scene is paused stands settled at once (RT1).</summary>
+        static IEnumerator PausedAdd(AcceptanceCtx c)
+        {
+            if (string.IsNullOrEmpty(c.FemaleRel)) { c.Warn("no female card given: the paused add is skipped"); yield break; }
+            yield return c.Call(new { cmd = "chara.load", path = c.FemaleRel, sex = "female" }, 180);
+            string ch = (string)c.J["added"]?[0]?["key"];
+            if (!c.Check(c.Last != null && c.Last.Ok && ch != null, "paused: chara.load BR-Chan", AcceptanceCtx.Short(c.Last?.ToString()))) yield break;
+            yield return c.Call(new { cmd = "obj.transform", key = ch, pos = new[] { 3, 1, 2 } });
+            c.CheckOk("paused: obj.transform (3, 1, 2)");
+            yield return c.Frames(3);
+            var cr = AppCore.Current?.Runtime?.FindChara(ch);
+            var m = cr != null ? cr.Motion : null;
+            if (c.Check(m != null && cr.State == RealizationState.Built, "paused: the character is built"))
+            {
+                c.Check(m.Settles >= 1 && !m.SettlePending && m.Time == 0f, "paused: its physics settled at once (" + m.Settles + " settle(s), " + m.LastSettleMs.ToString("F1") + " ms), its motion time still 0",
+                    $"settles {m.Settles}, pending {m.SettlePending}, time {m.Time:R}");
+                float worst = 0f;
+                foreach (var b in m.GetAll<HS2Next.Motion.DynamicBones.BustStage>())
+                    foreach (var ch2 in b.All)
+                        for (int i = 1; i < ch2.ParticleCount; i++)
+                        {
+                            Transform t = ch2.ParticleTransform(i), u = ch2.ParticleTransform(i - 1);
+                            if (t && u) worst = Mathf.Max(worst, (t.position - u.position).magnitude);
+                        }
+                c.Check(worst > 0f && worst < 1f, "paused: every breast / hip chain segment shorter than 1 unit (not stretched toward the origin)", $"longest {worst:F3} units");
+            }
+            yield return c.Call(new { cmd = "delete", keys = new[] { ch } });
+            c.CheckOk("paused: the character deleted");
+        }
+
         static Vector3 RtV(JToken t) => t is JArray a && a.Count >= 3 ? new Vector3((float)a[0], (float)a[1], (float)a[2]) : new Vector3(float.NaN, float.NaN, float.NaN);
 
         public static IEnumerator Routes(AcceptanceCtx c)
@@ -110,6 +143,7 @@ namespace HS2Next.App
             double expect = tb;
             for (int i = 0; i < 30; i++) expect += 1f / 60f;
             c.Check(tc == expect, "scene.step 30 advances τ by 30 × 1/60 exactly", $"τ {tc:R} vs {expect:R}");
+            yield return PausedAdd(c);
             yield return c.Call(new { cmd = "scene.pause", paused = false });
             c.CheckOk("scene.pause false");
             // the screenshot (package C)

@@ -84,10 +84,107 @@ namespace HS2Next.Motion
             Time = 0f; StepCount = 0;
         }
 
+        // ------------------------------------------------------------ placement (after 1.1.0)
+
+        Transform placementRoot;
+        Matrix4x4 placementFrom;
+        bool placementPending;
+
+        /// <summary>
+        /// The physics chains were set up while <paramref name="root"/> had the world matrix <paramref name="from"/> (the assembler
+        /// builds at the origin): the next step first carries every bust / hip chain's and dynamic bone's particles rigidly to where
+        /// the root stands then, so the physics start from the placed pose. Moves of the root after that step stay physical. A root
+        /// whose matrix is bit-equal to <paramref name="from"/> at that step touches nothing.
+        /// </summary>
+        public void CarryChainsAtFirstStep(Transform root, Matrix4x4 from)
+        {
+            placementRoot = root;
+            placementFrom = from;
+            placementPending = root;
+        }
+
+        void CarryToPlacement()
+        {
+            placementPending = false;
+            if (!placementRoot) return;
+            var to = placementRoot.localToWorldMatrix;
+            bool same = true;
+            for (int k = 0; k < 16 && same; k++) same = placementFrom[k] == to[k];
+            placementRoot = null;
+            if (same) return;
+            var d = to * placementFrom.inverse;
+            foreach (var s in stages)
+            {
+                if (s is DynamicBones.BustStage b) foreach (var c in b.All) c.CarryRigid(d);
+                else if (s is DynamicBones.DynamicBoneStage db) foreach (var c in db.Chains) c.CarryRigid(d);
+            }
+        }
+
+        // ------------------------------------------------------------ settle (after 1.1.0, the paused scene)
+
+        /// <summary>Frames of physics time a settle runs (each of <see cref="SettleDt"/>; the other stages get no time).</summary>
+        public static int SettleSteps = 120;
+        /// <summary>The physics time of one settle frame (seconds).</summary>
+        public static float SettleDt = 1f / 60f;
+        /// <summary>True until the next step runs the requested settle.</summary>
+        public bool SettlePending { get; private set; }
+        /// <summary>Settles run on this character (diagnostics, tests).</summary>
+        public int Settles { get; private set; }
+        /// <summary>Milliseconds of the last settle (diagnostics).</summary>
+        public double LastSettleMs { get; private set; }
+
+        /// <summary>
+        /// Asks the next <see cref="Step"/> to settle the physics first: the scene calls it when a change builds or reshapes the
+        /// character while no time passes (the global pause, or its own pause or time scale 0), so the breasts, hips, hair and clothes chains show at once what
+        /// they come to rest at, while the animation, the look, the expression and the motion's time stay where they are.
+        /// </summary>
+        public void RequestSettle() => SettlePending = true;
+
+        static bool IsPhysics(IMotionStage s) => s is DynamicBones.BustStage || s is DynamicBones.DynamicBoneStage;
+
+        /// <summary>
+        /// The settle: one frame of no time poses the character as it stands (animation frame, shapes, FK / IK, look), the
+        /// physics stages drop their history (particles at the posed bones), then <see cref="SettleSteps"/> frames run every
+        /// stage again, the physics stages with <see cref="SettleDt"/> of time and the others with none. Time and StepCount do not
+        /// change. Nothing happens when no physics stage is enabled.
+        /// </summary>
+        void Settle()
+        {
+            SettlePending = false;
+            bool any = false;
+            for (int i = 0; i < stages.Count && !any; i++) any = stages[i].Enabled && IsPhysics(stages[i]);
+            if (!any) return;
+            long t0 = System.Diagnostics.Stopwatch.GetTimestamp();
+            var still = new MotionFrame(0f, 0f, Time, StepCount);
+            var moving = new MotionFrame(SettleDt, SettleDt, Time, StepCount);
+            SettleFrame(still, still);
+            for (int i = 0; i < stages.Count; i++)
+            {
+                var s = stages[i];
+                if (s.Enabled && IsPhysics(s)) Safe(s, () => s.Reset(), "settle");
+            }
+            for (int k = 0; k < SettleSteps; k++) SettleFrame(still, moving);
+            Settles++;
+            LastSettleMs = (System.Diagnostics.Stopwatch.GetTimestamp() - t0) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
+        }
+
+        void SettleFrame(MotionFrame still, MotionFrame moving)
+        {
+            for (int i = 0; i < stages.Count; i++)
+            {
+                var s = stages[i];
+                if (!s.Enabled) continue;
+                var f = IsPhysics(s) ? moving : still;
+                Safe(s, () => s.Step(f), "settle");
+            }
+        }
+
         /// <summary>Advance all enabled stages by one frame. dt is unscaled; TimeScale / Paused / MaxStep are applied here.</summary>
         public void Step(float dt)
         {
             Sort();
+            if (placementPending) CarryToPlacement();
+            if (SettlePending) Settle();
             float scaled = Paused ? 0f : Mathf.Min(Mathf.Max(dt, 0f) * Mathf.Max(TimeScale, 0f), MaxStep);
             var frame = new MotionFrame(scaled, Mathf.Max(dt, 0f), Time, StepCount);
             var sink = TimingSink;

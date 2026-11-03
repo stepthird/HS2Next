@@ -28,11 +28,17 @@
 .hs-tabs__content { flex-grow: 1; }
 .hs-panel { flex-grow: 1; padding: 4px; }
 .hs-panel--hidden { display: none; }
-.hs-panel__empty { color: var(--hs-text-dim); -unity-text-align: middle-center; flex-grow: 1; }
+/* empty-state texts and the inspector's notes wrap at the panel's width (a narrow sidebar, the player's UI scale) */
+.hs-panel__empty { color: var(--hs-text-dim); -unity-text-align: middle-center; flex-grow: 1; white-space: normal; }
+.hs-inspector__note { white-space: normal; }
 
 .hs-viewport { flex-grow: 1; background-color: rgba(0, 0, 0, 0); }
 .hs-viewport:focus { border-width: 0; }
 .hs-viewport__info { position: absolute; top: 4px; right: 8px; color: var(--hs-text); font-size: 12px; -unity-text-align: upper-right; }
+/* the field of view readout takes the pointer: click = a slider, wheel = change, double click = reset */
+.hs-viewport__fov { padding: 0 4px; border-radius: 3px; }
+.hs-viewport__fov:hover { background-color: var(--hs-bg-hover); }
+.hs-viewport__fov-popup { padding: 6px 8px; min-width: 0; }
 .hs-viewport__tools { position: absolute; top: 4px; left: 4px; flex-direction: row; }
 .unity-two-pane-split-view__dragline-anchor { background-color: var(--hs-bg-0); }
 

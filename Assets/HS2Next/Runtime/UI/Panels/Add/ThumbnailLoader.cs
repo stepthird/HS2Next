@@ -5,6 +5,10 @@
 // shows; files Unity cannot decode get the placeholder and are reported once (finding ui.thumbnailUnreadable, info).
 // A cell asks with Request(path, owner) on bind and Release(path, owner) on unbind (a pending request nobody wants any more
 // is dropped before it starts). Card content is never looked at: the loader only counts and times. Main thread only.
+// Generated images (the pose browser's stick figures): a key the Generator claims is not a file; its disk-cached PNG, when
+// the generator has one, is read like any file (a cached file that fails to decode is drawn again), else the generator is
+// asked to make it and answers with Provide (the texture joins the same LRU) or Withdraw (the request ends without the error
+// tile: the cell shows what its source says next, e.g. the pose's text tile).
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,7 +31,23 @@ namespace HS2Next.UI.Panels
             public readonly HashSet<object> Owners = new HashSet<object>();
             public LinkedListNode<Slot> Lru;
             public bool Queued;
+            /// <summary>A generated key: being made by the generator / read from its cached file / to be drawn again.</summary>
+            public bool Generating, FromCache, Regenerate;
         }
+
+        /// <summary>Makes the images of keys that are not files (the pose browser's stick figures).</summary>
+        public interface IGenerator
+        {
+            /// <summary>The key is the generator's.</summary>
+            bool Claims(string key);
+            /// <summary>The disk-cached image of a key (read as a file), or null.</summary>
+            string CachedFile(string key);
+            /// <summary>Starts making the key; the generator answers with <see cref="Provide"/> or <see cref="Withdraw"/>.</summary>
+            void Want(string key);
+        }
+
+        /// <summary>The generator of non-file keys (null = every key is a file).</summary>
+        public IGenerator Generator;
 
         public const long DefaultCapBytes = 110L * 1024 * 1024;
 
@@ -54,6 +74,10 @@ namespace HS2Next.UI.Panels
         public int FailedCount { get; private set; }
         public int Shrunk { get; private set; }
         public int Evicted { get; private set; }
+        /// <summary>Generated textures taken in (Provide), generated keys read from the generator's disk cache, withdrawn keys.</summary>
+        public int GeneratedCount { get; private set; }
+        public int GeneratedFromCache { get; private set; }
+        public int Withdrawn { get; private set; }
         public long CurrentBytes { get; private set; }
         public long PeakBytes { get; private set; }
         public readonly List<double> MainThreadMs = new List<double>();
@@ -109,8 +133,32 @@ namespace HS2Next.UI.Panels
             if (!slots.TryGetValue(path, out var s)) slots[path] = s = new Slot { Path = path };
             if (owner != null) s.Owners.Add(owner);
             if (s.Texture != null) { Touch(s); return s.Texture; }
-            if (!s.Failed && !s.Queued && s.Request == null) { s.Queued = true; waiting.Enqueue(s); }
+            if (!s.Failed && !s.Queued && s.Request == null && !s.Generating) { s.Queued = true; waiting.Enqueue(s); }
             return null;
+        }
+
+        /// <summary>True while a cell shows the key (the generator skips keys nobody wants any more).</summary>
+        public bool Wanted(string path) => path != null && slots.TryGetValue(path, out var s) && s.Owners.Count > 0;
+
+        /// <summary>The generator's texture for a key: it joins the LRU (the loader owns it from now on).</summary>
+        public void Provide(string path, Texture2D t)
+        {
+            if (path == null || t == null) return;
+            if (!slots.TryGetValue(path, out var s)) slots[path] = s = new Slot { Path = path };
+            s.Generating = false;
+            s.Regenerate = false;
+            if (s.Texture != null) { Kill(t); return; }
+            GeneratedCount++;
+            Accept(s, t);
+        }
+
+        /// <summary>The generator gave a key up (it cannot be drawn, or nobody wanted it any more): the request ends without
+        /// the error tile; a cell that shows the key again asks again.</summary>
+        public void Withdraw(string path)
+        {
+            if (path == null || !slots.TryGetValue(path, out var s)) return;
+            s.Generating = false;
+            Withdrawn++;
         }
 
         /// <summary>The cell no longer shows the path (unbind).</summary>
@@ -137,15 +185,22 @@ namespace HS2Next.UI.Panels
         void UpdateCore(double budgetMs)
         {
             var sw = Stopwatch.StartNew();
-            while (inFlight.Count < MaxInFlight && waiting.Count > 0)
+            while (inFlight.Count < MaxInFlight && waiting.Count > 0 && sw.Elapsed.TotalMilliseconds < budgetMs)
             {
                 var s = waiting.Dequeue();
                 s.Queued = false;
                 if (s.Texture != null || s.Failed || s.Request != null) continue;
                 if (s.Owners.Count == 0) continue;   // nobody shows it any more
+                string file = s.Path;
+                if (Generator != null && Generator.Claims(s.Path))
+                {
+                    file = s.Regenerate ? null : Generator.CachedFile(s.Path);
+                    if (file == null) { s.Generating = true; Generator.Want(s.Path); continue; }
+                    s.FromCache = true;
+                }
                 try
                 {
-                    s.Request = UnityWebRequestTexture.GetTexture(new Uri(s.Path).AbsoluteUri, true);
+                    s.Request = UnityWebRequestTexture.GetTexture(new Uri(file).AbsoluteUri, true);
                     s.Request.SendWebRequest();
                     s.Latency = Stopwatch.StartNew();
                     inFlight.Add(s);
@@ -161,6 +216,26 @@ namespace HS2Next.UI.Panels
                 s.Request = null;
                 try
                 {
+                    if (s.FromCache && Generator != null)
+                    {
+                        // a generated key's cached file, decoded like a file; one that fails is drawn again
+                        s.FromCache = false;
+                        Texture2D g = null;
+                        if (req.result == UnityWebRequest.Result.Success) { try { g = DownloadHandlerTexture.GetContent(req); } catch (Exception) { g = null; } }
+                        if (g == null || g.width <= 8)
+                        {
+                            if (g != null) Kill(g);
+                            s.Regenerate = true;
+                            s.Generating = true;
+                            Generator.Want(s.Path);
+                            continue;
+                        }
+                        g.name = "HS2Next thumb";
+                        g.hideFlags = HideFlags.HideAndDontSave;
+                        GeneratedFromCache++;
+                        Accept(s, g);
+                        continue;
+                    }
                     if (req.result != UnityWebRequest.Result.Success) { Fail(s); continue; }
                     LatencyMs.Add(s.Latency.Elapsed.TotalMilliseconds);
                     var t0 = Stopwatch.StartNew();
@@ -245,6 +320,7 @@ namespace HS2Next.UI.Panels
             if (path == null || !slots.TryGetValue(path, out var s)) return;
             Drop(s);
             if (s.Request != null) { inFlight.Remove(s); s.Request.Dispose(); s.Request = null; }
+            s.Generating = false;
             slots.Remove(path);
         }
 
