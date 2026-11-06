@@ -253,6 +253,7 @@ public static partial class UiPanelsTest
             "the Top group is detached (kept), the Bottom group attached, no Top row in the tab");
         McCheckRows(c, tab, f, 1, "bottom");
         var topList0 = MfQ<PartList>(tab.ClothesGroups[0], "field-" + ClothesRoot + "top.item");
+        yield return PfCheck(c, MfQ<PartList>(tab, "field-" + ClothesRoot + "bottom.item"), "clothes", topList0);
         c.Info("the top list's current cell " + topList0?.CurrentRef + " at position " + topList0?.PositionOf(topList0?.CurrentRef ?? "") + " of " + topList0?.Items.Count);
         var topList = MfQ<PartList>(tab.ClothesGroups[0], "field-" + ClothesRoot + "top.item");
         int binds0 = topList?.Grid.BindCount ?? 0, scrolls0 = topList?.AttachScrolls ?? 0;

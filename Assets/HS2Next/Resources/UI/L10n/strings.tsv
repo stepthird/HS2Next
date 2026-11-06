@@ -1061,6 +1061,7 @@ maker.list.sortName	By name	名前順	按名称	zh?
 maker.list.filterAll	All	すべて	全部	zh?
 maker.list.filterVanilla	Base game only	本体のみ	仅本体	zh?
 maker.list.filterMods	Mods only	MOD のみ	仅 MOD	zh?
+maker.list.favorites	Favourites only. Right-click a cell to add or remove a favourite.	お気に入りだけを表示します。セルを右クリックすると、追加と解除ができます。	仅显示收藏。右键单击单元格可添加或移除收藏。	zh?
 maker.list.notListed	Not listed: {0}	リストにない: {0}	不在列表中: {0}	zh?
 maker.list.openFailed	Could not open the bundle of {0}	{0} のバンドルを開けません	无法打开 {0} 的资源包	zh?
 maker.reset.tooltip	Reset to the value when the Edit tab was first opened	編集タブを最初に開いたときの値に戻す	恢复为首次打开编辑页时的值	zh?

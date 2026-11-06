@@ -203,6 +203,7 @@
 /* the search field takes what the row's fixed parts leave, whatever its placeholder's length, so the expand button stays in the pane */
 .hs-partlist__tools > .hs-search { flex-grow: 1; flex-shrink: 1; flex-basis: 0; min-width: 0; }
 .hs-partlist__button { width: 24px; height: 20px; padding: 0; margin: 0 0 0 2px; }
+.hs-partlist__button--on { background-color: var(--hs-accent-dim); }
 .hs-partlist__grid { flex-shrink: 0; background-color: var(--hs-bg-0); border-radius: var(--hs-radius); }
 .hs-partlist .hs-card-grid__row { flex-direction: row; padding-left: 4px; }
 .hs-partlist .hs-card { margin-right: 4px; margin-top: 2px; border-radius: var(--hs-radius); border-width: 2px; border-color: rgba(0, 0, 0, 0); background-color: var(--hs-bg-2); overflow: hidden; }

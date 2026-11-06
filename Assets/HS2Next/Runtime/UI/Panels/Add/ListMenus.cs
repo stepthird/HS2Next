@@ -311,6 +311,25 @@ namespace HS2Next.UI.Panels
             };
         }
 
+        /// <summary>The menu of a Maker part cell: favourite and copy the id.</summary>
+        public static List<MenuItem> PartItems(UiContext ctx, string kind, string reference)
+        {
+            var store = Favorites.Of(ctx);
+            bool fav = store.IsRow(kind, reference);
+            return new List<MenuItem>
+            {
+                Item("list-favorite", "list.menu.favorite", () => store.SetRow(kind, reference, !fav), false, fav),
+                MenuItem.Sep(),
+                Item("list-copy-id", "list.menu.copyId", () => Copy(ctx, reference)),
+            };
+        }
+
+        public static void ShowPart(UiContext ctx, string kind, string reference, Vector2 at, string name = "partlist-context")
+        {
+            if (ctx == null || reference == null) return;
+            Show(ctx, PartItems(ctx, kind, reference), at, name);
+        }
+
         public static void ShowFile(UiContext ctx, BrowserFile f, Vector2 at, string name = "list-context")
         {
             if (ctx == null || f == null) return;

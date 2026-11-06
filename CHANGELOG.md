@@ -3,6 +3,16 @@
 HS2Next follows semantic versioning: the save format, the plugin API and the bridge commands not marked experimental
 keep working within a major version ([CONTRIBUTING.md](CONTRIBUTING.md), "Compatibility").
 
+## 1.3.1
+
+Released on 2026-11-06 (UTC).
+
+### Additions
+
+- Favourites on the clothes and accessory lists of the Maker pages. Right-click a cell, or press the menu key or Shift+F10,
+  and choose Favourite: the cell shows a star. The «★» button beside the search field shows the favourites only, together
+  with the search and the base game or mods filter. An accessory list keeps the favourites of its type.
+
 ## 1.3.0
 
 Released on 2026-11-06 (UTC).

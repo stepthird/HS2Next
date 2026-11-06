@@ -1,6 +1,7 @@
 // The browsers' favourites: one file per user, <UserData>/config/favorites.json =
 //   { "version": 1, "rows": { "<list kind>": ["guid#id", …] }, "files": { "<root id>": ["<relative path>", …] } }
-// Catalog rows (items, animations, maps, lights) are keyed by their list kind and content id (`guid#id`, ordinal); files
+// Catalog rows (items, animations, maps, lights) are keyed by their list kind and content id (`guid#id`, ordinal); the Maker's
+// clothes and accessory rows by `parts.<list category>` and the same id (an id repeats across categories); files
 // (character cards and files, coordinates, poses) by the id of the folder they were found under and their path relative to it
 // ('/' separators, compared without case, as Windows does). Every change is written at once through a temporary file and a
 // replace; unknown members are kept. A file that cannot be read is kept as favorites.json.bak, the store starts empty and
@@ -19,6 +20,8 @@ namespace HS2Next.UI.Core
         public const int Version = 1;
         /// <summary>The list kinds of the catalog browsers.</summary>
         public const string Items = "items", Anime = "anime", Maps = "maps", Lights = "lights";
+        /// <summary>The list kind of a Maker part list: one kind per list category, since an id repeats across categories.</summary>
+        public static string PartKind(int category) => "parts." + category.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
         readonly Dictionary<string, HashSet<string>> rows = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
         readonly Dictionary<string, HashSet<string>> files = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);

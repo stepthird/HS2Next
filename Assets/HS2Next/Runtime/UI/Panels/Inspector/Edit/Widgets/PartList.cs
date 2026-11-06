@@ -24,6 +24,9 @@
 // browser's; the size (and Ctrl + wheel) is the view-state option view.thumbSize.<kind> of the list's page kind (face, body,
 // hair, clothes, accessories: every list and image push grid of the kind follows it; a list of no kind keeps its size per
 // list path while the app runs); the cells' tooltips end with what a click does (HintKey); the cell states are ThumbGrid's.
+// 1.3.1: the lists of the Clothes and Accessories pages have favourites: a right click or the menu key on a cell, a star on the
+// cell's text, and `partlist-favorites` shows the favourites only (kept per list path while the app runs). They are rows of the
+// favourites store under FavoriteStore.PartKind(category).
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -99,6 +102,7 @@ namespace HS2Next.UI.Panels
         readonly List<int> identity = new List<int>();
         ListIndex<PartItem> index;
         protected string filter = "all", sort = "list";
+        protected bool favoritesOnly;
         bool expanded;
         protected readonly PartThumbnails thumbs;
 
@@ -122,6 +126,10 @@ namespace HS2Next.UI.Panels
         public Slider ZoomSlider => zoomSlider;
         /// <summary>True when the cell size can change (image cells).</summary>
         public bool Zoomable => Grid.MaxZoom > Grid.MinZoom;
+        /// <summary>True when the list has favourites.</summary>
+        public virtual bool Favoritable => false;
+        /// <summary>True while only the favourites are shown.</summary>
+        public bool FavoritesOnly => favoritesOnly;
 
         /// <param name="thumbnails">false: the cells have an image area but no thumbnails (colour cells).</param>
         protected MakerThumbList(UiContext ctx, string labelKey, float baseWidth, float aspect, float textHeight, bool thumbnails = true)
@@ -155,7 +163,7 @@ namespace HS2Next.UI.Panels
             Loc.Tooltip(expandButton, "maker.list.expand");
             Add(tools);
             bool images = aspect > 0 && thumbnails;
-            Grid = new ThumbGrid<PartItem>("partlist-grid", images ? new PartThumbSource(thumbs) : null, i => i.Name, baseWidth, aspect, textHeight)
+            Grid = new ThumbGrid<PartItem>("partlist-grid", images ? new PartThumbSource(thumbs) : null, CellTextOf, baseWidth, aspect, textHeight)
             {
                 MinZoom = images ? MinCell / CellWidth : 1, MaxZoom = images ? MaxCell / CellWidth : 1,
                 CellName = (i, pos) => CellNameOf(i),
@@ -178,6 +186,8 @@ namespace HS2Next.UI.Panels
 
         protected abstract string CellNameOf(PartItem i);
         protected virtual void LanguageChanged() { }
+        protected virtual string CellTextOf(PartItem i) => i.Name;
+        protected virtual bool IsFavorite(PartItem i) => false;
 
         void OnLanguage(string _) { if (panel != null) LanguageChanged(); }
 
@@ -306,7 +316,19 @@ namespace HS2Next.UI.Panels
             all = items ?? new List<PartItem>();
             index = new ListIndex<PartItem>(all, SearchTextOf, i => i.NotListed ? null : i.Ref);
             index.AddFacet("source", i => i.NotListed ? null : i.Row == null || i.Row.IsVanilla ? "vanilla" : "mods");
+            if (Favoritable) AddFavoriteFacet();
             index.AddSort("name", (a, b) => L10n.Language == "ja" ? ListSorts.CompareJa(a.Name, b.Name) : ListSorts.CompareOrdinalIgnoreCase(a.Name, b.Name));
+            ApplySearch();
+        }
+
+        // set again after a change: the index keeps the values a facet gave
+        void AddFavoriteFacet() => index.AddFacet("fav", i => !i.NotListed && IsFavorite(i) ? "y" : "n");
+
+        /// <summary>The favourites changed: the stars and, with only the favourites shown, the cells.</summary>
+        protected void RefreshFavorites()
+        {
+            if (index == null) return;
+            AddFavoriteFacet();
             ApplySearch();
         }
 
@@ -323,6 +345,7 @@ namespace HS2Next.UI.Panels
             var sw = Stopwatch.StartNew();
             index.SetQuery(search.value ?? "");
             index.SetFacet("source", filter == "all" ? null : filter);
+            if (Favoritable) index.SetFacet("fav", favoritesOnly ? "y" : null);
             index.SetSort(sort == "name" ? "name" : null);
             index.Refresh();
             shown.Clear();
@@ -355,11 +378,17 @@ namespace HS2Next.UI.Panels
 
     public sealed class PartList : MakerThumbList
     {
-        sealed class ViewState { public string Sort = "list", Filter = "all"; public bool Expanded; public float Zoom = 1f; }
+        /// <summary>The favourites button while only the favourites are shown.</summary>
+        public const string FavoritesOnClass = "hs-partlist__button--on";
+
+        sealed class ViewState { public string Sort = "list", Filter = "all"; public bool Expanded, FavoritesOnly; public float Zoom = 1f; }
         static readonly Dictionary<string, ViewState> views = new Dictionary<string, ViewState>(StringComparer.Ordinal);
 
         readonly TargetSelector sel;
-        readonly Button sortButton;
+        readonly Button sortButton, favoritesButton;
+        readonly bool favoritable;
+        FavoriteStore favorites;
+        int favoritesSeen;
         readonly VisualElement headHolder;
         string rowsSignature;
         bool mixed;
@@ -414,6 +443,19 @@ namespace HS2Next.UI.Panels
             AddToClassList("hs-partlist--list");
             if (!views.TryGetValue(Path, out var v)) views[Path] = v = new ViewState();
             sort = v.Sort; filter = v.Filter;
+            favoritable = HasFavorites(Path);
+            if (favoritable)
+            {
+                favoritesOnly = v.FavoritesOnly;
+                favoritesButton = new Button(() => SetFavoritesOnly(!favoritesOnly)) { name = "partlist-favorites", text = "★" };
+                favoritesButton.AddToClassList("hs-partlist__button");
+                favoritesButton.EnableInClassList(FavoritesOnClass, favoritesOnly);
+                Loc.Tooltip(favoritesButton, "maker.list.favorites");
+                tools.Add(favoritesButton);
+                Grid.ContextRequested += OnCellMenu;
+                RegisterCallback<AttachToPanelEvent>(_ => { Favorites.Changed -= OnFavoritesChanged; Favorites.Changed += OnFavoritesChanged; CatchUpFavorites(); });
+                RegisterCallback<DetachFromPanelEvent>(_ => Favorites.Changed -= OnFavoritesChanged);
+            }
             sortButton = new Button(ShowSortMenu) { name = "partlist-sort", text = "⇅" };
             sortButton.AddToClassList("hs-partlist__button");
             Loc.Tooltip(sortButton, "maker.list.sortFilter");
@@ -443,6 +485,41 @@ namespace HS2Next.UI.Panels
         IReadOnlyList<string> Targets => sel?.Resolve(ctx) ?? new List<string>();
 
         protected override string CellNameOf(PartItem i) => i.NotListed ? "part-notlisted" : "part-" + i.Ref;
+
+        /// <summary>Whether a list of this member path has favourites: the lists of the Clothes and Accessories pages.</summary>
+        public static bool HasFavorites(string path)
+        {
+            string kind = GridKindOf(path);
+            return kind == "clothes" || kind == "accessories";
+        }
+
+        public override bool Favoritable => favoritable;
+        FavoriteStore Favs => favorites ?? (favorites = Favorites.Of(ctx));
+        string FavoriteKind => FavoriteStore.PartKind(Category);
+        protected override bool IsFavorite(PartItem i) => favoritable && Category >= 0 && Favs.IsRow(FavoriteKind, i.Ref);
+        protected override string CellTextOf(PartItem i) => !i.NotListed && IsFavorite(i) ? BrowserViews.Star + i.Name : i.Name;
+
+        void OnFavoritesChanged(string what)
+        {
+            if (what != null && what != FavoriteKind) return;
+            favoritesSeen = Favs.Revision;
+            RefreshFavorites();
+        }
+
+        // a change made while the list was not on a panel (another slot's list of the category)
+        void CatchUpFavorites() { if (favoritesSeen != Favs.Revision) OnFavoritesChanged(null); }
+
+        void OnCellMenu(PartItem it, Vector2 at) { if (it != null && !it.NotListed) ListMenus.ShowPart(ctx, FavoriteKind, it.Ref, at); }
+
+        /// <summary>Shows the favourites only, or every row (a list without favourites ignores it).</summary>
+        public void SetFavoritesOnly(bool on)
+        {
+            if (!favoritable) return;
+            favoritesOnly = on;
+            favoritesButton.EnableInClassList(FavoritesOnClass, on);
+            ApplySearch();
+            ViewChanged();
+        }
 
         void Rebind() { if (Binding != null) Show(Binding.Read(ctx)); }
 
@@ -531,7 +608,7 @@ namespace HS2Next.UI.Panels
         protected override void ViewChanged()
         {
             if (Path == null || !views.TryGetValue(Path, out var v)) return;
-            v.Expanded = Expanded; v.Sort = sort; v.Filter = filter;
+            v.Expanded = Expanded; v.Sort = sort; v.Filter = filter; v.FavoritesOnly = favoritesOnly;
             if (GridKind == null) v.Zoom = Grid.Zoom;   // a list of a page kind takes the kind's option
         }
 

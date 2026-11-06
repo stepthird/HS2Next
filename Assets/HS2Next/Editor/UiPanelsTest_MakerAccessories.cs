@@ -1049,6 +1049,7 @@ public static partial class UiPanelsTest
             // live: an item change to a non-hair head item brings the colour section back after the flush
             var list = MfQ<PartList>(tab, "field-" + MaPath(ah, "item"));
             yield return MhSettle(c, tab);
+            yield return PfCheck(c, list, "accessories", null);
             bool picked = list != null && list.Pick("illusion.hs2#0");
             var ok = new bool[1];
             yield return WaitFor(() => MaEntry(c, f, ah).Item == "illusion.hs2#0", 30, ok);
