@@ -40,6 +40,8 @@ namespace HS2Next.UI
                 {
                     var rt = ctx.Runtime;
                     if (rt == null || !rt.Paused) return null;
+                    // Phase 6.2: no step while frames are recorded (a step runs inside one frame and could not be recorded)
+                    if (HS2Next.Screenshots.FrameRecorder.IsRecording) { ctx.Toasts?.Show(L10n.Get("toast.stepRecording"), HS2Next.UI.Widgets.ToastKind.Warning); return "busy: a recording is running"; }
                     int n = call.Arg("n") is int ni ? ni : call.Arg("n") is long nl ? (int)nl : call.Arg("n") is double nd ? (int)nd : 1;
                     float dt = call.Arg("dt") is double dd ? (float)dd : call.Arg("dt") is float df ? df : StepDt(ctx);
                     return rt.Step(n, dt) ? (object)rt.Clock.Time : null;
@@ -117,7 +119,7 @@ namespace HS2Next.UI
             Pause.text = paused ? "▶" : "❚❚";
             Pause.EnableInClassList("hs-toolbar__button--on", paused);
             Pause.SetEnabled(rt != null && ctx.Registry.Actions.Contains(UiPlaybackModule.PauseId));
-            Step.SetEnabled(paused && ctx.Registry.Actions.Contains(UiPlaybackModule.StepId));
+            Step.SetEnabled(paused && ctx.Registry.Actions.Contains(UiPlaybackModule.StepId) && !HS2Next.Screenshots.FrameRecorder.IsRecording);
             Time.text = rt != null ? Format(rt.Clock.Time) : "";
             if (status == null || status.panel == null) status = ctx.Shell?.StatusBar?.Element?.Q<Label>("status-paused") ?? status;
             if (status != null) status.style.display = paused ? DisplayStyle.Flex : DisplayStyle.None;

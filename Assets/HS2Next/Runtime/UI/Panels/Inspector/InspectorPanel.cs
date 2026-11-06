@@ -3,7 +3,7 @@
 // tabs (CharaInspector), foldouts for items, lights and cameras, the folder's name only, a Phase 3.6 note for routes.
 // Multi-selection: the primary's kind; kind rows apply to every selected node of that kind (U25 / T22), mixed values show
 // "—". Values follow the model through A's bindings; the panel itself is rebuilt only when the shape changes (selection,
-// kind, realization state, FK groups, accessories, item features, light type), checked on events and twice a second for
+// kind, realization state, FK groups, item features, light type), checked on events and twice a second for
 // realizations that finish later.
 using System;
 using System.Collections.Generic;
@@ -146,6 +146,7 @@ namespace HS2Next.UI.Panels
                 case NodeKind.Route: RouteInspector.Build(ctx, n, kindSel, scroll); break;   // Phase 3.6 package R (RouteInspector.cs)
                 default: scroll.Add(InspectorUi.Note("inspector.opaque")); break;
             }
+            if (ConstraintSection.StandsOn(n.Kind)) scroll.Add(new ConstraintSection(ctx, n.Id));   // Phase 6.5: reads nothing until opened
             // plugin / later sections registered for the kind (5.1)
             foreach (var d in ctx.Registry.SectionsFor(StudioOps.KindName(n)))
             {
@@ -221,6 +222,7 @@ namespace HS2Next.UI.Panels
         {
             foreach (var s in sections)
             {
+                if (s.Id == InspectorSchemas.ItemMaterialEditSection) continue;   // the item adds it: it needs the node
                 var fo = InspectorUi.Section(s.LabelKey, true, "section-" + s.Id);
                 InspectorUi.AddSection(ctx, s, sel, fo, custom);
                 into.Add(fo);
@@ -260,6 +262,7 @@ namespace HS2Next.UI.Panels
                 }
                 return null;
             });
+            into.Add(MaterialEditView.ItemSection(ctx, n.Id));   // Phase 6.4: the primary item, built when first opened
         }
     }
 }

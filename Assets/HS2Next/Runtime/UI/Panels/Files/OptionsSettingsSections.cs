@@ -473,17 +473,60 @@ namespace HS2Next.UI.Panels
                 string guid = e.Guid;
                 if (string.IsNullOrEmpty(guid)) continue;
                 var t = new Toggle { name = "setting-plugin-" + guid, label = guid + " (" + e.State + ")" };
-                List<string> Disabled() => (SettingsFile.Get(ReadFile(), "plugins.disabled") as JArray)?.Select(x => (string)x).ToList() ?? new List<string>();
-                t.SetValueWithoutNotify(!Disabled().Any(x => string.Equals(x, guid, StringComparison.OrdinalIgnoreCase)));
+                t.SetValueWithoutNotify(e.State != HS2Next.App.Plugins.PluginStates.Disabled);
+                // turning one off or on acts at once (plugin.disable / plugin.enable with persist) and records the choice in
+                // plugins.disabled; the toggle then shows the resulting state
                 t.RegisterValueChangedCallback(ev =>
                 {
-                    var l = Disabled().Where(x => !string.Equals(x, guid, StringComparison.OrdinalIgnoreCase)).ToList();
-                    if (!ev.newValue) l.Add(guid);
-                    Write("plugins.disabled", new JArray(l));
+                    TogglePlugin(e, ev.newValue, t);
+                    t.label = guid + " (" + e.State + ")";
                 });
-                t.SetEnabled(!locked);
+                // refused plugins (manifest, versions, assemblies, prefixes, dependencies) cannot be turned on at run time
+                t.SetEnabled(!locked && e.State != HS2Next.App.Plugins.PluginStates.Refused && e.State != HS2Next.App.Plugins.PluginStates.Unloaded);
                 box.Add(t);
             }
+        }
+
+        /// <summary>
+        /// One plugin toggle: off disables a loaded or faulted plugin now and adds it to plugins.disabled; on enables it now and
+        /// removes it from the list. A refused disable (its code runs now, plugins depend on it) shows the reason and keeps
+        /// the toggle on; a failed enable shows the reason (a changed DLL: it loads after a restart) and the setting still
+        /// records the choice.
+        /// </summary>
+        void TogglePlugin(HS2Next.App.Plugins.PluginEntry e, bool on, Toggle t)
+        {
+            var host = App?.Plugins;
+            if (host == null) return;
+            string guid = e.Guid;
+            bool active = e.State == HS2Next.App.Plugins.PluginStates.Loaded || e.State == HS2Next.App.Plugins.PluginStates.Faulted;
+            if (!on)
+            {
+                if (active)
+                {
+                    var r = host.Disable(guid);
+                    if (!r.Ok)
+                    {
+                        ctx.Toasts?.Show(L10n.Format("settings.plugins.disableFailed", guid, r.Error.Message), ToastKind.Error, 8f);
+                        t.SetValueWithoutNotify(true);
+                        return;
+                    }
+                }
+                PersistPlugin(guid, true);
+                return;
+            }
+            PersistPlugin(guid, false);
+            if (active || e.State == HS2Next.App.Plugins.PluginStates.Pending) return;
+            var res = host.Enable(guid);
+            if (res.Ok) return;
+            string code = res.Error.Detail?.Extra != null && res.Error.Detail.Extra.TryGetValue("code", out var c) ? c as string : null;
+            if (code == HS2Next.App.Plugins.PluginCodes.StaleAssembly) ctx.Toasts?.Show(L10n.Format("settings.plugins.afterRestart", guid), ToastKind.Warning, 8f);
+            else ctx.Toasts?.Show(L10n.Format("settings.plugins.enableFailed", guid, res.Error.Message), ToastKind.Error, 8f);
+        }
+
+        void PersistPlugin(string guid, bool disabled)
+        {
+            try { HS2Next.App.Plugins.PluginCommands.Persist(App, guid, disabled); }
+            catch (Exception x) { ctx.Toasts?.Show(L10n.Format("settings.unreadable", File, x.Message), ToastKind.Error, 8f); }
         }
 
         // ---------------------------------------------------------------- Advanced: the about part

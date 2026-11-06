@@ -113,6 +113,27 @@ namespace HS2Next.Scenes.Runtime
             public const string MoveAccessory = "Move accessory";
             // Phase 4.6 package B: a character load with the five flags (StudioOps.LoadCharacter; all five = Change character's swap)
             public const string LoadCharacter = "Load character";
+            // Phase 6.3 package C: advanced pose (StudioOps.AdvancedPose)
+            public const string BoneCorrection = "Bone correction";
+            public const string ClearBoneCorrections = "Clear bone corrections";
+            public const string JiggleValues = "Jiggle values";
+            public const string ClearJiggleValues = "Clear jiggle values";
+            public const string BlendShapes = "Blend shapes";
+            public const string ClearBlendShapes = "Clear blend shapes";
+            // Phase 6.4 package C: material edits (StudioOps.Materials)
+            public const string MaterialEdit = "Material edit";
+            public const string MaterialReset = "Reset material edit";
+            public const string MaterialClear = "Clear material edits";
+            public const string MaterialTexture = "Material texture";
+            public const string MaterialShader = "Material shader";
+            public const string HairBoneAdjust = "Hair bone adjustment";
+            // Phase 6.5 package C: constraints (StudioOps.Constraints)
+            public const string ConstraintAdd = "Add constraint";
+            public const string Constraint = "Constraint";
+            public const string ConstraintRemove = "Remove constraint";
+            public const string ConstraintClear = "Clear constraints";
+            public const string ConstraintReorder = "Reorder constraints";
+            public const string ConstraintTakeOffset = "Take offset";
 
             /// <summary>Every label above, for the schema check and UiOpsTest.</summary>
             public static readonly string[] All =
@@ -131,6 +152,9 @@ namespace HS2Next.Scenes.Runtime
                 EditFace, EditBody, EditHair, EditClothes, EditAccessory, RenameCharacter, EditCharacter, ChangeItem, FacePreset,
                 AddAccessory, RemoveAccessory, ReorderAccessories, CopyAccessory,
                 ResetValue, LoadCoordinate, MoveAccessory, LoadCharacter,
+                BoneCorrection, ClearBoneCorrections, JiggleValues, ClearJiggleValues, BlendShapes, ClearBlendShapes,
+                MaterialEdit, MaterialReset, MaterialClear, MaterialTexture, MaterialShader, HairBoneAdjust,
+                ConstraintAdd, Constraint, ConstraintRemove, ConstraintClear, ConstraintReorder, ConstraintTakeOffset,
             };
 
             /// <summary>The label of a Maker edit by its area (MakerEdits.AreaOf / AppearancePaths.Area).</summary>

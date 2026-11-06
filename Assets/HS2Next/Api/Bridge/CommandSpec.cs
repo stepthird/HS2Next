@@ -17,6 +17,7 @@ namespace HS2Next.Api.Bridge
     [Flags]
     public enum CommandFlags
     {
+        /// <summary>No property.</summary>
         None = 0,
         /// <summary>No side effects (a read command).</summary>
         ReadOnly = 1,
@@ -53,9 +54,13 @@ namespace HS2Next.Api.Bridge
     /// </summary>
     public static class ArgTypes
     {
+        /// <summary>A string.</summary>
         public const string String = "string";
+        /// <summary>A whole number.</summary>
         public const string Int = "int";
+        /// <summary>Any number.</summary>
         public const string Float = "float";
+        /// <summary>true or false.</summary>
         public const string Bool = "bool";
         /// <summary>[x, y, z].</summary>
         public const string Vec3 = "vec3";
@@ -71,6 +76,7 @@ namespace HS2Next.Api.Bridge
         public const string ContentId = "contentId";
         /// <summary>A file name or relative path (resolved against a root by the handler).</summary>
         public const string Path = "path";
+        /// <summary>A JSON object.</summary>
         public const string Object = "object";
         /// <summary>Any JSON value.</summary>
         public const string Any = "any";
@@ -118,6 +124,7 @@ namespace HS2Next.Api.Bridge
     /// <summary>One argument or returned field of a command.</summary>
     public sealed class FieldSpec
     {
+        /// <summary>A field; a null <paramref name="type"/> is <see cref="ArgTypes.Any"/>.</summary>
         public FieldSpec(string name, string type, string doc = null, bool required = false, object defaultValue = null)
         {
             Name = name;
@@ -127,15 +134,18 @@ namespace HS2Next.Api.Bridge
             Default = defaultValue;
         }
 
+        /// <summary>The JSON member name.</summary>
         public string Name { get; }
         /// <summary>A name of <see cref="ArgTypes"/>.</summary>
         public string Type { get; }
+        /// <summary>The description shown by help, or null.</summary>
         public string Doc { get; }
         /// <summary>Arguments: the request must give it. Returned fields: always present in a successful reply.</summary>
         public bool Required { get; }
         /// <summary>The value used when the argument is absent (shown by help; null = none or "keeps the current value").</summary>
         public object Default { get; }
 
+        /// <summary>"name: type", with "(required)" when required.</summary>
         public override string ToString() => Name + ": " + Type + (Required ? " (required)" : "");
     }
 
@@ -143,13 +153,17 @@ namespace HS2Next.Api.Bridge
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class BridgeArgAttribute : Attribute
     {
+        /// <summary>Marks the member with the defaults of every property.</summary>
         public BridgeArgAttribute() { }
+        /// <summary>Marks the member with its help description.</summary>
         public BridgeArgAttribute(string doc) { Doc = doc; }
         /// <summary>JSON name (default: the member name with a lower-case first letter).</summary>
         public string Name { get; set; }
         /// <summary>Schema type (default: <see cref="ArgTypes.Infer"/> of the member type).</summary>
         public string Type { get; set; }
+        /// <summary>The description shown by help.</summary>
         public string Doc { get; set; }
+        /// <summary>The request must give the argument (Bind answers bad_args when it is absent).</summary>
         public bool Required { get; set; }
         /// <summary>Default shown by help (default: the member's value in a new instance, unless null).</summary>
         public object Default { get; set; }
@@ -176,7 +190,9 @@ namespace HS2Next.Api.Bridge
         ReadyGate gate = ReadyGate.App;
         bool allowExtraArgs, handlesWaitFrames;
 
+        /// <summary>A spec for the command <paramref name="name"/>. ArgumentException for an invalid name.</summary>
         /// <param name="name">"group.verb" (or a single word): lower-case first letter per part, letters and digits.</param>
+        /// <param name="summary">The one-line description shown by help.</param>
         public CommandSpec(string name, string summary = null)
         {
             if (!IsValidName(name)) throw new ArgumentException("invalid command name: " + (name ?? "null"), nameof(name));
@@ -194,10 +210,13 @@ namespace HS2Next.Api.Bridge
         public static CommandSpec For<TArgs>(string name, string summary = null) where TArgs : new() =>
             new CommandSpec(name, summary).WithArgs<TArgs>();
 
+        /// <summary>The command name.</summary>
         public string Name { get; }
-        /// <summary>Default: the part of the name before the first dot (the whole name when it has none).</summary>
+        /// <summary>The help group. Default: the part of the name before the first dot (the whole name when it has none).</summary>
         public string Group { get => group ?? (Name.IndexOf('.') > 0 ? Name.Substring(0, Name.IndexOf('.')) : Name); set { Check(); group = value; } }
+        /// <summary>The one-line description shown by help.</summary>
         public string Summary { get => summary; set { Check(); summary = value; } }
+        /// <summary>The declared arguments, in declaration order.</summary>
         public IReadOnlyList<FieldSpec> Args => args;
         /// <summary>Fields of a successful reply besides ok / cmd / warnings.</summary>
         public IReadOnlyList<FieldSpec> Returns => returns;
@@ -205,6 +224,7 @@ namespace HS2Next.Api.Bridge
         public string ReturnsDoc { get => returnsDoc; set { Check(); returnsDoc = value; } }
         /// <summary>Example request objects as JSON text (shown by <c>help {name}</c>).</summary>
         public IReadOnlyList<string> Examples => examples;
+        /// <summary>The command's properties.</summary>
         public CommandFlags Flags { get => flags; set { Check(); flags = value; } }
         /// <summary>Version in which the command appeared (free text, e.g. "1.0.0"); null = not stated.</summary>
         public string Since { get => since; set { Check(); since = value; } }
@@ -221,6 +241,7 @@ namespace HS2Next.Api.Bridge
                 defaultTimeoutSec = value;
             }
         }
+        /// <summary>When the readiness gate lets the command run (default <see cref="ReadyGate.App"/>).</summary>
         public ReadyGate Gate { get => gate; set { Check(); gate = value; } }
         /// <summary>Further readiness stages this command needs besides the gate (e.g. "scene").</summary>
         public IReadOnlyList<string> Requires => requires;
@@ -258,7 +279,9 @@ namespace HS2Next.Api.Bridge
             return this;
         }
 
+        /// <summary>Adds an example request (JSON text) and returns this spec.</summary>
         public CommandSpec Example(string requestJson) { Check(); examples.Add(requestJson); return this; }
+        /// <summary>Adds an old name that still reaches the command and returns this spec. ArgumentException for an invalid name.</summary>
         public CommandSpec Alias(string oldName)
         {
             Check();
@@ -266,11 +289,17 @@ namespace HS2Next.Api.Bridge
             aliases.Add(oldName);
             return this;
         }
+        /// <summary>Adds a readiness stage the command needs and returns this spec (an empty name is ignored).</summary>
         public CommandSpec Require(string stage) { Check(); if (!string.IsNullOrEmpty(stage)) requires.Add(stage); return this; }
+        /// <summary>Sets <see cref="Flags"/> and returns this spec.</summary>
         public CommandSpec WithFlags(CommandFlags f) { Flags = f; return this; }
+        /// <summary>Sets <see cref="DefaultTimeoutSec"/> and returns this spec.</summary>
         public CommandSpec WithTimeout(double seconds) { DefaultTimeoutSec = seconds; return this; }
+        /// <summary>Sets <see cref="Owner"/> and returns this spec.</summary>
         public CommandSpec WithOwner(string o) { Owner = o; return this; }
+        /// <summary>Sets <see cref="Since"/> and returns this spec.</summary>
         public CommandSpec WithSince(string s) { Since = s; return this; }
+        /// <summary>Sets <see cref="Gate"/> and returns this spec.</summary>
         public CommandSpec WithGate(ReadyGate g) { Gate = g; return this; }
 
         /// <summary>
@@ -331,6 +360,7 @@ namespace HS2Next.Api.Bridge
             if (IsFrozen) throw new InvalidOperationException("command spec " + Name + " is registered and cannot change");
         }
 
+        /// <summary>"name(arg, …)".</summary>
         public override string ToString()
         {
             var sb = new StringBuilder(Name);

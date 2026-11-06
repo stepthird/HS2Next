@@ -5,7 +5,8 @@
 // name watched paths are live (LiveSections: re-evaluated after the realizing flush, refilled when their gate results or the
 // prefab's bundle structure change); the part buttons dim for parts without a hair prefab (a signal on the four item paths).
 // Rows drawn here: HairBundles → HairBundleList (the «全て初期化» button row is its footer), the skin-match button
-// `hair-skin-<part>`. edit.show takes `part` (name or 0..3).
+// `hair-skin-<part>`. edit.show takes `part` (name or 0..3). 6.4: a part group ends with «Edit materials» (`hair-materials-<part>`), and the
+// section of the hair bone adjustments (HairBoneSection) stands after the groups.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -64,10 +65,13 @@ namespace HS2Next.UI.Panels
                         fo.Add(hairParts);
                         c.Add(fo);
                     }
-                    else if (InspectorSchemas.HairPartOf(s.Id) < 0) AddLiveSection(hairLive, c, s, -1);
+                    else if (s.Id != InspectorSchemas.HairBoneModsSection && InspectorSchemas.HairPartOf(s.Id) < 0) AddLiveSection(hairLive, c, s, -1);
                 }
                 hairHost = new VisualElement { name = "hair-part-host" };
                 c.Add(hairHost);
+                var bones = HairBoneSection.Section(ctx, primary);
+                sectionFoldouts[InspectorSchemas.HairBoneModsSection] = bones;
+                c.Add(bones);
                 RefreshPartMarks();
             });
             ShowHairPart(PartSelectorState.Hair.Part);
@@ -86,6 +90,7 @@ namespace HS2Next.UI.Panels
             {
                 var g = new VisualElement { name = "hair-part-group-" + InspectorSchemas.HairParts[k] };
                 WithGateMemo(() => { foreach (var s in SectionsOf(HairNode)) if (InspectorSchemas.HairPartOf(s.Id) == k) AddLiveSection(hairLive, g, s, k); });
+                g.Add(MaterialsButton("hair:" + k, "hair-materials-" + InspectorSchemas.HairParts[k]));
                 hairGroups[k] = g;
                 PageBuildMs[HairNode + ".group." + InspectorSchemas.HairParts[k]] = sw.Elapsed.TotalMilliseconds;
             }
@@ -95,6 +100,10 @@ namespace HS2Next.UI.Panels
             // the handles follow the part: a bundle of another part of this character is no longer the sub-selection
             if (StudioOps.TryParseHairSub(ctx.SubSelection, out var cid, out int sp, out _) && cid == primary && sp != k) ctx.SubSelection = null;
         }
+
+        /// <summary>«Edit materials»: the Materials tab on a target's array.</summary>
+        Button MaterialsButton(string target, string id) =>
+            InspectorUi.Button("inspector.materials.open", () => ctx.ShowResult(HS2Next.UI.Binding.ButtonActions.Run(ctx, "ui.materials.open:" + target, new[] { primary })), id);
 
         /// <summary>Re-evaluates the Hair page's marked live sections now (tests; the tick does the same at the next frame).</summary>
         public void EvaluateHairNow() => hairLive?.EvaluateNow();

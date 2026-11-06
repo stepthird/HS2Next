@@ -1,0 +1,12 @@
+key	en	ja	zh-Hans	note
+plugin.stp3.sample.helloui.panel	Hello UI sample	Hello UI サンプル	Hello UI 示例	the title of the sample's bottom panel
+plugin.stp3.sample.helloui.size	Size	サイズ	大小	a slider row, 0 to 10
+plugin.stp3.sample.helloui.enabled	Enabled	有効	启用	a toggle row
+plugin.stp3.sample.helloui.tint	Tint	色味	色调	a colour row with alpha
+plugin.stp3.sample.helloui.mode	Mode	モード	模式	a choice row
+plugin.stp3.sample.helloui.mode.soft	Soft	ソフト	柔和	a choice of the mode row
+plugin.stp3.sample.helloui.mode.hard	Hard	ハード	硬朗	a choice of the mode row
+plugin.stp3.sample.helloui.note	Note	メモ	备注	a text row
+plugin.stp3.sample.helloui.reset	Reset	リセット	重置	a button row: puts the panel's values back to their defaults
+plugin.stp3.sample.helloui.section	Tag	タグ	标签	the title of the sample's inspector section on items
+plugin.stp3.sample.helloui.weight	Weight	重み	权重	a slider row of the item section, 0 to 1

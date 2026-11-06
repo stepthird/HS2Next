@@ -19,8 +19,9 @@
 // (`acc-parent-default`), «初期化» (`acc-reset-move-<NN>-<c>`); the hair colour section's colour and slider rows are named
 // `field-<path>@hair` (the normal colour section uses the same member paths). edit.show takes `slot` (the 0-based build slot;
 // else the slot a section id names) and answers it. An add, a removal or a copy into a new slot changes the character's
-// accessory ids, which rebuilds the whole inspector (its State tab lists them): the selection is view state and survives, a
-// new accessory added through «＋» is selected on the rebuilt page.
+// accessory ids and keeps the page (the inspector does not rebuild for them): the slot list, both pickers (a choice still
+// offered stays) and the shown group follow the list, a slot group whose accessory left or moved is dropped, every live section
+// is looked at again after the flush; a new accessory added through «＋» is selected, a removal selects the next worn slot.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -305,13 +306,14 @@ namespace HS2Next.UI.Panels
             {
                 // the selected accessory left (removed): the next worn slot after its old slot, else the lowest
                 int old = accShownId != null && accGroups.TryGetValue(accShownId, out var og) ? og.Slot : -1;
-                want = infos.FirstOrDefault(i => i.Slot > old)?.Id ?? infos.LastOrDefault()?.Id;
-                if (old < 0) want = infos.FirstOrDefault()?.Id;
+                want = (old >= 0 ? infos.FirstOrDefault(i => i.Slot > old) : null)?.Id ?? infos.FirstOrDefault()?.Id;
                 AccessorySelectorState.Set(primary, want);
             }
-            if (force || sig != accSlotsSig)
+            bool changed = force || sig != accSlotsSig;
+            if (changed)
             {
                 accSlotsSig = sig;
+                DropStaleAccessoryGroups(infos);
                 accList.SetSlots(infos, want);
                 accNoSlots.style.display = infos.Count == 0 ? DisplayStyle.Flex : DisplayStyle.None;
                 RefreshAccessoryPickers(table, infos);
@@ -324,6 +326,18 @@ namespace HS2Next.UI.Panels
                 if (i != null) g.Title.text = InspectorSchemas.AccessorySlotLabel(i.Slot) + "  " + i.Name;
             }
             RefreshAccessoryCopy();
+            if (changed) accLive.MarkAll();   // a change of the list: every section again, after the flush that realizes it
+        }
+
+        // A group whose accessory left or changed its slot or type shows no more: another accessory in that slot takes its section
+        // ids, and an undo must not find the old group without them.
+        void DropStaleAccessoryGroups(List<AccessorySlotInfo> infos)
+        {
+            foreach (var g in accGroups.Values.ToList())
+            {
+                var i = infos.FirstOrDefault(x => x.Id == g.Id);
+                if (i == null || i.Slot != g.Slot || i.Category != g.Category) DropAccessoryGroup(g);
+            }
         }
 
         void RefreshAccessoryPickers(AccessorySlotRule table, List<AccessorySlotInfo> infos)
@@ -405,6 +419,7 @@ namespace HS2Next.UI.Panels
                     AddLiveSection(accLive, g.Root, s, slot);
                 }
             });
+            g.Root.Add(MaterialsButton("acc:" + id, "acc-materials-" + nn));
             AccessoryGroupBuilds++;
             PageBuildMs[AccessoriesNode + ".group." + nn] = sw.Elapsed.TotalMilliseconds;
             return g;
@@ -687,7 +702,13 @@ namespace HS2Next.UI.Panels
         {
             if (accAddPanel == null) return;
             accAddPanel.style.display = open ? DisplayStyle.Flex : DisplayStyle.None;
-            if (!open) return;
+            if (!open)
+            {
+                // out of sight, the panel's list must not keep the keys: its Enter picks
+                var focused = panel?.focusController?.focusedElement as VisualElement;
+                if (focused != null && (focused == accAddPanel || accAddPanel.Contains(focused))) focused.Blur();
+                return;
+            }
             var table = StudioOps.AccessorySlotsOf(ctx.Model.Find(primary));
             if (table != null) accAddSlot.SetSlots(table.FreeSlots(), null, table.LowestFree());
             if (accAddCategory < 0) accAddTypes.SetDisplay(-1, false);
@@ -728,8 +749,7 @@ namespace HS2Next.UI.Panels
             {
                 OpenAccessoryAdd(false);
                 AccessorySelectorState.Set(primary, mr.NewAccessoryIds[0]);
-                // a new accessory id changes the inspector's shape: the inspector was rebuilt during the op, so the Edit tab shown
-                // now (when it is another one) selects the new accessory too
+                // when a finding of the new accessory rebuilt the inspector during the op, the Edit tab shown now selects it too
                 var shown = Current != null && Current != this && Current.primary == primary ? Current : this;
                 shown.RefreshAccessorySlots(true);
             }

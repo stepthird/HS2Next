@@ -22,13 +22,13 @@ using Newtonsoft.Json.Linq;
 public static partial class BridgeCoreTest
 {
     /// <summary>The Core commands whose handlers may answer later than they return.</summary>
-    static readonly string[] CkDeferring = { "app.setup", "capture", "map.load", "scene.load", "screenshot", "ui.input", "ui.screenshot" };   // app.setup: Phase 5.3
+    static readonly string[] CkDeferring = { "app.setup", "capture", "map.load", "record.stop", "scene.load", "screenshot", "ui.input", "ui.screenshot" };   // app.setup: Phase 5.3; record.stop: Phase 6.2
 
     /// <summary>The groups of the naming convention (the subject of a name's first part; chara.edit is the Maker).</summary>
     static readonly string[] CkGroups =
     {
         "scene", "obj", "chara", "item", "map", "camera", "light", "route", "fk", "ik", "pose", "anime", "effects", "sound",
-        "content", "app", "ui", "plugin", "bridge", "log",
+        "content", "app", "ui", "plugin", "bridge", "log", "timeline", "overrides", "record", "materials", "constraint",
     };
 
     /// <summary>The one-word names registered before the convention was written down (kept as they are).</summary>
@@ -40,7 +40,7 @@ public static partial class BridgeCoreTest
         var app = c.Host();
         var reg = app.BridgeServices.Commands;
         var par = CoreCommands.ParityNames.ToList();
-        c.Check(par.Count == 79 && par.Distinct(StringComparer.Ordinal).Count() == par.Count, "CoreCommands.ParityNames: 79 distinct names", "" + par.Count);
+        c.Check(par.Count == 89 && par.Distinct(StringComparer.Ordinal).Count() == par.Count, "CoreCommands.ParityNames: 89 distinct names", "" + par.Count);
         var missing = par.Where(n => reg.Find(n) == null).ToList();
         c.Check(missing.Count == 0, "every parity name is registered", string.Join(", ", missing));
         var aliased = par.Where(n => reg.Find(n) != null && reg.Find(n).Name != n).ToList();
@@ -144,6 +144,7 @@ public static partial class BridgeCoreTest
             ["app.setup"] = new JObject { ["cmd"] = "app.setup", ["op"] = "zz" },
             ["capture"] = new JObject { ["cmd"] = "capture", ["width"] = 1 },
             ["map.load"] = new JObject { ["cmd"] = "map.load", ["ref"] = "zz" },
+            ["record.stop"] = new JObject { ["cmd"] = "record.stop" },
             ["scene.load"] = new JObject { ["cmd"] = "scene.load", ["path"] = "zz_missing.hs2nscene" },
             ["screenshot"] = new JObject { ["cmd"] = "screenshot", ["background"] = "zz" },
             ["ui.input"] = new JObject { ["cmd"] = "ui.input" },
@@ -257,11 +258,28 @@ public static partial class BridgeCoreTest
                     var mm = method.Match(lines[i]);
                     if (mm.Success) current = mm.Groups[1].Value;
                     if (!lines[i].Contains(".Defer()")) continue;
-                    bool flagged = current != null && lines.Any(x => x.Contains(", " + current + ");") && x.Contains("CommandFlags.Defers"));
+                    bool flagged = current != null && RegisteredWithDefers(lines, current);
                     l.Add((Path.GetFileName(f), i + 1, current ?? "?", flagged));
                 }
             }
         }
         return l;
+    }
+
+    /// <summary>True when a registration statement of <paramref name="handler"/> (from the line holding "Register(" to the line
+    /// ending in "handler);", over one or several lines) carries CommandFlags.Defers.</summary>
+    static bool RegisteredWithDefers(string[] lines, string handler)
+    {
+        var end = new Regex(@"(^|[\s,])" + Regex.Escape(handler) + @"\);");
+        for (int j = 0; j < lines.Length; j++)
+        {
+            if (!end.IsMatch(lines[j])) continue;
+            for (int k = j; k >= 0 && j - k < 40; k--)
+            {
+                if (lines[k].Contains("CommandFlags.Defers")) return true;
+                if (lines[k].Contains("Register(")) break;
+            }
+        }
+        return false;
     }
 }

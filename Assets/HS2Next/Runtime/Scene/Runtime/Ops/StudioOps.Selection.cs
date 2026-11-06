@@ -11,6 +11,7 @@
 // Phase 4.5 (package W): "<id>/accmove/<accessoryId>/<set>" names transform set 0 or 1
 // (trfMove01 / trfMove02) of an accessory; the handle of the Edit tab's Accessories page edits its position or rotation. An
 // accessory that leaves the list (removal, undo of an add) takes its sub-selection with it.
+// Phase 6.3 (advanced pose; package U): "<id>/bone/<address>" names any bone of a character by its address (which may hold a '/').
 using System;
 using System.Collections.Generic;
 using HS2Next.Motion.Ik;
@@ -95,11 +96,16 @@ namespace HS2Next.Scenes.Runtime
             if (kind == "hair" && parts.Length == 3 && TryParseHairName(parts[2], out _, out _)) { name = parts[2]; return true; }
             // Phase 4.5 package W: an accessory transform set, "<id>/accmove/<accessoryId>/<0|1>"
             if (kind == AccessorySubKind && parts.Length == 3 && TryParseAccessoryName(parts[2], out _, out _)) { name = parts[2]; return true; }
+            // Phase 6.3 package U: any bone of a character, "<id>/bone/<address>"
+            if (kind == BoneSubKind && parts.Length == 3 && parts[2].Length > 0) { name = parts[2]; return true; }
             return false;
         }
 
         /// <summary>The sub-address kind of an accessory transform set.</summary>
         public const string AccessorySubKind = "accmove";
+
+        /// <summary>The sub-address kind of a bone of advanced pose.</summary>
+        public const string BoneSubKind = "bone";
 
         /// <summary>Splits "&lt;accessoryId&gt;/&lt;set&gt;" (set 0 = trfMove01, 1 = trfMove02; the id is everything before the last '/').</summary>
         static bool TryParseAccessoryName(string name, out string accessoryId, out int set)

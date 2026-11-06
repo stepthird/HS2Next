@@ -9,9 +9,12 @@
 //              before its FK): per joint in the game's order (ankle and foot left, ankle and foot right, toes left, toes
 //              right): "fixed" = the parent's world rotation; position += move; scale = the heel's scale; then rolls about
 //              the joint's own right, up and forward axes (each angle clamped to [min, max] when min or max is not zero).
-//              The rolls are relative to this step's pose: a joint that still holds this stage's last write (or what the
-//              card's bone modifiers make of it) goes back to its previous base first, so a still pose does not accumulate.
-//              When the heels end, the joints that still hold that write go back to their base once.
+//              The rolls are relative to this step's pose: a joint that still holds this stage's last write goes back to its
+//              previous base first, so a still pose does not accumulate. When the heels end, the joints that still hold that
+//              write go back to their base once.
+//              A card's bone modifiers run before this stage. A channel of a joint that has a modifier's value was just written
+//              by their pass, so it is fresh; the latch above then works per channel. The joint's scale is the heel's scale times
+//              the modifier's while IK is off, and the heel's alone while IK is on, as the game's two orders give.
 using System.Collections.Generic;
 using HS2Next.Chara;
 using HS2Next.Content;
@@ -31,6 +34,13 @@ namespace HS2Next.Motion.Heels
         public bool ShoesOn = true;
 
         public HeelsState(CharaContext ctx) { this.ctx = ctx; }
+
+        /// <summary>A bone's local position without the card's modifier on it.</summary>
+        internal Vector3 BarePosition(Transform t)
+        {
+            var m = ctx?.Bones;
+            return m ? m.BarePosition(t) : t.localPosition;
+        }
 
         /// <summary>The heel data of the worn shoes (looked up again when the shoe row changes), or null.</summary>
         public HeelsData.Heel Heel
@@ -57,6 +67,7 @@ namespace HS2Next.Motion.Heels
             var lift = new HeelsLift(state, B("cf_N_height"));
             ctx.Motion.Add(lift);
             lift.Step(default);   // the body stands lifted before the stages that capture the pose are attached
+            if (ctx.Bones && lift.Lifted) ctx.Bones.ApplyNew();
             ctx.Motion.Add(new HeelsFoot(state, ctx, new[] { B("cf_J_Foot01_L"), B("cf_J_Foot02_L"), B("cf_J_Foot01_R"), B("cf_J_Foot02_R"), B("cf_J_Toes01_L"), B("cf_J_Toes01_R") }));
         }
     }
@@ -87,7 +98,7 @@ namespace HS2Next.Motion.Heels
             var h = State.Active;
             if (h != null)
             {
-                if (!lifted) basePos = Height.localPosition;
+                if (!lifted) basePos = State.BarePosition(Height);
                 Height.localPosition = new Vector3(0f, h.Root.y, 0f);
                 lifted = true;
             }
@@ -112,6 +123,9 @@ namespace HS2Next.Motion.Heels
         readonly CharaContext ctx;
         readonly Vector3[] bp = new Vector3[6], bs = new Vector3[6], wp = new Vector3[6], ws = new Vector3[6];
         readonly Quaternion[] br = new Quaternion[6], wr = new Quaternion[6];
+        // the channels of each joint that have a card modifier's value, and its scale
+        readonly bool[] hasMod = new bool[6], hadMod = new bool[6], modP = new bool[6], modR = new bool[6], modS = new bool[6];
+        readonly Vector3[] modScale = new Vector3[6];
         bool written;
 
         public HeelsFoot(HeelsState state, CharaContext ctx, Transform[] joints) { State = state; this.ctx = ctx; Joints = joints; }
@@ -123,16 +137,31 @@ namespace HS2Next.Motion.Heels
         {
             var h = State.Active;
             if (h == null) { Release(); return; }
+            bool anyScale = false;
             for (int i = 0; i < 6; i++)
             {
                 var t = Joints[i];
                 if (!t) continue;
-                if (written && Unchanged(i, t)) { t.localPosition = bp[i]; t.localRotation = br[i]; t.localScale = bs[i]; }
-                else { bp[i] = t.localPosition; br[i] = t.localRotation; bs[i] = t.localScale; }
+                ReadModifier(i, t);
+                anyScale |= modS[i];
+                // a joint that just lost its value: the channels it had went back to their base, the others still hold this stage's write, so per channel this once
+                bool perChannel = hasMod[i] || hadMod[i];
+                hadMod[i] = hasMod[i];
+                if (!perChannel)
+                {
+                    if (written && Near(t, wp[i], wr[i], ws[i])) { t.localPosition = bp[i]; t.localRotation = br[i]; t.localScale = bs[i]; }
+                    else { bp[i] = t.localPosition; br[i] = t.localRotation; bs[i] = t.localScale; }
+                    continue;
+                }
+                var lp = t.localPosition; var lr = t.localRotation; var ls = t.localScale;
+                if (!modP[i] && written && Near(lp, wp[i])) t.localPosition = bp[i]; else bp[i] = lp;
+                if (!modR[i] && written && Near(lr, wr[i])) t.localRotation = br[i]; else br[i] = lr;
+                if (!modS[i] && written && Near(ls, ws[i])) t.localScale = bs[i]; else bs[i] = ls;
             }
-            Pose(Joints[0], h.Ankle); Pose(Joints[1], h.Foot);
-            Pose(Joints[2], h.Ankle); Pose(Joints[3], h.Foot);
-            Pose(Joints[4], h.Toes); Pose(Joints[5], h.Toes);
+            bool onTop = anyScale && !IkApplied();
+            Pose(0, h.Ankle, onTop); Pose(1, h.Foot, onTop);
+            Pose(2, h.Ankle, onTop); Pose(3, h.Foot, onTop);
+            Pose(4, h.Toes, onTop); Pose(5, h.Toes, onTop);
             for (int i = 0; i < 6; i++)
             {
                 var t = Joints[i];
@@ -140,6 +169,26 @@ namespace HS2Next.Motion.Heels
                 wp[i] = t.localPosition; wr[i] = t.localRotation; ws[i] = t.localScale;
             }
             written = true;
+        }
+
+        void ReadModifier(int i, Transform t)
+        {
+            var m = ctx?.Bones;
+            hasMod[i] = m && m.ChannelsOf(t, out modP[i], out modR[i], out modS[i], out modScale[i]);
+            if (!hasMod[i]) modP[i] = modR[i] = modS[i] = false;
+        }
+
+        bool IkApplied()
+        {
+            var ik = ctx?.Motion ? ctx.Motion.Get<Ik.IkStage>() : null;
+            return ik != null && !ik.Suspended && ik.AnyApplied;
+        }
+
+        void Pose(int i, HeelsData.Joint j, bool modifierOnTop)
+        {
+            var t = Joints[i];
+            Pose(t, j);
+            if (t && modifierOnTop && modS[i]) t.localScale = Vector3.Scale(j.Scale, modScale[i]);
         }
 
         /// <summary>One joint posed by its heel values (the game's order of operations).</summary>
@@ -156,23 +205,16 @@ namespace HS2Next.Motion.Heels
             t.RotateAround(at, t.forward, clamp ? Mathf.Clamp(j.Roll.z, j.RollMin.z, j.RollMax.z) : j.Roll.z);
         }
 
-        // nothing rewrote the joint since the last step: it holds that write, or what the bone modifiers made of it
-        bool Unchanged(int i, Transform t)
-        {
-            if (Near(t, wp[i], wr[i], ws[i])) return true;
-            var m = ctx?.Bones;
-            return m && m.Predict(t, wp[i], wr[i], ws[i], out var p, out var r, out var s) && Near(t, p, r, s);
-        }
+        const float E = 1e-6f;
 
-        static bool Near(Transform t, Vector3 p, Quaternion r, Vector3 s)
+        static bool Near(Transform t, Vector3 p, Quaternion r, Vector3 s) => Near(t.localPosition, p) && Near(t.localScale, s) && Near(t.localRotation, r);
+
+        static bool Near(in Vector3 a, in Vector3 b) => Mathf.Abs(a.x - b.x) <= E && Mathf.Abs(a.y - b.y) <= E && Mathf.Abs(a.z - b.z) <= E;
+
+        static bool Near(in Quaternion a, in Quaternion b)
         {
-            const float E = 1e-6f;
-            var lp = t.localPosition; var ls = t.localScale; var lr = t.localRotation;
-            bool same = Mathf.Abs(lp.x - p.x) <= E && Mathf.Abs(lp.y - p.y) <= E && Mathf.Abs(lp.z - p.z) <= E
-                        && Mathf.Abs(ls.x - s.x) <= E && Mathf.Abs(ls.y - s.y) <= E && Mathf.Abs(ls.z - s.z) <= E;
-            if (!same) return false;
-            bool q = Mathf.Abs(lr.x - r.x) <= E && Mathf.Abs(lr.y - r.y) <= E && Mathf.Abs(lr.z - r.z) <= E && Mathf.Abs(lr.w - r.w) <= E;
-            bool nq = Mathf.Abs(lr.x + r.x) <= E && Mathf.Abs(lr.y + r.y) <= E && Mathf.Abs(lr.z + r.z) <= E && Mathf.Abs(lr.w + r.w) <= E;
+            bool q = Mathf.Abs(a.x - b.x) <= E && Mathf.Abs(a.y - b.y) <= E && Mathf.Abs(a.z - b.z) <= E && Mathf.Abs(a.w - b.w) <= E;
+            bool nq = Mathf.Abs(a.x + b.x) <= E && Mathf.Abs(a.y + b.y) <= E && Mathf.Abs(a.z + b.z) <= E && Mathf.Abs(a.w + b.w) <= E;
             return q || nq;
         }
 
@@ -183,7 +225,35 @@ namespace HS2Next.Motion.Heels
             for (int i = 0; i < 6; i++)
             {
                 var t = Joints[i];
-                if (t && Unchanged(i, t)) { t.localPosition = bp[i]; t.localRotation = br[i]; t.localScale = bs[i]; }
+                if (!t) continue;
+                ReadModifier(i, t);
+                bool perChannel = hasMod[i] || hadMod[i];
+                hadMod[i] = hasMod[i];
+                if (!perChannel)
+                {
+                    if (Near(t, wp[i], wr[i], ws[i])) { t.localPosition = bp[i]; t.localRotation = br[i]; t.localScale = bs[i]; }
+                    continue;
+                }
+                // a channel the pass writes is left: it holds the pass's result
+                if (!modP[i] && Near(t.localPosition, wp[i])) t.localPosition = bp[i];
+                if (!modR[i] && Near(t.localRotation, wr[i])) t.localRotation = br[i];
+                if (!modS[i] && Near(t.localScale, ws[i])) t.localScale = bs[i];
+            }
+            written = false;
+        }
+
+        /// <summary>This stage's write off the joints, channel by channel, whatever the modifiers do on them (an edit that makes new
+        /// modifiers: they take the joint's value as their base).</summary>
+        public void TakeOff()
+        {
+            if (!written) return;
+            for (int i = 0; i < 6; i++)
+            {
+                var t = Joints[i];
+                if (!t) continue;
+                if (Near(t.localPosition, wp[i])) t.localPosition = bp[i];
+                if (Near(t.localRotation, wr[i])) t.localRotation = br[i];
+                if (Near(t.localScale, ws[i])) t.localScale = bs[i];
             }
             written = false;
         }

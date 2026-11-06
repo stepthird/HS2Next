@@ -1,18 +1,25 @@
 """
-plugin_player_check.py - the acceptance of the sample sequencer plugin in the built app player (Phase 5.1, package S).
+plugin_player_check.py - the acceptance of the sample plugins in the built app player (Phase 5.1, package S; the plugin
+kit's samples and the runtime disable / enable since Phase 6.1).
 
 Loads the sample from <exe dir>\\Plugins\\stp3.sample.sequencer\\manifest.json by the app's default discovery (no
 -pluginsDir) and checks what row 5.1 asks of it over real HTTP from outside the process: PA1-PA9 of
-(PA10-PA12 are the integrator's). It never uses the Unity Editor. Python 3.14, standard
+(PA10-PA12 are the integrator's). Since 6.1 the plugin kit's
+samples Hello and HelloUi (Samples\\PluginKit) load next to it, built against the player's own Api
+(<exe dir>\\HS2Next_Data\\Managed), and the Sequencer may be built against the Api 1.0.0 fixtures
+(--api-dir Tests\\Plugins\\fixtures\\api10: a 1.0 plugin on the 1.x host, KX4b); PK1 / PK2 call the kit samples and
+KD9 disables and enables the Sequencer at run time. It never uses the Unity Editor. Python 3.14, standard
 library only. Content: scenes hold vanilla Studio items only; no image is written or opened (saves use the placeholder
 thumbnail, nothing is captured).
 
 Usage (the run_tests.ps1 row PluginCheck.player calls the first form):
     python -I Tools\\plugin_player_check.py --exe <path to HS2Next.exe> --project <project root> --out <dir>
                                             [--port 17394] [--timeout-min 20]
-    more options: --only PA1,PA4,... (default all), --cycles 20 (PA7 measured cycles), --warmup 2, --measure-frames 600,
-                  --keep-staged (leave the staged files), --no-build (stage the existing build), --api-dir <dir> (build
-                  against another HS2Next.Api.dll folder), --min-free-gb 8, --ram-wait-min 10, --ready-timeout-min 12,
+    more options: --only PA1,PK1,KD9,... (default all), --cycles 20 (PA7 measured cycles), --warmup 2,
+                  --measure-frames 600, --keep-staged (leave the staged files), --no-build (stage the existing builds),
+                  --api-dir <dir> (build the Sequencer against another HS2Next.Api.dll folder, e.g. the 1.0 fixtures),
+                  --kit-api-dir <dir> (the kit samples' Api folder; default <exe dir>\\HS2Next_Data\\Managed), --no-kit
+                  (the Sequencer alone, as at 5.1), --min-free-gb 8, --ram-wait-min 10, --ready-timeout-min 12,
                   --attach (use a player already serving on --port with the sample loaded: no build, stage, start or quit)
     --make-fixture   instead of the checks: build Tests\\Plugins\\fixtures\\sequence_scene.hs2nscene through the bridge (two
                      vanilla items, a sequence of 2 transform tracks, a camera track and 3 events; fixed clock and the
@@ -22,21 +29,23 @@ Usage (the run_tests.ps1 row PluginCheck.player calls the first form):
 Run:
   1. Setup: the exe, <project>\\Config\\settings.local.json and the fixture exist, the port is free, no process of the game
      gate runs (Tools\\session_gate.json, a local file; without it there is no game gate and a WARN line says so), and
-     <exe dir>\\Plugins\\ holds no plugin GUID outside the test set (the manifests under Samples\\ and
-     Tests\\Plugins\\): otherwise exit 2 before anything is staged. Waits up to --ram-wait-min for --min-free-gb of RAM.
-  2. Tools\\plugins.ps1 builds the sample, verifies its references (exactly netstandard, HS2Next.Api, Newtonsoft.Json) and
-     stages it into <exe dir>\\Plugins\\ (plain file copies; -Report lists the files it wrote). The fixture is copied to
-     <out>\\userdata\\scene\\.
+     <exe dir>\\Plugins\\ holds no plugin GUID outside the test set (the manifests of Samples\\<name>\\,
+     Samples\\PluginKit\\<name>\\ and Tests\\Plugins\\<name>\\): otherwise exit 2 before anything is staged. Waits up to
+     --ram-wait-min for --min-free-gb of RAM.
+  2. Tools\\plugins.ps1 builds the samples, verifies their references (the Sequencer exactly netstandard, HS2Next.Api,
+     Newtonsoft.Json; Hello and HelloUi exactly netstandard, HS2Next.Api) and stages them into <exe dir>\\Plugins\\ (plain
+     file copies; -Report lists the files it wrote). The fixture is copied to <out>\\userdata\\scene\\.
   3. Starts the player: <exe> -batchmode -bridgePort <port> -bridgeAllowQuit -settings <project>\\Config\\settings.local.json
      -cacheDir <project>\\Cache -userData <out>\\userdata -bridgeOutputDir <out>\\bridge_out -logFile <out>\\player.log, with
      HS2NEXT_NO_PLUGINS removed from its environment (and HS2NEXT_PRIVATE_OFF=1). Ready = ping.appReady and
      <out>\\userdata\\Bridge\\endpoint.json naming the started PID.
-  4. PA1-PA8, then app.quit (PA9). Past --timeout-min the script kills only the PID it started.
+  4. PA1, PA2, PK1, PK2, PA3-PA8, KD9, then app.quit (PA9). Past --timeout-min the script kills only the PID it started.
   5. Removes exactly the files it staged (and the folders it created, when empty).
 
 Checks (one report line each):
   SETUP  ready time, versions, the staged files
-  PA1    bridge.version.plugins lists the sample {guid, version 0.1.0, state loaded} (and only test-set plugins);
+  PA1    bridge.version.plugins lists the sample {guid, version 0.1.0, state loaded} and the kit's two samples (version
+         0.1.0, loaded; not with --no-kit), and only test-set plugins;
          plugin.list's dir is <exe dir>\\Plugins\\stp3.sample.sequencer
   PA2    help lists exactly the 8 seq.* commands, owner and group = the GUID
   PA3    plugin.list counts >= 5 event subscriptions; seq.status follows scene.load (3 tracks) and scene.new (none)
@@ -48,7 +57,8 @@ Checks (one report line each):
          {ns: GUID, scope: scene, root: "", version: 1, required: false}
   PA6    delete of a tracked item turns its track off, undo turns it on again
   PA7    leak rows: cycles of scene.load (fixture) -> seq.play -> 60 frames -> seq.stop -> scene.new, 2 warm-up + 20
-         measured, plugin.list {diagnostics: true} after each: managed bytes <= cycle 0 + 2 MiB, materials / meshes /
+         measured, plugin.list {diagnostics: true} after each: managed bytes: least-squares slope over the measured cycles x
+         cycles <= 2 MiB (one jump near the end passes, steady growth fails; --selftest), materials / meshes /
          textures / render textures <= cycle 0 + 2, gameObjects never above cycle 0's (a cycle below it only where the
          catalog's rate-limited UnloadUnusedAssets started: app.perf unloadUnused.started, the census names the objects),
          seq.status.tracks empty, the plugin's
@@ -56,7 +66,12 @@ Checks (one report line each):
   PA8    seq.measure over 8 items, 600 frames, UI off: PM1-PM5 recorded, and PM1b (an inline read of one item node's transform,
          scene.doc {key, capture: false}) as information; the line shows whether the threshold (PM1 median > 100 us
          or PM3 median > 1.0 ms) is crossed (what follows for the view is decided by hand)
-  PA9    app.quit: the plugin's "unloaded" log line in player.log, exit code 0
+  PK1    hello.greet {name: "player"} answers "Hello, player!" with the scene's object count; without a name "Hello, world!"
+  PK2    helloui.read of the panel form has its 5 values; a commit write of size, a write of an item's weight and
+         helloui.reset read back; plugin.list counts the sample's 2 forms (ui.forms; a player without UI counts, not draws)
+  KD9    plugin.disable of the Sequencer (fixture loaded): state disabled, its commands gone; plugin.enable: state loaded,
+         its registration counts as before, seq.get byte-equal to before (the scene's block read again); the times
+  PA9    app.quit: the plugin's "unloaded" log line in player.log (one more after KD9's disable), exit code 0
   LOG    exceptions in player.log (WARN only)
   CLEAN  the staged files removed
 
@@ -76,6 +91,7 @@ import http.client
 import json
 import math
 import os
+import random
 import shutil
 import socket
 import subprocess
@@ -88,6 +104,11 @@ from datetime import datetime, timezone
 
 GUID = "stp3.sample.sequencer"
 VERSION = "0.1.0"
+# the plugin kit's samples: (GUID, project folder under the repository, assembly); version 0.1.0, apiVersion 1.1
+KIT = [("stp3.sample.hello", os.path.join("Samples", "PluginKit", "Hello"), "Stp3.SampleHello.dll"),
+       ("stp3.sample.helloui", os.path.join("Samples", "PluginKit", "HelloUi"), "Stp3.SampleHelloUi.dll")]
+KIT_VERSION = "0.1.0"
+HELLOUI_KEYS = ["enabled", "mode", "note", "size", "tint"]
 SEQ_COMMANDS = ["seq.get", "seq.measure", "seq.pause", "seq.play", "seq.seek", "seq.set", "seq.status", "seq.stop"]
 DEFAULT_PORT = 17394
 ITEM_NO = 399
@@ -342,9 +363,9 @@ def manifest_guid(folder):
 
 
 def test_set(project):
-    """GUIDs of the plugin projects in the repository (Samples\\*, Tests\\Plugins\\*), lower case."""
+    """GUIDs of the plugin projects in the repository (Samples\\*, Samples\\PluginKit\\*, Tests\\Plugins\\*), lower case."""
     out = set()
-    for base in (os.path.join(project, "Samples"), os.path.join(project, "Tests", "Plugins")):
+    for base in (os.path.join(project, "Samples"), os.path.join(project, "Samples", "PluginKit"), os.path.join(project, "Tests", "Plugins")):
         if not os.path.isdir(base):
             continue
         for d in os.listdir(base):
@@ -405,6 +426,8 @@ class Ctx:
         self.dirs_before = set()
         self.only = set(x.strip().upper() for x in a.only.split(",")) if a.only else None
         self.deadline = None
+        self.guids = [GUID] + ([] if a.no_kit else [g for g, _, _ in KIT])
+        self.extra_unloads = 0
 
     def want(self, cid):
         return self.only is None or cid in self.only
@@ -468,6 +491,9 @@ def preflight(C):
     C.info["testSet"] = sorted(allowed)
     if GUID not in allowed:
         raise SetupError("the sample's manifest (Samples\\Sequencer\\manifest.json) was not found")
+    missing = [g for g in C.guids if g not in allowed]
+    if missing:
+        raise SetupError("the kit samples' manifests (Samples\\PluginKit\\*\\manifest.json) were not found: %s" % ", ".join(missing))
     foreign, others = [], []
     if os.path.isdir(C.plugins_dir):
         for d in sorted(os.listdir(C.plugins_dir)):
@@ -479,7 +505,7 @@ def preflight(C):
                 continue
             if g.lower() not in allowed:
                 foreign.append(g or d)
-            elif g.lower() != GUID:
+            elif g.lower() not in C.guids:
                 others.append(g)
     C.info["otherTestPlugins"] = others
     if foreign:
@@ -499,20 +525,27 @@ def preflight(C):
 def build_and_stage(C):
     a = C.a
     tool = os.path.join(C.project, "Tools", "plugins.ps1")
-    sample = os.path.join(C.project, "Samples", "Sequencer")
-    dll = os.path.join(sample, "bin", "Release", "netstandard2.1", "Stp3.SampleSequencer.dll")
-    if not a.no_build:
-        args = ["-Build", sample] + (["-ApiDir", a.api_dir] if a.api_dir else [])
-        code, out = ps_file(tool, args)
-        C.info["build"] = out[-2000:]
+    kit_api = a.kit_api_dir or os.path.join(os.path.dirname(C.exe), "HS2Next_Data", "Managed")
+    plan = [(GUID, os.path.join("Samples", "Sequencer"), "Stp3.SampleSequencer.dll", a.api_dir)]
+    if not a.no_kit:
+        plan += [(g, rel, dll, kit_api) for g, rel, dll in KIT]
+    C.info["build"], C.info["verify"], C.info["apiDirs"] = {}, {}, {}
+    for guid, rel, dll_name, api in plan:
+        src = os.path.join(C.project, rel)
+        dll = os.path.join(src, "bin", "Release", "netstandard2.1", dll_name)
+        C.info["apiDirs"][guid] = api or "Library\\ScriptAssemblies"
+        if not a.no_build:
+            args = ["-Build", src] + (["-ApiDir", api] if api else [])
+            code, out = ps_file(tool, args)
+            C.info["build"][guid] = out[-2000:]
+            if code != 0:
+                raise SetupError("plugins.ps1 -Build %s failed (exit %s): %s" % (rel, code, out.strip()[-400:]))
+        if not os.path.isfile(dll):
+            raise SetupError("%s was not built: %s" % (guid, dll))
+        code, out = ps_file(tool, ["-Verify", dll])
+        C.info["verify"][guid] = out.strip()
         if code != 0:
-            raise SetupError("plugins.ps1 -Build failed (exit %s): %s" % (code, out.strip()[-400:]))
-    if not os.path.isfile(dll):
-        raise SetupError("the sample's DLL was not built: %s" % dll)
-    code, out = ps_file(tool, ["-Verify", dll])
-    C.info["verify"] = out.strip()
-    if code != 0:
-        raise SetupError("plugins.ps1 -Verify failed: %s" % out.strip()[-400:])
+            raise SetupError("plugins.ps1 -Verify failed: %s" % out.strip()[-400:])
     # Folders this run creates (removed afterwards when empty); none of the path may be a reparse point.
     probe = C.plugins_dir
     while probe and not os.path.exists(probe):
@@ -522,21 +555,22 @@ def build_and_stage(C):
         if is_reparse(p):
             raise SetupError("a reparse point lies on the plugin path: %s" % p)
         p = os.path.dirname(p)
-    for d in (C.plugins_dir, os.path.join(C.plugins_dir, GUID)):
+    C.targets = [os.path.join(C.plugins_dir, g) for g in C.guids]
+    for d in [C.plugins_dir] + C.targets:
         if not os.path.exists(d):
             C.created_dirs.append(d)
     before = {}
-    target = os.path.join(C.plugins_dir, GUID)
     C.dirs_before = set()
-    if os.path.isdir(target):
-        for root, dirs, files in os.walk(target):
-            C.dirs_before.add(os.path.normcase(os.path.abspath(root)))
-            for f in files:
-                before[os.path.abspath(os.path.join(root, f))] = True
+    for target in C.targets:
+        if os.path.isdir(target):
+            for root, dirs, files in os.walk(target):
+                C.dirs_before.add(os.path.normcase(os.path.abspath(root)))
+                for f in files:
+                    before[os.path.abspath(os.path.join(root, f))] = True
     report = os.path.join(C.out, "stage_report.txt")
     if os.path.exists(report):
         os.remove(report)
-    code, out = ps_file(tool, ["-Stage", C.plugins_dir, "-Only", GUID, "-Report", report])
+    code, out = ps_file(tool, ["-Stage", C.plugins_dir, "-Only", ",".join(C.guids), "-Report", report])
     C.info["stage"] = out.strip()[-2000:]
     if code != 0:
         raise SetupError("plugins.ps1 -Stage failed (exit %s): %s" % (code, out.strip()[-400:]))
@@ -548,19 +582,24 @@ def build_and_stage(C):
     C.staged = [x for x in staged if os.path.abspath(x) not in before]
     C.info["staged"] = staged
     C.info["preexisting"] = sorted(before)
-    if not os.path.isfile(os.path.join(target, "manifest.json")):
-        raise SetupError("nothing staged at %s" % target)
+    for target in C.targets:
+        if not os.path.isfile(os.path.join(target, "manifest.json")):
+            raise SetupError("nothing staged at %s" % target)
 
 
 def unstage(C):
     if C.a.keep_staged or C.a.attach or not C.plugins_dir:
         return
-    target = os.path.normcase(os.path.abspath(os.path.join(C.plugins_dir, GUID)))
+    targets = [os.path.normcase(os.path.abspath(t)) for t in (getattr(C, "targets", None) or [os.path.join(C.plugins_dir, GUID)])]
+
+    def owner(path):
+        return next((t for t in targets if path == t or path.startswith(t + os.sep)), None)
+
     removed, failed = [], []
     for f in C.staged:
         full = os.path.abspath(f)
-        if not os.path.normcase(full).startswith(target + os.sep):
-            failed.append(full + " (outside the plugin folder: left)")
+        if owner(os.path.normcase(full)) is None:
+            failed.append(full + " (outside the plugin folders: left)")
             continue
         try:
             if os.path.isfile(full) and not is_reparse(full):
@@ -572,7 +611,8 @@ def unstage(C):
     made = set()
     for f in C.staged:
         d = os.path.normcase(os.path.dirname(os.path.abspath(f)))
-        while d.startswith(target) and d not in getattr(C, "dirs_before", set()):
+        t = owner(d)
+        while t and d.startswith(t) and d not in getattr(C, "dirs_before", set()):
             made.add(d)
             d = os.path.dirname(d)
     made.update(os.path.normcase(os.path.abspath(d)) for d in C.created_dirs)
@@ -664,8 +704,9 @@ def setup(C):
     v = C.call({"cmd": "bridge.version"})
     C.info["ping"] = {k: p.get(k) for k in ("protocol", "app", "bridge", "api", "frame", "screen")}
     C.info["version"] = {k: v.get(k) for k in v if k not in ("ok", "cmd")}
-    C.R.add("SETUP", "PASS", "ready in %.1f s (pid %s, port %d); api %s; staged %d file(s)%s"
-            % (ready_s, C.pid, C.port, p.get("api"), len(C.staged),
+    C.R.add("SETUP", "PASS", "ready in %.1f s (pid %s, port %d); api %s; built against %s; staged %d file(s)%s"
+            % (ready_s, C.pid, C.port, p.get("api"),
+               ", ".join("%s: %s" % (g, d) for g, d in (C.info.get("apiDirs") or {}).items()) or "(attached)", len(C.staged),
                ("; other test plugins present: " + ", ".join(C.info.get("otherTestPlugins") or [])) if C.info.get("otherTestPlugins") else ""),
             readySeconds=round(ready_s, 2))
 
@@ -697,11 +738,13 @@ def quit_player(C):
     except OSError:
         pass
     unload = [l for l in lines if ("[plugin " + GUID + "]") in l and l.rstrip().endswith("unloaded")]
-    ok = reply is not None and reply.get("quitting") is True and not killed and code == 0 and len(unload) == 1
+    want = 1 + C.extra_unloads
+    ok = reply is not None and reply.get("quitting") is True and not killed and code == 0 and len(unload) == want
     C.R.add("PA9", "PASS" if ok else "FAIL",
             "app.quit %s; exit code %s in %.1f s%s; the plugin's unload line %s"
             % ("answered quitting:true" if reply and reply.get("quitting") else "failed (%s)" % err, code, dt,
-               "; killed after 60 s" if killed else "", ("found: " + unload[0].strip()[:120]) if len(unload) == 1 else "seen %d times" % len(unload)),
+               "; killed after 60 s" if killed else "", ("found %d (%s): %s" % (len(unload), "quit and KD9's disable" if want == 2 else "quit", unload[-1].strip()[:120]))
+               if len(unload) == want else "seen %d times, expected %d" % (len(unload), want)),
             exitCode=code, seconds=round(dt, 2), killed=killed, pluginLines=lines[-20:])
 
 
@@ -757,23 +800,32 @@ def sample_frame(C, keys):
 
 # ---------------------------------------------------------------- the checks
 
+def entry_of(pl, guid):
+    for p in pl.get("plugins") or []:
+        if str(p.get("guid", "")).lower() == guid:
+            return p
+    return None
+
+
 def pa1(C):
     v = C.call({"cmd": "bridge.version"})
     plugins = v.get("plugins") or []
-    mine = [p for p in plugins if str(p.get("guid", "")).lower() == GUID]
-    allowed = set(C.info.get("testSet") or [GUID])
+    by = {str(p.get("guid", "")).lower(): p for p in plugins}
+    want = {GUID: VERSION}
+    want.update({g: KIT_VERSION for g in C.guids if g != GUID})
+    bad = [g for g, ver in want.items() if not (by.get(g) and by[g].get("version") == ver and by[g].get("state") == "loaded")]
+    allowed = set(C.info.get("testSet") or want)
     others = [p for p in plugins if str(p.get("guid", "")).lower() not in allowed]
     pl = C.call({"cmd": "plugin.list"})
     e = plugin_entry(pl) or {}
     want_dir = os.path.normcase(os.path.abspath(os.path.join(C.plugins_dir, GUID))) if C.plugins_dir else None
     got_dir = os.path.normcase(os.path.abspath(e.get("dir"))) if e.get("dir") else None
-    ok = (len(mine) == 1 and mine[0].get("version") == VERSION and mine[0].get("state") == "loaded" and not others
-          and (want_dir is None or got_dir == want_dir) and pl.get("source") in (None, "settings"))
+    ok = (not bad and not others and (want_dir is None or got_dir == want_dir) and pl.get("source") in (None, "settings"))
     C.info["pluginList"] = pl
     C.R.add("PA1", "PASS" if ok else "FAIL",
-            "bridge.version.plugins %s; plugin.list dir %s (%s), root %s, source %s"
-            % (json.dumps(plugins), e.get("dir"), "next to the exe" if got_dir == want_dir else "expected " + str(want_dir),
-               pl.get("root"), pl.get("source")),
+            "%d of %d expected plugins loaded%s; bridge.version.plugins %s; plugin.list dir %s (%s), root %s, source %s"
+            % (len(want) - len(bad), len(want), (" (not loaded: %s)" % ", ".join(bad)) if bad else "", json.dumps(plugins),
+               e.get("dir"), "next to the exe" if got_dir == want_dir else "expected " + str(want_dir), pl.get("root"), pl.get("source")),
             plugins=plugins)
 
 
@@ -922,6 +974,63 @@ def census_diff(a, b):
     return " (" + "; ".join(parts) + ")"
 
 
+def managed_growth(series, budget=2 * MIB):
+    """PA7's managed memory: the samples of the measured cycles (cycle 0 first), in bytes or any one unit with the budget.
+    The least-squares slope per cycle times the number of cycles must stay within the budget, so that a leak fails however it
+    is spread and one jump near the end of a flat series does not. Returns (ok, slope per cycle, slope x cycles). With fewer than
+    two samples nothing has grown."""
+    n = len(series)
+    cycles = n - 1
+    if cycles < 1:
+        return True, 0.0, 0.0
+    mean_x = cycles / 2.0
+    mean_y = sum(series) / float(n)
+    sxx = sum((x - mean_x) ** 2 for x in range(n))
+    sxy = sum((x - mean_x) * (y - mean_y) for x, y in enumerate(series))
+    slope = sxy / sxx
+    grown = slope * cycles
+    return grown <= budget, slope, grown
+
+
+def selftest():
+    """The worked series of managed_growth, in MiB; no player. Returns the failure count."""
+    rng = random.Random(63)
+    n = 21
+    half = n // 2
+    cases = [
+        # name, series, expected verdict, expected slope x cycles (None: not checked)
+        ("one jump of +2.36 at the last of 21 samples", [0.0] * (n - 1) + [2.36], True, 20 * (10 * 2.36) / 770),
+        ("growth of 0.15 per cycle", [0.15 * i for i in range(n)], False, 3.0),
+        ("noise +-0.14, alternating", [0.14 * (-1) ** i for i in range(n)], True, 0.0),
+        ("noise +-0.14, the worst arrangement (- then +)", [-0.14 if i < half else (0.0 if i == half else 0.14) for i in range(n)], True, 0.4),
+        ("noise +-0.14, seeded", [rng.choice((-0.14, 0.14)) for _ in range(n)], True, None),
+        ("flat", [5.0] * n, True, 0.0),
+        ("a jump and back, late", [0.0] * (n - 3) + [2.36, -5.59 + 2.36, 0.0], True, None),
+        ("growth just under the budget", [0.0999 * i for i in range(n)], True, 1.998),
+        ("growth just over the budget", [0.1001 * i for i in range(n)], False, 2.002),
+        ("a jump of +2.36 at sample 1 that stays", [0.0] + [2.36] * (n - 1), True, 20 * (10 * 2.36) / 770),
+        ("a jump of +2.36 at the middle that stays", [0.0] * half + [2.36] * (n - half), False, 20 * (55 * 2.36) / 770),
+        ("two cycles: the last minus the first", [0.0, 3.0], False, 3.0),
+        ("a shrinking series", [3.0 - 0.1 * i for i in range(n)], True, -2.0),
+        ("one sample", [7.0], True, 0.0),
+        ("no sample", [], True, 0.0),
+    ]
+    bad = 0
+    for name, series, want, want_grown in cases:
+        ok, slope, grown = managed_growth(series, 2.0)
+        fine = ok == want and (want_grown is None or abs(grown - want_grown) < 1e-9)
+        bad += 0 if fine else 1
+        print("%s %s: slope %+.4f MiB per cycle, x cycles %+.3f MiB: %s" % ("PASS" if fine else "FAIL", name, slope, grown, "pass" if ok else "fail"))
+    # the same verdict in bytes, with the default budget (what pa7 calls)
+    ok_b = managed_growth([b * MIB for b in [0.0] * 20 + [2.36]])[0]
+    fail_b = managed_growth([0.15 * i * MIB for i in range(21)])[0]
+    fine = ok_b and not fail_b
+    bad += 0 if fine else 1
+    print("%s in bytes with the default budget: jump %s, growth %s" % ("PASS" if fine else "FAIL", ok_b, fail_b))
+    print("SUMMARY: %d PASS, %d FAIL" % (len(cases) + 1 - bad, bad))
+    return bad
+
+
 def pa7(C):
     a = C.a
     log_since = C.call({"cmd": "log.tail", "n": 1}).get("last") or 0
@@ -955,11 +1064,14 @@ def pa7(C):
         v = r["diag"].get(k)
         return v if isinstance(v, (int, float)) else None
 
-    if num(base, "managedBytes") is None:
+    managed = [num(r, "managedBytes") for r in measured]
+    slope, grown = 0.0, 0.0
+    if any(m is None for m in managed):
         fails.append("plugin.list {diagnostics: true} has no managedBytes")
     else:
-        if num(last, "managedBytes") > num(base, "managedBytes") + 2 * MIB:
-            fails.append("managed %+d bytes" % (num(last, "managedBytes") - num(base, "managedBytes")))
+        managed_ok, slope, grown = managed_growth(managed)
+        if not managed_ok:
+            fails.append("managed slope %+.3f MiB per cycle x %d cycles = %+.2f MiB (budget 2)" % (slope / MIB, len(managed) - 1, grown / MIB))
         for k in ("materials", "meshes", "textures", "renderTextures"):
             if num(last, k) is None or num(last, k) > num(base, k) + 2:
                 fails.append("%s %s -> %s" % (k, num(base, k), num(last, k)))
@@ -996,9 +1108,9 @@ def pa7(C):
         fails.append("%d plugin warnings (first: %s)" % (len(warnings), warnings[0][:120]))
     db = (num(last, "managedBytes") or 0) - (num(base, "managedBytes") or 0)
     C.R.add("PA7", "PASS" if not fails else "FAIL",
-            "%d warm-up + %d measured cycles; managed %+.2f MiB; gameObjects %s; materials %s -> %s, meshes %s -> %s, textures %s -> %s, "
-            "render textures %s -> %s; registrations %s%s"
-            % (a.warmup, a.cycles, db / MIB, num(last, "gameObjects"), num(base, "materials"), num(last, "materials"),
+            "%d warm-up + %d measured cycles; managed last - first %+.2f MiB, slope x cycles %+.2f MiB (budget 2); gameObjects %s; materials %s -> %s, "
+            "meshes %s -> %s, textures %s -> %s, render textures %s -> %s; registrations %s%s"
+            % (a.warmup, a.cycles, db / MIB, grown / MIB, num(last, "gameObjects"), num(base, "materials"), num(last, "materials"),
                num(base, "meshes"), num(last, "meshes"), num(base, "textures"), num(last, "textures"),
                num(base, "renderTextures"), num(last, "renderTextures"), owned[0] if owned else "-",
                ("; " + "; ".join(fails)) if fails else "")
@@ -1046,6 +1158,92 @@ def check_log(C):
     plug = [l for l in lines if "[plugin " + GUID in l]
     C.R.add("LOG", "WARN" if exc else "PASS", "player.log %d lines; %d with 'Exception'%s; %d lines of the plugin"
             % (len(lines), len(exc), (" (first: %s)" % exc[0][:160]) if exc else "", len(plug)), exceptions=exc[:20])
+
+
+# ---------------------------------------------------------------- the plugin kit's samples and the runtime disable / enable
+
+def pk1(C):
+    if C.a.no_kit:
+        C.R.add("PK1", "WARN", "not run (--no-kit)")
+        return
+    r = C.call({"cmd": "hello.greet", "name": "player"}, check=False)
+    n = len(C.call({"cmd": "scene"}).get("objects") or [])
+    r2 = C.call({"cmd": "hello.greet"}, check=False)
+    ok = (r.get("ok") and r.get("text") == "Hello, player!" and r.get("objects") == n and r2.get("ok")
+          and r2.get("text") == "Hello, world!")
+    C.R.add("PK1", "PASS" if ok else "FAIL", "hello.greet {name: player} -> %s, objects %s (the scene has %d); without a name -> %s"
+            % (json.dumps(r.get("text") if r.get("ok") else r.get("error")), r.get("objects"), n,
+               json.dumps(r2.get("text") if r2.get("ok") else r2.get("error"))), replies=[r, r2])
+
+
+def forms_count(e):
+    ui = e.get("ui")
+    if isinstance(ui, dict) and "forms" in ui:
+        f = ui.get("forms")
+    else:
+        f = e.get("ui.forms", e.get("forms"))
+    if isinstance(f, list):
+        return len(f)
+    return f if isinstance(f, int) else None
+
+
+def pk2(C):
+    if C.a.no_kit:
+        C.R.add("PK2", "WARN", "not run (--no-kit)")
+        return
+    def read(form, node=None):
+        q = {"cmd": "helloui.read", "form": form}
+        if node:
+            q["node"] = node
+        return C.call(q).get("values") or {}
+    v0 = read("settings")
+    C.call({"cmd": "helloui.write", "form": "settings", "key": "size", "value": 3.5, "phase": "commit", "undo": False})
+    v1 = read("settings")
+    C.call({"cmd": "helloui.write", "form": "tag", "node": "pk2-node", "key": "weight", "value": 0.25, "phase": "commit", "undo": False})
+    t1 = read("tag", "pk2-node")
+    C.call({"cmd": "helloui.reset", "form": "settings", "key": "reset"})
+    v2 = read("settings")
+    bad = C.call({"cmd": "helloui.write", "form": "settings", "key": "mode", "value": "loud", "phase": "commit", "undo": False}, check=False)
+    e = entry_of(C.call({"cmd": "plugin.list"}), "stp3.sample.helloui") or {}
+    forms = forms_count(e)
+    ok = (sorted(v0) == HELLOUI_KEYS and v0.get("size") == 1 and v1.get("size") == 3.5 and t1.get("weight") == 0.25
+          and v2.get("size") == 1 and not bad.get("ok") and bad.get("code") == "bad_args" and forms in (2, None))
+    verdict = "PASS" if ok and forms == 2 else ("WARN" if ok else "FAIL")
+    C.R.add("PK2", verdict, "helloui.read settings keys %s, size %s -> write 3.5 -> %s -> reset -> %s; tag weight of a node %s; "
+            "a bad mode -> %s; plugin.list forms %s"
+            % (",".join(sorted(v0)), v0.get("size"), v1.get("size"), v2.get("size"), t1.get("weight"), bad.get("code"),
+               forms if forms is not None else "not reported"), entry=e)
+
+
+def kd9(C):
+    load_fixture(C)
+    before = raw_member(C.text({"cmd": "seq.get"}), "sequence")
+    c0 = owned_counts(C.call({"cmd": "plugin.list"}))
+    t = time.perf_counter()
+    d = C.call({"cmd": "plugin.disable", "guid": GUID}, check=False)
+    d_ms = (time.perf_counter() - t) * 1000
+    if d.get("ok"):
+        C.extra_unloads = 1
+    c1 = owned_counts(C.call({"cmd": "plugin.list"}))
+    gone = C.call({"cmd": "seq.get"}, check=False)
+    t = time.perf_counter()
+    en = C.call({"cmd": "plugin.enable", "guid": GUID}, check=False)
+    e_ms = (time.perf_counter() - t) * 1000
+    c2 = owned_counts(C.call({"cmd": "plugin.list"}))
+    after = raw_member(C.text({"cmd": "seq.get"}), "sequence") if en.get("ok") else None
+    ok = (d.get("ok") and d.get("state") == "disabled" and c1.get("state") == "disabled" and c1.get("commands") == 0
+          and not gone.get("ok") and en.get("ok") and en.get("state") == "loaded" and c2 == c0 and before is not None
+          and after == before)
+    C.R.add("KD9", "PASS" if ok else "FAIL",
+            "plugin.disable -> %s (%s; reply ms %s, round trip %.1f ms); then %d commands, seq.get %s; plugin.enable -> %s "
+            "(%s; reply ms %s, round trip %.1f ms, extBlocks %s, warnings %d); counts before / after %s / %s; seq.get %s"
+            % (d.get("state") if d.get("ok") else d.get("code"), c1.get("state"), d.get("ms"), d_ms, c1.get("commands") or 0,
+               "refused (%s)" % gone.get("code") if not gone.get("ok") else "still answers",
+               en.get("state") if en.get("ok") else "%s %s" % (en.get("code"), json.dumps(en.get("detail"))[:120]),
+               c2.get("state"), en.get("ms"), e_ms, en.get("extBlocks"), len(en.get("warnings") or []),
+               json.dumps(c0, sort_keys=True), json.dumps(c2, sort_keys=True),
+               "byte-equal (%d bytes)" % len(before) if before is not None and after == before else "differs"),
+            disable=d, enable=en, before=c0, during=c1, after=c2)
 
 
 # ---------------------------------------------------------------- the fixture
@@ -1107,25 +1305,33 @@ def main(argv):
             s.reconfigure(encoding="utf-8", errors="replace")
         except (AttributeError, ValueError):
             pass
-    ap = argparse.ArgumentParser(description="The sample sequencer plugin's acceptance (PA1-PA9) in the HS2Next app player.")
+    ap = argparse.ArgumentParser(description="The sample plugins' acceptance (PA1-PA9, PK1, PK2, KD9) in the HS2Next app player.")
     ap.add_argument("--exe", help="path to HS2Next.exe (the built app player)")
     ap.add_argument("--project", help="project root (Config\\settings.local.json, Cache, Samples, Tests\\Plugins, Tools\\plugins.ps1)")
-    ap.add_argument("--out", required=True, help="output folder (report, json, player.log, userdata, bridge_out)")
+    ap.add_argument("--out", help="output folder (report, json, player.log, userdata, bridge_out); required but with --selftest")
+    ap.add_argument("--selftest", action="store_true", help="PA7's managed memory rule on its worked series; no player, exit 1 on a failure")
     ap.add_argument("--port", type=int, default=DEFAULT_PORT)
     ap.add_argument("--timeout-min", type=float, default=20.0, help="whole run; past it the started PID is killed")
     ap.add_argument("--ready-timeout-min", type=float, default=12.0)
-    ap.add_argument("--only", default="", help="comma list of PA1..PA8 (PA9 always runs when the player was started)")
+    ap.add_argument("--only", default="", help="comma list of PA1..PA8, PK1, PK2, KD9 (PA9 always runs when the player was started)")
     ap.add_argument("--cycles", type=int, default=20, help="PA7 measured cycles")
     ap.add_argument("--warmup", type=int, default=2, help="PA7 warm-up cycles")
     ap.add_argument("--measure-frames", type=int, default=600)
     ap.add_argument("--keep-staged", action="store_true", help="leave the staged plugin files in <exe dir>\\Plugins")
     ap.add_argument("--no-build", action="store_true", help="stage the existing build of the sample")
-    ap.add_argument("--api-dir", help="build against the HS2Next.Api.dll in this folder (plugins.ps1 -ApiDir)")
+    ap.add_argument("--api-dir", help="build the Sequencer against the HS2Next.Api.dll in this folder (plugins.ps1 -ApiDir), "
+                    "e.g. Tests\\Plugins\\fixtures\\api10")
+    ap.add_argument("--kit-api-dir", help="the Api folder of the kit samples (default: <exe dir>\\HS2Next_Data\\Managed)")
+    ap.add_argument("--no-kit", action="store_true", help="the Sequencer alone, as at 5.1 (no Hello / HelloUi, PK1 / PK2 not run)")
     ap.add_argument("--min-free-gb", type=float, default=8.0)
     ap.add_argument("--ram-wait-min", type=float, default=10.0)
     ap.add_argument("--attach", action="store_true", help="use a player already serving on --port (no build, stage, start or quit)")
     ap.add_argument("--make-fixture", action="store_true", help="write Tests\\Plugins\\fixtures\\sequence_scene.hs2nscene instead of checking")
     a = ap.parse_args(argv)
+    if a.selftest:
+        return 1 if selftest() else 0
+    if not a.out:
+        ap.error("--out is required (unless --selftest)")
     if not a.attach and (not a.exe or not a.project):
         ap.error("--exe and --project are required (unless --attach)")
     if a.make_fixture and not a.project:
@@ -1158,8 +1364,8 @@ def main(argv):
                 if a.make_fixture:
                     guard(C, "FIXTURE", make_fixture)
                 else:
-                    for cid, fn in (("PA1", pa1), ("PA2", pa2), ("PA3", pa3), ("PA4", pa4), ("PA5", pa5), ("PA6", pa6),
-                                    ("PA7", pa7), ("PA8", pa8)):
+                    for cid, fn in (("PA1", pa1), ("PA2", pa2), ("PK1", pk1), ("PK2", pk2), ("PA3", pa3), ("PA4", pa4),
+                                    ("PA5", pa5), ("PA6", pa6), ("PA7", pa7), ("PA8", pa8), ("KD9", kd9)):
                         if C.want(cid):
                             guard(C, cid, fn)
             except Abort as e:

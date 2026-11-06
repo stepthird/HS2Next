@@ -15,12 +15,15 @@
 //     pose, dynamic bones from the stored state); without a motion handler the 2.2 behaviour: the Animator enabled iff
 //     isAnime with `anime.speed`
 //   6 pattern textures, panel image, the colour write
-//   7 options, particle play-on-load (play mode)
+//   7 material edits (ItemMaterialEdits: on top of the colours), options, particle play-on-load (play mode)
 // An exception in one part of 2–7 becomes `item.partFailed` (warning) and the item stays Built. Changes route by path
 //: ref / group / category rebuild; colours (except the pattern textures), alpha, emission, light cancel → the full
 // colour write; colors[k].pattern.item / file → pattern texture k; panel → the panel image; options → options; fk,
-// dynamicBones, anime → ItemMotionHooks.Changed. Visibility: forceRenderingOff on every own renderer (T7), particles
+// dynamicBones, anime → ItemMotionHooks.Changed; materialOverrides → a pass over the array, a rebuild when a shader name or another
+// structural member changed; material edits run again after every colour, pattern and panel write. Visibility: forceRenderingOff on every own renderer (T7), particles
 // played / paused (play mode), the icon object; lights stay on.
+// Runtime overrides (Phase 6.2): a winning `item.colors[i].main` slot of the override layer replaces that main colour in
+// every colour write (a view of the state is written; the model is not touched); a slot's change writes the colours at once.
 using System;
 using System.Collections.Generic;
 using HS2Next.Content;
@@ -33,7 +36,7 @@ namespace HS2Next.Scenes.Runtime
 {
     public sealed class ItemRealization : NodeRealization
     {
-        internal ItemRealization(SceneRuntime runtime, TreeNode node) : base(runtime, node) { }
+        internal ItemRealization(SceneRuntime runtime, TreeNode node) : base(runtime, node) { MaterialEdits = new ItemMaterialEdits(this, WriteColors); }
 
         /// <summary>The prefab instance under the holder; null unless built.</summary>
         public GameObject Instance { get; private set; }
@@ -59,6 +62,8 @@ namespace HS2Next.Scenes.Runtime
         public double BuildMilliseconds { get; private set; }
         /// <summary>The owned materials and the appearance writes.</summary>
         public ItemMaterialWriter Writer { get; } = new ItemMaterialWriter();
+        /// <summary>The material edits of `item.materialOverrides`.</summary>
+        public ItemMaterialEdits MaterialEdits { get; }
         /// <summary>What the item offers (UI gates) and its default-button values; null unless built.</summary>
         public ItemFeatures Features { get; private set; }
         /// <summary>The icon renderer (IconComponent.renderer), or null.</summary>
@@ -201,6 +206,7 @@ namespace HS2Next.Scenes.Runtime
             }
             Part("panel", LoadPanel);
             Part("colors", WriteColors);
+            Part("materialEdits", MaterialEdits.Apply);
             Part("options", ApplyOptions);
             Part("particles", PlayOnLoad);
             appliedAnimeTime = CurrentAnimeTime();
@@ -269,7 +275,38 @@ namespace HS2Next.Scenes.Runtime
 
         ResStore Res => Runtime.Session?.Model?.File?.Res;
 
-        void WriteColors() => Writer.WriteColors(St, Component, ParticleComponent, PanelComponent);
+        void WriteColors() => Writer.WriteColors(ColorsShown(), Component, ParticleComponent, PanelComponent);
+
+        /// <summary>The state the colour write reads: the model's, or a view of it with the winning colour slots' main colours.</summary>
+        ItemNodeState ColorsShown()
+        {
+            var st = St;
+            var ov = Runtime.Overrides;
+            if (st == null || !ov.HasNode(NodeId)) return st;
+            ItemColorSlot[] colors = null;
+            for (int k = 0; k < ItemNodeState.ColorCount && k < st.Colors.Length; k++)
+            {
+                var w = ov.WinnerOf(NodeId, HS2Next.Scenes.Overrides.OverrideChannel.ItemColor, k);
+                if (w == null) continue;
+                colors ??= (ItemColorSlot[])st.Colors.Clone();
+                var c = st.Colors[k];
+                colors[k] = new ItemColorSlot { Main = new Color4((float)w[0], (float)w[1], (float)w[2], (float)w[3]), Metallic = c.Metallic, Glossiness = c.Glossiness, Pattern = c.Pattern };
+            }
+            if (colors == null) return st;
+            return new ItemNodeState
+            {
+                Ref = st.Ref, Group = st.Group, Category = st.Category, Anime = st.Anime, Colors = colors, Alpha = st.Alpha, Emission = st.Emission,
+                LightCancel = st.LightCancel, Panel = st.Panel, Fk = st.Fk, DynamicBones = st.DynamicBones, Options = st.Options,
+            };
+        }
+
+        /// <summary>A colour slot of the override layer changed or went: the colours are written again at once.</summary>
+        internal void ApplyColorOverride()
+        {
+            if (State != RealizationState.Built || !Instance) return;
+            Part("colors", WriteColors);
+            Part("materialEdits", MaterialEdits.Apply);
+        }
 
         void LoadPattern(int k)
         {
@@ -353,6 +390,7 @@ namespace HS2Next.Scenes.Runtime
             if (bundleOwner != null && Services.Catalog != null) { Services.Catalog.Release(bundleOwner); Services.Catalog.NoteRealizationDestroyed(); }
             bundleOwner = null;
             if (Icon is object) ItemIcons.Unregister(Icon);
+            MaterialEdits.Release();
             Writer.Release();
         }
 
@@ -389,12 +427,17 @@ namespace HS2Next.Scenes.Runtime
                 return;
             }
             if (State != RealizationState.Built || !Instance) return;
+            if (Touches(paths, "item.materialOverrides") && MaterialEdits.NeedsRebuild)
+            {
+                Runtime.RebuildContent(this);
+                return;
+            }
             using (OwnBundles()) ApplyLoadedChanges(paths);
         }
 
         void ApplyLoadedChanges(IReadOnlyCollection<string> paths)
         {
-            bool colors = false, panel = false, options = false;
+            bool colors = false, panel = false, options = false, edits = false;
             var patterns = new bool[3];
             foreach (var p in paths)
             {
@@ -412,6 +455,7 @@ namespace HS2Next.Scenes.Runtime
                 if (FieldPath.Overlaps(p, "item.alpha") || FieldPath.Overlaps(p, "item.emission") || FieldPath.Overlaps(p, "item.lightCancel")) colors = true;
                 if (FieldPath.Overlaps(p, "item.panel")) panel = true;
                 if (FieldPath.Overlaps(p, "item.options")) options = true;
+                if (FieldPath.Overlaps(p, "item.materialOverrides")) edits = true;
             }
             for (int k = 0; k < 3; k++)
             {
@@ -420,6 +464,7 @@ namespace HS2Next.Scenes.Runtime
             }
             if (panel) Part("panel", LoadPanel);
             if (colors) Part("colors", WriteColors);
+            if (edits || colors || panel || patterns[0] || patterns[1] || patterns[2]) Part("materialEdits", MaterialEdits.Apply);
             if (options) Part("options", ApplyOptions);
 
             if (ItemMotionHooks.Changed == null)

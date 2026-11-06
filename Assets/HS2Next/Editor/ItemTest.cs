@@ -83,7 +83,7 @@ public static partial class ItemTest
         if (type == LogType.Exception) exceptions.Add(condition.Length > 300 ? condition.Substring(0, 300) : condition);
     }
 
-    /// <summary>The ids after -only ("M1,M3"; unity_batch.ps1 splits on commas, so also separate arguments up to the next flag), or null.</summary>
+    /// <summary>The ids after -only ("M1,M3", "M1+M3", or separate arguments up to the next flag), or null.</summary>
     static string[] OnlyArgs()
     {
         var a = TestArgs.Get();

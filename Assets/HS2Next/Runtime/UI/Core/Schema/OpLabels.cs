@@ -51,6 +51,15 @@ namespace HS2Next.UI.Core
         public const string MoveAccessory = "Move accessory";
         // Phase 4.6 package B: a character load with the five flags (StudioOps.LoadCharacter)
         public const string LoadCharacter = "Load character";
+        // Phase 6.3 package C: advanced pose (StudioOps.AdvancedPose)
+        public const string BoneCorrection = "Bone correction", ClearBoneCorrections = "Clear bone corrections", JiggleValues = "Jiggle values",
+            ClearJiggleValues = "Clear jiggle values", BlendShapes = "Blend shapes", ClearBlendShapes = "Clear blend shapes";
+        // Phase 6.4 package C: material edits (StudioOps.Materials)
+        public const string MaterialEdit = "Material edit", MaterialReset = "Reset material edit", MaterialClear = "Clear material edits",
+            MaterialTexture = "Material texture", MaterialShader = "Material shader", HairBoneAdjust = "Hair bone adjustment";
+        // Phase 6.5: constraints
+        public const string ConstraintAdd = "Add constraint", Constraint = "Constraint", ConstraintRemove = "Remove constraint", ConstraintClear = "Clear constraints",
+            ConstraintReorder = "Reorder constraints", ConstraintTakeOffset = "Take offset";
 
         /// <summary>Every label (for the schema test and B's parity check).</summary>
         public static readonly IReadOnlyList<string> All = new[]
@@ -68,6 +77,9 @@ namespace HS2Next.UI.Core
             EditFace, EditBody, EditHair, EditClothes, EditAccessory, RenameCharacter, EditCharacter, ChangeItem, FacePreset,
             AddAccessory, RemoveAccessory, ReorderAccessories, CopyAccessory,
             ResetValue, LoadCoordinate, MoveAccessory, LoadCharacter,
+            BoneCorrection, ClearBoneCorrections, JiggleValues, ClearJiggleValues, BlendShapes, ClearBlendShapes,
+            MaterialEdit, MaterialReset, MaterialClear, MaterialTexture, MaterialShader, HairBoneAdjust,
+            ConstraintAdd, Constraint, ConstraintRemove, ConstraintClear, ConstraintReorder, ConstraintTakeOffset,
         };
     }
 }

@@ -519,11 +519,20 @@ namespace HS2Next.App
             c.Check(queued >= 1 || map.IsCompleted, "the map.load is queued (ping.queued " + queued + ")");
             var scene = Timed("{\"cmd\":\"scene\"}");
             var ping = Timed("{\"cmd\":\"ping\"}");
-            while (!map.IsCompleted || !scene.IsCompleted || !ping.IsCompleted) yield return null;
+            var frameTimes = new List<double>();
+            while (!map.IsCompleted || !scene.IsCompleted || !ping.IsCompleted)
+            {
+                frameTimes.Add(Time.unscaledDeltaTime * 1000.0);
+                yield return null;
+            }
             double tm = map.Result, ts = scene.Result, tp = ping.Result;
-            c.Info($"map.load done at {tm:F0} ms, scene at {ts:F0} ms, ping at {tp:F0} ms");
+            // These replies carry no frame number, so the times are the clients': two replies of one frame can finish here in either
+            // order. The tolerance is one frame's time: the median of this wait, at least 1/60 s (a map's load makes single frames long).
+            frameTimes.Sort();
+            double frameMs = Math.Max(1000.0 / 60.0, frameTimes.Count > 0 ? frameTimes[frameTimes.Count / 2] : 0);
+            c.Info($"map.load done at {tm:F0} ms, scene at {ts:F0} ms, ping at {tp:F0} ms; scene - map.load {ts - tm:F3} ms, one frame {frameMs:F1} ms");
             c.Check(tm > 0 && ts > 0 && tp > 0, "all three answered ok");
-            c.Check(ts >= tm, "the scene request is answered after the waiting map.load (FIFO)", ts + " vs " + tm);
+            c.Check(ts >= tm - frameMs, "the scene request is answered after the waiting map.load (FIFO, within one frame's time)", ts + " vs " + tm + ", one frame " + frameMs);
             c.Check(tp < tm, "the ping is answered at once (before the map.load completes)", tp + " vs " + tm);
         }
     }

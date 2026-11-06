@@ -1,4 +1,4 @@
-# HS2Next 1.2.0
+# HS2Next 1.3.0
 
 HS2Next は、Honey Select 2 の内容を使うシーンとキャラクターのエディターです。Unity 6 で新しく作りました。HS2 の
 Studio の作業と、ゲーム本体のキャラクターメイクの作業を一つのウィンドウで行います。キャラクター、アイテム、マップ、
@@ -6,7 +6,7 @@ Studio の作業と、ゲーム本体のキャラクターメイクの作業を�
 ます。お手持ちの Honey Select 2 のゲームデータ、キャラカード、コーデカード、ポーズファイル、zipmod を、置いてある
 場所のまま読みます。作ったものは HS2Next 自身のファイル形式で保存します。
 
-English: [README.md](README.md)　简体中文（機械翻訳）: [README_zh-Hans.md](README_zh-Hans.md)
+English: [README.md](README.md)　简体中文: [README_zh-Hans.md](README_zh-Hans.md)
 
 ## HS2Next ではないもの
 
@@ -32,7 +32,7 @@ English: [README.md](README.md)　简体中文（機械翻訳）: [README_zh-Han
 
 ## 配布物の使い方
 
-配布の zip（`HS2Next-1.2.0-win64.zip`。隣に SHA-256 のファイルがあります）がプログラムです。好きな場所に展開して
+配布の zip（`HS2Next-1.3.0-win64.zip`。隣に SHA-256 のファイルがあります）がプログラムです。好きな場所に展開して
 `HS2Next.exe` を起動します。インストーラーはありません。コード署名をしていないので、Windows SmartScreen が一度だけ
 確認を求めることがあります（「詳細情報」を押してから「実行」）。初回の案内が、表示言語、Honey Select 2 のフォルダー、
 追加の mod のフォルダー、キャッシュのフォルダーを順に尋ね、内容の索引を作ります（mod の数とディスクによって数秒から

@@ -46,6 +46,7 @@ namespace HS2Next.Scenes.Runtime
         readonly List<Curve> curves = new List<Curve>();
         readonly List<Scroll> scrolls = new List<Scroll>();
         readonly List<Fountain> fountains = new List<Fountain>();
+        readonly HashSet<Material> driven = new HashSet<Material>();
 
         /// <summary>Map time in seconds since <see cref="Start"/>.</summary>
         public float Time { get; private set; }
@@ -89,6 +90,7 @@ namespace HS2Next.Scenes.Runtime
                 var e = new Scroll { Stub = u, Mat = m };
                 SetOffset(m, Vector2.zero);
                 scrolls.Add(e);
+                driven.Add(m);
             }
             foreach (var f in s.FountainUVs)
             {
@@ -101,6 +103,7 @@ namespace HS2Next.Scenes.Runtime
                 ms[0] = own;
                 r.sharedMaterials = ms;
                 fountains.Add(new Fountain { Stub = f, Mat = own });
+                driven.Add(own);
             }
             Time = 0f;
             Running = true;
@@ -152,10 +155,14 @@ namespace HS2Next.Scenes.Runtime
             curves.Clear();
             scrolls.Clear();
             fountains.Clear();
+            driven.Clear();
             Running = false;
             Time = 0f;
             Skipped = 0;
         }
+
+        /// <summary>True when a script rewrites the offset or scale of this texture property of <paramref name="m"/>.</summary>
+        public bool Drives(Material m, string property) => (property == "_MainTex" || property == "_BaseMap") && driven.Contains(m);
 
         /// <summary>The intensity values of the curve lights (bridge, tests), in structure order.</summary>
         public IEnumerable<(Light light, float value, float t, bool running)> CurveStates()

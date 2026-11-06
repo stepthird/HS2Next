@@ -12,7 +12,7 @@ namespace HS2Next.App.Plugins
     public enum PluginEventKind
     {
         AppReady, SceneCleared, SceneLoaded, SceneSaving, SceneSaved, NodesAdded, NodesRemoved, NodesMoved, NodeForgotten, CharaBuilt,
-        PausedChanged, SceneStepped, Quitting,
+        PausedChanged, SceneStepped, Quitting, CaptureStarting, CaptureRendered, CaptureFinished,
     }
 
     public sealed class PluginEvents : IAppEvents
@@ -36,6 +36,9 @@ namespace HS2Next.App.Plugins
         public event Action<bool> PausedChanged;
         public event Action<StepInfo> SceneStepped;
         public event Action Quitting;
+        public event Action<CaptureInfo> CaptureStarting;
+        public event Action<CaptureInfo> CaptureRendered;
+        public event Action<CaptureResultInfo> CaptureFinished;
 
         /// <summary>Events delivered (handlers called) so far.</summary>
         public int Delivered { get; private set; }
@@ -47,7 +50,8 @@ namespace HS2Next.App.Plugins
         /// <summary>The number of subscribed handlers over all events.</summary>
         public int HandlerCount =>
             Len(AppReady) + Len(SceneCleared) + Len(SceneLoaded) + Len(SceneSaving) + Len(SceneSaved) + Len(NodesAdded) + Len(NodesRemoved) +
-            Len(NodesMoved) + Len(NodeForgotten) + Len(CharaBuilt) + Len(PausedChanged) + Len(SceneStepped) + Len(Quitting);
+            Len(NodesMoved) + Len(NodeForgotten) + Len(CharaBuilt) + Len(PausedChanged) + Len(SceneStepped) + Len(Quitting) +
+            Len(CaptureStarting) + Len(CaptureRendered) + Len(CaptureFinished);
 
         static int Len(Delegate d) => d?.GetInvocationList().Length ?? 0;
 
@@ -58,6 +62,7 @@ namespace HS2Next.App.Plugins
             pending.Clear();
             AppReady = null; SceneCleared = null; SceneLoaded = null; SceneSaving = null; SceneSaved = null; NodesAdded = null; NodesRemoved = null;
             NodesMoved = null; NodeForgotten = null; CharaBuilt = null; PausedChanged = null; SceneStepped = null; Quitting = null;
+            CaptureStarting = null; CaptureRendered = null; CaptureFinished = null;
         }
 
         /// <summary>Delivers one event to this plugin's handlers (queued when one of them is running).</summary>
@@ -100,6 +105,9 @@ namespace HS2Next.App.Plugins
                 PluginEventKind.PausedChanged => PausedChanged,
                 PluginEventKind.SceneStepped => SceneStepped,
                 PluginEventKind.Quitting => Quitting,
+                PluginEventKind.CaptureStarting => CaptureStarting,
+                PluginEventKind.CaptureRendered => CaptureRendered,
+                PluginEventKind.CaptureFinished => CaptureFinished,
                 _ => null,
             };
             if (d == null) return;
@@ -120,6 +128,8 @@ namespace HS2Next.App.Plugins
                         case Action<CharaBuiltInfo> a: a((CharaBuiltInfo)arg); break;
                         case Action<bool> a: a(arg is bool b && b); break;
                         case Action<StepInfo> a: a(arg is StepInfo s ? s : default); break;
+                        case Action<CaptureInfo> a: a((CaptureInfo)arg); break;
+                        case Action<CaptureResultInfo> a: a((CaptureResultInfo)arg); break;
                     }
                 });
             }

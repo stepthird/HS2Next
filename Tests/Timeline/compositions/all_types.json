@@ -1,0 +1,155 @@
+{
+  "duration": 8.0,
+  "loop": true,
+  "tracks": [
+    {
+      "type": "camera",
+      "keys": [
+        {"t": 0.0, "target": [0, 10, 0], "rot": [10, 350, 0], "dist": 30.0, "fov": 30, "ease": "linear"},
+        {"t": 2.0, "target": [0, 11, 1], "rot": [5, 10, 0], "dist": 25.0, "fov": 35},
+        {"t": 4.5, "target": [2, 12, 0], "rot": [0, 60, 0], "dist": 20.0, "fov": 40, "ease": "out"},
+        {"t": 7.0, "target": [0, 10, 0], "rot": [15, 120, 5], "dist": 35.0, "fov": 28, "ease": "step"}
+      ]
+    },
+    {
+      "type": "dof",
+      "ease": "inout",
+      "keys": [
+        {"t": 0.0, "focus": "target", "on": true, "sharp": 0.1, "full": 3.0, "blur": 2, "ease": "linear"},
+        {"t": 1.5, "focus": "$a"},
+        {"t": 3.0, "focus": {"key": "$b", "bone": "cf_J_Head", "offset": [0, 0.1, 0]}, "size": 0.5, "aperture": 0.8, "blur": null, "ease": "in"},
+        {"t": 5.0, "focus": {"point": [0, 10, 5]}, "on": false, "ease": "out"},
+        {"t": 6.5, "focus": {"dist": 20.0}, "on": true, "sharp": 0.2, "full": 4.0, "blur": 3, "ease": "step"}
+      ]
+    },
+    {
+      "type": "pos",
+      "key": "$b",
+      "keys": [
+        {"t": 0.0, "v": [5, 0, 0], "ease": "linear"},
+        {"t": 3.0, "v": [5, 0, 4]},
+        {"t": 6.0, "v": [3, 0.5, 4], "ease": "step"}
+      ]
+    },
+    {
+      "type": "rot",
+      "key": "$p",
+      "keys": [
+        {"t": 0.0, "v": [0, 350, 0], "ease": "in"},
+        {"t": 2.5, "v": [0, 10, 0], "ease": "out"},
+        {"t": 5.0, "v": [30, 200, 10]}
+      ]
+    },
+    {
+      "type": "rot",
+      "key": "$a",
+      "bone": "cf_J_Neck",
+      "keys": [
+        {"t": 0.0, "v": [0, 0, 0]},
+        {"t": 2.0, "v": [10, 20, 0], "ease": "in"},
+        {"t": 4.0, "v": [-10, -20, 5], "ease": "out"},
+        {"t": 6.0, "v": [0, 0, 0], "ease": "linear"}
+      ]
+    },
+    {
+      "type": "scale",
+      "key": "$p",
+      "ease": "linear",
+      "keys": [
+        {"t": 0.0, "v": [1, 1, 1]},
+        {"t": 4.0, "v": [2, 1.5, 1], "ease": "inout"},
+        {"t": 8.0, "v": [1, 1, 1], "ease": "step"}
+      ]
+    },
+    {
+      "type": "anime",
+      "key": "$a",
+      "keys": [
+        {"t": 0.0, "group": 19, "category": 0, "no": 0},
+        {"t": 3.0, "group": 11, "category": 5, "no": 0},
+        {"t": 6.0, "group": 19, "category": 0, "no": 0}
+      ]
+    },
+    {
+      "type": "animeSpeed",
+      "key": "$a",
+      "keys": [
+        {"t": 0.0, "v": 1, "ease": "linear"},
+        {"t": 3.0, "v": 0.5, "ease": "step"},
+        {"t": 6.0, "v": 0}
+      ]
+    },
+    {
+      "type": "animeTime",
+      "key": "$b",
+      "keys": [
+        {"t": 0.0, "v": 0, "ease": "linear"},
+        {"t": 4.0, "v": 0.5},
+        {"t": 7.0, "v": 0.25, "ease": "out"}
+      ]
+    },
+    {
+      "type": "eyes",
+      "key": "$a",
+      "keys": [
+        {"t": 0.0, "v": 0},
+        {"t": 2.0, "v": 2},
+        {"t": 5.0, "v": 1}
+      ]
+    },
+    {
+      "type": "mouth",
+      "key": "$a",
+      "keys": [
+        {"t": 0.0, "v": 0},
+        {"t": 2.5, "v": 1},
+        {"t": 5.5, "v": 2}
+      ]
+    },
+    {
+      "type": "eyesOpen",
+      "key": "$a",
+      "keys": [
+        {"t": 0.0, "v": 1, "ease": "in"},
+        {"t": 3.0, "v": 0.2, "ease": "out"},
+        {"t": 6.0, "v": 1, "ease": "linear"}
+      ]
+    },
+    {
+      "type": "mouthOpen",
+      "key": "$a",
+      "keys": [
+        {"t": 0.0, "v": 0},
+        {"t": 2.0, "v": 0.6, "ease": "step"},
+        {"t": 4.0, "v": 0, "ease": "linear"}
+      ]
+    },
+    {
+      "type": "color",
+      "key": "$p",
+      "slot": 0,
+      "keys": [
+        {"t": 0.0, "v": [1, 1, 1, 1], "ease": "linear"},
+        {"t": 3.0, "v": [0.2, 0.4, 0.8, 1]},
+        {"t": 6.0, "v": [0.9, 0.1, 0.1, 0.5], "ease": "in"}
+      ]
+    },
+    {
+      "type": "color",
+      "key": "$l",
+      "keys": [
+        {"t": 0.0, "v": [1, 1, 1], "ease": "out"},
+        {"t": 2.5, "v": [1, 0.8, 0.6], "ease": "linear"},
+        {"t": 5.0, "v": [0.6, 0.8, 1], "ease": "step"}
+      ]
+    }
+  ],
+  "events": [
+    {"t": 0.0, "do": {"cmd": "obj.transform", "key": "$p", "pos": [0, 0, 0]}},
+    {"t": 0.0, "do": {"cmd": "chara.face", "key": "$a", "mouth": 0}},
+    {"t": 4.0, "do": {"cmd": "chara.anime", "key": "$b", "group": 19, "category": 0, "no": 0}},
+    {"t": 4.0, "do": {"cmd": "chara.face", "key": "$b", "eyesOpen": 0.8}},
+    {"t": 8.0, "do": {"cmd": "obj.transform", "key": "$p", "rot": [0, 90, 0]}},
+    {"t": 8.0, "do": {"cmd": "chara.anime", "key": "$a", "group": 11, "category": 5, "no": 0}}
+  ]
+}

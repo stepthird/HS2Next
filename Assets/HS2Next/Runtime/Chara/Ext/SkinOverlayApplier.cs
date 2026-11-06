@@ -12,6 +12,10 @@
 // overlay size, at most 2x (CharaExtOptions.OverlaySizeLimit). Card images are kept encoded on the layer and decoded
 // only for the duration of a rebuild (ExtTextures; nothing stays resident). Studio switches: with
 // EnableInStudioSkin = false the card's skin types are not shown (registered layers still are).
+// Plugin layers (Source "<guid>/<id>": a BodyMesh hook's, or set outside builds and joined after the BodyMesh hooks) are
+// registered layers: composited after the card's in the order set, also when the character has no decoded plugin data (the
+// texture step then runs this stage with no card data); PNG / JPEG bytes are decoded per composite as card images, a
+// plugin's texture is used as it is and never destroyed here, and one that was destroyed is skipped with a log line.
 // Not implemented: eye / eyebrow / eyeline types (5..30; no card on this install has one), counted as skipped.
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +45,12 @@ namespace HS2Next.Chara.Ext
                 ctx.SkinLayers.InsertRange(0, card);
             }
             if (ctx.SkinLayers.Count == 0) return;
+            foreach (var l in ctx.SkinLayers)
+                if (l.Owner != null && l.TextureDestroyed)
+                {
+                    ExtStats.Inc(st.SkinLayersSkipped, (SkinTexType)l.TexType + " (texture destroyed)");
+                    ctx.Log.Add("ksox: layer " + l.Source + " skipped: its texture was destroyed");
+                }
 
             var log = new List<string>();
             Pass(ctx, o, ctx.BodySkin, ctx.BodyDraw, "_MainTex", SkinTexType.BodyUnder, SkinTexType.BodyOver, "body", log);
@@ -56,8 +66,8 @@ namespace HS2Next.Chara.Ext
         static void Pass(CharaContext ctx, CharaExtOptions o, TexCreator c, Material draw, string prop, SkinTexType underType, SkinTexType overType, string label, List<string> log)
         {
             var st = ctx.Stats;
-            var under = ctx.SkinLayers.Where(l => l.TexType == (int)underType).ToList();
-            var over = ctx.SkinLayers.Where(l => l.TexType == (int)overType).ToList();
+            var under = ctx.SkinLayers.Where(l => l.TexType == (int)underType && !(l.Owner != null && l.TextureDestroyed)).ToList();
+            var over = ctx.SkinLayers.Where(l => l.TexType == (int)overType && !(l.Owner != null && l.TextureDestroyed)).ToList();
             if (under.Count + over.Count == 0) return;
             if (c == null)
             {

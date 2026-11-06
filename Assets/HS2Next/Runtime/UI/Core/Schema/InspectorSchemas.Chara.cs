@@ -1,5 +1,5 @@
 // Character inspector tabs: Animation, State, Face, Look, Hands, FK / IK, Pose,
-// Correction, Character. Ranges: scene model A.1 ("character state", "kinematic", "anime"); the look patterns,
+// Correction, Advanced pose, Materials, Character. Ranges: scene model A.1 ("character state", "kinematic", "anime"); the look patterns,
 // correction categories and FK / IK. All rows apply
 // to every selected character (U25) unless marked Primary.
 using System.Collections.Generic;
@@ -180,6 +180,10 @@ namespace HS2Next.UI.Core
             for (int i = 0; i < 8; i++) co.Bool("chara.correction[" + i + "]", CorrectionCategories[i]);
             tabs.Add(corr);
 
+            // Advanced pose (the primary only; the tab draws these rows itself)
+            tabs.Add(BuildAdvancedPose());
+            tabs.Add(new SchemaSection(MaterialsTabId, "inspector.tab.materials"));   // no rows: MaterialEditView draws them from the live material
+
             // Character (file info, change character, use card state, save character)
             var ch = new SchemaSection("character", "inspector.tab.character");
             var cb = new B(ch, "inspector.chara.character.", OpLabels.ChangeCharacter);
@@ -188,6 +192,68 @@ namespace HS2Next.UI.Core
             cb.Button("ui.chara.save", "save", "");
             tabs.Add(ch);
             return tabs;
+        }
+
+        /// <summary>The Advanced pose tab's id, the paths of its rows and the freeze axes of a chain (0 none, 1 x, 2 y, 3 z).</summary>
+        public const string AdvancedPoseTabId = "advancedPose";
+        public const string MaterialsTabId = "materials";
+        public const string AdvBonePos = "chara.advancedPose.bones[\"{bone}\"].pos", AdvBoneRot = "chara.advancedPose.bones[\"{bone}\"].rot", AdvBoneScale = "chara.advancedPose.bones[\"{bone}\"].scale";
+        public const string AdvChainPrefix = "chara.advancedPose.chains[\"{chain}\"].", AdvBustPrefix = "chara.advancedPose.bust.{bust}.";
+        /// <summary>A blend weight: the renderer's address, then the shape's name.</summary>
+        public const string AdvBlendWeight = "chara.advancedPose.blendShapes[\"{renderer}\"].weights[\"{shape}\"]";
+        public static readonly IReadOnlyList<string> FreezeAxes = new[] { "none", "x", "y", "z" };
+
+        /// <summary>The rows of the Advanced pose tab.</summary>
+        public static IReadOnlyList<FieldSpec> AdvancedPoseRows
+        {
+            get
+            {
+                foreach (var s in Chara) if (s.Id == AdvancedPoseTabId) return s.Fields;
+                return new FieldSpec[0];
+            }
+        }
+
+        static SchemaSection BuildAdvancedPose()
+        {
+            var adv = new SchemaSection(AdvancedPoseTabId, "inspector.tab.advancedPose");
+            var a = new B(adv, "inspector.chara.adv.", OpLabels.BoneCorrection);
+            var pos = a.Vec3(AdvBonePos, "pos", new[] { 0.0, 0.0, 0.0 });
+            pos.TypedMin = -1000;
+            pos.TypedMax = 1000;
+            a.Vec3(AdvBoneRot, "rot", new[] { 0.0, 0.0, 0.0 });
+            var scale = a.Vec3(AdvBoneScale, "scale", new[] { 1.0, 1.0, 1.0 });
+            scale.TypedMin = 0.001;
+            scale.TypedMax = 1000;
+            a.Button("ops.ClearBoneCorrections:selected", "reset", OpLabels.ClearBoneCorrections);
+            a.Button("ops.ClearBoneCorrections:all", "resetAll", OpLabels.ClearBoneCorrections);
+
+            var c = new B(adv, "inspector.chara.adv.chain.", OpLabels.JiggleValues);
+            c.Bool(AdvChainPrefix + "enabled", "enabled");
+            c.FloatClamped(AdvChainPrefix + "weight", "weight", 0, 1);
+            c.FloatClamped(AdvChainPrefix + "damping", "damping", 0, 1);
+            c.FloatClamped(AdvChainPrefix + "elasticity", "elasticity", 0, 1);
+            c.FloatClamped(AdvChainPrefix + "stiffness", "stiffness", 0, 1);
+            c.FloatClamped(AdvChainPrefix + "inert", "inert", 0, 1);
+            c.Float(AdvChainPrefix + "radius", "radius", 0, 1, null, 0);
+            c.Vec3(AdvChainPrefix + "gravity", "gravity");
+            c.Vec3(AdvChainPrefix + "force", "force");
+            c.Enum(AdvChainPrefix + "freezeAxis", "freezeAxis", ToArray(FreezeAxes), "enum.freezeAxis.");
+            c.Bool(AdvBustPrefix + "enabled", "enabled");
+            c.Vec3(AdvBustPrefix + "gravity", "gravity");
+            c.Vec3(AdvBustPrefix + "force", "force");
+            c.FloatClamped(AdvBustPrefix + "damping", "damping", 0, 1);
+            c.FloatClamped(AdvBustPrefix + "elasticity", "elasticity", 0, 1);
+            c.FloatClamped(AdvBustPrefix + "stiffness", "stiffness", 0, 1);
+            c.FloatClamped(AdvBustPrefix + "inert", "inert", 0, 1);
+            a.Button("ops.ClearChainValues:all", "resetAll", OpLabels.ClearJiggleValues);
+            a.Button("ops.ClearBustValues:all", "resetAll", OpLabels.ClearJiggleValues);
+
+            var b = new B(adv, "inspector.chara.adv.", OpLabels.BlendShapes);
+            b.Float(AdvBlendWeight, "chain.weight", 0, 100, null, -200, 300);
+            b.Button("ops.ClearBlendWeights:all", "resetAll", OpLabels.ClearBlendShapes);
+
+            foreach (var f in adv.Fields) f.Applies = Applies.Primary;
+            return adv;
         }
 
         static string[] ToArray(IReadOnlyList<string> l)

@@ -387,14 +387,15 @@ public static class ThumbGuardTest
     /// that one bundle). Both are loaded through PartThumbnails (vanilla head 0 and 2B #101), then the vanilla bundle alone is
     /// unloaded (after the uploads; and, in a fresh instance, right after 2B's request): 2B's bundle stays open, its texture
     /// alive, a new load from it reads its data, no read fails (first runs: 6 PASS; Unity logs "AssetBundle '…fo_head_00…' was
-    /// already unloaded" for the shared name, harmless). Report thumb_guard_clash_report.txt.
+    /// already unloaded" for the shared name, harmless). Then the namesake check, by content (see Namesakes). Report
+    /// thumb_guard_clash_report.txt.
     /// </summary>
     public static void RunClash()
     {
         Directory.CreateDirectory(OutDir);
         string rp = Path.Combine(OutDir, "thumb_guard_clash_report.txt");
         File.WriteAllText(rp, "SUMMARY: 0 PASS, 1 FAIL (the play session did not finish)\n", new UTF8Encoding(false));
-        PlayModeHarness.Start("ThumbGuardTest.Clash", rp, 10, true);
+        PlayModeHarness.Start("ThumbGuardTest.Clash", rp, Arg("-fb1Pairs") == "0" ? 28 : 10, true);
     }
 
     public static IEnumerator Clash()
@@ -468,9 +469,321 @@ public static class ThumbGuardTest
             "C: no failed read of 2B's texture when the vanilla bundle is unloaded right after 2B's request", afterC);
         q.Dispose();
         Application.logMessageReceivedThreaded -= onLog;
+        yield return Namesakes(rep, cat);
         rep.Write(Path.Combine(OutDir, "thumb_guard_clash_report.txt"), "ThumbGuardTest.RunClash (two bundles with one internal name)", total.Elapsed.TotalSeconds);
         PlayModeHarness.ExitCode = rep.Fail == 0 ? 0 : 1;
     }
+
+    // ------------------------------------------------------------ namesakes: both open, one asset name, different content
+
+    sealed class NsCopy
+    {
+        public string Build, Key, Asset, Column, Hash;
+        public ListEntry Entry;
+        public override string ToString() => Key + " / " + Asset;
+    }
+
+    sealed class NsTally
+    {
+        public int Pairs, Requests, Equal, Different, ToNamesake, Empty, OtherContent, NotBothOpen, NoRequest, TimedOut, RawHashes, ReadBacks;
+        public readonly List<string> Samples = new List<string>();
+        public void Judge(string state, string got, NsCopy from, NsCopy other)
+        {
+            Requests++;
+            if (got != null && got == from.Hash) { Equal++; return; }
+            Different++;
+            if (got == null) Empty++;
+            else if (other != null && got == other.Hash) ToNamesake++;
+            else OtherContent++;
+            if (Samples.Count < 24) Samples.Add($"{state}: {from} (own {from.Hash}) read {got ?? "nothing"} with {other?.ToString() ?? "no namesake"} ({other?.Hash ?? "-"})");
+        }
+        public string Line => $"{Pairs} pairs, {Requests} requests: equal {Equal}, different {Different} (the namesake's content {ToNamesake}, empty {Empty}, other {OtherContent}); not both open {NotBothOpen}, no request {NoRequest}, timed out {TimedOut}";
+    }
+
+    // A hash of the texture's bytes, in memory: the raw data of a readable texture, else a read-back through a render target.
+    // Nothing is written or shown.
+    static string ContentHash(Texture2D t, NsTally y)
+    {
+        if (!t) return null;
+        byte[] data;
+        if (t.isReadable) { data = t.GetRawTextureData(); y.RawHashes++; }
+        else
+        {
+            var rt = RenderTexture.GetTemporary(t.width, t.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+            var active = RenderTexture.active;
+            var copy = new Texture2D(t.width, t.height, TextureFormat.RGBA32, false, true);
+            try
+            {
+                Graphics.Blit(t, rt);
+                RenderTexture.active = rt;
+                copy.ReadPixels(new Rect(0, 0, t.width, t.height), 0, 0, false);
+                data = copy.GetRawTextureData();
+            }
+            finally
+            {
+                RenderTexture.active = active;
+                RenderTexture.ReleaseTemporary(rt);
+                UnityEngine.Object.DestroyImmediate(copy);
+            }
+            y.ReadBacks++;
+        }
+        using (var h = System.Security.Cryptography.SHA256.Create())
+            return t.width.ToString(CultureInfo.InvariantCulture) + "x" + t.height.ToString(CultureInfo.InvariantCulture) + " " + t.format + " " + string.Concat(h.ComputeHash(data).Take(8).Select(x => x.ToString("x2")));
+    }
+
+    // The load path's own refusals: never load what the header check or the pre-load check would keep from an upload.
+    static bool SafeToLoad(ContentCatalog cat, AssetBundle b, string asset)
+    {
+        if (cat.IsAssetRefused(b, asset)) return false;
+        var file = cat.BundleFileOf(b);
+        if (file == null) return false;
+        var h = TextureHeaders.Get(file);
+        if (h == null || h.Malformed || h.Error != null || !h.TryGet(asset, out var th)) return false;
+        return TextureHeaders.Defect(th) == null;
+    }
+
+    static AssetBundle OpenCopy(ContentCatalog cat, NsCopy c)
+    {
+        try { return cat.OpenForAsset(c.Entry, "ThumbAB", c.Column, true); }
+        catch (Exception) { return null; }
+    }
+
+    static string SyncHash(AssetBundle b, NsCopy c, NsTally y) => b ? ContentHash(b.LoadAsset<Texture2D>(c.Entry[c.Column]), y) : null;
+
+    // An asynchronous load through the path the thumbnails use. box[0] = the hash of what it read (null: nothing).
+    static IEnumerator AsyncHash(ContentCatalog cat, NsCopy c, NsTally y, string[] box, Action started = null)
+    {
+        box[0] = null;
+        var r = cat.LoadAssetAsync<Texture2D>(c.Entry, "ThumbAB", c.Column, true, out AssetBundle _);
+        if (r == null) { y.NoRequest++; yield break; }
+        started?.Invoke();
+        var sw = Stopwatch.StartNew();
+        while (!r.isDone && sw.Elapsed.TotalSeconds < 30) yield return null;
+        if (!r.isDone) { y.TimedOut++; yield break; }
+        box[0] = ContentHash(r.asset as Texture2D, y);
+    }
+
+    /// <summary>
+    /// Namesakes (Unity 6's asynchronous asset load is said to find its bundle by the build name, which mods share): every
+    /// thumbnail reference is opened as the loader opens it, for its build name and the copy that serves it. Copies of one build
+    /// name holding one asset name are hashed one at a time (alone: a synchronous load, the hash of the bytes in memory), which
+    /// finds the pairs with different content. For each such pair both are opened and the asset requested asynchronously, from
+    /// the second and from the first; the same synchronously; the same with a namesake that lacks the asset; and with the
+    /// namesake closed before the request or just after it. A read is judged against the copy's own hash. No image is opened or
+    /// written. -fb1Pairs N bounds the pairs and the search (default below; 0 = every reference, every copy).
+    /// </summary>
+    static IEnumerator Namesakes(Rep rep, ContentCatalog cat)
+    {
+        int limit = int.TryParse(Arg("-fb1Pairs"), NumberStyles.Integer, CultureInfo.InvariantCulture, out int lim) ? lim : DefaultNamesakePairs;
+        var total = Stopwatch.StartNew();
+        var y = new NsTally();
+        bool Over(double minutes) => limit == 0 && total.Elapsed.TotalMinutes > minutes;   // a hand run stops looking at its budget, and says so
+        cat.UnloadAll();
+        cat.LoadLists();
+        // every reference once: the build name and the copy that serves it
+        var refs = new List<(ListEntry e, string col)>();
+        foreach (int c in cat.Categories)
+            foreach (var e in cat.EntriesOf(c))
+                foreach (var col in c == 210 || c == 110 ? new[] { "ThumbTex", "Preset" } : new[] { "ThumbTex" })
+                {
+                    string ab = e["ThumbAB"], tex = e[col];
+                    if (string.IsNullOrEmpty(ab) || ab == "0" || string.IsNullOrEmpty(tex) || tex == "0") continue;
+                    if (cat.Loose.TryFind(e, "ThumbAB", col, out _) || TextureGuard.IsListed((e.Zipmod?.Guid ?? "abdata") + ":" + ab.Replace('\\', '/'), tex)) continue;
+                    refs.Add((e, col));
+                }
+        var groups = refs.GroupBy(r => (r.e.Zipmod?.Path ?? "") + "|" + r.e["ThumbAB"].Replace('\\', '/').ToLowerInvariant()).ToList();
+        var sameName = new Dictionary<string, Dictionary<string, NsCopy>>(StringComparer.Ordinal);   // build name | asset -> key -> copy
+        var keysOfBuild = new Dictionary<string, Dictionary<string, NsCopy>>(StringComparer.Ordinal);   // build name -> key -> one copy
+        int opened = 0, unopened = 0, groupsRead = 0;
+        foreach (var g in groups)
+        {
+            if (limit > 0 && groupsRead >= NamesakeSearchGroups) break;
+            groupsRead++;
+            var open = new HashSet<AssetBundle>();
+            foreach (var (e, col) in g)
+            {
+                AssetBundle b = null;
+                try { b = cat.OpenForAsset(e, "ThumbAB", col, true); } catch (Exception) { }
+                if (!b) { unopened++; continue; }
+                if (open.Add(b)) opened++;
+                string key = cat.BundleFileOf(b)?.Key;
+                if (key == null) continue;
+                var copy = new NsCopy { Build = b.name, Key = key, Asset = e[col].ToLowerInvariant(), Column = col, Entry = e };
+                if (string.IsNullOrEmpty(copy.Build)) continue;
+                string k = copy.Build + "|" + copy.Asset;
+                if (!sameName.TryGetValue(k, out var m)) sameName[k] = m = new Dictionary<string, NsCopy>(StringComparer.OrdinalIgnoreCase);
+                if (!m.ContainsKey(key)) m[key] = copy;
+                if (!keysOfBuild.TryGetValue(copy.Build, out var ks)) keysOfBuild[copy.Build] = ks = new Dictionary<string, NsCopy>(StringComparer.OrdinalIgnoreCase);
+                if (!ks.ContainsKey(key)) ks[key] = copy;
+            }
+            foreach (var b in open) if (b) cat.UnloadBundle(b);
+            if (groupsRead % 32 == 0) yield return null;
+        }
+        var shared = keysOfBuild.Where(kv => kv.Value.Count > 1).OrderByDescending(kv => kv.Value.Count).ThenBy(kv => kv.Key, StringComparer.Ordinal).ToList();
+        var candidates = sameName.Where(kv => kv.Value.Count > 1).OrderBy(kv => kv.Key, StringComparer.Ordinal).ToList();
+        rep.Info($"namesakes: {refs.Count} references in {groups.Count} groups, {groupsRead} read ({opened} bundles opened, {unopened} references without a bundle) in {total.Elapsed.TotalSeconds:0.0} s; {keysOfBuild.Count} build names, {shared.Count} shared by several copies (" +
+                 string.Join(", ", shared.Take(4).Select(kv => kv.Key + " " + kv.Value.Count)) + $"), {shared.Sum(kv => kv.Value.Count)} copies of those; {candidates.Count} (build name, asset) names in two or more copies");
+        // the pairs with different content, by hash, each copy alone
+        var pairs = new List<(NsCopy a, NsCopy b)>();
+        int hashed = 0, unsafeCopies = 0, sameContent = 0, namesTried = 0;
+        foreach (var kv in candidates)
+        {
+            if ((limit > 0 && pairs.Count >= limit) || Over(10)) break;
+            namesTried++;
+            var seen = new List<NsCopy>();
+            int tried = 0;
+            foreach (var c in kv.Value.Values.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
+            {
+                if (limit > 0 && tried >= 4) break;
+                tried++;
+                var b = OpenCopy(cat, c);
+                if (!b) { unsafeCopies++; continue; }
+                if (!SafeToLoad(cat, b, c.Entry[c.Column])) { unsafeCopies++; cat.UnloadBundle(b); continue; }
+                c.Hash = SyncHash(b, c, y);
+                cat.UnloadBundle(b);
+                hashed++;
+                if (c.Hash == null) { unsafeCopies++; continue; }
+                seen.Add(c);
+                yield return null;
+            }
+            for (int i = 1; i < seen.Count; i++)
+            {
+                // every copy against the first that differs from it: a group of n with m contents gives n - 1 or fewer pairs
+                var other = seen.Take(i).FirstOrDefault(x => x.Hash != seen[i].Hash);
+                if (other != null) pairs.Add((other, seen[i]));
+                else sameContent++;
+            }
+        }
+        UnityEngine.Debug.Log($"[namesakes] {pairs.Count} pairs with different content ({total.Elapsed.TotalMinutes:0.0} min)");
+        rep.Info($"namesakes: {namesTried} of {candidates.Count} names tried, {hashed} copies hashed alone, {unsafeCopies} left out (no load, refused or defective), {pairs.Count} pairs with different content, {sameContent} copies with their name's content ({total.Elapsed.TotalSeconds:0.0} s)");
+        string Shape(string hash) => hash.Substring(0, hash.LastIndexOf(' '));
+        rep.Info($"namesakes: of those pairs {pairs.Count(p => Shape(p.a.Hash) == Shape(p.b.Hash))} have one size and format, so only the pixels tell them apart");
+        rep.Check(SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.Null, "namesakes: a graphics device (the read-back of a texture that is not readable needs one)");
+        // a pair found: an asynchronous load from the second and from the first, both open, then the same synchronously
+        var box = new string[1];
+        var baseline = new NsTally();
+        int i0 = 0;
+        foreach (var (a, b) in pairs)
+        {
+            i0++;
+            if ((limit > 0 && y.Pairs >= limit) || Over(18)) break;
+            y.Pairs++;
+            if (y.Pairs % 100 == 0) UnityEngine.Debug.Log($"[namesakes] {y.Line} ({total.Elapsed.TotalMinutes:0.0} min)");
+            // alone, asynchronously: what the same request reads with no namesake open (a difference here is not the name's)
+            var bo = OpenCopy(cat, b);
+            if (bo) { yield return AsyncHash(cat, b, baseline, box); baseline.Judge("alone", box[0], b, null); cat.UnloadBundle(bo); }
+            foreach (var (first, second, from, other, state) in new[] { (a, b, b, a, "both open, from the second"), (a, b, a, b, "both open, from the first") })
+            {
+                var o1 = OpenCopy(cat, first);
+                var o2 = OpenCopy(cat, second);
+                if (!o1 || !o2 || ReferenceEquals(o1, o2) || o1.name != o2.name)
+                {
+                    y.NotBothOpen++;
+                    if (y.Samples.Count < 24) y.Samples.Add($"not both open: {first} ({(bool)o1}) and {second} ({(bool)o2})");
+                }
+                else
+                {
+                    yield return AsyncHash(cat, from, y, box);
+                    if (!o1 || !o2) y.NotBothOpen++;
+                    y.Judge(state + ", asynchronous", box[0], from, other);
+                    y.Judge(state + ", synchronous", SyncHash(from == first ? o1 : o2, from, y), from, other);
+                }
+                if (o1) cat.UnloadBundle(o1);
+                if (o2) cat.UnloadBundle(o2);
+                yield return null;
+            }
+            if (i0 > 12) continue;
+            // the namesake closed before the request, and just after it
+            foreach (bool inFlight in new[] { false, true })
+            {
+                var o1 = OpenCopy(cat, a);
+                var o2 = OpenCopy(cat, b);
+                if (!o1 || !o2 || ReferenceEquals(o1, o2)) y.NotBothOpen++;
+                else
+                {
+                    if (!inFlight) cat.UnloadBundle(o1);
+                    yield return AsyncHash(cat, b, y, box, inFlight ? () => cat.UnloadBundle(o1) : (Action)null);
+                    y.Judge(inFlight ? "the namesake closed just after the request" : "the namesake closed before the request", box[0], b, a);
+                }
+                if (o1) cat.UnloadBundle(o1);
+                if (o2) cat.UnloadBundle(o2);
+                yield return null;
+            }
+        }
+        // several namesakes in flight at once, as a list's scroll has them (the loader keeps at most 8 in flight)
+        var together = new NsTally();
+        foreach (var kv in candidates)
+        {
+            if ((limit > 0 && together.Pairs >= limit / 4) || Over(20)) break;
+            var copies = kv.Value.Values.Where(x => x.Hash != null).Take(8).ToList();
+            if (copies.Select(x => x.Hash).Distinct().Count() < 2) continue;
+            var open = copies.Select(x => OpenCopy(cat, x)).ToList();
+            if (open.Any(x => !x) || open.Distinct().Count() != open.Count) together.NotBothOpen++;
+            else
+            {
+                together.Pairs++;
+                var requests = copies.Select(x => cat.LoadAssetAsync<Texture2D>(x.Entry, "ThumbAB", x.Column, true, out AssetBundle _)).ToList();
+                var sw = Stopwatch.StartNew();
+                while (requests.Any(r => r != null && !r.isDone) && sw.Elapsed.TotalSeconds < 30) yield return null;
+                for (int i = 0; i < copies.Count; i++)
+                {
+                    var r = requests[i];
+                    if (r == null) { together.NoRequest++; continue; }
+                    if (!r.isDone) { together.TimedOut++; continue; }
+                    together.Judge("several in flight", ContentHash(r.asset as Texture2D, together), copies[i], copies.FirstOrDefault(x => x.Hash != copies[i].Hash));
+                }
+            }
+            foreach (var b in open) if (b) cat.UnloadBundle(b);
+            yield return null;
+        }
+        // a namesake open that lacks the asset (a read through the name would find nothing)
+        var lacking = new NsTally();
+        foreach (var kv in shared)
+        {
+            if ((limit > 0 && lacking.Pairs >= limit) || Over(22)) break;
+            var copies = kv.Value.Values.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase).ToList();
+            for (int i = 1; i < copies.Count && !Over(22); i += limit > 0 ? 64 : 8)
+            {
+                var a = copies[0];
+                var c = copies[i];
+                var lone = OpenCopy(cat, c);
+                if (!lone) continue;
+                if (!SafeToLoad(cat, lone, c.Entry[c.Column])) { cat.UnloadBundle(lone); continue; }
+                c.Hash = SyncHash(lone, c, lacking);
+                cat.UnloadBundle(lone);
+                if (c.Hash == null) continue;
+                var o1 = OpenCopy(cat, a);
+                var o2 = OpenCopy(cat, c);
+                if (o1 && o2 && !ReferenceEquals(o1, o2) && o1.name == o2.name && !o1.Contains(c.Entry[c.Column]))
+                {
+                    lacking.Pairs++;
+                    yield return AsyncHash(cat, c, lacking, box);
+                    lacking.Judge("a namesake open that lacks the asset", box[0], c, null);
+                }
+                if (o1) cat.UnloadBundle(o1);
+                if (o2) cat.UnloadBundle(o2);
+                yield return null;
+            }
+        }
+        cat.UnloadAll();
+        cat.LoadLists();
+        rep.Info($"namesakes, baseline (alone, asynchronous against synchronous): {baseline.Line}");
+        rep.Info($"namesakes: {y.Pairs} of {pairs.Count} pairs measured, {total.Elapsed.TotalMinutes:0.0} min");
+        rep.Info($"namesakes, both open: {y.Line}; hashes by raw bytes {y.RawHashes}, by read-back {y.ReadBacks}");
+        rep.Info($"namesakes, several in flight at once (the groups count as pairs): {together.Line}");
+        rep.Info($"namesakes, a namesake open that lacks the asset: {lacking.Line}");
+        foreach (var s in baseline.Samples.Concat(y.Samples).Concat(together.Samples).Concat(lacking.Samples)) rep.Info("namesakes: " + s);
+        rep.Check(y.Pairs > 0, $"namesakes: pairs of one build name and one asset name with different content were found by hash ({y.Pairs}); a zero here means the check below proves nothing");
+        rep.Check(baseline.Different == 0, $"namesakes: alone, an asynchronous load reads what a synchronous one reads ({baseline.Equal} of {baseline.Requests})");
+        rep.Check(y.Different == 0 && y.Requests > 0, $"namesakes: both open or one just closed, a load reads the bundle it was called on ({y.Equal} of {y.Requests} equal, {y.Different} different)");
+        rep.Check(together.Different == 0 && together.Requests > 0, $"namesakes: with several in flight at once, each load reads the bundle it was called on ({together.Equal} of {together.Requests} equal, {together.Different} different, {together.Pairs} groups)");
+        rep.Check(lacking.Different == 0, $"namesakes: with a namesake open that lacks the asset, a load reads the bundle it was called on ({lacking.Equal} of {lacking.Requests} equal, {lacking.Different} different, {lacking.Pairs} pairs)");
+    }
+
+    /// <summary>Pairs a row run measures (a hand run takes -fb1Pairs 0: every copy of every name).</summary>
+    const int DefaultNamesakePairs = 40;
+    /// <summary>The (source, bundle path) groups a bounded run opens to find them.</summary>
+    const int NamesakeSearchGroups = 400;
 
     static string Reasons(PartThumbnails p) => p.FailReasons.Count == 0 ? "none" : string.Join(", ", p.FailReasons.Select(kv => kv.Key + " " + kv.Value));
 

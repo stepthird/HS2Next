@@ -20,11 +20,15 @@ namespace HS2Next.Api.Unity
     /// <summary>Typed overrides on a renderer's material slots. Main thread only. Implemented by the host.</summary>
     public interface IMaterialOverrides
     {
+        /// <summary>Sets the float <paramref name="property"/> of the material in <paramref name="slot"/>.</summary>
         OverrideResult SetFloat(Renderer renderer, int slot, string property, float value);
+        /// <summary>Sets the colour <paramref name="property"/> of the material in <paramref name="slot"/>.</summary>
         OverrideResult SetColor(Renderer renderer, int slot, string property, Color value);
+        /// <summary>Sets the texture <paramref name="property"/> of the material in <paramref name="slot"/> (the texture stays the plugin's).</summary>
         OverrideResult SetTexture(Renderer renderer, int slot, string property, Texture value);
         /// <summary>Gives the slot's material another shader (its render queue is kept).</summary>
         OverrideResult SetShader(Renderer renderer, int slot, Shader shader);
+        /// <summary>Shows or hides the renderer.</summary>
         OverrideResult SetEnabled(Renderer renderer, bool enabled);
     }
 }

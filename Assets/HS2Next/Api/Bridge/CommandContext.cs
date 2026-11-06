@@ -14,7 +14,7 @@ namespace HS2Next.Api.Bridge
     /// <summary>
     /// A synchronous handler. Returns the result (null, a DTO, an IDictionary&lt;string, object&gt;, a BridgeReply or a
     /// RawJson object), or calls <see cref="ICommandContext.Defer"/> and returns null to reply later. Throws
-    /// <see cref="BridgeException"/> to answer with an error; any other exception answers internal (Core) or
+    /// <see cref="BridgeException"/> to answer with an error; any other exception answers internal (the app's commands) or
     /// plugin_fault (plugin-owned commands).
     /// </summary>
     public delegate object CommandHandler(ICommandContext ctx);
@@ -26,7 +26,25 @@ namespace HS2Next.Api.Bridge
     public delegate Task<object> AsyncCommandHandler(ICommandContext ctx);
 
     /// <summary>JSON kind of one argument value.</summary>
-    public enum ArgKind { Missing, Null, Bool, Integer, Float, String, Array, Object }
+    public enum ArgKind
+    {
+        /// <summary>The member is absent.</summary>
+        Missing,
+        /// <summary>JSON null.</summary>
+        Null,
+        /// <summary>true or false.</summary>
+        Bool,
+        /// <summary>A number without a fraction or an exponent.</summary>
+        Integer,
+        /// <summary>Any other number.</summary>
+        Float,
+        /// <summary>A string.</summary>
+        String,
+        /// <summary>An array.</summary>
+        Array,
+        /// <summary>An object.</summary>
+        Object,
+    }
 
     /// <summary>
     /// Read access to the members of a request object (or of a nested object). Conversions are strict: an int accepts
@@ -43,6 +61,7 @@ namespace HS2Next.Api.Bridge
         IReadOnlyList<string> Names { get; }
         /// <summary>True when the member is present and not null.</summary>
         bool Has(string name);
+        /// <summary>The JSON kind of the member (<see cref="ArgKind.Missing"/> when absent).</summary>
         ArgKind Kind(string name);
         /// <summary>The converted value, or <paramref name="fallback"/> when absent or null.</summary>
         T Get<T>(string name, T fallback = default);
@@ -93,7 +112,9 @@ namespace HS2Next.Api.Bridge
     {
         /// <summary>The name as requested (an alias when the client used one).</summary>
         string Command { get; }
+        /// <summary>The command's spec (the one registered, also when an alias was used).</summary>
         CommandSpec Spec { get; }
+        /// <summary>The arguments: the request object's members.</summary>
         ICommandArgs Args { get; }
         /// <summary>The raw JSON text of the envelope's <c>id</c>, or null.</summary>
         string RequestId { get; }
@@ -107,7 +128,9 @@ namespace HS2Next.Api.Bridge
         bool Undo { get; }
         /// <summary>The batch this invocation belongs to, or null.</summary>
         IBatchScope Batch { get; }
+        /// <summary>The bridge's frame clock.</summary>
         IBridgeFrames Frames { get; }
+        /// <summary>The bridge's readiness stages.</summary>
         IBridgeReadiness Readiness { get; }
         /// <summary>The bridge output root (captures and dumps).</summary>
         IOutputRoot Output { get; }
@@ -123,6 +146,7 @@ namespace HS2Next.Api.Bridge
         void AfterReply(Action action);
         /// <summary>Switches this invocation to a deferred reply (idempotent: returns the same object).</summary>
         IDeferredReply Defer();
+        /// <summary>True once <see cref="Defer"/> was called.</summary>
         bool IsDeferred { get; }
     }
 }

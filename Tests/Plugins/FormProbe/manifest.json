@@ -1,0 +1,12 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.formprobe",
+  "name": "Form probe",
+  "version": "0.1.0",
+  "apiVersion": "1.1",
+  "assemblies": ["Stp3.Test.FormProbe.dll"],
+  "commandPrefixes": ["formprobe."],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the declarative forms and the host widgets: a panel with one row of each drawn kind, an item section, a refused registration, the widget factories, a dialog, a menu and a toast."
+}

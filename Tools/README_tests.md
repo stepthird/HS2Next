@@ -50,6 +50,12 @@ pwsh -File Tools\run_tests.ps1 -Quick -NoMono          # without the plain-Mono 
 Only one Unity may open the project at a time: `Tools/unity_batch.ps1` takes a machine-wide lock, and the runner waits for it.
 Every row has a time limit; a row that exceeds it FAILs and its process is stopped.
 
+`Tools/unity_batch.ps1` run by hand stops its own Unity when the job's log has not changed for `-StallMin` minutes (default 30;
+0 turns this off), or for `-StallEndMin` minutes (default 3) once the log shows that Unity is shutting down. It prints why and
+exits 125; a lock wait also exits 125, and the printed line tells them apart. It never touches another Unity process. Pass
+`-StallMin 0` to a job that can stay quiet that long, such as an idle `BridgeServe`. `-StallSelfTest` checks the watcher with a
+fake Unity (no Unity, no project, about 1.5 min). The runner passes `-StallMin 0` to its rows: it watches them itself.
+
 ## Results
 
 Each run writes `Spike/out/tests/<yyyyMMdd-HHmm>/`:
@@ -67,9 +73,11 @@ first line `SUMMARY: ...` or `N passed, M failed`.
 | Input | Rows | Without it |
 | --- | --- | --- |
 | the game install (`hs2Root`) | almost every Editor and player row | the row fails at its start (missing content) |
-| `Tools/targets.json` | in `-Quick`: `TestTargets`, `ImportTest`, `SceneRuntimeTest`, `ItemMotionTest` (and `.play`), `FkWriterTest`, `IkSolverTest`, `PoseImportTest`, `IkDriverTest`, `UiOpsTest`, `PauseTest`, `PausedEditTest`, `CharaStateTest`, `UiShellTest.play`, `UiListsV12Test.play`, `HAnimeTest`, `MosaicTest`, `BridgeCoreTest`, `AssetRedirectTest` and the Maker rows (`MakerCoreTest`, `MakerUnitTest`, `MakerEditTest`, `MakerFaceTest`, `MakerBodyTest`, `MakerHairTest`, `MakerClothesTest`, `MakerAccessoriesTest`, `MakerFileTest`, `MakerSchemaTest`); also `CharaRenderTest`, `StreakProbe.check`, `PlayerSmoke`, `CommandsDoc` and the player acceptance rows | WARN (development input absent) |
+| `Tools/targets.json` | in `-Quick`: `TestTargets`, `ImportTest`, `SceneRuntimeTest`, `ItemMotionTest` (and `.play`), `FkWriterTest`, `IkSolverTest`, `PoseImportTest`, `IkDriverTest`, `UiOpsTest`, `PauseTest`, `PausedEditTest`, `CharaStateTest`, `UiShellTest.play`, `UiListsV12Test.play`, `HAnimeTest`, `MosaicTest`, `BridgeCoreTest`, `TimelineTest`, `AdvancedPoseTest`, `ModifierOrderTest`, `MaterialEditTest`, `ConstraintTest`, `AssetRedirectTest` and the Maker rows (`MakerCoreTest`, `MakerUnitTest`, `MakerEditTest`, `MakerFaceTest`, `MakerBodyTest`, `MakerHairTest`, `MakerClothesTest`, `MakerAccessoriesTest`, `MakerFileTest`, `MakerSchemaTest`); also `CharaRenderTest`, `StreakProbe.check`, `PlayerSmoke`, `CommandsDoc`, `TimelineTest.play`, `TimelineCheck.player`, `AdvancedPoseTest.play`, `AdvancedPoseCheck.player`, `UiEscTest.play`, `AdvancedPoseTest.recon` and the player acceptance rows | WARN (development input absent) |
+| a local list of cards with bone modifiers (`Cache/compare_mods/cards.json`) | `ModifierOrderTest`, `MosaicTest`, `AdvancedPoseTest.play`, `AdvancedPoseCheck.player` | the row runs and leaves those checks out with a WARN line in its report |
 | recordings of the running game (`Tools/compare_poses.json`, `Cache/compare`, `Cache/shapemeasure`) | `PoseImportTest`, `IkDriverTest`, `CompareTest`, `ShapeMapTest.*` | WARN (development input absent) |
 | the S1 baselines (`Cache/maker/baseline`) | `MakerCoreTest` | WARN (development input absent) |
+| the record of the imported material arrays (`Cache/maker/me_corpus_7b8c37c.tsv`, kept locally, never taken again) | `MaterialEditTest.corpus` | WARN (development input absent) |
 | census texts of the reference install (`Tools/survey/redirect_step0_census.txt`) | `AssetRedirectTest` | WARN (development input absent) |
 | further recordings (`Cache/items`, `Cache/compare/routes`, `Cache/compare/maker`) | `ItemTest`, `ItemMotionTest`, `RouteTest`, `BridgeCoreTest` | the row runs and skips those checks with a WARN line in its report |
 | a graphics device | the graphics and player groups | the row cannot run headless; run it on a machine with a GPU |
@@ -77,7 +85,7 @@ first line `SUMMARY: ...` or `N passed, M failed`.
 | the .NET SDK | the plugin rows (sample and test plugins are built with `Tools/plugins.ps1`) | the plugin rows FAIL |
 
 Each row declares its development-only inputs in `Tools/run_tests.ps1` (`-DevInputs`); `-List` marks a row whose input is
-absent ("WARN, not started here"). Without any of them, `-Quick` runs 35 of its 70 rows and reports the other 35 as WARN; with
+absent ("WARN, not started here"). Without any of them, `-Quick` runs 36 of its 76 rows and reports the other 40 as WARN; with
 only your own `Tools/targets.json`, 5 rows remain WARN (`PoseImportTest`, `IkDriverTest`, `CompareTest`, `MakerCoreTest`,
 `AssetRedirectTest`) and the five `ShapeMapTest` rows, which have no measured sets to compare. The rows outside `-Quick`
 (graphics, player, full) need `Tools/targets.json` and often the recordings as well; only the rows named above declare them so far.
@@ -103,6 +111,13 @@ added entry fails unless the Api's minor version is above the listing's; changes
 It needs no game install. `-write` rewrites the listing, for a release whose version changes. Report
 `Spike/out/api/api_surface_report.txt`.
 
+## The API documentation (`ApiDocs`)
+
+`ApiDocs` (headless, part of `-Quick`, no Unity) runs `python -I Tools/offline_compile.py --doc Spike/out/api/doc --asm-only -q`:
+it compiles `HS2Next.Api` and `HS2Next.Api.Unity` with their XML documentation and fails when a public member has no doc comment
+(CS1591) or a parameter has none (CS1573), listing them. PASS = exit 0. The two XML files are the ones the distribution ships
+(`Tools/package_dist.ps1` generates them the same way).
+
 ## The offline compile check (`Tools/offline_compile.py`)
 
 `python -I Tools/offline_compile.py` compiles `Assembly-CSharp`, `Assembly-CSharp-Editor` and the project's own assemblies with
@@ -125,6 +140,38 @@ and `Tools/unity_batch.ps1` run it before Unity and print a warning on errors.
   `-bridgeAccept <dir>` runs the in-app acceptance against the player's own bridge.
 - Rows that run the plain exe of the release folder (`PlayerBuild.noargs`, `FirstRun.player`) copy the folder first, set
   `HS2NEXT_DATA_ROOT` to a scratch folder (so they never write into your per-user folder) and need the default port 17322 free.
+- `PluginKit.dist` checks the plugin kit as a user gets it: `python -I Tools/pluginkit_check.py` packages the tested app build
+  into a zip of its own (`Spike/out/player/pluginkit/dist`), extracts it outside the repository, builds the kit's two samples
+  with one `dotnet build` in the extracted `PluginKit` folder (no argument, no package source; .NET SDK 8 or later), copies them
+  into the extracted `Plugins` folder and starts the extracted exe on port 17388 with its own data root: both samples load,
+  `hello.greet` answers, `app.quit` exits 0. Report `Spike/out/player/pluginkit/pluginkit_report.txt`.
+- `TimelineCheck.player` checks the Timeline and the frame recording in the app player: `python -I Tools/timeline_player_check.py
+  --exe Builds/App/HS2Next.exe --project <project> --out Spike/out/player/timeline --port 17387` starts the player with the UI
+  off, builds the test compositions of `Tests/Timeline/compositions` on the test targets and measures the Timeline's time per
+  frame with 9 FK bone tracks (median at most 0.479 ms), records frame sequences (the PNG files are checked by their header
+  bytes, then removed; `record.json` stays) and checks that a scene with a Timeline saves and loads the same. Report
+  `Spike/out/player/timeline/timeline_player_report.txt`.
+- `AdvancedPoseCheck.player` checks advanced pose in the app player: `python -I Tools/advancedpose_player_check.py --exe
+  Builds/App/HS2Next.exe --project <project> --out Spike/out/player/advancedpose --port 17389` starts the player with the UI off on
+  the test targets, measures the time per frame of 1, 8 and 64 corrected bones and of 16 blend-shape weights (over the bars of
+  0.5 ms and 0.1 ms the row says WARN), compares corrected bones with a twin of the same card over real frames, and checks that
+  a scene with these values saves and loads the same. It also measures a card's bone modifiers on the card with the most of them
+  in a local list (`--modifier-card`, or `Cache/compare_mods/cards.json`; over 0.2 ms the row says WARN, and without either the
+  check is left out with a WARN). Report `Spike/out/player/advancedpose/advancedpose_player_report.txt`.
+- `MaterialEditCheck.player` checks material edits in the app player: `python -I Tools/material_edit_player_check.py --exe
+  Builds/App/HS2Next.exe --project <project> --out Spike/out/player/materialedit --port 17403` starts the player with the UI off on
+  the test targets. It compares the shaders a material edit can pick, their keywords and property lists with the Editor's list
+  (`Spike/out/maker/material_shaders_editor.json`, written by `MaterialEditTest.full`: run that row first, or those checks are a
+  WARN), checks that a keyword changes pixels (in memory), edits, swaps, saves and loads every kind of target with a map, and measures a
+  drag step (bars 2 ms median, 4 ms p95), a commit (10 ms), a colour track over 16 edits (0.05 ms a frame), a 4,096 px import and a hair
+  bone's step (16 ms); over a bar the row says WARN. It imports its scaffold from `Tools/advancedpose_player_check.py`. Report
+  `Spike/out/player/materialedit/material_edit_player_report.txt`.
+- `ConstraintCheck.player` checks constraints in the app player: `python -I Tools/constraint_player_check.py --exe
+  Builds/App/HS2Next.exe --project <project> --out Spike/out/player/constraints --port 17828` starts the player with the UI off on the
+  test targets. It checks that an empty list leaves no trace, a chain across two characters shows no lag and an entry of each target
+  kind survives a save and a load, and measures the evaluation of 8 constraints (bars 0.10 ms median, 0.25 ms p95) and of 64 (0.50 ms,
+  1.0 ms), the pass beside the characters' steps (0.05 ms) and the three driven-bone stages with 16 bones (0.1 ms); over a bar the row
+  says WARN. Report `Spike/out/player/constraints/constraint_player_report.txt`.
 - With the setting `mapAudioLink` a player makes a junction `<player folder>/abdata` into the game's `abdata`. Never delete a
   player folder recursively while it holds that junction: list reparse points first
   (`Get-ChildItem -Recurse -Force -Attributes ReparsePoint`) and remove the junction itself with `cmd /c rmdir`.
@@ -134,7 +181,10 @@ and `Tools/unity_batch.ps1` run it before Unity and print a warning on errors.
 The runner sets `HS2NEXT_NO_PLUGINS=1` for every process it starts, so no row loads a plugin from a `Plugins` folder by
 accident. The plugin rows load their own folders (`Spike/out/plugins/...`) or, for `PluginCheck.player`, stage the sample next
 to the player and remove exactly what they staged. `& Tools\plugins.ps1 -Build all -Stage <editor | player | dir>` builds and
-stages the sample and the test plugins.
+stages the samples (the Sequencer and the kit's Hello and HelloUi) and the test plugins. The plugins written for Api 1.0 are
+also built against the Api 1.0.0 reference assemblies in `Tests/Plugins/fixtures/api10` (`-ApiDir`), so every run checks that a
+1.0 plugin still loads on the current host; `PluginCheck.player` builds the Sequencer that way (`--api-dir`) and turns it off
+and on again with `plugin.disable` / `plugin.enable` while the player runs.
 
 ## The app for external clients (`BridgeServe`)
 
@@ -155,16 +205,17 @@ or `curl -s -X POST http://127.0.0.1:17322/ -d '{"cmd":"ping"}'` (always 127.0.0
 
 ## The everyday rows (`-Quick`)
 
-`-List` prints the full set (168 rows with `-Full`). The `-Quick` rows:
+`-List` prints the full set (185 rows with `-Full`). The `-Quick` rows:
 
 | Row | Group | Areas |
 | --- | --- | --- |
 | LeakCheck | headless | publication, plugins |
+| ApiDocs | headless | api, plugins, publication |
 | TestTargets | headless | infra |
 | ContentIdTest | headless | content |
-| SaveFormatTest | headless | save |
+| SaveFormatTest | headless | save, materials, constraints |
 | ImportTest | headless | import, save |
-| SceneModelTest | headless | scene, save |
+| SceneModelTest | headless | scene, save, materials, constraints |
 | PoseFileTest | headless | pose |
 | ZipmodListTest | headless | content |
 | CardExtTest | headless | content, import |
@@ -216,16 +267,21 @@ or `curl -s -X POST http://127.0.0.1:17322/ -d '{"cmd":"ping"}'` (always 127.0.0
 | MakerFileTest | headless | maker, save, scene |
 | MakerSchemaTest | headless | maker, bridge, ui |
 | HAnimeTest | headless | motion, ui, scene, pose |
-| MosaicTest | headless | maker, chara-build, shaders |
+| MosaicTest | headless | maker, chara-build, shaders, advancedPose, materials, constraints |
 | AccessoryItemsTest | headless | items, content, ui |
 | LooseTextureTest | headless | content, maker |
-| BridgeCoreTest | headless | bridge, scene, items, maps, chara-build, motion, pose, effects, ui, plugins |
+| BridgeCoreTest | headless | bridge, scene, items, maps, chara-build, motion, pose, effects, ui, plugins, timeline, advancedPose, materials, constraints |
 | ApiSurfaceTest | headless | api, bridge, plugins |
-| Mono.scene | mono | scene, save, maker |
-| Mono.ui | mono | ui, setup |
+| TimelineTest | headless | timeline, scene, save, bridge, motion |
+| AdvancedPoseTest | headless | advancedPose, motion, scene, save, bridge |
+| ModifierOrderTest | headless | motion, advancedPose, maker |
+| MaterialEditTest | headless | materials, chara-build, items, scene, save |
+| ConstraintTest | headless | constraints, motion, scene, save, bridge |
+| Mono.scene | mono | scene, save, maker, timeline, advancedPose, materials, constraints |
+| Mono.ui | mono | ui, setup, advancedPose, materials, constraints |
 | Mono.maker | mono | maker, content |
-| Mono.save | mono | save |
+| Mono.save | mono | save, timeline, advancedPose, materials, constraints |
 | Mono.pose | mono | pose |
 | Mono.bridge | mono | bridge, setup |
 | Mono.content | mono | content, setup |
-| Mono.plugins | mono | plugins |
+| Mono.plugins | mono | plugins, constraints |

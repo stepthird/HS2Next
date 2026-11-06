@@ -19,6 +19,7 @@
 // Route points and aids (Phase 3.6 package R): RouteHandles.cs (this partial class) — one-line hooks below.
 // Hair bundle handles (Phase 4.3 package W): HairBundleHandles.cs (this partial class) — hooks marked.
 // Accessory transform-set handles (Phase 4.5 package W): AccessoryHandles.cs — hooks marked.
+// The handle of a bone of advanced pose and the pick in the view (Phase 6.3 package U): BoneHandles.cs — hooks marked.
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -100,6 +101,7 @@ namespace HS2Next.UI.Gizmos
             if (sub != null && RouteTarget(sub, ref t, out bool routeOk)) return routeOk;   // Phase 3.6 package R
             if (sub != null && HairTarget(sub, ref t, out bool hairOk)) { if (hairOk) return true; sub = null; }   // Phase 4.3 package W (hidden: the primary)
             if (sub != null && AccessoryTarget(sub, ref t, out bool accOk)) { if (accOk) return true; sub = null; }   // Phase 4.5 package W (hidden: the primary)
+            if (sub != null && BoneTarget(sub, ref t, out bool boneOk)) { if (boneOk) return true; sub = null; }   // Phase 6.3 package U (a bone this character lacks: the primary)
             if (sub != null && StudioOps.TryParseSub(sub, out var cid, out var kind, out var name))
             {
                 if (!SubTransform(cid, kind, name, out var pos, out var rot)) return false;
@@ -159,7 +161,7 @@ namespace HS2Next.UI.Gizmos
             {
                 var ik = IkDriver.Of(r);
                 if (ik == null || !Enum.TryParse(name, out IkTargetId tid)) return false;
-                var v = ik.Effective(tid);
+                var v = ik.Shown(tid);   // Phase 6.5: the handle stands where the solve takes the target
                 var root = r.Root.transform;
                 pos = root.TransformPoint(v.Pos);
                 rot = root.rotation * Quaternion.Euler(v.Rot);
@@ -185,6 +187,7 @@ namespace HS2Next.UI.Gizmos
                 if (t.SubKind == "route") return RouteTool(t, tool);   // Phase 3.6 package R
                 if (t.SubKind == HairSubKind) return HairTool(tool);   // Phase 4.3 package W
                 if (t.SubKind == AccessorySubKind) return AccessoryTool(tool);   // Phase 4.5 package W
+                if (t.SubKind == BoneSubKind) return tool;   // Phase 6.3 package U: move, rotate and scale
                 if (t.SubKind == "fk") return GizmoTool.Rotate;
                 if (t.SubKind == "look") return GizmoTool.Move;
                 bool rotatable = t.SubName == nameof(IkTargetId.LeftHand) || t.SubName == nameof(IkTargetId.RightHand) || t.SubName == nameof(IkTargetId.LeftFoot) || t.SubName == nameof(IkTargetId.RightFoot);
@@ -202,6 +205,7 @@ namespace HS2Next.UI.Gizmos
                 if (t.SubKind == "route") return RouteAxes(t, sp);   // Phase 3.6 package R
                 if (t.SubKind == HairSubKind) return t.Rot;   // Phase 4.3 package W: the bundle parent's space (forced)
                 if (t.SubKind == AccessorySubKind) return t.Rot;   // Phase 4.5 package W: the set transform's parent space (forced)
+                if (t.SubKind == BoneSubKind && tool == GizmoTool.Scale) return t.Rot;   // Phase 6.3 package U: a correction scales along the bone's axes
                 if (sp == GizmoSpace.World) return Quaternion.identity;
                 if (t.SubKind == "ik" || (sp == GizmoSpace.Auto && t.SubKind == "look"))
                 {
@@ -249,6 +253,7 @@ namespace HS2Next.UI.Gizmos
         public GizmoHandle HitTest(Vector2 p)
         {
             var best = new GizmoHandle { Kind = HandleKind.None, Axis = -1 };
+            if (HS2Next.UI.Panels.ConstraintBonePick.On && BonePickHit(p, out var cp)) return cp;   // Phase 6.5: on a node that need not be selected
             if (!TryTarget(out var t) || !Cam) return best;
             var tool = ToolFor(t);
             if (tool == GizmoTool.Select) return SubHit(p, t.NodeId);
@@ -324,6 +329,7 @@ namespace HS2Next.UI.Gizmos
                 float d = ((Vector2)sp - p).magnitude;
                 if (d <= best) { best = d; hit = addr; }
             }
+            if (hit == null && BonePickHit(p, out var bh)) return bh;   // Phase 6.3 package U: the pick's spheres, after FK, IK and look
             return hit == null ? none : new GizmoHandle { Kind = HandleKind.Sub, Axis = -1, Sub = hit };
         }
 
@@ -390,11 +396,15 @@ namespace HS2Next.UI.Gizmos
             if (h.Kind == HandleKind.None) return false;
             if (h.Kind == HandleKind.Sub)
             {
+                if (HS2Next.UI.Panels.ConstraintBonePick.Take(h.Sub)) return true;   // Phase 6.5: the selection stays
                 ctx.SubSelection = h.Sub;
                 ctx.Shell?.AutoShowInspector();   // a handle picked in the viewport shows the inspector tab (shared region)
                 return true;
             }
             if (!TryTarget(out var t)) return false;
+            // a channel the Timeline drives while it plays, or a constraint drives, refuses the drag (a toast; a paused or ended Timeline lets it)
+            if (HS2Next.UI.Panels.TimelineOverrideUi.RefusesDrag(ctx, t.SubKind == "fk" ? t.NodeId : null, t.SubKind == "fk" ? t.SubName : null, t.Sub == null ? TopMost() : null, h.Kind, t.SubKind == "ik" ? t.NodeId : null, t.SubKind == "ik" ? t.SubName : null)) return true;
+            if (t.SubKind == BoneSubKind && !BoneDragAllowed(t)) return true;   // Phase 6.3 package U: the mosaic rule, at the press
             dragTarget = t;
             dragTool = ToolFor(t);
             dragAxes = AxesFor(t, dragTool);
@@ -413,13 +423,16 @@ namespace HS2Next.UI.Gizmos
             starts.Clear();
             if (t.Sub != null)
             {
-                subEdit = ctx.BeginEdit(t.SubKind == HairSubKind ? OpLabels.EditHair : t.SubKind == AccessorySubKind ? OpLabels.EditAccessory : t.SubKind == "route" ? OpLabels.RoutePoint : t.SubKind == "fk" ? OpLabels.FkBones : t.SubKind == "ik" ? OpLabels.IkTargets : OpLabels.LookTarget);
+                subEdit = ctx.BeginEdit(t.SubKind == HairSubKind ? OpLabels.EditHair : t.SubKind == AccessorySubKind ? OpLabels.EditAccessory : t.SubKind == "route" ? OpLabels.RoutePoint : t.SubKind == BoneSubKind ? OpLabels.BoneCorrection : t.SubKind == "fk" ? OpLabels.FkBones : t.SubKind == "ik" ? OpLabels.IkTargets : OpLabels.LookTarget);
                 if (!subEdit.IsOpen) { ctx.ShowResult(OpResult.From(subEdit.Failure)); subEdit = null; return; }
+                // an edit cancelled from elsewhere (another edit opening) ends the drag with it: the pointer's last moves write nothing
+                subEdit.Ended += committed => { if (!committed && Dragging) Cancel(); };
                 subStartPos = t.Pos;
                 subStartRot = t.Rot;
                 subParentRot = Quaternion.identity;
                 if (t.SubKind == HairSubKind) HairBegin(t);   // Phase 4.3 package W
                 if (t.SubKind == AccessorySubKind) AccessoryBegin(t);   // Phase 4.5 package W
+                if (t.SubKind == BoneSubKind) BoneBegin(t);   // Phase 6.3 package U
                 if (t.SubKind == "fk")
                 {
                     var b = FkDriver.Of(ctx.Runtime.FindChara(t.NodeId))?.Table?.Find(t.SubName);
@@ -633,6 +646,7 @@ namespace HS2Next.UI.Gizmos
 
         void ApplyScale(int axis, float f)
         {
+            if (dragTarget.SubKind == BoneSubKind) { BoneApplyScale(axis, f); return; }   // Phase 6.3 package U
             foreach (var s in starts)
             {
                 if (!s.hasScale) continue;
@@ -650,9 +664,12 @@ namespace HS2Next.UI.Gizmos
             if (t.SubKind == HairSubKind) r = HairApply(worldPos, worldRot);   // Phase 4.3 package W
             else if (t.SubKind == AccessorySubKind) r = AccessoryApply(worldPos, worldRot);   // Phase 4.5 package W
             else if (t.SubKind == "route") r = RouteApply(t, worldPos, worldRot);   // Phase 3.6 package R
+            else if (t.SubKind == BoneSubKind) r = BoneApply(worldPos, worldRot);   // Phase 6.3 package U
             else if (t.SubKind == "fk" && worldRot.HasValue)
             {
-                var local = Quaternion.Inverse(subParentRot) * worldRot.Value;
+                var fkChara = ctx.Runtime.FindChara(t.NodeId);
+                // Phase 6.3 package U: the handle shows the bone with its correction; the FK value is the pose under it
+                var local = AdvancedPoseDriver.WithoutRotation(fkChara, FkDriver.Of(fkChara)?.Table?.Find(t.SubName)?.Bone, Quaternion.Inverse(subParentRot) * worldRot.Value);
                 var e = local.eulerAngles;
                 r = ctx.Ops.SetFkBones(t.NodeId, new Dictionary<string, Vec3> { [t.SubName] = new Vec3(e.x, e.y, e.z) }, UiContext.User(OpLabels.FkBones));
             }
@@ -761,6 +778,7 @@ namespace HS2Next.UI.Gizmos
             SubHandleDraws(pass, cam);
             HairDraws(pass, cam);   // Phase 4.3 package W: hair bundle markers
             AccessoryDraws(pass, cam);   // Phase 4.5 package W: accessory set markers
+            BoneDraws(pass, cam);   // Phase 6.3 package U: the pick's spheres
             if (pairs.Count > 0)
             {
                 lineMesh = GizmoMeshes.Lines(lineMesh, pairs);
@@ -789,7 +807,7 @@ namespace HS2Next.UI.Gizmos
                     for (int i = 0; i < IkGroupInfo.TargetCount; i++)
                     {
                         var tid = (IkTargetId)i;
-                        var v = ik.Effective(tid);
+                        var v = ik.Shown(tid);   // Phase 6.5
                         if (!v.Has) continue;
                         bool bend = tid == IkTargetId.LeftArmChain || tid == IkTargetId.RightArmChain || tid == IkTargetId.LeftLegChain || tid == IkTargetId.RightLegChain;
                         yield return (id + "/ik/" + tid, root.TransformPoint(v.Pos), bend ? IkBend : IkEffector, GizmoMeshes.Sphere);

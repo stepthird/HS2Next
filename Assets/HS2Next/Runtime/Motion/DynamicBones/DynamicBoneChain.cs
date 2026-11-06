@@ -11,7 +11,12 @@
 // keeps that pose, which is what the game sees after its Animator pass. Between two frames the bones therefore still
 // hold the write-back; ResetBeforeUpdate does the reset early for what reads them there (the Animator binding a
 // controller takes them as its defaults).
+//
+// Override (advanced pose, null unless the character's scene block holds values for this chain): read in front of the component's
+// fields, which it never writes; with null every read gives the fields, as before. ApplyOverride is one UpdateParameters: no particle
+// reset, no pose restore; only enabled and a weight crossing 0 go through SetActive's and SetWeight's semantics.
 using System.Collections.Generic;
+using HS2Next.Motion.AdvancedPose;
 using UnityEngine;
 
 namespace HS2Next.Motion.DynamicBones
@@ -42,6 +47,17 @@ namespace HS2Next.Motion.DynamicBones
         public bool Enabled = true;
         /// <summary>Applied state: true while the chain simulates (OnEnable / OnDisable semantics on change).</summary>
         public bool Active { get; private set; }
+
+        // ---- scene values (advanced pose)
+        /// <summary>The scene values read in front of the component's fields (null: none). After a change call <see cref="ApplyOverride"/>.</summary>
+        public ChainOverride Override;
+        float baseWeight;
+        bool baseEnabled, weightHeld, enabledHeld;
+        Quaternion buildRootRotation = Quaternion.identity;
+        /// <summary>The chain's weight without the scene value: the card's, whether a scene value is set or not.</summary>
+        public float BaseWeight => weightHeld ? baseWeight : weight;
+        /// <summary>The per-chain switch without the scene value.</summary>
+        public bool BaseEnabled => enabledHeld ? baseEnabled : Enabled;
 
         // ---- particles
         int n, tips;
@@ -154,6 +170,7 @@ namespace HS2Next.Motion.DynamicBones
                 if (!direct[i]) allDirect = false;
             }
             localGravity = root.InverseTransformDirection(c.m_Gravity);
+            buildRootRotation = root.rotation;
             objScale = Mathf.Abs(owner.lossyScale.x);
             objPrevPos = owner.position;
             objMove = Vector3.zero;
@@ -269,9 +286,10 @@ namespace HS2Next.Motion.DynamicBones
         {
             var c = Source;
             if (!c) return;
+            var o = Override;
             for (int i = 0; i < n; i++)
             {
-                float d = c.m_Damping, e = c.m_Elasticity, s = c.m_Stiffness, it = c.m_Inert, r = c.m_Radius;
+                float d = o?.Damping ?? c.m_Damping, e = o?.Elasticity ?? c.m_Elasticity, s = o?.Stiffness ?? c.m_Stiffness, it = o?.Inert ?? c.m_Inert, r = o?.Radius ?? c.m_Radius;
                 if (TotalLength > 0f)
                 {
                     float u = boneLength[i] / TotalLength;
@@ -288,6 +306,37 @@ namespace HS2Next.Motion.DynamicBones
 
         static float Curve(AnimationCurve c, float u, float def) => c != null && c.length > 0 ? c.Evaluate(u) : def;
 
+        /// <summary>
+        /// Takes <see cref="Override"/> in: the per-particle parameters derived again, the weight and the switch set, or given back to
+        /// what they were before the first scene value. Particles and bones are not touched unless the switch or a weight crossing 0
+        /// asks for it (the next step applies the switch through <see cref="SetActive"/>; DynamicBoneStage.ApplySwitches does it now).
+        /// </summary>
+        public void ApplyOverride()
+        {
+            var o = Override;
+            if (o != null && o.Weight.HasValue)
+            {
+                if (!weightHeld) { baseWeight = weight; weightHeld = true; }
+                WeightNow(o.Weight.Value);
+            }
+            else if (weightHeld)
+            {
+                weightHeld = false;
+                WeightNow(baseWeight);
+            }
+            if (o != null && o.Enabled.HasValue)
+            {
+                if (!enabledHeld) { baseEnabled = Enabled; enabledHeld = true; }
+                Enabled = o.Enabled.Value;
+            }
+            else if (enabledHeld)
+            {
+                enabledHeld = false;
+                Enabled = baseEnabled;
+            }
+            UpdateParameters();
+        }
+
         // ------------------------------------------------------------ lifecycle
         /// <summary>Applies the effective switch state: on = OnEnable (reset particles), off = OnDisable (restore the Start pose).</summary>
         public void SetActive(bool on)
@@ -299,6 +348,12 @@ namespace HS2Next.Motion.DynamicBones
 
         /// <summary>SetWeight: 0 restores the Start pose, leaving 0 resets particles; between 0 and 1 only the stiffness changes.</summary>
         public void SetWeight(float w)
+        {
+            if (weightHeld) { baseWeight = w; return; }   // under a scene value: the card's value changes, the scene value stays
+            WeightNow(w);
+        }
+
+        void WeightNow(float w)
         {
             if (w == weight) return;
             if (w == 0f) RestorePose();
@@ -591,15 +646,18 @@ namespace HS2Next.Motion.DynamicBones
         //
         void Integrate()
         {
-            Vector3 g = Source.m_Gravity;
+            var o = Override;
+            bool ownGravity = o != null && o.Gravity.HasValue;
+            Vector3 g = ownGravity ? o.Gravity.Value : Source.m_Gravity;
             Vector3 gEff = Vector3.zero;
             if (g.x != 0f || g.y != 0f || g.z != 0f)
             {
                 Vector3 gn = g.normalized;
-                Vector3 gRest = root.TransformDirection(localGravity);
+                // the rest pose's direction of the gravity in use, as the build computes it for the field's value
+                Vector3 gRest = root.TransformDirection(ownGravity ? Quaternion.Inverse(buildRootRotation) * g : localGravity);
                 gEff = g - gn * Mathf.Max(0f, Vector3.Dot(gRest, gn));
             }
-            Vector3 f = (gEff + Source.m_Force) * objScale;
+            Vector3 f = (gEff + (o?.Force ?? Source.m_Force)) * objScale;
             for (int i = 0; i < n; i++)
             {
                 if (parent[i] < 0) { p[i] = x[i]; x[i] = sPos[i]; continue; }
@@ -668,7 +726,10 @@ namespace HS2Next.Motion.DynamicBones
 
         void Constrain()
         {
-            bool freeze = opt.IntendedBehaviour && freezeAxis != 0;
+            // the component's axis acts only in the intended behaviour (the shipped game's job path has none); a scene value always acts
+            int? ownAxis = Override?.FreezeAxis;
+            int axis = ownAxis ?? freezeAxis;
+            bool freeze = (opt.IntendedBehaviour || ownAxis.HasValue) && axis != 0;
             for (int i = 1; i < n; i++)
             {
                 int j = parent[i];
@@ -731,7 +792,7 @@ namespace HS2Next.Motion.DynamicBones
                 if (freeze)
                 {
                     var tj = tr[j];
-                    Vector3 nrm = freezeAxis == 1 ? tj.right : freezeAxis == 2 ? tj.up : tj.forward;
+                    Vector3 nrm = axis == 1 ? tj.right : axis == 2 ? tj.up : tj.forward;
                     float dd = nrm.x * (px - xj.x) + nrm.y * (py - xj.y) + nrm.z * (pz - xj.z);
                     px -= nrm.x * dd; py -= nrm.y * dd; pz -= nrm.z * dd;
                 }

@@ -33,6 +33,7 @@ namespace HS2Next.UI.Panels
         readonly UiContext ctx;
         readonly TargetSelector sel;
         UiEdit edit;
+        bool dropped;   // the drag's edit was cancelled (Esc): the drag's late previews write nothing
 
         public FieldSpec Spec { get; }
         /// <summary>The (expanded) member path; component rows edit one component of it.</summary>
@@ -88,9 +89,10 @@ namespace HS2Next.UI.Panels
             {
                 case EditPhase.Begin:
                     edit?.Cancel();
+                    dropped = false;
                     edit = ctx.BeginEdit(Spec.OpLabel ?? OpLabels.EditFace);
                     var mine = edit;
-                    mine.Ended += committed => { if (edit == mine) edit = null; if (!committed) Binding.MarkDirty(); };
+                    mine.Ended += committed => { if (edit == mine) edit = null; if (!committed) { dropped = true; Binding.MarkDirty(); } };
                     return;
                 case EditPhase.End:
                 {
@@ -101,6 +103,7 @@ namespace HS2Next.UI.Panels
                     return;
                 }
                 case EditPhase.Preview:
+                    if (dropped) return;
                     Write(targets, Spec.ClampSlider(Spec.FromDisplay(shown)), null);
                     return;
                 case EditPhase.Typed:

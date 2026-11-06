@@ -11,12 +11,13 @@ namespace HS2Next.Scenes
 {
     public static class SceneDocumentConverter
     {
-        /// <summary>The scene.json document of the model: nodes in pre-order (shared objects), settings, scene ext, unknown members.</summary>
+        /// <summary>The scene.json document of the model: nodes in pre-order (shared objects), settings, the Timeline, the constraints,
+        /// scene ext, unknown members.</summary>
         public static SceneDocument ToDocument(SceneModel m)
         {
             var nodes = new List<SceneNode>(m.Count);
             foreach (var n in m.PreOrder()) nodes.Add(n.Doc);
-            return new SceneDocument { Nodes = nodes, Scene = m.Settings, Ext = m.SceneExt, Unknown = m.RootUnknown };
+            return new SceneDocument { Nodes = nodes, Scene = m.Settings, Timeline = m.Timeline, Constraints = m.Constraints, Ext = m.SceneExt, Unknown = m.RootUnknown };
         }
 
         /// <summary>
@@ -31,6 +32,8 @@ namespace HS2Next.Scenes
             m.File = c;
             m.Title = c.Title ?? "";
             m.Settings = doc.Scene ?? new SceneSettings();
+            m.Timeline = doc.Timeline;
+            m.Constraints = doc.Constraints != null && doc.Constraints.Count > 0 ? doc.Constraints : null;
             m.SceneExt = doc.Ext ?? new ExtInline();
             m.RootUnknown = doc.Unknown;
             var docs = doc.Nodes ?? new List<SceneNode>();

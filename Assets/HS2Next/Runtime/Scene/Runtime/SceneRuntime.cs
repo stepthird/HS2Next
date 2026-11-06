@@ -21,6 +21,16 @@
 // dt while paused, synchronously, in the frame order (Apply, tick parts, characters, items, map scripts, LateApply). New
 // and load reset the clock (running, time 0; the pause is not saved).
 //
+// Runtime overrides (Phase 6.2): Overrides is the scene's override layer (Runtime/Scene/Overrides),
+// applied by OverrideApplication (Runtime/Scene/Runtime/Overrides): ApplyTransform shows a node's winning transform slots
+// instead of the model's, the end of Apply (and of each step's tick) loads the animation rows slots asked for and re-binds
+// FK bone slots, a character build re-applies its slots, and the layer drops every slot when the scene is cleared and a
+// node's slots when it is forgotten. Without a slot every path is the one before.
+//
+// The motion pass (Phase 6.5): while a pass is set (IMotionPass, SetPass) it steps the characters, and the items it
+// reads through, in the order it wants, on every path that steps characters (StepCharacters); StepItems then skips what it stepped. Without one
+// every path is the one before. PostStage is what plugins run after all motion, before LateApply.
+//
 // Play mode and the player add SceneRuntimeDriver (Update, order -5000: BeginFrame, Apply), ItemMotionDriver (LateUpdate,
 // order 1050: the items after CharaMotion 1000) and SceneRuntimeLateDriver (LateUpdate, order 1100) to the root; Editor
 // batch tests call Apply / Tick by hand. The constructor registers the item motion handlers (ItemMotion.Register). Event
@@ -28,6 +38,7 @@
 using System;
 using System.Collections.Generic;
 using HS2Next.Save;
+using HS2Next.Scenes.Overrides;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -50,7 +61,7 @@ namespace HS2Next.Scenes.Runtime
         // characters changed while paused whose physics settle once no drag is open (after 1.1.0)
         readonly List<CharaRealization> pendingSettle = new List<CharaRealization>();
         readonly HashSet<string> partFaults = new HashSet<string>(StringComparer.Ordinal);
-        bool structureDirty, scaleListDirty, applying, disposed;
+        bool structureDirty, scaleListDirty, applying, disposed, hasDrivers;
 
         public SceneRuntime(SceneSession session, RuntimeServices services, Transform parent = null, bool? addDrivers = null)
         {
@@ -66,8 +77,13 @@ namespace HS2Next.Scenes.Runtime
             Scale = new ScaleEnforcer(this);
             Ops = new SceneOps(this);
             Capture = new SaveCapture(this);
+            // the override layer follows the session before this runtime does: a clear drops every slot first
+            OverrideApp = new OverrideApplication(this);
+            Overrides = new OverrideLayer(OverrideApp);
+            Overrides.Attach(session.Events);
             ItemMotion.Register();
-            if (addDrivers ?? Application.isPlaying)
+            hasDrivers = addDrivers ?? Application.isPlaying;
+            if (hasDrivers)
             {
                 Root.AddComponent<SceneRuntimeDriver>().Runtime = this;
                 Root.AddComponent<ItemMotionDriver>().Runtime = this;
@@ -109,6 +125,10 @@ namespace HS2Next.Scenes.Runtime
         public SceneOps Ops { get; }
         /// <summary>Runtime-owned values written into the model before save, duplicate and delete.</summary>
         public SaveCapture Capture { get; }
+        /// <summary>The runtime override layer: values laid over the model for display, never saved (Phase 6.2).</summary>
+        public OverrideLayer Overrides { get; }
+        /// <summary>The Unity application of <see cref="Overrides"/>.</summary>
+        public OverrideApplication OverrideApp { get; }
         public bool IsDisposed => disposed;
 
         /// <summary>Raised once per character build or rebuild after its children were attached (the 5.1 plugin event).</summary>
@@ -213,10 +233,11 @@ namespace HS2Next.Scenes.Runtime
         {
             Apply();
             TickParts(dt);
+            OverrideApp.AfterApply();   // the animation rows a tick part's slots asked for load before the step's motion
             bool manual = Settings.ManualStepping;
-            foreach (var c in Charas())
-                if (c.State == RealizationState.Built && c.Motion && !c.InGraveyard && (manual || c.Motion.AutoStep)) c.Motion.Step(dt);
+            StepCharacters(dt, manual);
             StepItems(dt);
+            RunPost(dt);
             if (!manual) GetPart<MapRealization>()?.StepScripts(dt);
             LateApply();
         }
@@ -298,6 +319,8 @@ namespace HS2Next.Scenes.Runtime
             if (GetPart<RoutePlayback>() == null) { var rp = new RoutePlayback(); AddPart(rp, rp.Dispose); }   // Phase 3.6 package R: route playback
             if (GetPart<RuntimeUpkeep>() == null) AddPart(new RuntimeUpkeep());   // the settle stamp, the catalog's eviction and UnloadUnusedAssets, frame times (Phase 5.2)
             if (GetPart<SceneImages>() == null) { var im = new SceneImages(); AddPart(im, im.Dispose); }   // Phase 3.6 package C (after SceneViewCamera)
+            if (GetPart<TimelinePlayback>() == null) { var tp = new TimelinePlayback(); AddPart(tp, tp.Dispose); }   // Phase 6.2 package P: Timeline playback (after the standard parts)
+            if (GetPart<ConstraintPart>() == null) AddPart(new ConstraintPart());   // Phase 6.5 package E: the constraints (last: its Apply sees what every other part did)
             return this;
         }
 
@@ -412,6 +435,7 @@ namespace HS2Next.Scenes.Runtime
                         break;
                 }
             }
+            Overrides.NotifyModelChanged(b);   // the owners of the channels this batch touched (the Timeline's suspension)
         }
 
         void NodeChanged(string id, string path)
@@ -500,6 +524,7 @@ namespace HS2Next.Scenes.Runtime
             nameDirty.Clear();
             pendingBuilt.Clear();
             pendingSettle.Clear();
+            OverrideApp.Clear();
             reported.Clear();
             Graveyard.Clear();
             Scale.Clear();
@@ -540,6 +565,7 @@ namespace HS2Next.Scenes.Runtime
                 tickPending = false;
                 TickParts(Clock.FrameDt);
             }
+            if (!stepping) OverrideApp.AfterApply();   // animation rows asked for by slots, FK bone slots re-bound (a step does it after its tick)
         }
 
         /// <summary><see cref="Apply"/> for callers that read realized state right after a command (bridge handlers).</summary>
@@ -567,9 +593,9 @@ namespace HS2Next.Scenes.Runtime
             if (manual)
             {
                 float fdt = Clock.FrameDt;
-                foreach (var c in Charas())
-                    if (c.State == RealizationState.Built && c.Motion && !c.InGraveyard) c.Motion.Step(fdt);
+                StepCharacters(fdt, true);
                 StepItems(fdt);
+                RunPost(fdt);
             }
             LateApply();
         }
@@ -586,6 +612,7 @@ namespace HS2Next.Scenes.Runtime
             {
                 if (!reals.TryGetValue(n.Id, out var r) || !(r is ItemRealization it) || it.Node != n) continue;
                 if (it.State != RealizationState.Built || !(it.Motion is ItemMotion m) || it.InGraveyard) continue;
+                if (Pass != null && m.LastPass == PassStamp) continue;   // the pass stepped it in this frame
                 try { m.Step(dt); }
                 catch (Exception e)
                 {
@@ -593,6 +620,155 @@ namespace HS2Next.Scenes.Runtime
                         Debug.LogWarning("scene runtime: stepping item " + n.Id + " threw: " + e);
                 }
             }
+        }
+
+        // ------------------------------------------------------------ the motion pass (Phase 6.5)
+
+        /// <summary>The pass that steps the characters while one is active; null otherwise, and then every character steps itself.</summary>
+        public IMotionPass Pass { get; private set; }
+        /// <summary>The number of the last walk of the pass (an item the walk stepped carries it).</summary>
+        public long PassStamp { get; private set; }
+        /// <summary>What each walk took beside the steps of its characters and items, in microseconds: the pass's own cost, the units between the steps included. Null before a first walk.</summary>
+        public TimelinePerfWindow PassWalk { get; private set; }
+        long stepTicks;
+
+        /// <summary>
+        /// Installs a pass, or takes it away with null: every built character is Scheduled or steps itself again from the next LateUpdate,
+        /// and <see cref="MotionPassDriver"/> exists exactly while a pass does, on a runtime with drivers.
+        /// </summary>
+        public void SetPass(IMotionPass pass)
+        {
+            if (disposed) return;
+            bool on = pass != null;
+            bool had = Pass != null;
+            Pass = pass;
+            if (on == had) return;
+            foreach (var r in reals.Values)
+                if (r is CharaRealization c && c.Motion) c.Motion.Scheduled = on;
+            if (!hasDrivers) return;
+            if (on) Root.AddComponent<MotionPassDriver>().Runtime = this;
+            else
+            {
+                var d = Root.GetComponent<MotionPassDriver>();
+                if (d) Object.DestroyImmediate(d);
+            }
+        }
+
+        /// <summary>One walk of the active pass; a throw is logged once and never stops the frame.</summary>
+        public void RunPass(float? dt, bool all)
+        {
+            var p = Pass;
+            if (p == null) return;
+            PassStamp++;
+            stepTicks = 0;
+            long t0 = System.Diagnostics.Stopwatch.GetTimestamp();
+            try { p.Run(dt, all); }
+            catch (Exception e)
+            {
+                if (partFaults.Add("pass|" + e.GetType().Name))
+                    Debug.LogWarning("scene runtime: the motion pass threw: " + e);
+            }
+            long ticks = System.Diagnostics.Stopwatch.GetTimestamp() - t0 - stepTicks;
+            (PassWalk ??= new TimelinePerfWindow()).Add(ticks * 1e6 / System.Diagnostics.Stopwatch.Frequency);
+        }
+
+        /// <summary>
+        /// One character's step inside a pass, under the guards of every other path that steps it: built, with a motion, out of the
+        /// graveyard, active (a direct step would reach what LateUpdate never does), and with <paramref name="all"/> false AutoStep on.
+        /// False when it did not step.
+        /// </summary>
+        public bool StepInPass(CharaRealization c, float? dt, bool all)
+        {
+            if (c == null || c.State != RealizationState.Built || !c.Motion || c.InGraveyard || !c.Motion.isActiveAndEnabled) return false;
+            if (!all && !c.Motion.AutoStep) return false;
+            long t0 = System.Diagnostics.Stopwatch.GetTimestamp();
+            if (dt.HasValue) c.Motion.Step(dt.Value); else c.Motion.StepAuto();
+            stepTicks += System.Diagnostics.Stopwatch.GetTimestamp() - t0;
+            return true;
+        }
+
+        /// <summary>
+        /// One item's step inside a pass, with the guards of <see cref="StepItems"/>; <see cref="StepItems"/> then skips it. <paramref name="dt"/> null: the clock's
+        /// FrameDt, what the item takes in a real frame. False when it has no motion to step.
+        /// </summary>
+        public bool StepItemInPass(ItemRealization it, float? dt)
+        {
+            if (it == null || it.State != RealizationState.Built || !(it.Motion is ItemMotion m) || it.InGraveyard) return false;
+            m.LastPass = PassStamp;
+            long t0 = System.Diagnostics.Stopwatch.GetTimestamp();
+            m.Step(dt ?? Clock.FrameDt);
+            stepTicks += System.Diagnostics.Stopwatch.GetTimestamp() - t0;
+            return true;
+        }
+
+        /// <summary>
+        /// True while the evaluator of a pass writes a slot: a transform it applies asks no settle, since a character whose time stands would run a settle in
+        /// every frame behind a moving source. The evaluator asks for one when the motion ends.
+        /// </summary>
+        internal bool QuietTransforms;
+
+        /// <summary>A node's content was built or rebuilt, or a flush re-resolved a character's parts: what names its bones looks again in this Apply.</summary>
+        public event Action<NodeRealization> ContentChanged;
+
+        void RaiseContentChanged(NodeRealization r)
+        {
+            var h = ContentChanged;
+            if (h == null) return;
+            foreach (Action<NodeRealization> d in h.GetInvocationList())
+            {
+                try { d(r); }
+                catch (Exception e) { Debug.LogWarning("scene runtime: ContentChanged handler threw: " + e); }
+            }
+        }
+
+        /// <summary>A flush re-resolved a character's parts (its parts' bones may be others now).</summary>
+        internal void NoteReresolved(CharaRealization c)
+        {
+            OverrideApp.Reresolved();
+            RaiseContentChanged(c);
+        }
+
+        // ------------------------------------------------------------ the scene post stage (Phase 6.5)
+
+        Action<float> postStage;
+
+        /// <summary>
+        /// What runs once per frame and per step after every character and item moved, before LateApply; null when nothing wants it. <see cref="ScenePostDriver"/>
+        /// exists exactly while this is set, on a runtime with drivers.
+        /// </summary>
+        public Action<float> PostStage
+        {
+            get => postStage;
+            set
+            {
+                bool had = postStage != null;
+                postStage = disposed ? null : value;
+                bool on = postStage != null;
+                if (on == had || !hasDrivers) return;
+                if (on) Root.AddComponent<ScenePostDriver>().Runtime = this;
+                else
+                {
+                    var d = Root.GetComponent<ScenePostDriver>();
+                    if (d) Object.DestroyImmediate(d);
+                }
+            }
+        }
+
+        /// <summary>Runs the post stage of a frame or of a step; a null check when nothing wants it.</summary>
+        public void RunPost(float dt) => postStage?.Invoke(dt);
+
+        /// <summary>
+        /// The characters' part of a frame or of a step: the pass while one is active, else every built character in pre-order.
+        /// <paramref name="dt"/> null: each character's own delta. <paramref name="all"/> false: only those with AutoStep.
+        /// </summary>
+        public void StepCharacters(float? dt, bool all)
+        {
+            if (Pass != null) { RunPass(dt, all); return; }
+            foreach (var c in Charas())
+                if (c.State == RealizationState.Built && c.Motion && !c.InGraveyard && (all || c.Motion.AutoStep))
+                {
+                    if (dt.HasValue) c.Motion.Step(dt.Value); else c.Motion.StepAuto();
+                }
         }
 
         /// <summary>Switches manual stepping for every built character (CharaMotion.AutoStep = !manual).</summary>
@@ -764,6 +940,7 @@ namespace HS2Next.Scenes.Runtime
                 Report(FindingSeverity.Error, code, r.NodeId, "realization threw: " + r.Detail);
                 Debug.LogException(e);
             }
+            RaiseContentChanged(r);
         }
 
         /// <summary>The holder parent of a node: its parent's attach transform (fallbacks reported), or the Nodes root.</summary>
@@ -828,6 +1005,7 @@ namespace HS2Next.Scenes.Runtime
             if (pendingBuilt.Count == 0) return;
             var l = pendingBuilt.ToArray();
             pendingBuilt.Clear();
+            foreach (var c in l) OverrideApp.CharaBuilt(c);   // the character's slots apply again on the new body
             var h = CharaBuilt;
             if (h == null) return;
             foreach (var c in l)
@@ -868,14 +1046,24 @@ namespace HS2Next.Scenes.Runtime
             transformDirty.Clear();
         }
 
-        /// <summary>pos, rot and scale of the holder from the model.</summary>
+        /// <summary>pos, rot and scale of the holder from the model, or from the node's winning override slots.</summary>
         internal void ApplyTransform(NodeRealization r)
         {
             var h = r.Holder;
             var t = r.Node.Doc.Transform;
             if (!h || t == null) return;
-            h.localPosition = UnityObjects.V(t.Pos);
-            h.localRotation = Quaternion.Euler(UnityObjects.V(t.Rot));
+            if (Overrides.HasNode(r.NodeId))
+            {
+                var p = Overrides.WinnerOf(r.NodeId, OverrideChannel.TransformPos);
+                var q = Overrides.WinnerOf(r.NodeId, OverrideChannel.TransformRot);
+                h.localPosition = p != null ? new Vector3((float)p[0], (float)p[1], (float)p[2]) : UnityObjects.V(t.Pos);
+                h.localRotation = q != null ? new Quaternion((float)q[0], (float)q[1], (float)q[2], (float)q[3]) : Quaternion.Euler(UnityObjects.V(t.Rot));
+            }
+            else
+            {
+                h.localPosition = UnityObjects.V(t.Pos);
+                h.localRotation = Quaternion.Euler(UnityObjects.V(t.Rot));
+            }
             Scale.Apply(r);
             if (r is CharaRealization c) c.OnTransformApplied();
         }
@@ -914,6 +1102,8 @@ namespace HS2Next.Scenes.Runtime
             ev.Loaded -= OnLoaded;
             ev.NodeForgotten -= OnForgotten;
             ev.Saving -= OnSaving;
+            Overrides.Detach();
+            Overrides.ReleaseEverything();
             ClearRealization();
             if (SceneShaderTime.Source == Clock) SceneShaderTime.Source = null;
             disposed = true;

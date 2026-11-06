@@ -11,9 +11,9 @@ namespace HS2Next.Api.Bridge
     {
         /// <summary>The envelope version reported by <c>ping</c> and <c>bridge.version</c> as <c>protocol</c>.</summary>
         public const int Version = 1;
-        /// <summary>Default listening port (HS2's Studio Bridge uses 17321, so both can run side by side).</summary>
+        /// <summary>Default listening port.</summary>
         public const int DefaultPort = 17322;
-        /// <summary>Request header carrying the token when the bridge requires one (D3).</summary>
+        /// <summary>Request header carrying the token when the bridge requires one.</summary>
         public const string TokenHeader = "X-HS2Next-Token";
         /// <summary>Response header naming the bridge version on every reply.</summary>
         public const string BridgeHeader = "X-HS2Next-Bridge";
@@ -53,7 +53,7 @@ namespace HS2Next.Api.Bridge
         public const string Unsupported = "unsupported";
         /// <summary>A plugin-owned handler failed.</summary>
         public const string PluginFault = "plugin_fault";
-        /// <summary>A Core or bridge handler failed unexpectedly.</summary>
+        /// <summary>A handler of the app or of the bridge failed unexpectedly.</summary>
         public const string Internal = "internal";
         /// <summary>The target exists but is not realized (e.g. a character node whose build failed or is pending; detail.extra.state).</summary>
         public const string Unavailable = "unavailable";
@@ -89,7 +89,7 @@ namespace HS2Next.Api.Bridge
         public const string Strict = "strict";
         /// <summary>Batch members only: names the member's result for <c>"$name"</c> substitution in later members.</summary>
         public const string As = "as";
-        /// <summary><c>false</c>: a mutating command is applied without undo history (Core reads it).</summary>
+        /// <summary><c>false</c>: a mutating command is applied without an undo entry (unless a scene transaction is open).</summary>
         public const string Undo = "undo";
 
         static readonly string[] all = { Cmd, Id, WaitFrames, Timeout, Strict, As, Undo };
@@ -106,7 +106,7 @@ namespace HS2Next.Api.Bridge
     {
         /// <summary>The bridge's own commands (ping, help, bridge.version, batch, log.tail).</summary>
         public const string Bridge = "bridge";
-        /// <summary>Commands registered by Core (Assembly-CSharp, Runtime/Bridge).</summary>
+        /// <summary>Commands registered by the app itself.</summary>
         public const string Core = "core";
     }
 }

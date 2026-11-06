@@ -6,6 +6,8 @@
 // except instances whose block is unknown; an exception keeps the block as loaded. Every call into
 // a handler is wrapped (fault isolation); `hs2.kkex` is core data and never dispatched: handlers that are also
 // IKkexConsumer get read-only copies of the imported entries of the plugin ids they list, after the instance's Read calls.
+// ReadAgain is the same pass limited to some namespaces (a plugin enabled while the app runs reads the open scene's blocks
+// of its namespaces, including those kept as unknown because no handler existed when they were read).
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -79,13 +81,31 @@ namespace HS2Next.Save
         // ---------- read ----------
 
         /// <summary>Runs Read for every block of every instance (in the given order). Returns true if an unknown block is marked required.</summary>
-        public static bool Read(IEnumerable<ExtInstance> instances, ExtRegistry registry, FindingList findings)
+        public static bool Read(IEnumerable<ExtInstance> instances, ExtRegistry registry, FindingList findings) =>
+            ReadCore(instances, registry, findings, null, out _);
+
+        /// <summary>
+        /// Read again, for the namespaces of <paramref name="namespaces"/> only: every instance's block of those namespaces
+        /// is offered to its handler again (a block kept as unknown is decided again), and the handlers of those namespaces
+        /// that are kkex consumers get the instance's imported entries again. Other namespaces are not touched. Returns the
+        /// number of blocks a handler read (not declined, not thrown).
+        /// </summary>
+        public static int ReadAgain(IEnumerable<ExtInstance> instances, ExtRegistry registry, ICollection<string> namespaces, FindingList findings)
+        {
+            if (registry == null || namespaces == null || namespaces.Count == 0) return 0;
+            ReadCore(instances, registry, findings, new HashSet<string>(namespaces, StringComparer.Ordinal), out int read);
+            return read;
+        }
+
+        static bool ReadCore(IEnumerable<ExtInstance> instances, ExtRegistry registry, FindingList findings, HashSet<string> only, out int read)
         {
             bool missingRequired = false;
+            read = 0;
             foreach (var inst in instances)
             {
                 foreach (var ns in inst.NamespacesWithData())
                 {
+                    if (only != null && !only.Contains(ns)) continue;
                     var block = inst.Data.GetOrAdd(ns);
                     var handler = registry?.Get(ns);
                     bool scopeOk = handler != null && (SafeScopes(handler, registry, findings, inst) & inst.Scope) != 0;
@@ -111,6 +131,7 @@ namespace HS2Next.Save
                             {
                                 block.IsUnknown = false;
                                 block.UnknownReason = null;
+                                read++;
                             }
                         }
                         catch (Exception ex)
@@ -126,7 +147,7 @@ namespace HS2Next.Save
                         findings.Warning("ext.missingRequired", inst.Where(ns), "a required ext block has no working handler; the content may be incomplete");
                     }
                 }
-                ReadKkex(inst, registry, findings);
+                ReadKkex(inst, registry, findings, only);
             }
             return missingRequired;
         }
@@ -138,7 +159,7 @@ namespace HS2Next.Save
         /// instance. The store itself is never handed out: a context holds copies, so it stays byte-equal whatever the
         /// consumer does; a throw is a fault of the handler.
         /// </summary>
-        static void ReadKkex(ExtInstance inst, ExtRegistry registry, FindingList findings)
+        static void ReadKkex(ExtInstance inst, ExtRegistry registry, FindingList findings, HashSet<string> only)
         {
             var store = inst.Data?.Kkex;
             if (registry == null || store == null || store.Entries.Count == 0) return;
@@ -148,6 +169,7 @@ namespace HS2Next.Save
             {
                 if (!(h is IKkexConsumer consumer)) continue;
                 string ns = h.Namespace;
+                if (only != null && !only.Contains(ns)) continue;
                 if (registry.IsFaulted(ns) || (SafeScopes(h, registry, findings, inst) & inst.Scope) == 0) continue;
                 IReadOnlyList<string> ids;
                 try { ids = consumer.KkexIds; }

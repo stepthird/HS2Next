@@ -170,9 +170,9 @@ namespace HS2Next.Save.Tests
 
         static void CE5(TestRunner t)
         {
-            t.Check(CoreMigrationRegistry.Default.Supported == SaveFormats.SupportedVersion && SaveFormats.SupportedVersion == 3 && SaveFormats.FormatVersion == 1 &&
-                    SaveFormats.ClothesPartExtVersion == 2 && SaveFormats.NippleThroughClothesVersion == 3 && SaveFormats.MinReaderVersion == 1,
-                "CE5: S = 3 (after 1.1.0), base and minReaderVersion 1, part ext at revision 2, the nipple switch at revision 3");
+            t.Check(CoreMigrationRegistry.Default.Supported == SaveFormats.SupportedVersion && SaveFormats.SupportedVersion == 4 && SaveFormats.FormatVersion == 1 &&
+                    SaveFormats.ClothesPartExtVersion == 2 && SaveFormats.NippleThroughClothesVersion == 3 && SaveFormats.TimelineVersion == 4 && SaveFormats.MinReaderVersion == 1,
+                "CE5: S = 4 (after 1.2.0), base and minReaderVersion 1, part ext at revision 2, the nipple switch at revision 3, the Timeline at revision 4");
             var v1 = SmallChara().ToBytes(Opts());
             var l = CharaContainer.Load(v1, LOpts());
             t.Check(l.Ok && l.Findings.Count == 0, "CE5: a format 1 file loads with no finding at all (the migration is silent) (" + l + ")");

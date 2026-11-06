@@ -99,7 +99,12 @@ namespace HS2Next.Scenes.Runtime
         public OpResult Delete(IEnumerable<string> ids, ExecuteOptions o = default) => OpResult.From(Scene.Delete(ids, Labelled(o, Labels.Delete)));
 
         /// <summary>Copies the top-most subtrees after their originals; the copies become the selection (NewIds).</summary>
-        public OpResult Duplicate(IEnumerable<string> ids, ExecuteOptions o = default) => OpResult.From(Scene.Duplicate(ids, Labelled(o, Labels.Duplicate)));
+        public OpResult Duplicate(IEnumerable<string> ids, ExecuteOptions o = default)
+        {
+            var r = OpResult.From(Scene.Duplicate(ids, Labelled(o, Labels.Duplicate)));
+            if (r.Ok && Session.ConstraintsLeftOut > 0) r.Warnings.Add(Session.ConstraintsLeftOut + " constraints of the copied nodes left out: the list is full, or they cannot act");
+            return r;
+        }
 
         /// <summary>Reparents (and positions) a node ("Parent"); <paramref name="keepWorld"/> keeps its world pose.</summary>
         public OpResult Move(string id, string parentId, string point, int index = -1, bool keepWorld = true, ExecuteOptions o = default)

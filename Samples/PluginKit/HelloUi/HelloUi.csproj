@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The plugin kit's second sample (CC0-1.0): an engine-free plugin with a panel and an inspector section declared as
+       forms, drawn by the app, and its own strings. Build settings and references come from ..\HS2NextPlugin.props;
+       `dotnet build` stages it into ..\out\stp3.sample.helloui\ (the DLL, manifest.json and strings.tsv). -->
+  <Import Project="..\HS2NextPlugin.props" />
+  <PropertyGroup>
+    <AssemblyName>Stp3.SampleHelloUi</AssemblyName>
+    <RootNamespace>Stp3.Samples.HelloUi</RootNamespace>
+    <PluginGuid>stp3.sample.helloui</PluginGuid>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+</Project>

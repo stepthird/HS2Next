@@ -2,8 +2,10 @@
 // (MarkDirty, cheap and idempotent), and Flush runs the dirty units once, in the fixed step order (parts, masks,
 // composites, materials, plugin textures, shapes, plugin final, ownership, motion; scene state through the scene's
 // hooks). A creator (composite) is rebuilt at most once per flush. A change of a rebuild-only member (uncensor, Studio
-// overlay switches, sex, Character MaterialEditor items) makes the editor request a rebuild of the character instead
-// (RebuildRequested; the flush then runs nothing). CharaAssembler.Build is MarkAll + Flush with the build order.
+// overlay switches, sex, a structure change of the Character MaterialEditor items) makes the editor request a rebuild of the
+// character instead (RebuildRequested; the flush then runs nothing). CharaAssembler.Build is MarkAll + Flush with the build order.
+// A change of a material array that leaves its structure alone (values only) reloads nothing: the object joins the value pass
+// of the plugin texture step.
 // A unit that throws is logged (chara.editFailed) and the flush goes on with the next unit.
 // A unit that follows every earlier step (EditUnit.FollowsEarlierSteps: the mosaic stage) is marked whenever a unit of a
 // lower rank ran in the flush.
@@ -91,6 +93,8 @@ namespace HS2Next.Chara.Edit
         public bool FaceShapeChanged, BodyShapeChanged;
         /// <summary>The plugin final stage ran (AAC startup pass: scene state.accessories re-applied after it).</summary>
         public bool ExtFinalRan;
+        /// <summary>Material items ran again on built materials: what the scene's state writes after a build goes on top again.</summary>
+        public bool MaterialItemsRan;
         /// <summary>Roots of the subtrees this flush created (layers, node visibility, forceRenderingOff of the scene).</summary>
         public readonly List<UnityEngine.GameObject> NewObjects = new List<UnityEngine.GameObject>();
 
@@ -226,6 +230,13 @@ namespace HS2Next.Chara.Edit
         public bool MarkDirty(string documentPath)
         {
             if (documentPath == null) return false;
+            if (Context != null && Context.MarkMaterialValues(documentPath))
+            {
+                LastEdit = Now();
+                dirty.Add(UnitMap.ExtTextures);
+                Note(UnitMap.ExtTextures, null);
+                return true;
+            }
             var marked = new List<string>();
             bool rebuild = UnitMap.Map(documentPath, marked, out string why, AccessoryIds());
             LastEdit = Now();

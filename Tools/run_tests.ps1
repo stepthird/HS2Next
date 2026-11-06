@@ -100,6 +100,43 @@
   delete on a sandbox, the Costume tab's kept view state; -NoQuit, port 17651), [PoseThumbTest] (the stick-figure pose
   thumbnails; -NoQuit; full: [PoseThumbTest.all], every pose file), [PoseBrowserWidthTest.play] (the pose browser in narrow
   sidebars; -NoQuit, port 17652); graphics [StreakProbe.check] (the chara light's self-shadow streaks, Built-in vs URP).
+    Phase 6.1: headless [ApiDocs] (no Unity, in -Quick: python -I Tools\offline_compile.py --doc
+  Spike\out\api\doc --asm-only -q, every public Api member documented, KX1); [BridgeCoreTest] group C40 (request helpers,
+  plugin undo entries, runtime disable / enable, skin layers and body-part replacement; C37 builds the 5.1 plugin set against
+  the Api 1.0.0 fixtures Tests\Plugins\fixtures\api10, the 1.x compatibility check); player [PluginKit.dist] (python -I
+  Tools\pluginkit_check.py: the zip packaged into its own folder, extracted outside the repository, the kit built with one
+  dotnet build and its samples loaded by the extracted exe, port 17388); [PluginCheck.player] builds the Sequencer against the
+  1.0.0 fixtures (--api-dir) and also loads the kit's samples (PK1, PK2) and disables / enables the Sequencer (KD9).
+    Phase 6.2: headless [TimelineTest] (in -Quick, a HeadlessBatch member: the runtime override layer
+  TO3-TO7, the timeline.* commands TM2-TM4 and the acceptance TA1 / TA6 / TA7 in edit mode); [BridgeCoreTest] group C41 (a
+  plugin's runtime overrides with the probe Tests\Plugins\OverrideProbe, TX3 / TX4); graphics [TimelineTest.play] (the Timeline
+  panel TU1-TU11 and the frame recording TW1-TW5 in Editor play with the UI, port 17398); player [TimelineCheck.player]
+  (python -I Tools\timeline_player_check.py: TP1 the Timeline's time per frame with 9 FK bone tracks, TP2, TW6-TW8, TA1 / TA6
+  of walk in the app player, port 17387).
+    Phase 6.3: headless [AdvancedPoseTest] (in -Quick, a HeadlessBatch member: bone corrections
+  AB1-AB15, the order pinned AO1, jiggle values AJ1-AJ5, blend-shape overrides AL1-AL5 in edit mode); [BridgeCoreTest] group C42 (the
+  12 pose.* commands, the promoted bones.dump and chara.bones, the Api listings); [MosaicTest] AM0-AM4 (the mosaic rule of advanced
+  pose); graphics [AdvancedPoseTest.play] (AO2-AO4 in real frames, the Advanced pose tab AU1-AU9 in Editor play with the UI, port
+  17398); player [AdvancedPoseCheck.player] (python -I Tools\advancedpose_player_check.py: AT1, AT2, AT3's blend half, AO2 and AA1
+  in the app player, UI off, port 17389; a budget over its bar is WARN).
+    Phase 6.3a: headless [ModifierOrderTest] (in -Quick, a HeadlessBatch member: the card bone modifiers
+  as motion stages, FM1-FM12, FI12, FM15R in edit mode); opt-in [AdvancedPoseTest.recon] (the census FM14 in real frames: every
+  modifier of every card shows); graphics [UiEscTest.play] (Esc during a drag on every handle and row, FE1-FE5, FI13, port 17398).
+    Phase 6.4: headless [MaterialEditTest] (in -Quick, a HeadlessBatch member: the round trips ML1, MI1);
+  full [MaterialEditTest.full] (-Full only: ML2-ML6, ML8-ML11, MI2, MI3, MI5, MI7, MI8, MIQ, MT1-MT7, MJ2, MJ4; it writes the Editor's list
+  of candidate shaders the player row reads); graphics [MaterialEditTest.play] (the map, the Materials view and Esc in Editor play: MI4,
+  MI6, MI9, MI10, MIQ, ML7, ML12, MU1-MU11, MW3, MW4, port 17410); player [MaterialEditCheck.player] (python -I
+  Tools\material_edit_player_check.py: MV1-MV5, MW1, MW2, MW5-MW7, MJ3 and a round trip of every target in the app player, UI off, port
+  17403; a budget over its bar is WARN); opt-in [MaterialEditTest.corpus] (MY1-MY5 on every file with items) [MaterialEditTest.values]
+  (the value pass against a fresh build on every card with items) [MosaicTest.render.sweep] (MO6all: the body skin on every candidate shader;
+  a shader that joins the candidates is covered by this row). C43 runs in BridgeCoreTest, MO0-MO5, MO7, MO8 in MosaicTest, MO6 in
+  MosaicTest.render, MF in Mono.save, MM and MJ1 in Mono.scene, MU0 in Mono.ui.
+    Phase 6.5: headless [ConstraintTest] (in -Quick, a HeadlessBatch member: the order CO1-CO3, CO15, CO16 in
+  edit-mode frames, the override paths CL1-CL6, the rebuilds CB, the clean model CD, CX2, CX4, CX5, CW3, CW5, CW6); graphics
+  [ConstraintTest.play] (CO0, CO4-CO14, CO17-CO19 in real frames, the panel and the section CU1-CU11, CD4, port 17829); player
+  [ConstraintCheck.player] (python -I Tools\constraint_player_check.py: CW1, CW2, CW4, CW5, CW7, the chain and a round trip in the app
+  player, UI off, port 17828; a time over its bar is WARN). C44 runs in BridgeCoreTest, CT in MosaicTest, CF in Mono.save, CM, CG, CB6
+  in Mono.scene, CU0 in Mono.ui, CX2, CX3 in Mono.plugins.
   Before the first row the offline compile check (Tools\offline_compile.py) runs once; a tree that does not compile is a
   note in the summary and a warning on the console (the first Unity row's compile failure stops the suite as before);
   every row then passes -SkipOfflineCompile to unity_batch.
@@ -362,7 +399,8 @@ function Invoke-Unity([string]$id, [string]$method, [string[]]$methodArgs, [bool
     $logName = "suite_${Stamp}_" + ($id -replace '[^A-Za-z0-9_.-]', '_')
     Write-Host ("[run_tests] {0} {1,-26} {2} {3}" -f (Get-Date -Format 'HH:mm:ss'), $id, $method, ($methodArgs -join ' '))
     # the offline compile check ran once before the first row
-    $p = @{ Method = $method; MethodArgs = $methodArgs; LogName = $logName; Tail = 15; TimeoutMin = $timeoutMin; SkipOfflineCompile = $true }
+    # StallMin 0: this runner watches its rows itself (the end-stall guard above keeps a complete report's verdict)
+    $p = @{ Method = $method; MethodArgs = $methodArgs; LogName = $logName; Tail = 15; TimeoutMin = $timeoutMin; SkipOfflineCompile = $true; StallMin = 0 }
     if (-not $graphics) { $p.NoGraphics = $true }
     if ($noQuit) { $p.NoQuit = $true }
     if ($graphics -and $Gfx) { $p.Gfx = $Gfx }
@@ -552,7 +590,7 @@ function Invoke-HeadlessBatch([object[]]$members) {
         $console = Join-Path $OutDir "HeadlessBatch.$attempt.console.txt"
         Write-Host ("[run_tests] {0} {1,-26} HeadlessBatch.Run ({2} members, process {3})" -f (Get-Date -Format 'HH:mm:ss'), 'HeadlessBatch', ($lines.Count - 1), $attempt)
         & $Batch -Method 'HeadlessBatch.Run' -MethodArgs @('-plan', $plan, '-out', $dir, '-resume', $progress) -NoGraphics -TimeoutMin $BatchTimeoutMin `
-            -LogName "suite_${Stamp}_HeadlessBatch_$attempt" -Tail 15 -SkipOfflineCompile *>&1 | Out-File -FilePath $console -Encoding utf8
+            -LogName "suite_${Stamp}_HeadlessBatch_$attempt" -Tail 15 -SkipOfflineCompile -StallMin 0 *>&1 | Out-File -FilePath $console -Encoding utf8
         if ($LASTEXITCODE -ne 0 -and (Select-String -LiteralPath $console -Pattern 'error CS\d+' -Quiet)) { $script:CompileFailed = $true; break }
         $pl = @(Get-Content -LiteralPath $progress -Encoding UTF8 -ErrorAction SilentlyContinue)
         if ($pl | Where-Object { $_ -like "done`t*" }) { break }
@@ -931,6 +969,10 @@ $AreaTags = [ordered]@{
     'plugins'      = 'the plugin loader, the plugin Api, the sample sequencer and the test plugins (Phase 5.1)'
     'setup'        = 'first run, settings, data roots and migration, the distribution package and the bare exe (Phase 5.3)'
     'api'          = 'the frozen public contract: the Api assemblies, the command surface, the plugin manifest schema (Tools/api)'
+    'timeline'     = 'Timeline, runtime overrides and frame recording (Phase 6.2)'
+    'advancedPose' = 'advanced pose: bone corrections, jiggle values, blend-shape overrides, their tab and handles (Phase 6.3)'
+    'materials'    = 'material edits: the arrays of characters, items and the map, textures, shaders, the Materials view, hair bone adjustments (Phase 6.4)'
+    'constraints'  = 'constraints: the list, the ordered motion pass, driven bones, the override paths of bones and IK targets, the panel and section (Phase 6.5)'
 }
 $Rows = [System.Collections.Generic.List[object]]::new()
 function Row {
@@ -998,11 +1040,27 @@ Row 'LeakCheck'           headless 'publication,plugins' -Run {
     }
     Add-Result 'LeakCheck' $(if ($code -eq 0) { 'PASS' } else { 'FAIL' }) ((Get-Date) - $t0).TotalMinutes $line $copied
 }
+# ApiDocs (Phase 6.1; package A's script): no Unity - python -I Tools\offline_compile.py
+# --doc Spike\out\api\doc --asm-only -q compiles HS2Next.Api and HS2Next.Api.Unity from the last Unity compile's response files
+# with -doc: and fails on any missing doc comment (CS1591) or parameter comment (CS1573), listing them. PASS = exit 0 and both
+# XML lines (exit 1: a compile error or a missing comment; exit 2: no Library\Bee or no Unity install); key numbers the two XML
+# lines (size, members by kind, CS1591, CS1573). A few seconds.
+Row 'ApiDocs'             headless 'api,plugins,publication' -Run {
+    $t0 = Get-Date
+    $out = @(& python -I (Join-Path $PSScriptRoot 'offline_compile.py') --doc (Join-Path $Project 'Spike\out\api\doc') --asm-only -q 2>&1 | ForEach-Object { "$_" })
+    $code = $LASTEXITCODE
+    $console = Join-Path $OutDir 'ApiDocs.console.txt'
+    $out | Out-File $console -Encoding utf8
+    $xml = @($out | Where-Object { $_ -match '^\[offline_compile\] HS2Next\.Api(\.Unity)?: XML ' } | ForEach-Object { $_ -replace '^\[offline_compile\] ', '' -replace ': XML \S+, ', ': XML ' })
+    $line = if ($xml.Count) { $xml -join '; ' } else { @($out | Where-Object { $_.Trim() } | Select-Object -Last 1) -join '' }
+    if ($code -ne 0) { $line = "exit $code; $line" }
+    Add-Result 'ApiDocs' $(if ($code -eq 0 -and $xml.Count -eq 2) { 'PASS' } else { 'FAIL' }) ((Get-Date) - $t0).TotalMinutes $line $console
+}
 Row 'TestTargets'         headless 'infra'                       'TestTargets.Run' @() 'Spike\out\tests\targets_report.txt' -DevInputs 'Tools/targets.json'
 Row 'ContentIdTest'       headless 'content'                     'ContentIdTest.Run' @() 'Spike\out\content\contentid.txt'
-Row 'SaveFormatTest'      headless 'save'                        'SaveFormatTest.Run' @() 'Spike\out\save\saveformat_report.txt'
+Row 'SaveFormatTest'      headless 'save,materials,constraints'  'SaveFormatTest.Run' @() 'Spike\out\save\saveformat_report.txt'
 Row 'ImportTest'          headless 'import,save'                 'ImportTest.Run' @() 'Spike\out\import\import_report.txt' -DevInputs 'Tools/targets.json'
-Row 'SceneModelTest'      headless 'scene,save'                  'SceneModelTest.Run' @() 'Spike\out\scene\scene_model_report.txt'
+Row 'SceneModelTest'      headless 'scene,save,materials,constraints' 'SceneModelTest.Run' @() 'Spike\out\scene\scene_model_report.txt'
 Row 'PoseFileTest'        headless 'pose'                        'PoseFileTest.Run' @() 'Spike\out\pose\posefile_report.txt'
 Row 'PoseFileTest.corpus' full     'pose'                        'PoseFileTest.RunCorpus' @() 'Spike\out\pose\pose_corpus_report.txt'
 Row 'ZipmodListTest'      headless 'content'                     'ZipmodListTest.Run' @() 'Spike\out\content\zipmod_lists.txt'
@@ -1094,7 +1152,7 @@ Row 'MakerSchemaTest'      headless 'maker,bridge,ui'            'MakerSchemaTes
 # the policy classes in -Quick, PT1-PT5 change only with the build hooks, the documents or the export manifest
 Row 'PolicyTest'           full     'publication,maker,chara-build,content,plugins' 'PolicyTest.Run' @() 'Spike\out\policy\policy_report.txt' -TimeoutMin 20
 Row 'HAnimeTest'           headless 'motion,ui,scene,pose'       'HAnimeTest.Run' @() 'Spike\out\motion\hanime_report.txt' -TimeoutMin 20 -DevInputs 'Tools/targets.json'
-Row 'MosaicTest'           headless 'maker,chara-build,shaders'  'MosaicTest.Run' @() 'Spike\out\maker\mosaic_report.txt' -TimeoutMin 20 -DevInputs 'Tools/targets.json'
+Row 'MosaicTest'           headless 'maker,chara-build,shaders,advancedPose,materials,constraints' 'MosaicTest.Run' @() 'Spike\out\maker\mosaic_report.txt' -TimeoutMin 20 -DevInputs 'Tools/targets.json'
 # Phase 5.2 package G: group 647158, the accessories as Studio items (GA1-GA5)
 Row 'AccessoryItemsTest'   headless 'items,content,ui'           'AccessoryItemsTest.Run' @() 'Spike\out\items\accessory_items_report.txt' -TimeoutMin 15
 # HAnimeTest.corpus (5.M package N; -Full only): every listed H row's controllers, override, states, sway lines and option
@@ -1114,6 +1172,10 @@ Row 'ThumbGuardTest.census' full   'maker,ui,content' -Run {
 # Phase 4.4 package M: MaterialEditor's shader names resolve through its registry (the plugin's names and the zipmods'
 # declarations), never through the shaders loaded in the process (MS1-MS3)
 Row 'MaterialEditorShaderTest' full 'chara-build,content'    'MaterialEditorShaderTest.Run' @() 'Spike\out\maker\material_editor_shader_report.txt' -TimeoutMin 20
+# MaterialEditTest.full (Phase 6.4; -Full and impact runs only, not -Quick): the same host: ML2-ML6, ML8-ML11 and MV1's
+# draft (R), MI2, MI3, MI5, MI7, MI8, MIQ, MT4's merge and MVE (I; MVE writes Spike\out\maker\material_shaders_editor.json, the Editor's side of
+# MaterialEditCheck.player), MT1-MT3, MT5-MT7 (C), MJ2, MJ4 (U); -only picks groups. About 3 min
+Row 'MaterialEditTest.full' full 'materials,chara-build,items,scene,save' 'MaterialEditTest.RunFull' @() 'Spike\out\maker\material_edit_full_report.txt' -TimeoutMin 25 -DevInputs 'Tools/targets.json'
 # LooseTextureTest (Phase 4.2 package L, GB10): the loose-PNG census (Tools/survey/loose_png_census.py, a few seconds once
 # cached) writes Cache/survey/loose_png/refs.tsv, then the catalog is checked against it (C1-C8). Phase 5.2 (LQ16): the
 # headless row loads every 10th census reference in C2 (-c2Stride 10; a HeadlessBatch member with the census step before the
@@ -1131,8 +1193,20 @@ Row 'LooseTextureTest'    headless 'content,maker' -Run { Invoke-LooseRow 'Loose
 Row 'LooseTextureTest.all' full    'content,maker' -Run { Invoke-LooseRow 'LooseTextureTest.all' @() }
 # BridgeCoreTest: since Phase 5.1 also group C37 (the plugin loader in a test host, the command-layer checks CK2-CK5 and the
 # engine-side points PX1-PX6); -c37Stage makes the check run Tools\plugins.ps1 -Build all -Stage Spike\out\plugins\core
-# inside the Unity process, after Unity compiled the Api (the plugin build refuses an Api DLL older than its sources)
-Row 'BridgeCoreTest'      headless 'bridge,scene,items,maps,chara-build,motion,pose,effects,ui,plugins' 'BridgeCoreTest.Run' @('-c37Stage') 'Spike\out\bridge\bridge_core_report.txt' -DevInputs 'Tools/targets.json'
+# inside the Unity process, after Unity compiled the Api (the plugin build refuses an Api DLL older than its sources).
+# Phase 6.1 (the spec's "C38" is C40: C38 and C39 were taken): the staging then rebuilds the 5.1
+# set (the plugins declaring apiVersion 1.0) with -ApiDir Tests\Plugins\fixtures\api10 over it, so C37's PL5 table is a load
+# of 1.0-built plugins on the 1.1 host (KX4a); group C40 (Editor/BridgeCoreTest_Plugins61.cs: KC1-KC5, KR2-KR7, KD1-KD6,
+# KD8, KX4a; Editor/BridgeCoreTest_BodyParts.cs: KB1-KB6, KB8-KB11) loads the same folder with HistoryProbe, BodyProbe,
+# FormProbe and the kit's samples; -c40 KC1+KB3 picks parts.
+# Phase 6.2 (package O): group C41 (Editor/BridgeCoreTest_Overrides62.cs) loads the OverrideProbe
+# from the same folder - TX4 a plugin's runtime override slots against a playing Timeline (priorities -1 / 0 / 1), IsWinning,
+# List, ReleaseAll, the refusals, plugin.list / plugin.disable / plugin.enable; TX3 Set(x, y, z) over 10,000 calls (median,
+# no allocation); -c41 TX4 picks a part
+# Phase 6.3 (package C): group C42 (Editor/BridgeCoreTest_AdvancedPose63.cs) - AC1 every argument,
+# reply and error of the 12 pose.* commands, AC2 their registration and the promoted bones.dump and chara.bones, AC3 the Api
+# listings unchanged; -only C42 picks it
+Row 'BridgeCoreTest'      headless 'bridge,scene,items,maps,chara-build,motion,pose,effects,ui,plugins,timeline,advancedPose,materials,constraints' 'BridgeCoreTest.Run' @('-c37Stage') 'Spike\out\bridge\bridge_core_report.txt' -DevInputs 'Tools/targets.json'
 # CommandsDoc (Phase 5.1 package C; -Full only): BridgeHelpDump.Run writes the help dump of every command
 # (Spike\out\bridge\help_dump.json, about 2 min with the Unity start), then python -I Tools\gen_commands_md.py --check compares
 # Reference/COMMANDS.md with what the dump gives (exit 1: the reference is stale - regenerate it without --check and commit it)
@@ -1155,18 +1229,47 @@ Row 'CommandsDoc'         full     'bridge'                      -DevInputs 'Too
 # freeze). Builds its command registry without an app: no game install, no catalog, no development input. About 5 s inside the
 # HeadlessBatch.
 Row 'ApiSurfaceTest'      headless 'api,bridge,plugins'          'ApiSurfaceTest.Run' @() 'Spike\out\api\api_surface_report.txt' -TimeoutMin 10
+# TimelineTest (Phase 6.2; packages O and P): headless edit mode with ManualStepping on BR-Chan,
+# HERO107, a vanilla item and a light; the parts are partial files of the class found by name (Headless_<part>): TO3-TO7 the
+# runtime override layer's channels, release, rebuild and the save-capture exclusions (Editor/TimelineTest_Overrides.cs), TM2-TM4
+# the timeline.* commands, timed commands and the authoring suspension, TA1 the three compositions' round trip with the tick
+# measured while they play, TA6 the save during playback, TA7 the bake (Editor/TimelineTest_Playback.cs); -only TO3+TM2 picks
+# groups. A HeadlessBatch member; about 1.3 min alone
+Row 'TimelineTest'        headless 'timeline,scene,save,bridge,motion' 'TimelineTest.Run' @() 'Spike\out\timeline\timeline_report.txt' -TimeoutMin 15 -DevInputs 'Tools/targets.json'
+# AdvancedPoseTest (Phase 6.3; packages M and J): headless edit mode on BR-Chan and HERO107; the parts
+# are partial files of the class found by name (Headless_<part>): AB1-AB15 the bone corrections, AO1 the order pinned
+# (Editor/AdvancedPoseTest_Bones*.cs, _Order.cs), AJ1-AJ5 the jiggle values, AL1-AL5 the blend-shape overrides (_Jiggle.cs, _Blend.cs);
+# -only AB1+AJ2 picks groups. The method Recon is by hand, no row; ReconPlay is the opt-in row AdvancedPoseTest.recon. A HeadlessBatch
+# member; about 0.4 min in the batch
+Row 'AdvancedPoseTest'    headless 'advancedPose,motion,scene,save,bridge' 'AdvancedPoseTest.Run' @() 'Spike\out\advancedpose\advancedpose_report.txt' -TimeoutMin 15 -DevInputs 'Tools/targets.json'
+# ModifierOrderTest (Phase 6.3a; package M): headless edit mode on BR-Chan and the local list of modifier
+# cards (Cache/compare_mods/cards.json, not in git; the checks that need it WARN without it): FM1 the stages, FM2 and FM3 every class of
+# channel and bind independence, FM4 the other writers, FM5 the mouth width bone, FM6 heels, FM7 corrections, FM8 a probe, FM9 settle and
+# pause, FM10 a slider edit, suppression and removal, FM11 thumbnails, FM12 Timeline, FI12 the stale finding, FM15R the old pass's time on
+# a stopwatch; -only FM1+FM6 picks groups. A HeadlessBatch member; about 0.5 min
+Row 'ModifierOrderTest'   headless 'motion,advancedPose,maker'   'ModifierOrderTest.Run' @() 'Spike\out\advancedpose\modifier_order_report.txt' -TimeoutMin 15 -DevInputs 'Tools/targets.json'
+# MaterialEditTest (Phase 6.4; packages R and I): headless edit mode on BR-Chan through AppCore.ForTests: ML1
+# character, hair, clothes, accessory x float, colour, texture, shader, renderer Enabled, keyword; MI1 the item, the same: set, the value on
+# the material, undo, redo, save, scene.new, load. Items are synthetic, images generated in the test. The other packages add partial files
+# (Editor/MaterialEditTest_*.cs); -only ML1+MI1 picks groups. A HeadlessBatch member; about 0.5 min
+Row 'MaterialEditTest'    headless 'materials,chara-build,items,scene,save' 'MaterialEditTest.Run' @() 'Spike\out\maker\material_edit_report.txt' -TimeoutMin 15 -DevInputs 'Tools/targets.json'
+# ConstraintTest (Phase 6.5; packages O, E, C, U): headless edit mode on BR-Chan and HERO107 through AppCore.ForTests, frames by
+# hand: the order CO1-CO3, CO15, CO16, the override paths CL1-CL6, the rebuilds CB1-CB5, CB9-CB11, the graph on the engine CG11, the arithmetic on the engine
+# CM9, the clean model CD1-CD3, CD5, CD6, CX2, CX4, CX5, CW3 (0 B), CW5, CW6. Parts are partial files found by name (Editor/ConstraintTest_*.cs, Headless_<part>);
+# -only CO2+CL1 picks groups, -report <path> keeps a run apart. A HeadlessBatch member; about 0.5 min
+Row 'ConstraintTest'      headless 'constraints,motion,scene,save,bridge' 'ConstraintTest.Run' @() 'Spike\out\constraints\constraint_report.txt' -TimeoutMin 15 -DevInputs 'Tools/targets.json'
 
 # ---- mono group (-Quick): the plain-Mono suites of Tools\mono_tests.ps1 in two background jobs beside the Unity rows
 # (Mono.scene alone, the others one after the other); Mono.scene carries the appearance fuzz at 2,000 x 200 while the
 # Unity row SceneModelTest runs it at the smoke size
-Row 'Mono.scene'          mono 'scene,save,maker'                -MonoSuite scene
-Row 'Mono.ui'             mono 'ui,setup'                        -MonoSuite ui
+Row 'Mono.scene'          mono 'scene,save,maker,timeline,advancedPose,materials,constraints' -MonoSuite scene
+Row 'Mono.ui'             mono 'ui,setup,advancedPose,materials,constraints' -MonoSuite ui
 Row 'Mono.maker'          mono 'maker,content'                   -MonoSuite maker
-Row 'Mono.save'           mono 'save'                            -MonoSuite save
+Row 'Mono.save'           mono 'save,timeline,advancedPose,materials,constraints' -MonoSuite save
 Row 'Mono.pose'           mono 'pose'                            -MonoSuite pose
 Row 'Mono.bridge'         mono 'bridge,setup'                    -MonoSuite bridge
 Row 'Mono.content'        mono 'content,setup'                   -MonoSuite content
-Row 'Mono.plugins'        mono 'plugins'                         -MonoSuite plugins
+Row 'Mono.plugins'        mono 'plugins,constraints'             -MonoSuite plugins
 
 # ---- the all-card row of -Full (group full) runs before the graphics group (its walk also fills the texture check's verdict
 # cache; table order = run order).
@@ -1373,7 +1476,7 @@ Row 'SkyAmbientTest.play'      graphics 'effects,maps'           'SkyAmbientTest
 Row 'StreakProbe.check'        graphics 'effects,chara-render'   'StreakProbe.RunCheck' @('-syncShaders') 'Spike\out\streaks\check\streak_check.txt' -TimeoutMin 20 -DevInputs 'Tools/targets.json'
 # MeReportTest.play (Phase 5.R package N): Editor play with the UI, port 17623 - NG1-NG4, the
 # me.shaderUnavailable finding of MaterialEditor swaps HS2Next cannot draw (the vanilla skin kept, the inspector badge and line)
-Row 'MeReportTest.play'        graphics 'chara-build,ui,effects' 'MeReportTest.RunPlay' @() 'Spike\out\mereport\me_report_play.txt' -NoQuit -TimeoutMin 20
+Row 'MeReportTest.play'        graphics 'chara-build,ui,effects,materials' 'MeReportTest.RunPlay' @() 'Spike\out\mereport\me_report_play.txt' -NoQuit -TimeoutMin 20
 Row 'BridgeAcceptance.play'    graphics 'bridge,maps,items,chara-render,shaders,scene,save,effects,pose' 'BridgeTest.RunPlay' @() 'Spike\out\bridge\bridge_play_report.txt' -NoQuit -TimeoutMin 30
 Row 'BridgeAcceptance.play.ui' graphics 'ui,bridge,routes,capture' 'BridgeTest.RunPlayUi' @() 'Spike\out\bridge\bridge_play_ui1_report.txt' -NoQuit -TimeoutMin 35
 Row 'UiPanelsTest.play'        graphics 'ui'                     'UiPanelsTest.Run' @() 'Spike\out\ui\ui_panels_report.txt' -NoQuit -TimeoutMin 30
@@ -1431,7 +1534,12 @@ Row 'MakerFileTest.timing'   graphics 'maker'                  'MakerFileTest.Ru
 # MosaicTest.render and .timing (5.M package R), each in its own Unity process (a render and a timing suite never share
 # one): MR1-MR5 keep every image in memory (code-made marker textures judged by pixel counts; nothing is written), MR6
 # the costs of methods (a) and (b)
-Row 'MosaicTest.render'    graphics 'chara-render,shaders,effects,capture' 'MosaicTest.RunRender' @('-syncShaders') 'Spike\out\maker\mosaic_render_report.txt' -TimeoutMin 30
+Row 'MosaicTest.render'    graphics 'chara-render,shaders,effects,capture,materials' 'MosaicTest.RunRender' @('-syncShaders') 'Spike\out\maker\mosaic_render_report.txt' -TimeoutMin 30
+# MosaicTest.render.sweep (Phase 6.4 package R; opt-in, about 4 min, GPU lock): MO6all, the body skin on every shader a material
+# edit can pick, at its default queue and at 5000, three angles: the members draw and 0 marker pixels show in a mask fixed with the card's own skin. Images
+# stay in memory. A shader that joins the candidates (MaterialShaders) is covered by this row and not by the default MosaicTest.render: run it after adding
+# one. -budgetMin N sets when the angles drop. It writes the same report as MosaicTest.render
+Row 'MosaicTest.render.sweep' graphics 'materials,chara-render,shaders' 'MosaicTest.RunRender' @('-syncShaders', '-only', 'MO6all') 'Spike\out\maker\mosaic_render_report.txt' -OptIn -TimeoutMin 30
 Row 'MosaicTest.timing'    graphics 'chara-render,effects'       'MosaicTest.RunTiming' @() 'Spike\out\maker\mosaic_timing_report.txt' -TimeoutMin 30
 # LooseTextureTest.quit (Phase 4.2 package L; opt-in): play mode with web requests, loose reads and asset loads / opens of the
 # Maker thumbnails in flight, then the session ends - the quit release must leave nothing in flight (the 4.2 shutdown hang).
@@ -1464,6 +1572,34 @@ Row 'PluginLoaderTest.play'    graphics 'plugins,ui,bridge'      'PluginLoaderTe
 # without HS2 content, the banner, setup.json skipped; -setup reopens the guide), SG1 (the settings page keeps unknown members,
 # comments and order; a command-line value is locked), SG2 (an unknown key: the log line, the toast, app.settings.unknownKeys)
 Row 'SetupTest.play'           graphics 'setup,ui,bridge'        'SetupTest.Run' @() 'Spike\out\setup\setup_play_report.txt' -NoQuit -TimeoutMin 20
+# TimelineTest.play (Phase 6.2; packages U and W): Editor play with the app and the UI, port
+# 17398; the parts are partial files found by name (Play_<part>): TU1-TU11 the Timeline panel through ui.* (the bottom region,
+# New Timeline, the add-track menu, Key, key drags, eases, delete, undo / redo, play / pause / stop / Stop and keep this pose,
+# scrubbing, the overridden mark, the camera controller and the gizmo rule, the strings in three languages;
+# Editor/TimelineTest_Play.cs) and TW1-TW5 the frame recording (record.* on bones9 and camera_dof, the PNG headers read as numbers,
+# record.json's step, the capture events of kind Record, the global pause and scene.step, one Timeline pass, the recorder's late
+# point without the bridge; Editor/TimelineTest_Record.cs). The recordings go under Spike\out\timeline\play_out
+Row 'TimelineTest.play'        graphics 'timeline,ui,capture,bridge' 'TimelineTest.RunPlay' @() 'Spike\out\timeline\timeline_play_report.txt' -NoQuit -TimeoutMin 25 -DevInputs 'Tools/targets.json'
+# AdvancedPoseTest.play (Phase 6.3, 10.3; packages M and U): Editor play with the app and the UI, port
+# 17398; the parts are partial files found by name (Play_<part>): AO2 card modifiers and corrections on unbound and bound bones,
+# hand-stepped characters, AO3 a clip-bound channel, AO4 heels, the hips offset and the neck patterns, all in real frames
+# (Editor/AdvancedPoseTest_Order.cs); AU1-AU9 the Advanced pose tab, the bone handle and the pick through ui.* (Editor/AdvancedPoseTest_Play.cs);
+# Phase 6.3a: FM3P the bind's second read of the defaults, FM5P the mouth width bone on modifier cards, FM13 no write between steps
+# (part Play_N_ModifierOrder, real frames)
+Row 'AdvancedPoseTest.play'    graphics 'advancedPose,ui,motion,bridge' 'AdvancedPoseTest.RunPlay' @() 'Spike\out\advancedpose\advancedpose_play_report.txt' -NoQuit -TimeoutMin 25 -DevInputs 'Tools/targets.json'
+# UiEscTest.play (Phase 6.3a; package E): Editor play with the app and the UI, port 17398: FE1 a number
+# field's label drag, FE2 every handle kind, FE3 every value row, FE4 the sites with their own Esc, FE5 Esc with no drag, FI13 a hair
+# bundle's and an accessory set's handle on a corrected transform; -only FE1+FE2 picks groups; about 1 min
+Row 'UiEscTest.play'           graphics 'ui'                     'UiEscTest.Run' @() 'Spike\out\ui\ui_esc_report.txt' -NoQuit -TimeoutMin 15 -DevInputs 'Tools/targets.json'
+# MaterialEditTest.play (Phase 6.4; packages I, U and R): Editor play with the app and the UI, port 17410: maps
+# load only in play mode, so the map groups live here (MI4, MI6 with MT7's map half, MI9, MI10, MIQ, MW4 on the largest vanilla map), with the
+# Materials view (MU1-MU11, MW3, MO7, MJU), Esc during a drag on every row and target (ML7), a drag that reloads the part under the pointer (ML12) and MO3's map half. Groups join through PlayGroups;
+# -only MU7+ML7 picks them; -only MW4 -mw4 "<ref>" -mw4LoadSec 600 (and -only MU8 likewise) measures another map by hand. About 5 min
+Row 'MaterialEditTest.play'    graphics 'materials,ui,items,maps' 'MaterialEditTest.RunPlay' @() 'Spike\out\maker\material_edit_play_report.txt' -NoQuit -TimeoutMin 25 -DevInputs 'Tools/targets.json'
+# ConstraintTest.play (Phase 6.5; packages O and U): Editor play with the app and the UI, port 17829, real frames: CO0 (the pass
+# against no pass, bit for bit), CO4-CO14, CO17-CO19, CX2P; the panel, the section, the marks and the popup through ui.*: CU1-CU11, CD4. Parts are partial files found by
+# name (Play_<part>); -only CO4+CU2 picks groups, -report <path> keeps a run apart. About 9 min
+Row 'ConstraintTest.play'      graphics 'constraints,ui,motion,bridge,timeline' 'ConstraintTest.RunPlay' @() 'Spike\out\constraints\constraint_play_report.txt' -NoQuit -TimeoutMin 25 -DevInputs 'Tools/targets.json'
 # UpdateCheck.play (after 1.0.0; about 3 min): python -I Tools\update_check_test.py - a local
 # release server on 127.0.0.1:17641, then BridgeServe with the UI (-ui -updateCheck -updateCheckUrl; the script starts it through
 # unity_batch, which takes the Unity lock): the dialog at start for a newer release, Skip this version, by hand the latest / HTTP
@@ -1502,12 +1638,45 @@ Row 'PlayerBuild.dist' player 'player,setup,publication' -Run {
     $lines = if ($rep -and (Get-Item -LiteralPath $rep).LastWriteTime -ge $t0.AddSeconds(-5)) { @(Get-Content -LiteralPath $rep -Encoding UTF8) } else { @() }
     $first = if ($lines.Count) { $lines[0] } else { 'no report written' }
     $res = if ($code -eq 0 -and $first -eq 'RESULT: PASS') { 'PASS' } else { 'FAIL' }
-    $key = @($lines | Where-Object { $_ -like 'FAIL *' -or $_ -like 'build.json of the app build:*' -or $_ -like 'staged tree:*' -or $_ -like 'binaries hash-equal*' } | ForEach-Object { $_.Trim() })
+    # Phase 6.1 (package K): the plugin kit (KT1), the XML pair (KT7) and the READMEs' plugin sections (KT6)
+    $key = @($lines | Where-Object { $_ -like 'FAIL *' -or $_ -like 'build.json of the app build:*' -or $_ -like 'staged tree:*' -or $_ -like 'binaries hash-equal*' -or
+        $_ -like 'plugin kit:*' -or $_ -like 'XML documentation in*' -or $_ -like 'README plugin sections*' } | ForEach-Object { $_.Trim() })
     foreach ($k in 'leak check', 'binary string scan') {
         $l = @($lines | Where-Object { $_ -like "${k}*" } | Select-Object -First 1) -join ''
         if ($l -match 'SUMMARY: ([^;(]+)') { $key += "${k}: $($Matches[1].Trim())" }
     }
     Add-Result $id $res ((Get-Date) - $t0).TotalMinutes ("exit $code; $first" + $(if ($key.Count) { '; ' + ($key -join '; ') } else { '' })) $rep
+}
+
+# PluginKit.dist (Phase 6.1; package K's script): the plugin kit as a user gets it -
+# python -I Tools\pluginkit_check.py packages the tested Builds\App with package_dist.ps1 -Zip -AllowDirty into its own
+# <out>\dist (never Builds\Dist or Builds\Public), checks the zip's entries (PluginKit/**, both XML files), extracts it outside
+# the repository (<TEMP>\hs2next_pluginkit\extract, removed after a passing run), KT2 one `dotnet build` in the extracted
+# PluginKit with no argument and an empty NUGET_PACKAGES (0 warnings), KT3 the two DLLs reference exactly netstandard 2.1.0.0
+# and HS2Next.Api 1.0.0.0, KT5 no build output names the repository, KT4 the kit's out\<guid>\ copied into the extracted
+# Plugins\ and the extracted exe started -batchmode on port 17388 with its own data root and HS2NEXT_NO_PLUGINS removed: both
+# samples loaded, hello.greet answers, HelloUi's 2 forms counted, app.quit exit 0. The runner takes the GPU lock around it
+# and stops it when the game gate's process appears (exit 3: WARN). Report <out>\pluginkit_report.txt, first and last line
+# "SUMMARY: N PASS, M FAIL"; key numbers the build time and the DLL sizes. About 1.5-3 min.
+Row 'PluginKit.dist' player 'plugins,publication,player' -Run {
+    $id = 'PluginKit.dist'
+    $script = Join-Path $PSScriptRoot 'pluginkit_check.py'
+    if (-not (Test-Path $AppExe)) { Add-Result $id 'FAIL' 0 'no app player (Builds\App\HS2Next.exe): run PlayerBuild.app' $null }
+    elseif (-not (Wait-FreeRam)) { Add-Result $id 'FAIL' 30 'less than 8 GB of free RAM for 30 min' $null }
+    else {
+        $out = Join-Path $PlayerOut 'pluginkit'
+        $p = Invoke-Process $id 'python' @('-I', $script, '--project', $Project, '--out', $out, '--port', '17388', '--timeout-min', '12') 15 $true $true
+        $rep = Copy-PlayerReport $id (Join-Path $out 'pluginkit_report.txt')
+        $lines = if ($rep) { @(Get-Content -LiteralPath $rep -Encoding UTF8 | Where-Object { $_.Trim() }) } else { @() }
+        $last = @($lines | Where-Object { $_ -like 'SUMMARY: *' } | Select-Object -Last 1) -join ''
+        $res = switch ($p.Code) { 0 { 'PASS' } 3 { 'WARN' } default { 'FAIL' } }
+        if ($res -eq 'PASS' -and -not ($last -match 'SUMMARY: (\d+) PASS, 0 FAIL')) { $res = 'FAIL' }
+        $why = switch ($p.Code) { 0 { '' } 1 { ' (a check failed)' } 2 { ' (setup error / refused)' } 3 { ' (aborted by the game gate: repeat later)' } 124 { ' (no exit: stopped)' } default { '' } }
+        $fl = @($lines | Where-Object { $_ -like 'FAIL *' } | Select-Object -First 4 | ForEach-Object { $_.Trim() })
+        $kt = @($lines | ForEach-Object { $_.Trim() } | Where-Object { $_ -match '^dotnet build [\d.]+ s; DLL sizes' } | Select-Object -First 1)
+        Add-Result $id $res $p.Minutes ("exit $($p.Code)$why; " + $(if ($last) { $last } else { 'no report' }) + $(if ($fl.Count) { '; ' + ($fl -join '; ') } else { '' }) +
+            $(if ($kt.Count) { '; ' + ($kt -join '; ') } else { '' })) $rep
+    }
 }
 
 # The bare-exe rows (package F's scripts): a plain copy of Builds\Dist\HS2Next (the script copies it under its output; the staged
@@ -1706,6 +1875,10 @@ Row 'BridgeChecks.player' player 'player,bridge' -Run {
 # staged. Exit 0 pass, 1 a check failed, 2 setup error (no exe / settings / fixture, the port taken, a plugin outside the test
 # set in Builds\App\Plugins\, the owner's game running). Report <out>\plugin_player_check_report.txt, first and last line
 # "SUMMARY: N PASS, M FAIL"; the key numbers add PA8's measurement line (PM1-PM5).
+# Phase 6.1 (package K's script): the Sequencer is built against the Api 1.0.0 reference
+# assemblies (--api-dir Tests\Plugins\fixtures\api10: a 1.0 plugin on the 1.x host, KX4b) and the kit's Hello and HelloUi
+# against the player's own Api; PA1 lists the three loaded, PK1 / PK2 call the kit samples, KD9 disables and enables the
+# Sequencer at run time (counts back, seq.get equal); the key numbers add the PK1, PK2 and KD9 verdicts.
 Row 'PluginCheck.player' player 'player,plugins' -Run {
     $id = 'PluginCheck.player'
     $script = Join-Path $PSScriptRoot 'plugin_player_check.py'
@@ -1713,7 +1886,8 @@ Row 'PluginCheck.player' player 'player,plugins' -Run {
     elseif (-not (Wait-FreeRam)) { Add-Result $id 'FAIL' 30 'less than 8 GB of free RAM for 30 min' $null }
     else {
         $out = Join-Path $PlayerOut 'plugins'
-        $p = Invoke-Process $id 'python' @('-I', $script, '--exe', $AppExe, '--project', $Project, '--out', $out, '--port', '17394', '--timeout-min', '20') 25
+        $p = Invoke-Process $id 'python' @('-I', $script, '--exe', $AppExe, '--project', $Project, '--out', $out, '--port', '17394', '--timeout-min', '20',
+            '--api-dir', (Join-Path $Project 'Tests\Plugins\fixtures\api10')) 25
         $rep = Copy-PlayerReport $id (Join-Path $out 'plugin_player_check_report.txt')
         $lines = if ($rep) { @(Get-Content -LiteralPath $rep -Encoding UTF8 | Where-Object { $_.Trim() }) } else { @() }
         $last = if ($lines.Count) { $lines[-1] } else { '' }
@@ -1721,7 +1895,144 @@ Row 'PluginCheck.player' player 'player,plugins' -Run {
         if ($p.Code -eq 0 -and $last -match 'SUMMARY: (\d+) PASS, (\d+) FAIL') { $res = if ([int]$Matches[2] -eq 0) { 'PASS' } else { 'FAIL' } }
         $why = switch ($p.Code) { 0 { '' } 1 { ' (a check failed)' } 2 { ' (setup error)' } 124 { ' (no exit: stopped)' } default { '' } }
         $pm = @($lines | Where-Object { $_ -match '^PA8\s' } | ForEach-Object { ($_ -replace '^PA8\s+\S+\s+', '') }) -join ''
-        Add-Result $id $res $p.Minutes ("exit $($p.Code)$why; " + $(if ($last) { $last } else { 'no report' }) + $(if ($pm) { "; PA8 $pm" } else { '' })) $rep
+        $k61 = @($lines | Where-Object { $_ -match '^(PK1|PK2|KD9)\s+\S+' } | ForEach-Object { ($_ -split '\s+', 3)[0..1] -join ' ' })
+        Add-Result $id $res $p.Minutes ("exit $($p.Code)$why; " + $(if ($last) { $last } else { 'no report' }) + $(if ($pm) { "; PA8 $pm" } else { '' }) +
+            $(if ($k61.Count) { '; ' + ($k61 -join ', ') } else { '' })) $rep
+    }
+}
+
+# TimelineCheck.player (Phase 6.2; package W's script): python -I Tools\timeline_player_check.py
+# starts the app player itself (-batchmode, the UI off, port 17387, its own UserData and output under <out>), builds the
+# compositions of Tests\Timeline\compositions on the visual targets through the bridge and checks over HTTP: TP1 bones9 playing,
+# timeline.status {perf} over 600 frames, median <= 479 us (the bar of TA2); TP2 app.perf frame times playing and stopped
+# (information); TW6 300 frames 1280 x 720 at 30 fps (the PNG headers read as numbers, record.json's step; ms per frame); TW7 one
+# pass of walk (360 frames, stoppedBy "pass"); TW8 record.stop with 4 frames pending (the reply after the files); TA1 and TA6 of
+# walk in the player; QUIT app.quit. The recorded frames are removed after their checks (record.json kept). The runner holds the
+# GPU lock; the script polls the game gate itself and stops its player by PID (exit 3 = WARN). Report
+# <out>\timeline_player_report.txt, first and last line "SUMMARY: N PASS, M FAIL"; exit 0 / 1 / 2 / 3; about 3 min
+Row 'TimelineCheck.player' player 'player,timeline,capture' -DevInputs 'Tools/targets.json' -Run {
+    $id = 'TimelineCheck.player'
+    $script = Join-Path $PSScriptRoot 'timeline_player_check.py'
+    if (-not (Test-Path $AppExe)) { Add-Result $id 'FAIL' 0 'no app player (Builds\App\HS2Next.exe): run PlayerBuild.app' $null }
+    elseif (-not (Test-Path $script)) { Add-Result $id 'FAIL' 0 'Tools\timeline_player_check.py is missing' $null }
+    elseif (-not (Wait-FreeRam)) { Add-Result $id 'FAIL' 30 'less than 8 GB of free RAM for 30 min' $null }
+    else {
+        $out = Join-Path $PlayerOut 'timeline'
+        $p = Invoke-Process $id 'python' @('-I', $script, '--exe', $AppExe, '--project', $Project, '--out', $out, '--port', '17387', '--timeout-min', '20') 25
+        $rep = Copy-PlayerReport $id (Join-Path $out 'timeline_player_report.txt')
+        $lines = if ($rep) { @(Get-Content -LiteralPath $rep -Encoding UTF8 | Where-Object { $_.Trim() }) } else { @() }
+        $last = @($lines | Where-Object { $_ -like 'SUMMARY: *' } | Select-Object -Last 1) -join ''
+        $res = switch ($p.Code) { 0 { 'PASS' } 3 { 'WARN' } default { 'FAIL' } }
+        if ($res -eq 'PASS' -and -not ($last -match 'SUMMARY: (\d+) PASS, 0 FAIL')) { $res = 'FAIL' }
+        $why = switch ($p.Code) { 0 { '' } 1 { ' (a check failed)' } 2 { ' (setup error)' } 3 { ' (aborted by the game gate: repeat later)' } 124 { ' (no exit: stopped)' } default { '' } }
+        $fl = @($lines | Where-Object { $_ -match '^\S+\s+FAIL\s' } | Select-Object -First 4 | ForEach-Object { ($_ -split '\s+', 3)[0] })
+        $tp1 = @($lines | Where-Object { $_ -match '^TP1\s' } | ForEach-Object { if ($_ -match 'median (\S+) us \(bar [^)]*\), p95 (\S+) us, max (\S+) us') { "TP1 median $($Matches[1]) us, p95 $($Matches[2]), max $($Matches[3])" } }) -join ''
+        $tw6 = @($lines | Where-Object { $_ -match '^TW6\s' } | ForEach-Object { if ($_ -match '([\d.]+) ms per frame') { "TW6 $($Matches[1]) ms per frame" } }) -join ''
+        $key = @($tp1, $tw6 | Where-Object { $_ })
+        Add-Result $id $res $p.Minutes ("exit $($p.Code)$why; " + $(if ($last) { $last } else { 'no report' }) + $(if ($fl.Count) { '; FAIL ' + ($fl -join ', ') } else { '' }) +
+            $(if ($key.Count) { '; ' + ($key -join '; ') } else { '' })) $rep
+    }
+}
+
+# AdvancedPoseCheck.player (Phase 6.3, 10.2; packages M and J): python -I
+# Tools\advancedpose_player_check.py starts the app player itself (-batchmode, the UI off, port 17389, its own UserData and output
+# under <out>) and checks over HTTP in real frames: AT1 1, 8 and 64 corrected bones, the sum of the phases -100, 450, 950 (app.perf
+# {motion}; bar 0.5 ms at 64; since Phase 6.3a phase -100 is the real restore in every mode); AT2 no stage and no timing left after a
+# clear; AT3 16 blend overrides, phase 610 (bar 0.1 ms) and pose.chains.set as information; FM15 (Phase 6.3a) the card with the most
+# modifiers of the local list, phases 120 + 960 (bar 0.2 ms, WARN without the list); AO2 corrections against a twin of one card; AA1 set,
+# save, scene.new, load; 0 exceptions in the
+# log. A budget over its bar is WARN, not FAIL (the row says WARN, the numbers stay in the key numbers). The runner holds the GPU
+# lock; the script polls the game gate itself and stops its player by PID (exit 3 = WARN). Report
+# <out>\advancedpose_player_report.txt, first and last line "SUMMARY: N PASS, M FAIL", line 2 "WARN: K (ids)"; exit 0 / 1 / 2 / 3;
+# about 1.2 min
+Row 'AdvancedPoseCheck.player' player 'advancedPose,player,motion' -DevInputs 'Tools/targets.json' -Run {
+    $id = 'AdvancedPoseCheck.player'
+    $script = Join-Path $PSScriptRoot 'advancedpose_player_check.py'
+    if (-not (Test-Path $AppExe)) { Add-Result $id 'FAIL' 0 'no app player (Builds\App\HS2Next.exe): run PlayerBuild.app' $null }
+    elseif (-not (Test-Path $script)) { Add-Result $id 'FAIL' 0 'Tools\advancedpose_player_check.py is missing' $null }
+    elseif (-not (Wait-FreeRam)) { Add-Result $id 'FAIL' 30 'less than 8 GB of free RAM for 30 min' $null }
+    else {
+        $out = Join-Path $PlayerOut 'advancedpose'
+        $p = Invoke-Process $id 'python' @('-I', $script, '--exe', $AppExe, '--project', $Project, '--out', $out, '--port', '17389', '--timeout-min', '20') 25
+        $rep = Copy-PlayerReport $id (Join-Path $out 'advancedpose_player_report.txt')
+        $lines = if ($rep) { @(Get-Content -LiteralPath $rep -Encoding UTF8 | Where-Object { $_.Trim() }) } else { @() }
+        $last = @($lines | Where-Object { $_ -like 'SUMMARY: *' } | Select-Object -Last 1) -join ''
+        $warnLine = @($lines | Where-Object { $_ -like 'WARN: *' } | Select-Object -First 1) -join ''
+        $res = switch ($p.Code) { 0 { 'PASS' } 3 { 'WARN' } default { 'FAIL' } }
+        if ($res -eq 'PASS' -and -not ($last -match 'SUMMARY: (\d+) PASS, 0 FAIL')) { $res = 'FAIL' }
+        if ($res -eq 'PASS' -and $warnLine -notmatch '^WARN: 0\b') { $res = 'WARN' }
+        $why = switch ($p.Code) { 0 { '' } 1 { ' (a check failed)' } 2 { ' (setup error)' } 3 { ' (aborted by the game gate: repeat later)' } 124 { ' (no exit: stopped)' } default { '' } }
+        $fl = @($lines | Where-Object { $_ -match '^\S+\s+FAIL\s' } | Select-Object -First 4 | ForEach-Object { ($_ -split '\s+', 3)[0] })
+        $at1 = @($lines | Where-Object { $_ -match '^AT1\s' } | ForEach-Object { if ($_ -match '64 bones ([\d.]+) ms') { "AT1 64 bones $($Matches[1]) ms" } }) -join ''
+        $at3 = @($lines | Where-Object { $_ -match '^AT3\s' } | ForEach-Object { if ($_ -match 'phase 610 median ([\d.]+) ms') { "AT3 phase 610 $($Matches[1]) ms" } }) -join ''
+        $fm15 = @($lines | Where-Object { $_ -match '^FM15\s' } | ForEach-Object { if ($_ -match 'phases 120 \+ 960 ([\d.]+) ms') { "FM15 phases 120 + 960 $($Matches[1]) ms" } }) -join ''
+        $key = @($at1, $at3, $fm15 | Where-Object { $_ })
+        Add-Result $id $res $p.Minutes ("exit $($p.Code)$why; " + $(if ($last) { $last } else { 'no report' }) + $(if ($warnLine -and $warnLine -notmatch '^WARN: 0\b') { "; $warnLine" } else { '' }) + $(if ($fl.Count) { '; FAIL ' + ($fl -join ', ') } else { '' }) +
+            $(if ($key.Count) { '; ' + ($key -join '; ') } else { '' })) $rep
+    }
+}
+
+# MaterialEditCheck.player (Phase 6.4, 14.2; packages I and U): python -I Tools\material_edit_player_check.py
+# starts the app player itself (-batchmode, the UI off, port 17403, its own UserData and output under <out>) and checks over HTTP in real
+# frames: MV1 the candidate list against the Editor's, MV2 keywords and a render probe in memory, MV3 URP/Lit refused, MV4 five shaders' property
+# lists, MV5 edit, swap, save and load; MW1 a drag step on a character object, an item and the map (bars 2 ms median, 4 ms p95), MW2 a commit
+# (10 ms), MW5 a colour track over 16 edits (0.05 ms a frame), MW6 a 4,096 px PNG, MW7 the pass as an upper bound of the build's cost; MJ3 a hair
+# bone's step (16 ms); a round trip of every target with a map; 0 exceptions in the log. A budget over its bar is WARN, not FAIL. It reads
+# Spike\out\maker\material_shaders_editor.json, which MaterialEditTest.full writes: run that row first, else MV1, MV2's first line and MV4 are WARN.
+# It imports its scaffold from Tools\advancedpose_player_check.py. The runner holds the GPU lock; the script polls the game gate itself and stops
+# its player by PID (exit 3 = WARN). Report <out>\material_edit_player_report.txt, first and last line "SUMMARY: N PASS, M FAIL", line 2
+# "WARN: K (ids)"; exit 0 / 1 / 2 / 3; about 3 min
+Row 'MaterialEditCheck.player' player 'materials,player,shaders' -DevInputs 'Tools/targets.json' -Run {
+    $id = 'MaterialEditCheck.player'
+    $script = Join-Path $PSScriptRoot 'material_edit_player_check.py'
+    if (-not (Test-Path $AppExe)) { Add-Result $id 'FAIL' 0 'no app player (Builds\App\HS2Next.exe): run PlayerBuild.app' $null }
+    elseif (-not (Test-Path $script)) { Add-Result $id 'FAIL' 0 'Tools\material_edit_player_check.py is missing' $null }
+    elseif (-not (Wait-FreeRam)) { Add-Result $id 'FAIL' 30 'less than 8 GB of free RAM for 30 min' $null }
+    else {
+        $out = Join-Path $PlayerOut 'materialedit'
+        $p = Invoke-Process $id 'python' @('-I', $script, '--exe', $AppExe, '--project', $Project, '--out', $out, '--port', '17403', '--timeout-min', '20') 25
+        $rep = Copy-PlayerReport $id (Join-Path $out 'material_edit_player_report.txt')
+        $lines = if ($rep) { @(Get-Content -LiteralPath $rep -Encoding UTF8 | Where-Object { $_.Trim() }) } else { @() }
+        $last = @($lines | Where-Object { $_ -like 'SUMMARY: *' } | Select-Object -Last 1) -join ''
+        $warnLine = @($lines | Where-Object { $_ -like 'WARN: *' } | Select-Object -First 1) -join ''
+        $res = switch ($p.Code) { 0 { 'PASS' } 3 { 'WARN' } default { 'FAIL' } }
+        if ($res -eq 'PASS' -and -not ($last -match 'SUMMARY: (\d+) PASS, 0 FAIL')) { $res = 'FAIL' }
+        if ($res -eq 'PASS' -and $warnLine -notmatch '^WARN: 0\b') { $res = 'WARN' }
+        $why = switch ($p.Code) { 0 { '' } 1 { ' (a check failed)' } 2 { ' (setup error)' } 3 { ' (aborted by the game gate: repeat later)' } 124 { ' (no exit: stopped)' } default { '' } }
+        $fl = @($lines | Where-Object { $_ -match '^\S+\s+FAIL\s' } | Select-Object -First 4 | ForEach-Object { ($_ -split '\s+', 3)[0] })
+        $mw = @($lines | Where-Object { $_ -match '^(MW[0-9]\w*|MJ3)\s' } | ForEach-Object { $x = $_ -split '\s+', 3; $s = $x[0] + ' ' + $x[2]; if ($s.Length -gt 90) { $s.Substring(0, 90) } else { $s } })
+        Add-Result $id $res $p.Minutes ("exit $($p.Code)$why; " + $(if ($last) { $last } else { 'no report' }) + $(if ($warnLine -and $warnLine -notmatch '^WARN: 0\b') { "; $warnLine" } else { '' }) + $(if ($fl.Count) { '; FAIL ' + ($fl -join ', ') } else { '' }) +
+            $(if ($mw.Count) { '; ' + ($mw -join '; ') } else { '' })) $rep
+    }
+}
+
+# ConstraintCheck.player (Phase 6.5, 15.3; package O): python -I Tools\constraint_player_check.py starts the app player itself
+# (-batchmode, the UI off, port 17828, its own UserData and output under <out>) and checks over HTTP in real frames: CW5 an empty list; CW1 8 constraints on BR-Chan
+# and HERO107 (0.10 ms median, 0.25 ms p95), CW4 the pass beside the characters' steps (0.05 ms, an upper bound), CW2 64 constraints (0.50 ms, 1.0 ms), CW7 the three
+# stages with 16 driven bones (0.1 ms); the chain across two characters, a round trip of each target kind, 0 exceptions in the log. A time over its bar is WARN, not FAIL:
+# the lead decides. The runner holds the GPU lock; the script polls the game gate itself and stops its player by PID (exit 3 = WARN). Report
+# <out>\constraint_player_report.txt, first and last line "SUMMARY: N PASS, M FAIL", line 2 "WARN: K (ids)"; exit 0 / 1 / 2 / 3; about 3 min
+Row 'ConstraintCheck.player' player 'constraints,player,motion' -DevInputs 'Tools/targets.json' -Run {
+    $id = 'ConstraintCheck.player'
+    $script = Join-Path $PSScriptRoot 'constraint_player_check.py'
+    if (-not (Test-Path $AppExe)) { Add-Result $id 'FAIL' 0 'no app player (Builds\App\HS2Next.exe): run PlayerBuild.app' $null }
+    elseif (-not (Test-Path $script)) { Add-Result $id 'FAIL' 0 'Tools\constraint_player_check.py is missing' $null }
+    elseif (-not (Wait-FreeRam)) { Add-Result $id 'FAIL' 30 'less than 8 GB of free RAM for 30 min' $null }
+    else {
+        $out = Join-Path $PlayerOut 'constraints'
+        $p = Invoke-Process $id 'python' @('-I', $script, '--exe', $AppExe, '--project', $Project, '--out', $out, '--port', '17828', '--timeout-min', '20') 25
+        $rep = Copy-PlayerReport $id (Join-Path $out 'constraint_player_report.txt')
+        $lines = if ($rep) { @(Get-Content -LiteralPath $rep -Encoding UTF8 | Where-Object { $_.Trim() }) } else { @() }
+        $last = @($lines | Where-Object { $_ -like 'SUMMARY: *' } | Select-Object -Last 1) -join ''
+        $warnLine = @($lines | Where-Object { $_ -like 'WARN: *' } | Select-Object -First 1) -join ''
+        $res = switch ($p.Code) { 0 { 'PASS' } 3 { 'WARN' } default { 'FAIL' } }
+        if ($res -eq 'PASS' -and -not ($last -match 'SUMMARY: (\d+) PASS, 0 FAIL')) { $res = 'FAIL' }
+        if ($res -eq 'PASS' -and $warnLine -notmatch '^WARN: 0\b') { $res = 'WARN' }
+        $why = switch ($p.Code) { 0 { '' } 1 { ' (a check failed)' } 2 { ' (setup error)' } 3 { ' (aborted by the game gate: repeat later)' } 124 { ' (no exit: stopped)' } default { '' } }
+        $fl = @($lines | Where-Object { $_ -match '^\S+\s+FAIL\s' } | Select-Object -First 4 | ForEach-Object { ($_ -split '\s+', 3)[0] })
+        $cw = @($lines | Where-Object { $_ -match '^CW[0-9]\w*\s' } | ForEach-Object { $x = $_ -split '\s+', 3; $s = $x[0] + ' ' + $x[2]; if ($s.Length -gt 90) { $s.Substring(0, 90) } else { $s } })
+        Add-Result $id $res $p.Minutes ("exit $($p.Code)$why; " + $(if ($last) { $last } else { 'no report' }) + $(if ($warnLine -and $warnLine -notmatch '^WARN: 0\b') { "; $warnLine" } else { '' }) + $(if ($fl.Count) { '; FAIL ' + ($fl -join ', ') } else { '' }) +
+            $(if ($cw.Count) { '; ' + ($cw -join '; ') } else { '' })) $rep
     }
 }
 
@@ -2002,6 +2313,20 @@ Row 'MosaicExplainTest.s1explain' full 'cards-full,maker'      'MosaicExplainTes
 # MaterialEditor edits name a replaced shader (-me) and the -only cards against their baselines, every differing line
 # classified (shader.tail, me.keywords; other = FAIL with the tokens before => after) - the check before the 5.2 re-take
 Row 'ModShaderTest.s1explain' full 'cards-full,maker,shaders'  'ModShaderS1Explain.Run' @('-me') 'Spike\out\modshaders\mod_shader_s1explain_report.txt' -OptIn -TimeoutMin 60
+# Phase 6.3a package M (FM14; opt-in): the census of a card's bone modifiers in real frames, -nographics: every
+# card with modifiers built twice, modifiers off and on, in the same order; per modifier and channel on = off with the modifier composed
+# (1e-4, 0.01 deg) on the rows 19/0/0, dance_00, 19/0/0, Chair_A, 19/0/0, and on a sample Chair_A and attack_01 as first binds and a scene
+# save and load. Exceptions: Tools/modifier_known.json, each with a reason and a count (empty). About 38 min; the row's first line SUMMARY
+Row 'AdvancedPoseTest.recon' full 'motion,advancedPose'        'AdvancedPoseTest.ReconPlay' @() 'Spike\out\advancedpose\recon_play.txt' -NoQuit -OptIn -TimeoutMin 60 -DevInputs 'Tools/targets.json'
+# Phase 6.4 (opt-in, once at the end of a phase that touches the arrays): MaterialEditTest.corpus, one process, files by
+# hash, numbers only, on the 477 files with items: MY1 the import against Cache\maker\me_corpus_7b8c37c.tsv (the record on 1.2.0's import code, never
+# taken again), MY2 one edit of each kind on every array leaves the documents equal but for that member, MY3 what the items of the 164 cards do
+# now and each stored original against the baseline, MY4 the hair class on the cards with hair modifiers, MY5 two coordinates wearing one part, in both
+# orders (the folder's order reaches one). -suite keeps the process open after a failed group. About 15 min
+Row 'MaterialEditTest.corpus' full 'materials,cards-full'      'MaterialEditTest.RunCorpus' @('-suite') 'Spike\out\maker\material_edit_corpus_report.txt' -OptIn -TimeoutMin 45 -DevInputs 'Tools/targets.json,Cache/maker/me_corpus_7b8c37c.tsv'
+# MaterialEditTest.values (Phase 6.4 package R; opt-in): on every installed character card with items the value items leave through the value pass and
+# come back, and after each step the node equals a fresh build of the same documents, 0 rebuilds; -limit N, -from N, -hash a+b. About 3.5 min
+Row 'MaterialEditTest.values' full 'materials,cards-full'      'MaterialEditTest.RunValues' @() 'Spike\out\maker\material_edit_values_report.txt' -OptIn -TimeoutMin 20 -DevInputs 'Tools/targets.json'
 # Phase 4.4 (packages R / R2): AR11 loads every asset name of every redirectable path through the rule, AR12 opens every serving
 # copy of the census's 5 CAB-sharing paths at once (the CAB rewrite), RU3 measures the costs (its upgrade of a version 6 scan
 # cache reads every zipmod manifest: about 5 min of the row); headless only (a graphics device once lost itself on a bad-mip
@@ -2336,8 +2661,8 @@ $suiteStart = Get-Date
 $DriverResetsBefore = @(Get-WinEvent -FilterHashtable @{ LogName = 'System'; ProviderName = 'nvlddmkm'; Id = 153 } -ErrorAction SilentlyContinue).Count
 
 # Offline compile check, once (unity_batch would otherwise run it before every row): a warning and a note, never a stop.
-# (Not for the mono rows and LeakCheck alone: they start no Unity.)
-if (-not $NoOfflineCompile -and @($Selected | Where-Object { $_.Group -ne 'mono' -and $_.Id -ne 'LeakCheck' }).Count -gt 0) {
+# (Not for the mono rows, LeakCheck and ApiDocs alone: they start no Unity.)
+if (-not $NoOfflineCompile -and @($Selected | Where-Object { $_.Group -ne 'mono' -and $_.Id -notin @('LeakCheck', 'ApiDocs') }).Count -gt 0) {
     $oc = Join-Path $PSScriptRoot 'offline_compile.py'
     if ((Test-Path $oc) -and (Get-Command python -ErrorAction SilentlyContinue)) {
         Write-Host ("[run_tests] {0} offline compile check (Tools\offline_compile.py)" -f (Get-Date -Format 'HH:mm:ss'))

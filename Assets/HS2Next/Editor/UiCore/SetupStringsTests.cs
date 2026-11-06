@@ -1,7 +1,7 @@
 // FR9 (Phase 5.3 package F), plain Mono: Tools/mono_tests.ps1 -Suite ui (fixtures = Assets/HS2Next/Resources/UI).
 //   SetupStringsTests  every key of the string table's block #F (the first-run guide, the folder picker, the settings sections)
-//                      has en and ja; zh-Hans is present and marked zh? until reviewed; the guide's language list keeps its
-//                      machine-translation label for zh-Hans; the keys are unique and the placeholders match
+//                      has en and ja; zh-Hans is present and marked zh? until reviewed; the guide's language list names
+//                      zh-Hans by its name alone; the keys are unique and the placeholders match
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -41,15 +41,15 @@ namespace HS2Next.UI.Core.Tests
             t.Check(noEn.Count == 0, "every #F key has en" + (noEn.Count > 0 ? ": " + string.Join(", ", noEn) : ""));
             t.Check(noJa.Count == 0, "every #F key has ja" + (noJa.Count > 0 ? ": " + string.Join(", ", noJa) : ""));
             t.Check(noZh.Count == 0, "every #F key has zh-Hans" + (noZh.Count > 0 ? ": " + string.Join(", ", noZh) : ""));
-            t.Check(unmarked.Count == 0, "every #F zh-Hans cell is marked zh? (machine translation)" + (unmarked.Count > 0 ? ": " + string.Join(", ", unmarked) : ""));
+            t.Check(unmarked.Count == 0, "every #F zh-Hans cell is marked zh? (awaiting review)" + (unmarked.Count > 0 ? ": " + string.Join(", ", unmarked) : ""));
             var keys = rows.Select(r => r[0]).ToList();
             var dupes = keys.GroupBy(k => k).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
             t.Check(dupes.Count == 0 && table.Problems.Count == 0, "the keys are unique in the table" + (dupes.Count + table.Problems.Count > 0 ? ": " + string.Join("; ", dupes.Concat(table.Problems)) : ""));
             var mism = new HashSet<string>(table.PlaceholderMismatches().Select(x => x.ToString()));
             var mine = keys.Where(k => mism.Any(m => m.Contains(k))).ToList();
             t.Check(mine.Count == 0, "the #F placeholders match across the languages" + (mine.Count > 0 ? ": " + string.Join(", ", mine) : ""));
-            string zhLabel = table.Cell("lang.zh-Hans", "en") ?? "";
-            t.Check(zhLabel.IndexOf("machine", StringComparison.OrdinalIgnoreCase) >= 0, "the language list labels zh-Hans as machine translated (" + zhLabel + ")");
+            var zhLabels = new[] { "en", "ja", "zh-Hans" }.Select(l => table.Cell("lang.zh-Hans", l) ?? "").ToList();
+            t.Check(zhLabels.All(s => s == "简体中文"), "the language list names zh-Hans by its name alone (" + string.Join(" | ", zhLabels) + ")");
             foreach (var k in new[] { "setup.title.welcome", "setup.title.files", "setup.title.hs2", "setup.title.mods", "setup.title.cache", "setup.title.index", "setup.title.ready",
                                       "setup.nav.next", "setup.nav.back", "setup.nav.skip", "setup.nav.quit", "setup.nav.finish", "setup.ready.tipCamera", "setup.skip.message" })
                 t.Check(keys.Contains(k), "block #F has " + k);

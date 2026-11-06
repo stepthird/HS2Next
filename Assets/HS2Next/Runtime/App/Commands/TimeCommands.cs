@@ -69,6 +69,8 @@ namespace HS2Next.App.Commands
             if (n < 1 || n > SceneRuntime.MaxSteps) throw CommandKit.BadArgs("n", "1–" + SceneRuntime.MaxSteps);
             float dt = c.Args.Get("dt", 1f / 60f);
             if (!(dt > 0f && dt <= 1f)) throw CommandKit.BadArgs("dt", "0 < dt ≤ 1");
+            // Phase 6.2: steps run inside one frame, so a frame recording could not capture them one by one
+            if (HS2Next.Screenshots.FrameRecorder.IsRecording) throw new BridgeException(BridgeCodes.Busy, "a recording is running");
             if (!rt.Paused) throw new BridgeException(CommandKit.Unavailable, "the scene is running: pause first (scene.pause {paused: true})");
             var sw = Stopwatch.StartNew();
             if (!rt.Step(n, dt)) throw new BridgeException(CommandKit.Unavailable, "the step was refused (a step is already running)");

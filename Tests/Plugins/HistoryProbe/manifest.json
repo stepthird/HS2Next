@@ -1,0 +1,13 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.historyprobe",
+  "name": "History probe",
+  "version": "0.1.0",
+  "apiVersion": "1.1",
+  "assemblies": ["Stp3.Test.HistoryProbe.dll"],
+  "entryType": "Stp3.Test.HistoryProbe.HistoryProbePlugin",
+  "commandPrefixes": ["historyprobe."],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the Api 1.1 host points: request helpers, undo entries, capture events, runtime disable and enable."
+}

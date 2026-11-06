@@ -1,0 +1,55 @@
+/* The Timeline panel (Phase 6.2): header, track list, ruler, lanes with their keys, the events lane, the key editor. */
+.hs-tl { flex-grow: 1; flex-direction: column; background-color: var(--hs-bg-1); }
+.hs-tl__empty { flex-grow: 1; align-items: flex-start; padding: 12px; }
+.hs-tl__new { margin-bottom: 8px; }
+.hs-tl__hint { color: var(--hs-text-dim); }
+.hs-tl__main { flex-grow: 1; flex-direction: column; }
+.hs-tl__header { flex-shrink: 0; padding: 2px 4px; border-bottom-width: 1px; border-color: var(--hs-border); }
+.hs-tl__headrow { flex-direction: row; align-items: center; flex-wrap: wrap; min-height: 24px; }
+.hs-tl__btn { min-width: 26px; height: 22px; margin: 1px 2px; padding: 0 6px; }
+.hs-tl__btn--on { background-color: var(--hs-accent-dim); }
+.hs-tl__time { width: 92px; margin: 1px 2px; }
+.hs-tl__duration { width: 64px; margin: 1px 2px; }
+.hs-tl__slash { color: var(--hs-text-dim); margin: 0 2px; }
+.hs-tl__rec { flex-direction: row; align-items: center; margin-left: 8px; }
+.hs-tl__recdot { color: rgb(230, 60, 60); margin-right: 4px; }
+.hs-tl__rulerrow { flex-direction: row; height: 20px; flex-shrink: 0; border-bottom-width: 1px; border-color: var(--hs-border); }
+.hs-tl__corner { flex-shrink: 0; }
+.hs-tl__ruler { flex-grow: 1; overflow: hidden; background-color: var(--hs-bg-2); }
+.hs-tl__tick { position: absolute; bottom: 0; width: 1px; height: 5px; background-color: var(--hs-text-dim); }
+.hs-tl__tick--major { height: 10px; background-color: var(--hs-text); }
+.hs-tl__ticklabel { position: absolute; top: -1px; font-size: 10px; color: var(--hs-text-dim); padding: 0; margin: 0; }
+.hs-tl__end { position: absolute; top: 0; bottom: 0; width: 1px; background-color: var(--hs-warning); }
+.hs-tl__head { position: absolute; top: 0; bottom: 0; width: 2px; background-color: var(--hs-accent); }
+.hs-tl__headline { position: absolute; top: 0; bottom: 0; width: 2px; background-color: var(--hs-accent); opacity: 0.6; }
+.hs-tl__scroll { flex-grow: 1; }
+.hs-tl__content { flex-direction: row; }
+.hs-tl__tracks { flex-shrink: 0; border-right-width: 1px; border-color: var(--hs-border); }
+.hs-tl__lanes { flex-grow: 1; overflow: hidden; }
+.hs-tl__track { flex-direction: row; align-items: center; height: 22px; padding: 0 4px; border-bottom-width: 1px; border-color: var(--hs-bg-0); }
+.hs-tl__track--sel { background-color: var(--hs-accent-dim); }
+.hs-tl__track--grey { opacity: 0.5; }
+.hs-tl__track--warn > .hs-tl__mark { color: var(--hs-warning); }
+.hs-tl__track--drop { border-top-width: 2px; border-color: var(--hs-accent); }
+.hs-tl__track--events { color: var(--hs-text-dim); -unity-font-style: italic; }
+.hs-tl__enabled { margin: 0 4px 0 0; }
+.hs-tl__tracklabel { flex-grow: 1; flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hs-tl__mark { width: 16px; -unity-text-align: middle-center; }
+.hs-tl__lane { height: 22px; border-bottom-width: 1px; border-color: var(--hs-bg-0); }
+.hs-tl__lane--sel { background-color: var(--hs-bg-hover); }
+.hs-tl__lane--grey { opacity: 0.5; }
+.hs-tl__lane--events { background-color: var(--hs-bg-2); }
+.hs-tl__key { position: absolute; top: 2px; width: 12px; height: 18px; -unity-text-align: middle-center; padding: 0; margin: 0; color: var(--hs-text); font-size: 12px; }
+.hs-tl__key--sel { color: var(--hs-accent); -unity-font-style: bold; }
+.hs-tl__event { position: absolute; top: 2px; width: 8px; height: 18px; -unity-text-align: middle-center; padding: 0; margin: 0; color: var(--hs-text-dim); }
+.hs-tl__event--clears { color: var(--hs-warning); }
+.hs-tl__event--off { opacity: 0.4; }
+.hs-tl__eventrow { white-space: nowrap; }
+.hs-tl__eventrow--off { opacity: 0.5; }
+.hs-tl__keyedit { flex-shrink: 0; flex-direction: row; flex-wrap: wrap; max-height: 45%; overflow: hidden; padding: 4px; border-top-width: 1px; border-color: var(--hs-border); }
+.hs-tl__keyedit > * { width: 320px; margin-right: 8px; }
+.hs-tl__keytitle { -unity-font-style: bold; margin-bottom: 2px; width: 100%; }
+.hs-tl__export { min-width: 420px; }
+.hs-tl__command { margin-top: 2px; }
+.hs-tl__toastbtn { margin-left: 8px; }
+.hs-field__override { color: var(--hs-accent); width: 14px; margin-right: 2px; -unity-text-align: middle-center; flex-shrink: 0; }

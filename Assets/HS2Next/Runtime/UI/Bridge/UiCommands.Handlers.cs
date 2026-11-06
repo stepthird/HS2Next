@@ -227,6 +227,18 @@ namespace HS2Next.UI.Bridge
                 case bool b: return b;
                 case int or long or float or double: return o;
                 case Scenes.Runtime.OpResult r: return new Dictionary<string, object> { ["ok"] = r.Ok, ["status"] = r.Status.ToString(), ["code"] = r.Code, ["message"] = r.Message, ["newIds"] = r.NewIds.ToList() };
+                case IDictionary d:
+                {
+                    var map = new Dictionary<string, object>(d.Count, StringComparer.Ordinal);
+                    foreach (DictionaryEntry e in d) map[Convert.ToString(e.Key, CultureInfo.InvariantCulture)] = Plainify(e.Value);
+                    return map;
+                }
+                case IList l:
+                {
+                    var list = new List<object>(l.Count);
+                    foreach (var x in l) list.Add(Plainify(x));
+                    return list;
+                }
                 default: return o.ToString();
             }
         }

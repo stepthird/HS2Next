@@ -34,7 +34,7 @@ namespace HS2Next.App.Commands
                     .Arg("key", ArgTypes.Node, "a built character or item", true)
                     .Arg("root", ArgTypes.Enum("body", "head", "all"), "body: cf_J_Root without the head bone root; head: p_cf_head_bone; all: body, then head (paths start at the head root's name); ignored for an item (its instance root)", false, "body")
                     .Return("bones", ArgTypes.ArrayOf(ArgTypes.Object), "{name, path, lp, lq, le, ls}")
-                    .WithFlags(CommandFlags.ReadOnly | CommandFlags.Experimental).WithTimeout(120),
+                    .WithFlags(CommandFlags.ReadOnly).WithTimeout(120),
                 BonesDump);
             CommandKit.Register(r, app, CommandKit.Spec("face.dump", "The head's skinned renderers (blend shapes, weights, face materials), the realized expression and look state of a built character (HS2's form).", "dumps")
                     .Arg("key", ArgTypes.Node, "a built character", true)
@@ -46,7 +46,7 @@ namespace HS2Next.App.Commands
                     .Arg("key", ArgTypes.Node, "a built character", true)
                     .Arg("names", ArgTypes.ArrayOf(ArgTypes.String), "bone transform names: the body skeleton, the head skeleton, then a search under the character", true)
                     .Return("bones", ArgTypes.Object, "{<name>: {pos, forward}}").Return("time", ArgTypes.Float, "Time.time")
-                    .WithFlags(CommandFlags.ReadOnly | CommandFlags.Experimental),
+                    .WithFlags(CommandFlags.ReadOnly),
                 CharaBones);
         }
 

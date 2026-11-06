@@ -185,8 +185,7 @@ public static partial class UiPanelsTest
         double firstGroup = tab.PageBuildMs.TryGetValue("clothes.group.top", out var fg) ? fg : -1;
         var parts0 = tab.PageBuildMs.Where(kv => kv.Key.StartsWith("section.clothes.clothes.", StringComparison.Ordinal)).Select(kv => kv.Key.Substring("section.clothes.clothes.".Length) + " " + kv.Value.ToString("0.0")).ToList();
         c.Info($"WU5 first show breakdown (ms): {string.Join(", ", parts0)}; GC collections (gen 0) during it {gcs}; gate evaluations {gates}");
-        c.Check(firstShow >= 0 && firstShow <= 2 * PageTargetMs, $"WU5: Clothes page first show {firstShow:0.0} ms (top group {firstGroup:0.0} ms; ≤ {2 * PageTargetMs})");
-        if (firstShow > PageTargetMs) c.Warning($"WU5: Clothes page first show {firstShow:0.0} ms above the {PageTargetMs} ms target");
+        TimedShow(c, "WU5: Clothes page first show", firstShow, gcs, PageTargetMs, $"top group {firstGroup:0.0} ms");
         var secs = page?.Query<Foldout>().ToList().Select(x => x.name).Where(n => n.StartsWith("edit-section-clothes.clothes.", StringComparison.Ordinal)).Select(n => n.Substring("edit-section-clothes.clothes.".Length)).ToList() ?? new List<string>();
         var wantSecs = new List<string> { "kind" }.Concat(InspectorSchemas.ClothesKindSections.Select(s => "top." + s)).Concat(new[] { "coordinate" }).ToList();
         c.Check(secs.SequenceEqual(wantSecs), "sections in order: kind, top type / colour1-3 / other, coordinate (" + string.Join(", ", secs) + ")");
@@ -244,11 +243,12 @@ public static partial class UiPanelsTest
         c.Check(McPattern(tab, 0, 1) == null || McPattern(tab, 0, 1).List == null, "the pattern list of a set is not built with the section (built on the button's first open)");
 
         // ---------------------------------------------------------------- kind switch, detached groups
+        int gcGroup0 = GC.CollectionCount(0);
         sel.Select(1);
+        int gcsGroup = GC.CollectionCount(0) - gcGroup0;
         yield return PlayModeHarness.WaitFrames(2);
         double bottomGroup = tab.PageBuildMs.TryGetValue("clothes.group.bottom", out var fg1) ? fg1 : -1;
-        c.Check(bottomGroup >= 0 && bottomGroup <= 2 * PageTargetMs, $"WU5: first Bottom group {bottomGroup:0.0} ms (≤ {2 * PageTargetMs})");
-        if (bottomGroup > PageTargetMs) c.Warning($"WU5: first kind group {bottomGroup:0.0} ms above the {PageTargetMs} ms target");
+        TimedShow(c, "WU5: first Bottom group", bottomGroup, gcsGroup, PageTargetMs);
         c.Check(tab.ClothesGroups[0] != null && tab.ClothesGroups[0].panel == null && tab.ClothesGroups[1]?.panel != null && McRow(tab, "top.item") == null,
             "the Top group is detached (kept), the Bottom group attached, no Top row in the tab");
         McCheckRows(c, tab, f, 1, "bottom");
@@ -256,16 +256,17 @@ public static partial class UiPanelsTest
         c.Info("the top list's current cell " + topList0?.CurrentRef + " at position " + topList0?.PositionOf(topList0?.CurrentRef ?? "") + " of " + topList0?.Items.Count);
         var topList = MfQ<PartList>(tab.ClothesGroups[0], "field-" + ClothesRoot + "top.item");
         int binds0 = topList?.Grid.BindCount ?? 0, scrolls0 = topList?.AttachScrolls ?? 0;
-        var switches = new List<double>();
+        var switches = new List<(double ms, int gcs)>();
         for (int n = 0; n < 6; n++)
         {
+            int gcSwitch0 = GC.CollectionCount(0);
             sel.Select(n % 2 == 0 ? 0 : 1);
+            int gcsSwitch = GC.CollectionCount(0) - gcSwitch0;
             yield return PlayModeHarness.WaitFrames(2);
-            switches.Add(tab.ClothesKindSwitchMs);
+            switches.Add((tab.ClothesKindSwitchMs, gcsSwitch));
         }
-        double cached = Median(switches);
-        c.Check(cached <= 2 * KindSwitchTargetMs && sel.Selected == 1 && tab.ClothesGroups[1].panel != null, $"WU5: cached kind switch median {cached:0.000} ms over {switches.Count} (max {switches.Max():0.000}; ≤ {2 * KindSwitchTargetMs})");
-        if (cached > KindSwitchTargetMs) c.Warning($"WU5: cached kind switch {cached:0.00} ms above the {KindSwitchTargetMs} ms target");
+        double cached = TimedMedian(c, "WU5: cached kind switch", switches, KindSwitchTargetMs);
+        c.Check(sel.Selected == 1 && tab.ClothesGroups[1].panel != null, "after the cached switches the Bottom group is shown");
         c.Info($"WU5 (Editor play): Clothes page first show {firstShow:0.0} ms (incl. the Top group {firstGroup:0.0}), first Bottom group {bottomGroup:0.0} ms, cached switch {cached:0.000} ms; top list row binds during the three re-attaches {(topList?.Grid.BindCount ?? 0) - binds0}, scrolls after a re-attach {(topList?.AttachScrolls ?? 0) - scrolls0}");
         sel.Select(0);
         yield return PlayModeHarness.WaitFrames(4);

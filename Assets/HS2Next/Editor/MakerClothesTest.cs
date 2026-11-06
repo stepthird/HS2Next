@@ -1666,14 +1666,16 @@ public static class MakerClothesTest
             var mod = new HS2Next.Chara.Ext.BoneModifierApplier.Modifier { Target = joints[1], Bone = HeelJoints[1], Source = "wt16", Rotation = new Vector3(10, 0, 0) };
             bool own = !ctx.Bones;   // a card without bone modifiers has no component: one for the check, removed after it
             if (own) ctx.Bones = ctx.Root.AddComponent<HS2Next.Chara.Ext.BoneModifierApplier>();
+            foot.TakeOff();   // as an edit does: a new modifier's base is what the heels started from, not their write
             ctx.Bones.Add(mod);
+            HS2Next.Motion.Modifiers.BoneModifierSetup.Sync(ctx);
             var seen = new List<Quaternion>();
-            for (int k = 0; k < 4; k++) { ctx.Motion.Step(1f / 60f); ctx.Bones.ApplyNow(); seen.Add(joints[1].localRotation); }
-            Check("WT16 with a bone modifier on cf_J_Foot02_L: steps and modifier passes alternate without accumulating",
+            for (int k = 0; k < 4; k++) { ctx.Motion.Step(1f / 60f); seen.Add(joints[1].localRotation); }
+            Check("WT16 with a bone modifier on cf_J_Foot02_L: the steps do not accumulate",
                   seen.Skip(1).All(q => Quaternion.Angle(q, seen[0]) < 1e-3f), string.Join(", ", seen.Select(q => q.eulerAngles.ToString("F2"))));
             ctx.Bones.Remove("wt16");
-            ctx.Bones.ApplyNow();   // the removal restores the bone at the next pass (the LateUpdate in play)
-            if (own) { Object.DestroyImmediate(ctx.Bones); ctx.Bones = null; }
+            ctx.Bones.ApplyNow();   // the removal restores the bone (a step would do it as well)
+            if (own) { Object.DestroyImmediate(ctx.Bones); ctx.Bones = null; HS2Next.Motion.Modifiers.BoneModifierSetup.Sync(ctx); }
             ctx.Motion.Step(1f / 60f);
             string d2 = Expect(out bool ok2);
             Check("WT16 the modifier removed: the joints = the computation again", ok2, d2);

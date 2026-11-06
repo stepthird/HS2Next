@@ -1,0 +1,13 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.sample.hello",
+  "name": "Sample hello",
+  "version": "0.1.0",
+  "apiVersion": "1.1",
+  "assemblies": ["Stp3.SampleHello.dll"],
+  "entryType": "Stp3.Samples.Hello.HelloPlugin",
+  "commandPrefixes": ["hello."],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "The plugin kit's first sample: a command that greets and counts the scene's objects, and a log line per scene."
+}

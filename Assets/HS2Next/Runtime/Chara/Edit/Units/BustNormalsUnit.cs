@@ -2,8 +2,10 @@
 // body renderer's normals between the two sets of a `NormalData` asset by bust size; HS2Next does the same in the unit
 // `bust.normals` (step 6, after shape.body; marked by every body.shape change and by the build):
 //   source   the prefab's body mesh: p_cf_body_00_Nml of chara/oo_base.unity3d; a body mesh a build hook replaced: the
-//            NormalData asset the hook recorded (CharaContext.BodyNormals, e.g. in the replacement's own bundle). No asset:
-//            nothing, no mesh copy, the finding chara.bustNormalsMissing (info, reported once by the realization).
+//            NormalData asset the hook recorded (CharaContext.BodyNormals, e.g. in the replacement's own bundle; a zipmod
+//            named by GUID is looked up in the catalog here). No asset: nothing, no mesh copy, the finding
+//            chara.bustNormalsMissing (info, reported once by the realization). A source of none (a plugin's body part
+//            without normals): nothing, no mesh copy, no finding.
 //   entries  each entry names a renderer under the body object (depth-first); it applies when NormalMin, NormalMax and
 //            the drawn mesh have the same vertex count (else skipped, as HS2).
 //   copy     at the first run (the build) the drawn mesh of every applicable entry is replaced by an owned copy with the
@@ -247,10 +249,26 @@ namespace HS2Next.Chara.Edit.Units
             var src = ctx.BodyNormals;
             try
             {
+                if (src != null && src.None)
+                {
+                    st.Source = src.Source; st.Bundle = null; st.Asset = null;
+                    st.Missing = true;
+                    st.MissingReported = true;
+                    st.MissingReason = "no normals for the supplied body (" + src.Source + ")";
+                    x.Log.Add("bust normals: none (" + src.Source + "): not blended");
+                    return;
+                }
                 if (src != null)
                 {
                     st.Source = src.Source; st.Bundle = src.File; st.Asset = src.Asset ?? BustNormalsState.DefaultAsset;
-                    data = LoadData(x.Catalog, src.Zipmod, src.File, st.Asset);
+                    var zipmod = src.Zipmod;
+                    if (zipmod == null && !string.IsNullOrEmpty(src.ZipmodGuid))
+                    {
+                        var byGuid = x.Catalog?.ZipmodsByGuid;
+                        if (byGuid == null || !byGuid.TryGetValue(src.ZipmodGuid, out zipmod) || zipmod == null)
+                            st.MissingReason = "the zipmod " + src.ZipmodGuid + " is not installed";
+                    }
+                    data = st.MissingReason != null ? null : LoadData(x.Catalog, zipmod, src.File, st.Asset);
                 }
                 else
                 {

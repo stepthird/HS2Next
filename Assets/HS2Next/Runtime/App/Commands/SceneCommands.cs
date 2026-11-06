@@ -374,6 +374,7 @@ namespace HS2Next.App.Commands
                 var list = undo ? bus.UndoList : bus.RedoList;
                 string label = list.Count > 0 ? list[0].Label : null;
                 var r = undo ? bus.Undo() : bus.Redo();
+                foreach (var w in bus.TakeWarnings()) c.Warn(w);
                 CommandKit.Check(r);
                 if (r.Status == CommandStatus.NoOp) break;
                 labels.Add(label);

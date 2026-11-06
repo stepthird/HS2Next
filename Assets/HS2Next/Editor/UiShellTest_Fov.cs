@@ -360,8 +360,14 @@ public static partial class UiShellTest
             yield return Frames(3);
             var root = ui.Shell.PanelRoot(CameraListPanel.PanelId);
             var p = root?.Q<CameraListPanel>();
+            // the panel refreshes on a 200 ms timer, and without graphics nine frames can take less than that: it gets a bounded time after the new scene
+            if (p != null)
+            {
+                yield return PlayModeHarness.WaitUntil(() => p.Ids.Count == 0, 1, null);
+                yield return Frames(2);
+            }
             c.Check(p != null && p.Ids.Count == 0 && p.Empty.resolvedStyle.display == DisplayStyle.Flex && p.Empty.text == L10n.Get("cameras.none"),
-                $"{lang}: an empty scene shows «{p?.Empty.text}»");
+                $"{lang}: an empty scene shows «{p?.Empty.text}» (cameras listed {p?.Ids.Count}, display {p?.Empty.resolvedStyle.display}, expected text «{L10n.Get("cameras.none")}»)");
             if (p == null) continue;
             foreach (var w in new float?[] { null, 300f, 247f })
             {

@@ -49,7 +49,7 @@ namespace HS2Next.Save
             var x = Create(type);
             if (x == null)
             {
-                r.Report(FindingSeverity.Warning, "json.unknownEnum", "type", "unknown MaterialEditor type \"" + type + "\" kept");
+                r.Report(FindingSeverity.Warning, "json.unknownEnum", "type", "unknown material item type \"" + type + "\" kept");
                 return new MeUnknown { TypeName = type, Raw = r.Detach() };
             }
             x.ReadFrom(r);

@@ -167,7 +167,18 @@ namespace HS2Next.Chara.Documents
             }
         }
 
-        static MaterialEditorData MaterialEditor(CharaDocument chara, CoordDocument coord, AccessorySlotTable slots, ResStore res, FindingList f)
+        /// <summary>One stored item in the decoder's shape, its image (if any) in <paramref name="textures"/>; null for a kind the
+        /// decoder has no form of. For reads of what an item does: no list, no slot.</summary>
+        internal static MaterialEditorData.Item ItemOf(MaterialOverride o, ResStore res, Dictionary<int, byte[]> textures)
+        {
+            var tex = new TexIds(res, null);
+            var it = Convert(o, tex, "", null);
+            foreach (var kv in tex.Textures) textures[kv.Key] = kv.Value;
+            return it;
+        }
+
+        /// <summary>The material items of the two documents alone (a value edit regenerates only these).</summary>
+        internal static MaterialEditorData MaterialEditor(CharaDocument chara, CoordDocument coord, AccessorySlotTable slots, ResStore res, FindingList f)
         {
             var me = new MaterialEditorData { Version = 0 };
             var tex = new TexIds(res, f);

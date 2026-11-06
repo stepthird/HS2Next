@@ -38,7 +38,7 @@ namespace HS2Next.Motion.Face
             var rig = FaceRig.Read(comp);
             int seed;
             lock (seeder) seed = Seed ?? seeder.Next();
-            var stage = new ExpressionStage(rig, new SystemFaceRandom(seed));
+            var stage = new ExpressionStage(rig, new SystemFaceRandom(seed)) { Context = ctx };
             if (ctx.HeadBones != null && ctx.HeadBones.TryGetValue("cf_J_MouthMove", out var mouthMove)) stage.MouthWidthBone = mouthMove;
             foreach (var s in ctx.Motion.GetAll<IMotionStage>())
                 if (s is IEyeLookOutputs look) { stage.EyeLook = look; break; }

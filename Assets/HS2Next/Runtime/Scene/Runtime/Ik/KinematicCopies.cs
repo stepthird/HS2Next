@@ -93,9 +93,12 @@ namespace HS2Next.Scenes.Runtime
             var table = FkDriver.TableFor(rt.FindChara(id));
             if (table == null) return Unavailable(id, "fk.captureUnavailable");
             var values = new Dictionary<string, Vec3>(StringComparer.Ordinal);
-            foreach (var g in list)
-                foreach (var b in table.Of(g))
-                    if (b.Bone) { var e = b.Bone.localEulerAngles; values[b.Key] = new Vec3(e.x, e.y, e.z); }
+            AdvancedPoseDriver.Bare(rt.FindChara(id), () =>
+            {
+                foreach (var g in list)
+                    foreach (var b in table.Of(g))
+                        if (b.Bone) { var e = b.Bone.localEulerAngles; values[b.Key] = new Vec3(e.x, e.y, e.z); }
+            });
             return FkWrite(id, st, values, list, enable, o.Label ?? "FK from pose", o);
         }
 
@@ -235,14 +238,18 @@ namespace HS2Next.Scenes.Runtime
             if (table == null || !hips) return Unavailable(id, "ik.copyUnavailable");
             var map = new SortedDictionary<string, Vec3>(st.Fk.Bones, StringComparer.Ordinal);
             int n = 0;
-            foreach (var b in table.Of(FkGroup.Body))
-            {
-                if (!b.Bone) continue;
-                var e = b.Bone.localEulerAngles;
-                map[b.Key] = new Vec3(e.x, e.y, e.z);
-                n++;
-            }
             var hp = hips.localPosition;
+            AdvancedPoseDriver.Bare(r, () =>
+            {
+                foreach (var b in table.Of(FkGroup.Body))
+                {
+                    if (!b.Bone) continue;
+                    var e = b.Bone.localEulerAngles;
+                    map[b.Key] = new Vec3(e.x, e.y, e.z);
+                    n++;
+                }
+                hp = hips.localPosition;
+            });
             var sets = new List<(string, object)>
             {
                 ("chara.ik.enabled", false),

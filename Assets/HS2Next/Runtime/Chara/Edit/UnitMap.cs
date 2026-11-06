@@ -3,7 +3,8 @@
 // the top-level members of chara.json and coord.json do not overlap, so no document prefix is needed. A change marks
 // every unit whose path prefix overlaps it in either direction (a whole-object set such as "face" or
 // "accessories[\"id\"]" marks every unit below it). Some members mark no unit (stored, not realised), some request a
-// rebuild of the character instead (C8). Unity-free.
+// rebuild of the character instead (C8). Unity-free. A path at or under one of the material arrays is told apart first
+// (MaterialObject): the editor asks what changed in it before any of this applies.
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,7 +48,8 @@ namespace HS2Next.Chara.Edit
         static readonly (string path, string[] units)[] coordMap = BuildCoord();
 
         /// <summary>Members whose change rebuilds the character: uncensor, Studio overlay switches, the sex,
-        /// the Character-object MaterialEditor items.</summary>
+        /// the Character-object MaterialEditor items when their structure changes (a value change takes the editor's
+        /// value pass and does not come here).</summary>
         public static readonly string[] CharaRebuild = { "body.uncensor", "studioOverlays", "profile.sex", "materialOverrides" };
         public static readonly string[] CoordRebuild = { "sex" };
 
@@ -368,6 +370,49 @@ namespace HS2Next.Chara.Edit
             SkinCreators(SkinBody, paths, all, out bool colour, out bool detail);
             return (colour ? 1 + Math.Max(0, colourLayers) : 0) + (detail ? 1 + Math.Max(0, detailLayers) : 0);
         }
+
+        // ---------------------------------------------------------------- the material arrays
+
+        /// <summary>Which object a material array belongs to.</summary>
+        public enum MaterialArray { None = 0, Character, Hair, Clothes, Accessory }
+
+        /// <summary>
+        /// True when <paramref name="path"/> is at or under one of the material arrays: `materialOverrides`,
+        /// `hair.&lt;part&gt;.materialOverrides`, `clothes.&lt;kind&gt;.materialOverrides`, `accessories["id"].materialOverrides`.
+        /// <paramref name="index"/>: the hair part or clothes kind; <paramref name="id"/>: the accessory; <paramref name="arrayPath"/>:
+        /// the array's member path. A wider path (`hair.back`, a whole document) is not one.
+        /// </summary>
+        public static bool MaterialObject(string path, out MaterialArray kind, out int index, out string id, out string arrayPath)
+        {
+            kind = MaterialArray.None; index = -1; id = null; arrayPath = null;
+            string m = Member(path, out char doc);
+            if (string.IsNullOrEmpty(m)) return false;
+            if (doc != 'k')
+            {
+                if (IsPrefixOf("materialOverrides", m)) { kind = MaterialArray.Character; arrayPath = "materialOverrides"; return true; }
+                for (int k = 0; k < HairParts.Length; k++)
+                {
+                    string p = "hair." + HairParts[k] + ".materialOverrides";
+                    if (IsPrefixOf(p, m)) { kind = MaterialArray.Hair; index = k; arrayPath = p; return true; }
+                }
+            }
+            if (doc == 'c') return false;
+            for (int k = 0; k < ClothesKinds.Length; k++)
+            {
+                string p = "clothes." + ClothesKinds[k] + ".materialOverrides";
+                if (IsPrefixOf(p, m)) { kind = MaterialArray.Clothes; index = k; arrayPath = p; return true; }
+            }
+            if (m.Length > "accessories".Length && IsPrefixOf("accessories", m) && TryKey(m.Substring("accessories".Length), out string key, out string member) &&
+                IsPrefixOf("materialOverrides", member))
+            {
+                kind = MaterialArray.Accessory; id = key; arrayPath = AccessoryArray(key);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>The member path of an accessory's material array, by its id.</summary>
+        public static string AccessoryArray(string id) => "accessories[\"" + id + "\"].materialOverrides";
 
         /// <summary>FieldPath prefix rule: "a.b" is a prefix of "a.b", "a.b.c" and "a.b[0]", not of "a.bc".</summary>
         public static bool IsPrefixOf(string prefix, string path)

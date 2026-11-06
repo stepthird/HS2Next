@@ -1,0 +1,28 @@
+{
+  "duration": 10.0,
+  "loop": true,
+  "tracks": [
+    {
+      "type": "camera",
+      "ease": "inout",
+      "keys": [
+        {"t": 0.0, "target": [0.5, 13.7, -13.8], "rot": [3, 236, 0], "dist": 11.0, "fov": 30, "ease": "linear"},
+        {"t": 7.78, "target": [0.5, 13.7, -13.8], "rot": [3, 234, 0], "dist": 9.5, "fov": 30, "ease": "step"},
+        {"t": 7.8, "target": [0, 8.5, -14], "rot": [6, 230, 0], "dist": 40.0, "fov": 35, "ease": "linear"},
+        {"t": 9.98, "target": [0, 8.5, -14], "rot": [6, 226, 0], "dist": 38.0, "fov": 35, "ease": "step"}
+      ]
+    },
+    {
+      "type": "dof",
+      "ease": "step",
+      "keys": [
+        {"t": 0.0, "ease": "step", "focus": "$a", "on": true, "sharp": 0.06, "full": 2.0, "blur": 4, "near": true},
+        {"t": 3.2, "ease": "inout"},
+        {"t": 4.4, "ease": "step", "focus": {"point": [-22.75, 15.64, -38.25]}},
+        {"t": 6.2, "ease": "inout"},
+        {"t": 7.2, "ease": "step", "focus": "$a"},
+        {"t": 7.8, "ease": "step", "focus": "$a", "sharp": 0.3, "full": 5.0, "blur": 3}
+      ]
+    }
+  ]
+}

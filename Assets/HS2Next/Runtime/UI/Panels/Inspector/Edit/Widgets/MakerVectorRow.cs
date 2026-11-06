@@ -229,7 +229,8 @@ namespace HS2Next.UI.Panels
             edit = ctx.BeginEdit(Spec.OpLabel ?? OpLabels.EditAccessory);
             if (!edit.IsOpen) { ctx.ShowResult(OpResult.From(edit.Failure)); edit = null; return false; }
             var mine = edit;
-            mine.Ended += committed => { if (edit == mine) edit = null; if (!committed) Binding.MarkDirty(); };
+            // cancelled (Esc): a held step or a drag stops at once; its timer would go on writing with no edit around it
+            mine.Ended += committed => { if (edit == mine) edit = null; if (!committed) { StopHold(); Binding.MarkDirty(); } };
             return true;
         }
 
@@ -312,13 +313,18 @@ namespace HS2Next.UI.Panels
         /// <summary>Screen pixels of a drag of <paramref name="logical"/> panel px (× the panel's pixels per point), toward zero.</summary>
         public int ScreenPixels(float logical) => (int)Math.Truncate(logical * (panel != null ? panel.scaledPixelsPerPoint : 1f));
 
-        /// <summary>Ends the open hold or drag: commits its one entry (<paramref name="cancel"/>: discards it).</summary>
-        public void EndHold(bool cancel)
+        void StopHold()
         {
             holdTick?.Pause();
             holdTick = null;
             holdAxis = -1;
             dragAxis = -1;
+        }
+
+        /// <summary>Ends the open hold or drag: commits its one entry (<paramref name="cancel"/>: discards it).</summary>
+        public void EndHold(bool cancel)
+        {
+            StopHold();
             var e = edit;
             edit = null;
             if (e == null || !e.IsOpen) return;

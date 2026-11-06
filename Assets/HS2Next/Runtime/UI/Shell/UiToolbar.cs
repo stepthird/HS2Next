@@ -209,7 +209,7 @@ namespace HS2Next.UI
         {
             Item(ActionIds.ViewGizmos), Item(ActionIds.ViewPlanes), Item(ActionIds.ViewCentre), Item(ActionIds.ViewPivotMarker),
             Item(ActionIds.ViewGimmickIcons), Item(ActionIds.ViewLightHelpers), Item(ActionIds.ViewCameraIcons), Item(ActionIds.ViewKinematicHandles),
-            Item(ActionIds.ViewPhysics), MenuItem.Sep(), Item(ActionIds.ViewPanels), Item(ActionIds.ViewFps), Item(ActionIds.UiResetLayout),
+            Item(ActionIds.ViewPhysics), MenuItem.Sep(), Item(ActionIds.ViewPanels), Item(ActionIds.TimelinePanel), Item(ActionIds.ConstraintsPanel), Item(ActionIds.ViewFps), Item(ActionIds.UiResetLayout),
         };
 
         List<MenuItem> LanguageMenu()

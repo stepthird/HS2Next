@@ -11,6 +11,9 @@ namespace HS2Next.UI.Core
         public static readonly IReadOnlyList<string> EffectBlocks = new[]
             { "colorGrading", "ambientOcclusion", "bloom", "depthOfField", "vignette", "ssr", "reflectionProbe", "fog", "sunShafts", "shadows", "ambient", "sky" };
 
+        /// <summary>The map's Material edits, under the map.</summary>
+        public const string MapMaterialsSection = "mapMaterials";
+
         static List<SchemaSection> BuildScene()
         {
             var l = new List<SchemaSection>();
@@ -36,6 +39,7 @@ namespace HS2Next.UI.Core
             ml.OpLabel = OpLabels.MapLights;
             ml.Gate = SchemaGates.MapLights;
             l.Add(map);
+            l.Add(new SchemaSection(MapMaterialsSection, "inspector.scene.section.mapMaterials"));   // MaterialEditView draws it
 
             // Screen effects, one section per block (vanilla order)
             SchemaSection Block(string id, out B b)

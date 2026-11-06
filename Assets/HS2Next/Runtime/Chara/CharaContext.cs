@@ -63,17 +63,30 @@ namespace HS2Next.Chara
     }
 
     /// <summary>A skin texture layer composited into a skin pass (KSOX semantics): the card's KSOX
-    /// images (Source "ksox") and the layers build hooks register (Source "&lt;hook id&gt;:&lt;id&gt;").</summary>
+    /// images (Source "ksox"), the layers Core build hooks register (Source "&lt;hook id&gt;:&lt;id&gt;") and the layers of
+    /// plugins (Source "&lt;guid&gt;/&lt;id&gt;", <see cref="Owner"/> set; set by a BodyMesh hook or outside builds).</summary>
     public sealed class SkinLayer
     {
         /// <summary>KSOX TexType: 1 BodyOver, 2 FaceOver, 3 BodyUnder, 4 FaceUnder, 41..44 detail (others).</summary>
         public int TexType;
-        /// <summary>The texture (bundle asset), or null when the layer is kept as <see cref="Image"/> and decoded per composite.</summary>
+        /// <summary>The texture (bundle asset, or a plugin's own texture: never destroyed here), or null when the layer is kept
+        /// as <see cref="Image"/> and decoded per composite.</summary>
         public Texture2D Texture;
-        /// <summary>Encoded image (PNG/JPEG) of a card layer; decoded for each rebuild and released afterwards.</summary>
+        /// <summary>Encoded image (PNG/JPEG) of a card layer or a plugin layer; decoded for each rebuild and released afterwards.</summary>
         public byte[] Image;
-        /// <summary>Who registered it, e.g. "ksox" or "&lt;hook id&gt;:&lt;id&gt;" for a layer a build hook registered.</summary>
+        /// <summary>Who registered it, e.g. "ksox", "&lt;hook id&gt;:&lt;id&gt;" for a layer a Core build hook registered, or
+        /// "&lt;guid&gt;/&lt;id&gt;" for a plugin's layer.</summary>
         public string Source;
+        /// <summary>The GUID of the plugin whose layer this is, or null (the card, Core modules).</summary>
+        public string Owner;
+        /// <summary>The plugin's id of the layer (unique per plugin and character), or null.</summary>
+        public string Id;
+        /// <summary>True for a plugin layer set outside a build (kept by the scene node across rebuilds).</summary>
+        public bool Runtime;
+        /// <summary>The source text of a plugin layer.</summary>
+        public static string SourceOf(string owner, string id) => owner + "/" + id;
+        /// <summary>True for a layer set through a texture that has since been destroyed (it is skipped).</summary>
+        public bool TextureDestroyed => !ReferenceEquals(Texture, null) && !Texture;
 
         /// <summary>Pixel size (texture, else the image header); false when unknown.</summary>
         public bool TrySize(out int w, out int h)
@@ -86,16 +99,48 @@ namespace HS2Next.Chara
     }
 
     /// <summary>The breast-normal source of a body mesh a build hook replaced: a
-    /// NormalData asset in a bundle (of a zipmod, or abdata when <see cref="Zipmod"/> is null).</summary>
+    /// NormalData asset in a bundle (of a zipmod, or abdata when <see cref="Zipmod"/> and <see cref="ZipmodGuid"/> are null),
+    /// or none (<see cref="None"/>: no blending).</summary>
     public sealed class BodyNormalsSource
     {
-        /// <summary>The hook that replaced the body mesh and the id it gives the replacement (CharaContext.ReplacedBodyMesh).</summary>
+        /// <summary>The hook that replaced the body mesh and the id it gives the replacement (CharaContext.ReplacedBodyMesh);
+        /// for a plugin's body part "&lt;guid&gt;/&lt;hook id&gt;" and the part's name.</summary>
         public string HookId, Id;
         public ZipmodInfo Zipmod;
+        /// <summary>The zipmod by GUID (a plugin's reference): resolved through the catalog when the normals unit loads.</summary>
+        public string ZipmodGuid;
         public string File, Asset;
+        /// <summary>No NormalData: the body is not blended (and no finding is raised).</summary>
+        public bool None;
         /// <summary>"&lt;hook id&gt;:&lt;id&gt;" (BustNormalsState.Source).</summary>
         public string Source => HookId + ":" + Id;
-        public override string ToString() => $"{Asset} in {File} ({Zipmod?.Guid ?? "abdata"}, {Source})";
+        public override string ToString() => None ? $"none ({Source})" : $"{Asset} in {File} ({Zipmod?.Guid ?? ZipmodGuid ?? "abdata"}, {Source})";
+    }
+
+    /// <summary>The skin layers plugins set outside builds on one scene character (kept across its rebuilds, joined to each
+    /// build after its BodyMesh hooks), in the order set.</summary>
+    public sealed class SkinLayerRecord
+    {
+        public readonly List<SkinLayer> Layers = new List<SkinLayer>();
+        /// <summary>Replaces the layer of the same source or appends it.</summary>
+        public void Set(SkinLayer l)
+        {
+            int i = Layers.FindIndex(x => x.Source == l.Source);
+            if (i >= 0) Layers[i] = l; else Layers.Add(l);
+        }
+        /// <summary>Removes the layer of <paramref name="source"/>; true when there was one.</summary>
+        public bool Remove(string source) => Layers.RemoveAll(x => x.Source == source) > 0;
+        /// <summary>Removes every layer of the plugin <paramref name="owner"/>; returns how many.</summary>
+        public int RemoveOwner(string owner) => Layers.RemoveAll(x => x.Owner == owner);
+    }
+
+    /// <summary>A body part a plugin supplied in this build (body-part replacement): who, the part's name and its renderer.</summary>
+    public sealed class SuppliedPart
+    {
+        /// <summary>The plugin GUID, the full hook id ("&lt;guid&gt;/&lt;hook id&gt;") and the part (renderer name).</summary>
+        public string Owner, HookId, Part;
+        public Renderer Renderer;
+        public override string ToString() => Part + " from " + HookId;
     }
 
     public sealed class CharaContext
@@ -199,11 +244,14 @@ namespace HS2Next.Chara
         public System.Func<AccessorySlot, GameObject> LoadAccessory;
 
         // ---- produced by the extension stage
-        /// <summary>Skin layers composited by the texture stage (card KSOX layers first, then the layers build hooks registered).</summary>
+        /// <summary>Skin layers composited by the texture stage (card KSOX layers first, then the layers build hooks registered
+        /// and the plugins' layers, in the order set).</summary>
         public List<SkinLayer> SkinLayers = new List<SkinLayer>();
         public List<MissingContent> Missing = new List<MissingContent>();
         /// <summary>The id a build hook gives the body mesh it put in place of the prefab's (null = the prefab's body mesh).</summary>
         public string ReplacedBodyMesh;
+        /// <summary>The body parts plugins supplied in this build (body-part replacement), in the order replaced.</summary>
+        public readonly List<SuppliedPart> SuppliedParts = new List<SuppliedPart>();
         /// <summary>The bone modifier component (ABMX + rule effects); null when there are no modifiers.</summary>
         public BoneModifierApplier Bones;
         /// <summary>PushUp data (stored; effect off).</summary>

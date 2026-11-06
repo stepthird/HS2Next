@@ -616,6 +616,7 @@ namespace HS2Next.App
             {
                 yield return c.Call(new { cmd = "ui.action", action = "edit.show", args = new { node } });
                 if (!(c.Last != null && c.Last.Ok)) { bad.Add(node + ": " + AcceptanceCtx.Short(c.Last?.ToString())); continue; }
+                if ((string)(c.J["result"] as JObject)?["node"] != node) { bad.Add(node + ": the result is not the object {node, page, ...}: " + AcceptanceCtx.Short(c.J["result"]?.ToString())); continue; }
                 yield return c.Frames(3);
                 var mf = new JObject[1];
                 yield return U9FileState(c, mf);

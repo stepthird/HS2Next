@@ -149,8 +149,12 @@ namespace HS2Next.UI.Panels
             return true;
         }
 
+        /// <summary>When set, a push calls this with the cell's reference instead of the push op (a plugin form's push row).</summary>
+        public Func<string, OpResult> PushOverride;
+
         void Push(PartItem it)
         {
+            if (PushOverride != null) { if (it?.Row != null) LastResult = PushOverride(it.Ref); return; }
             var targets = Targets;
             if (it?.Row == null || targets.Count == 0) return;
             var o = UiContext.User(string.IsNullOrEmpty(Spec.OpLabel) ? null : Spec.OpLabel);

@@ -1222,6 +1222,9 @@ public static class MakerFileTest
 
     /// <summary>The coordinates of one sex's folder worn in mode All on <paramref name="card"/> (CoordApply.all; AllCardsTest's
     /// coordinate step): <paramref name="every"/> k > 1 takes every k-th file of the folder's order (the impact runs' sample).</summary>
+    /// <summary>Female coordinates in fixed groups, each on a fresh node of the visual target (a row's own pairs; paths relative to the sex's folder).</summary>
+    internal static void CoordGroupsFemale(MakerCoreTest.Harness h, List<List<string>> groups) => CoordApplySex(h, "female", FemaleCard, "BR-Chan", 0, groups);
+
     internal static void CoordApplySex(MakerCoreTest.Harness h, string sex, string card, string label, int limit, List<List<string>> only = null, int every = 1)
     {
         string dir = CoordDirOf(sex);

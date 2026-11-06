@@ -20,6 +20,8 @@
 //         current _MainTex and the character equals a fresh build of its documents (S2).
 //     MX8 the typed overrides (E6) refuse members (Protected, api.mosaicProtected), accept the body; the shader supply (E8)
 //         refuses AIT/mnpb and the mosaic shaders.
+//     AM0-AM4 the rule of advanced pose (MosaicTest_AdvancedPose.cs).
+//     MO0-MO5, MO8 the rule of material edits (MosaicTest_Materials.cs).
 //   RunRender (graphics, own process; row MosaicTest.render): BR-Chan, clothes hidden, a code-made body composite whose
 //     texels deep inside the patches' UV area are a one-texel marker checker (25 % pure green), the production URP asset:
 //     MR1 0 marker pixels inside the members' footprint (eroded 4 px) from 0.3 to 30 m (3 to 300 units), three angles,
@@ -39,6 +41,7 @@
 //         pixel in (a) and no coverage / changed pixel in (b); a visible member is covered by (b). The same views with the
 //         clothes hidden: no skin under a patch shows (the composite flat green inside the patches' UV area, the
 //         patches flat (1, 0, 1): 0 green pixels), counted also for a plain material without the member's depth placement.
+//     MO6 the skin on a transparent candidate and on one without _MainTex (MosaicTest_RenderMaterials.cs).
 //   RunTiming (graphics, own process; row MosaicTest.timing): MR6 the camera step per character (ZU4, target 0.05 ms) and
 //     the wide pass at 2560 x 1440 with two characters (ZU3, target 0.5 ms).
 // Reports: Spike/out/maker/mosaic_report.txt, mosaic_render_report.txt, mosaic_timing_report.txt ("SUMMARY: ..." first);
@@ -68,7 +71,7 @@ using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 using OT = HS2Next.Data.Ext.MaterialEditorData.ObjectType;
 
-public static class MosaicTest
+public static partial class MosaicTest
 {
     static readonly string[] Patches = { "o_mnpa", "o_mnpb" };
 
@@ -100,9 +103,13 @@ public static class MosaicTest
             if (Want("MX5")) Guard("MX5 patch guard", () => Mx5(h));
             if (Want("MX6")) Guard("MX6 edits = fresh build", () => Mx6(h));
             if (Want("MX8")) Guard("MX8 typed overrides and shader supply", () => Mx8(h));
+            AdvancedPoseGroups(h);
+            ModifierGroups();
+            MaterialGroups();
+            ConstraintGroups();
         }
         finally { h.Dispose(); }
-        Finish("mosaic_report.txt", "MosaicTest (headless): MX1-MX6, MX8", sw, "MOSAIC TEST");
+        Finish("mosaic_report.txt", "MosaicTest (headless): MX1-MX6, MX8, AM0-AM4, MO0-MO5, MO8", sw, "MOSAIC TEST");
     }
 
     static void Mx1(MakerCoreTest.Harness h)
@@ -701,10 +708,12 @@ public static class MosaicTest
                 }
                 if (Want("MR4")) Guard("MR4 capture paths", () => Mr4(h));
                 if (Want("MR7")) Guard("MR7 members under clothes", () => Mr7(h));
+                if (Want("MO6")) Guard("MO6 the skin on any candidate", () => Mo6(h));
+                if (OnlyNamed("MO6all")) Guard("MO6all the skin on every candidate", () => Mo6All(h));
             }
             finally { Cleanup(); h.Dispose(); }
         }
-        Finish("mosaic_render_report.txt", "MosaicTest.render: MR1-MR5, MR7 (images in memory only)", sw, "MOSAIC TEST");
+        Finish("mosaic_render_report.txt", "MosaicTest.render: MR1-MR5, MR7, MO6 (images in memory only)", sw, "MOSAIC TEST");
     }
 
     static void Mr1(CharaContext ctx)

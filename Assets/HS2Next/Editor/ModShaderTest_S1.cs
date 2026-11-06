@@ -43,12 +43,34 @@ public static class ModShaderS1Explain
     static bool Flag(string name) => Environment.GetCommandLineArgs().Contains(name);
     static string Snap(string shaderName) => shaderName?.Replace(' ', '_');
 
-    /// <summary>The replacements the 5.2 blocks map to (snapshot spelling: spaces as '_').</summary>
+    /// <summary>The replacements the 5.2 blocks map to, in ShaderMap.Fitted and in ShaderMap.CopyRoutes (snapshot spelling: spaces as '_').</summary>
     public static HashSet<string> TailTargets()
     {
         var s = new HashSet<string>(StringComparer.Ordinal);
         foreach (var e in ModShaderTest.Entries()) if (e.Phase == "5.2") s.Add(Snap(e.Target));
+        foreach (string target in RouteTargets52()) s.Add(Snap(target));
         return s;
+    }
+
+    /// <summary>The route targets inside the "// ---- 5.2 &lt;ID&gt;" blocks of ShaderMap.CopyRoutes. The table of the routes holds no phase, and the
+    /// older routes stay out as the older Fitted blocks do.</summary>
+    static IEnumerable<string> RouteTargets52()
+    {
+        var text = File.ReadAllText(Path.Combine(ContentSettings.ProjectRoot, "Assets", "HS2Next", "Runtime", "Rendering", "ShaderMap.cs"));
+        int start = text.IndexOf("CopyRoutes =", StringComparison.Ordinal), end = start < 0 ? -1 : text.IndexOf("\n        };", start, StringComparison.Ordinal);
+        if (end <= start) yield break;
+        text = text.Substring(start, end - start);
+        foreach (Match b in Regex.Matches(text, @"// ---- 5\.2 (\w+)[^\n]*\n(.*?)// ---- end of 5\.2 \1", RegexOptions.Singleline))
+            foreach (Match m in Regex.Matches(b.Groups[2].Value, "\"(HS2Next/[^\"]+)\"\\s*\\)"))
+                yield return m.Groups[1].Value;
+    }
+
+    /// <summary>What a shader name can be replaced by (snapshot spelling): its ShaderMap.Fitted entry and its copies' routes.</summary>
+    static IEnumerable<string> Replacements(string name)
+    {
+        if (ShaderMap.Fitted.TryGetValue(name, out var r)) yield return Snap(r);
+        if (ShaderMap.CopyRoutes.TryGetValue(name, out var routes))
+            foreach (var route in routes) yield return Snap(route.replacement);
     }
 
     /// <summary>The "k=v" tokens of a snapshot line after its key (the first two '|' fields).</summary>
@@ -84,7 +106,7 @@ public static class ModShaderS1Explain
                 {
                     var removed = ka.Except(kc).ToList();
                     foreach (var kv in MaterialEditorApplier.PluginCopies)
-                        if (ShaderMap.Fitted.TryGetValue(kv.Key, out var r) && Snap(r) == sc && removed.All(k => Array.IndexOf(kv.Value, k) < 0)) return ClassMeKeywords;
+                        if (Replacements(kv.Key).Contains(sc) && removed.All(k => Array.IndexOf(kv.Value, k) < 0)) return ClassMeKeywords;
                 }
             }
         }

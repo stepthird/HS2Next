@@ -66,6 +66,8 @@ namespace HS2Next.UI.Panels
 
         /// <summary>A texture is ready for <c>path</c> (cells bound to it refresh).</summary>
         public event Action<string, Texture2D> Loaded;
+        /// <summary>The handlers of <see cref="Loaded"/> (tests: a browser dropped from the panel leaves none behind).</summary>
+        public int LoadedListeners => Loaded?.GetInvocationList().Length ?? 0;
         /// <summary>The file could not be decoded (placeholder); raised once per path and session.</summary>
         public event Action<string> Unreadable;
 

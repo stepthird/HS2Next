@@ -26,6 +26,7 @@ namespace HS2Next.Motion
             // start from the lifted body, as the game lifts it when the shoes load
             Run(ctx, "heels", Heels.HeelsSetup.Attach);
             Run(ctx, "dynbone", DynamicBones.DynamicBoneSetup.Attach);
+            Run(ctx, "modifiers", Modifiers.BoneModifierSetup.Attach);   // last: a bind takes the modifiers off after the chains' reset
         }
 
         static void Run(CharaContext ctx, string name, Action<CharaContext> attach)

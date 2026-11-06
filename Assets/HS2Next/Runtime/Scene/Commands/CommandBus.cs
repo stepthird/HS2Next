@@ -4,6 +4,9 @@
 // model is consistent. View state (`ui.*`, `scene.camera.current`) is applied without history. Main thread
 // only; a call from an event handler answers `busy`. A command other than a property set applied without
 // history (bridge `undo: false`) clears the history, which could not be undone consistently past it.
+// External entries (a plugin's own state, Phase 6.1) join the same lists without an apply and without a change batch:
+// their undo and redo run the party's callbacks, which never clear the history when they fail; an owner's entries
+// can be removed at once, the others keeping their order.
 using System;
 using System.Collections.Generic;
 
@@ -48,15 +51,29 @@ namespace HS2Next.Scenes
         public string Label { get; }
         public CommandSource Source { get; }
         public long EstimatedBytes { get; }
+        /// <summary>The party of an external entry (a plugin's GUID), else null.</summary>
+        public string Owner { get; }
 
-        public HistoryEntryInfo(string label, CommandSource source, long estimatedBytes)
+        public HistoryEntryInfo(string label, CommandSource source, long estimatedBytes, string owner = null)
         {
             Label = label;
             Source = source;
             EstimatedBytes = estimatedBytes;
+            Owner = owner;
         }
 
         public override string ToString() => Label;
+    }
+
+    /// <summary>Outcome of <see cref="CommandBus.RecordExternal"/>.</summary>
+    public enum ExternalRecordResult
+    {
+        /// <summary>A new entry is on the undo list.</summary>
+        Recorded = 0,
+        /// <summary>Merged into the newest entry (same owner and merge key).</summary>
+        Merged = 1,
+        /// <summary>Refused: a transaction is open, a command applies (also an undo or redo callback) or a scene event is being delivered.</summary>
+        Busy = 2,
     }
 
     public sealed class CommandBus
@@ -267,10 +284,11 @@ namespace HS2Next.Scenes
 
         // ---------------- classification ----------------
 
-        /// <summary>Property sets only (directly or in composites): safe to apply without history.</summary>
+        /// <summary>Property sets only (directly or in composites): safe to apply without history. A Timeline or constraint edit
+        /// counts as one (it replaces a value of the scene and holds no node), so it merges and applies without history as they do.</summary>
         internal static bool IsPropertyOnly(ISceneCommand c)
         {
-            if (c is SetPropertyCommand) return true;
+            if (c is SetPropertyCommand || c is TimelineEditCommand || c is ConstraintEditCommand) return true;
             if (c is CompositeCommand k)
             {
                 foreach (var x in k.Children) if (!IsPropertyOnly(x)) return false;
@@ -352,19 +370,22 @@ namespace HS2Next.Scenes
             var sink = new ChangeSink();
             applying = true;
             try { e.Command.Revert(Model, sink); }
-            catch (Exception ex)
+            catch (Exception ex) when (e.Owner == null)
             {
                 History.Redo.Add(e);
                 return Internal(e.Command, ex);
             }
+            catch (Exception ex) { ExternalFailed(e, "undo", ex); }
             finally { applying = false; }
             History.Redo.Add(e);
             e.Sealed = true;
             SealTop();
+            TakeFailure(e);
             var selBefore = Selection.Snapshot();
-            Selection.SetSilently(e.SelectionBefore);
+            if (e.SelectionBefore != null) Selection.SetSilently(e.SelectionBefore);
             Version++;
-            Deliver(ChangeOrigin.Undo, CommandSource.User, sink.Changes, selBefore, Selection.Snapshot(), null, true);
+            var forgotten = RunPendingRemovals();
+            Deliver(ChangeOrigin.Undo, CommandSource.User, sink.Changes, selBefore, Selection.Snapshot(), forgotten, true);
             return CommandResult.Success(e.Command);
         }
 
@@ -382,19 +403,22 @@ namespace HS2Next.Scenes
                 e.Command.Validate(Model);
                 e.Command.Apply(Model, sink);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (e.Owner == null)
             {
                 History.Undo.Add(e);
                 return Internal(e.Command, ex);
             }
+            catch (Exception ex) { ExternalFailed(e, "redo", ex); }
             finally { applying = false; }
             SealTop();
             History.Undo.Add(e);
             e.Sealed = true;
+            TakeFailure(e);
             var selBefore = Selection.Snapshot();
-            Selection.SetSilently(e.SelectionAfter);
+            if (e.SelectionAfter != null) Selection.SetSilently(e.SelectionAfter);
             Version++;
-            Deliver(ChangeOrigin.Redo, CommandSource.User, sink.Changes, selBefore, Selection.Snapshot(), null, true);
+            var forgotten = RunPendingRemovals();
+            Deliver(ChangeOrigin.Redo, CommandSource.User, sink.Changes, selBefore, Selection.Snapshot(), forgotten, true);
             return CommandResult.Success(e.Command);
         }
 
@@ -418,6 +442,103 @@ namespace HS2Next.Scenes
                 for (int i = History.Redo.Count - 1; i >= 0; i--) l.Add(History.Redo[i].Info);
                 return l;
             }
+        }
+
+        // ---------------- external entries ----------------
+
+        readonly List<string> warnings = new List<string>();
+        readonly List<string> pendingRemovals = new List<string>();
+
+        /// <summary>
+        /// Records an entry of a party outside the scene model (<paramref name="owner"/>, e.g. a plugin's GUID) for a change it
+        /// has already made to its own state: no apply and no change batch, onto the undo list as a recorded command goes:
+        /// the redo branch is dropped, the previous entry sealed, the limits applied, the version raised and HistoryChanged
+        /// raised. Undo calls the command's Revert and redo its Validate and Apply, with the bus applying (the scene answers
+        /// busy meanwhile); an exception there never clears the history (the entry moves to the other list and the step's
+        /// warning is kept for <see cref="TakeWarnings"/>). A record with the same non-null merge key as the newest entry,
+        /// when that entry is the same owner's, not sealed and nothing can be redone, merges into it through the command's
+        /// TryMerge. Busy while a transaction is open, a command applies (also inside an undo or redo callback) or a scene
+        /// event is being delivered.
+        /// </summary>
+        public ExternalRecordResult RecordExternal(string owner, ISceneCommand cmd, string label, string mergeKey = null)
+        {
+            session.CheckThread();
+            if (string.IsNullOrEmpty(owner)) throw new ArgumentException("an external entry needs an owner", nameof(owner));
+            if (cmd == null) throw new ArgumentNullException(nameof(cmd));
+            if (ActiveTransaction != null || Busy) return ExternalRecordResult.Busy;
+            var forgotten = new List<TreeNode>();
+            var top = History.Top;
+            bool merged = false;
+            if (mergeKey != null && top != null && !top.Sealed && top.MergeKey == mergeKey && History.Redo.Count == 0 &&
+                top.Owner != null && string.Equals(top.Owner, owner, StringComparison.Ordinal) && top.Command.TryMerge(cmd))
+            {
+                History.Resize(top);
+                Evict(forgotten);
+                merged = true;
+            }
+            else
+            {
+                Push(new HistoryEntry { Command = cmd, Label = label ?? cmd.Label, Source = CommandSource.Plugin, MergeKey = mergeKey, Owner = owner }, forgotten);
+            }
+            Version++;
+            Deliver(ChangeOrigin.Command, CommandSource.Plugin, null, null, null, forgotten, true);
+            return merged ? ExternalRecordResult.Merged : ExternalRecordResult.Recorded;
+        }
+
+        /// <summary>
+        /// Removes every entry of <paramref name="owner"/> from the undo and redo lists at once (the others keep their order)
+        /// and raises HistoryChanged when one was removed; returns the count. Called while an undo or redo step runs (the
+        /// owner's callback ended it), the removal happens as soon as that step has placed its entry.
+        /// </summary>
+        public int RemoveOwner(string owner)
+        {
+            session.CheckThread();
+            if (string.IsNullOrEmpty(owner)) return 0;
+            if (applying)
+            {
+                if (!pendingRemovals.Contains(owner)) pendingRemovals.Add(owner);
+                return History.CountOwner(owner);
+            }
+            var forgotten = new List<TreeNode>();
+            int n = History.RemoveOwner(owner, forgotten);
+            foreach (var x in forgotten) Events.RaiseNodeForgotten(x.Id);
+            if (n > 0) RaiseHistoryChanged();
+            return n;
+        }
+
+        /// <summary>The entries of <paramref name="owner"/> in the undo and redo lists.</summary>
+        public int CountOwner(string owner) => string.IsNullOrEmpty(owner) ? 0 : History.CountOwner(owner);
+
+        /// <summary>True when <see cref="RecordExternal"/> would not answer Busy now (no open transaction, nothing applying or being delivered).</summary>
+        public bool AcceptsExternal => ActiveTransaction == null && !Busy;
+
+        /// <summary>The warnings of the undo and redo steps since the last call (an external entry's callback failed); cleared.</summary>
+        public IReadOnlyList<string> TakeWarnings()
+        {
+            if (warnings.Count == 0) return Array.Empty<string>();
+            var l = warnings.ToArray();
+            warnings.Clear();
+            return l;
+        }
+
+        void ExternalFailed(HistoryEntry e, string step, Exception ex)
+        {
+            warnings.Add("plugin " + e.Owner + ": " + step + " failed (" + ex.GetType().Name + ")");
+            SceneEvents.Log?.Invoke("history " + step + " of " + e.Owner + " (" + e.Label + ") failed: " + ex);
+        }
+
+        void TakeFailure(HistoryEntry e)
+        {
+            if (e.Owner != null && e.Command is PluginHistoryCommand p && p.TakeFailure() is string f) warnings.Add(f);
+        }
+
+        List<TreeNode> RunPendingRemovals()
+        {
+            if (pendingRemovals.Count == 0) return null;
+            var forgotten = new List<TreeNode>();
+            foreach (var o in pendingRemovals.ToArray()) History.RemoveOwner(o, forgotten);
+            pendingRemovals.Clear();
+            return forgotten;
         }
 
         /// <summary>Disposes every entry (nodes held only by history are forgotten).</summary>

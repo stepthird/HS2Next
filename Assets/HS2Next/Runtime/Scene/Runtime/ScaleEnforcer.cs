@@ -4,7 +4,8 @@
 // get it every LateApply, after the motion stages moved the attach points (bones carry shape scale), in model
 // pre-order so a parent's correction is in place before its children are computed. A parent component near
 // zero keeps the previous local value and is reported once (`scene.zeroParentScale`). lossyScale is approximate
-// under rotated non-uniform parents (skew), accepted as in vanilla (D9).
+// under rotated non-uniform parents (skew), accepted as in vanilla (D9). A winning `transform.scale` slot of the runtime
+// override layer stands for the node's `scale` (Phase 6.2).
 using System.Collections.Generic;
 using HS2Next.Save;
 using UnityEngine;
@@ -52,7 +53,7 @@ namespace HS2Next.Scenes.Runtime
             var h = r.Holder;
             if (!h) return;
             var t = r.Node.Doc.Transform;
-            var s = r.HasScaleChannel ? UnityObjects.V(t.Scale) : Vector3.one;
+            var s = r.HasScaleChannel ? ScaleOf(r, t) : Vector3.one;
             if (t.InheritScale)
             {
                 if (h.localScale != s) h.localScale = s;
@@ -67,6 +68,12 @@ namespace HS2Next.Scenes.Runtime
                 Mathf.Abs(p.z) < Zero ? Keep(cur.z, ref zero) : s.z / p.z);
             if (zero) runtime.ReportOnce(FindingSeverity.Warning, "scene.zeroParentScale", r.NodeId, "parent lossy scale " + p + " has a component near 0; the previous local scale is kept");
             if (cur.x != l.x || cur.y != l.y || cur.z != l.z) h.localScale = l;
+        }
+
+        Vector3 ScaleOf(NodeRealization r, NodeTransform t)
+        {
+            var w = runtime.Overrides.WinnerOf(r.NodeId, HS2Next.Scenes.Overrides.OverrideChannel.TransformScale);
+            return w != null ? new Vector3((float)w[0], (float)w[1], (float)w[2]) : UnityObjects.V(t.Scale);
         }
 
         static float Keep(float v, ref bool zero)

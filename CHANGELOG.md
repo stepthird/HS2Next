@@ -3,6 +3,178 @@
 HS2Next follows semantic versioning: the save format, the plugin API and the bridge commands not marked experimental
 keep working within a major version ([CONTRIBUTING.md](CONTRIBUTING.md), "Compatibility").
 
+## 1.3.0
+
+Released on 2026-11-06 (UTC).
+
+### Additions
+
+- A PluginKit folder in the distribution zip for plugin authors: the plugin guide in English, Japanese and Simplified
+  Chinese, the command reference, the XML documentation of the plugin API (also next to the API DLLs, for IDEs) and two
+  sample projects, Hello and HelloUi, that build with one `dotnet build` (.NET SDK 8 or later, no network).
+- Plugins can be turned off and on while HS2Next runs: the plugin switches in File > Options > Automation act at once, and
+  the bridge has `plugin.disable` and `plugin.enable`. A plugin whose DLL was replaced loads after a restart.
+- Plugin API 1.1.0; plugins built for 1.0 load unchanged.
+  - `ctx.Request` and `ctx.RequestAsync` call a command with a name and an argument object and return a typed reply
+    (`ICommandReply`).
+  - Capture events `CaptureStarting`, `CaptureRendered` and `CaptureFinished` for screenshots and the `capture` command, so
+    a plugin can hide its own overlays during a capture.
+  - Every public type and member of the API is documented.
+- Plugin API, experimental (these may still change before they are marked stable):
+  - Declarative panels and inspector sections (`ctx.Forms`, namespace `HS2Next.Api.Ui`): a plugin lists rows (numbers,
+    toggles, colours, vectors, choices, references, files, text, buttons, attach points, the Maker lists and push grids)
+    and two of its commands; HS2Next draws them with its own widgets, and each change is one undo step.
+  - Plugin UI can use HS2Next's own widgets, dialogs, menus and toasts (`IPluginUi.Widgets`).
+  - A plugin can put changes of its own state into the scene's undo history (`ctx.History`).
+  - A BodyMesh build hook can add skin layers (PNG or JPEG bytes, or a texture) over or under the body and face skin, and
+    replace body parts in place (mesh, bones by name, materials, normals), all in the character's one build. Outside
+    builds, `SkinLayers(node)` changes a character's skin layers without a rebuild, and `RequestRebuild(node)` builds a
+    character again so that its hooks run again.
+- `plugin.list` also reports each plugin's number of skin layers, supplied body parts and undo entries, and why its last
+  enable failed.
+- The READMEs have a Plugins section: where plugins go, that they run with the app's rights, turning them off and on in
+  File > Options > Automation, and the PluginKit folder.
+- Timeline (View > Timeline panel, or the ◆ button on the toolbar): a scene can hold a Timeline of keyed tracks - node
+  position, rotation and scale, character FK bones, animation (row, speed and time), eyes and mouth, item and light
+  colours, the camera and the depth of field - plus timed commands. The Timeline is saved with the scene and plays on the
+  scene clock, so the global pause holds it. Playing shows the values without changing the scene; "Stop and keep this
+  pose" writes the shown pose into the scene as one undo step.
+  - The panel has play, pause and stop, scrubbing, keys drawn by their ease, a key editor and an add-track menu for the
+    selection. Timeline edits are undoable like other scene edits (a key drag is one step).
+  - Keys ease as step, linear, ease in-out, ease in or ease out. Rotations take the short way round.
+  - Inspector rows driven by the Timeline or a plugin show a mark. The camera and the gizmos follow the Timeline while it
+    plays.
+- Frame sequence export (Export frames… in the Timeline panel, or `record.start`, `record.stop` and `record.status`): the
+  view is recorded at a fixed time step (1 / fps) as numbered PNG files, with a `record.json` that lists the scene time of
+  every frame. "One pass of the Timeline" (on when the scene has a Timeline) plays the Timeline once from the start while
+  it records. No frame is dropped, and frames of the global pause are not written. To make a video, use an external tool
+  such as ffmpeg (not included). Recording also works with the bridge turned off.
+- Bridge commands for the Timeline: `timeline.build`, `timeline.events`, `timeline.play`, `timeline.pause`, `timeline.stop`,
+  `timeline.seek`, `timeline.clear` and `timeline.status`, and the editing commands `timeline.get`, `timeline.set`,
+  `timeline.track.add`, `timeline.track.set`, `timeline.track.remove`, `timeline.key.set`, `timeline.key.delete` and
+  `timeline.key.move`. `COMMANDS.md` lists 169 commands.
+- Plugin API 1.2.0; plugins built for 1.0 and 1.1 load unchanged.
+  - Capture events also fire for every recorded frame, with the new kind `CaptureKind.Record`.
+  - Experimental: runtime overrides (`ctx.Overrides`). A plugin lays values over the scene for display - node position,
+    rotation and scale, FK bone rotations, animation row, speed and time, face patterns and openness, item and light
+    colours, the camera and the depth of field - without changing the scene. Nothing is saved or put in the undo history,
+    and the values go away when the plugin releases them, is turned off, or a scene is loaded. The new command
+    `overrides.list` (experimental) lists the override slots with their owners and which one is shown.
+  - The plugin guide has a new chapter on runtime overrides.
+- Advanced pose: a new tab of the character inspector, for the first selected character.
+  - Bones: a searchable tree of the bones of the body, head, hair, clothes and accessories, with position, rotation and
+    scale corrections through the rows or the Move, Rotate and Scale tools. Pick in view selects a bone in the viewport.
+    Corrections are stored in the scene, added on top of the animation, FK and IK, and keep working after a character
+    change or a part swap.
+  - Jiggle: per-scene values for each hair, clothes and accessory chain and for the breast and hip chains. A row shows the
+    card's value until the scene holds its own; the card's values stay untouched and come back when a value is removed.
+  - Blend shapes: a mesh's shapes as sliders. A weight holds over the expression through pattern changes and blinks until
+    reset.
+  - The tab lists what this character lacks (kept in the scene, no effect, active again when the bone or part returns) with
+    a Remove button.
+  - Parts that keep the mosaic in place are left alone: bone corrections and blend-shape weights on them are refused, and
+    such entries in a scene file are kept but not applied.
+  - New experimental bridge commands: `pose.bones`, `pose.chains`, `pose.bust` and `pose.blendShapes`, each with `.set` and
+    `.clear`.
+- Materials: a new tab of the character inspector edits the material values of the character, its hair, clothes and
+  accessories: shader, render queue, keywords, numbers, colours, images with tiling and offset, and whether a renderer
+  shows. A drag is one undo step.
+  - Studio items and the map gain a Material edits section with the same rows, saved with the scene. Loading another map
+    clears the edits made on the previous one, in the same undoable step.
+  - The tab lists what a card's edits do not apply to and why, with a Remove button.
+  - Most value changes of an edit on a character, hair, clothes or an accessory no longer reload the part or rebuild the
+    character, and removing an edit shows what the material has without it. A change the shader mapping depends on still
+    reloads the part: a render queue crossing 2450, 2500 or 3000, the first image on a main, normal, specular or metallic
+    map, an emission colour leaving or reaching black, a cull value.
+  - A render queue above 2500 means the same on items and the map as on a character: such a material takes no realtime
+    shadows on the shaders with that switch, and fogs as its original did.
+  - Material edits never apply to mosaic parts.
+  - Images are taken from PNG or JPEG files, at most 8,192 pixels a side and 64 MiB, and stored in the file. An image whose
+    header claims more than 16,384 pixels a side is refused before it is decoded (finding `me.textureTooLarge`).
+  - New experimental bridge commands: `materials.shaders`; `chara.edit.materials.items`, `.set` and `.clear`;
+    `item.materials.items`, `.set` and `.clear`; `map.materials`; `map.materials.items`, `.set` and `.clear`. Textures can be
+    taken from PNG or JPEG files.
+  - `item.materials` takes the optional argument `allProps`: every property the shader declares.
+  - `item.set` refuses a path under `item.materialOverrides` ("use item.materials.set").
+- Hair bone adjustments: a new section of the Hair page, stored with the character, with the new experimental bridge
+  commands `chara.edit.boneMods`, `.set` and `.clear`. The Hair, Clothes and Accessories pages gain Edit materials.
+- Constraints: a new panel (View > Constraints panel) lists the scene's constraints: a node, a bone or an IK target follows
+  another node or bone by position, rotation, scale, look-at or as a child would, with an offset, a weight and a switch.
+  - A Constraints section on items, lights, folders, cameras and routes, and at the end of the character's Kinematics tab,
+    lists what touches that node. A bone is chosen from a searchable tree, or picked in the view.
+  - While a scene has an active constraint its characters step in dependency order, so a chain across characters (a bone
+    to a node to another character's IK target and on) shows no lag in any frame. A constraint whose source only moves
+    after the character it steers, as a left hand on a rod held in the right, follows one frame behind, and the list says
+    so.
+  - A constraint on a bone acts inside the character's pose: twist bones, the eye look, physics and skinning follow it in
+    the same frame, and a pose correction stays on top of it. A source bone of the same character is read before its pose
+    corrections, and the row says so.
+  - Rows driven by a constraint show the overridden mark and stay editable; a gizmo drag on a driven channel is refused
+    with a toast, the other channels stay free.
+  - Every edit is one undo step; a drag of a weight or an offset is one step, and Esc takes it back.
+  - A constraint whose bone or node is gone stays in the list, says what it lacks and acts again when it returns. One that
+    would close a loop is refused at the edit, and suspended, not dropped, when a later change closes it.
+  - Duplicating nodes also copies the constraints between them; Import scene brings the file's constraints between the
+    imported nodes.
+  - Mosaic parts are not editable.
+  - A constraint a file cannot use (a part it needs is missing, an unknown component, more than 256 in the list) is kept
+    and written back, never dropped. Removing the last constraint gives the same file as one that never had any.
+  - New experimental bridge commands: `constraint.list`, `.add`, `.set`, `.remove`, `.clear`, `.move` and `.status`.
+- The scene post stage (experimental): a plugin that implements `IPluginScenePost` gets a call after all motion, once per
+  frame and once per scene step; `plugin.list` shows its times as `scenePostMs`.
+  - `BoneWritten` (experimental) reports a bone written after the character's motion step, so the next step takes that
+    write off.
+  - Runtime overrides gain `chara.bone["<address>"].pos`, `.rot`, `.scale` and `chara.ik.targets.<Name>.pos`, `.rot`
+    (experimental); the constraints' slots have priority 10.
+  - The plugin guide has a chapter on the scene post stage, in English, Japanese and Simplified Chinese.
+- `bones.dump` and `chara.bones` are no longer experimental. Their names, arguments and replies do not change.
+- Scene format revision 4: a scene with a Timeline, with advanced pose values, with material edits on an item or the map or
+  with constraints is saved as revision 4. Every other scene is saved exactly as before. HS2Next 1.2.0 opens such a scene
+  with its "newer format" notice, keeps the Timeline, the values, the edits and the constraints (an item and the map show
+  without the edits there, and the targets without the constraints) and writes them back when it saves.
+
+### Changes
+
+- The language list and the first-run guide show Simplified Chinese without a machine-translation note: every language of
+  the app is made the same way.
+- `scene.step` answers busy while frames are recorded, and the toolbar's Step is disabled then. Screenshots and captures can
+  still be taken during a recording.
+- `camera.get` reports the view as shown. `camera.get`, `camera.set`, `camera.frame`, `camera.state` and `effects.state`
+  name the owner of a runtime override (`overridden`); `plugin.list` lists a plugin's override slots, and
+  `plugin.disable` counts the ones it released.
+- Characters: a card's bone modifiers now also apply to the bones and channels an animation writes, in the order HS2 uses.
+  Hands, feet, legs, arms and neck of many cards with such modifiers change size or length during play and in the saved
+  scenes that use them, as they do in HS2 Studio. A modifier on a bone the animation also moves acts on top of the
+  animation. Cards without bone modifiers do not change.
+- Characters: a scale modifier on the mouth's width bone no longer grows each time the width changes. On such a card the
+  modifier sets that bone's scale, and the mouth's width does not move with speech.
+- Characters: under heel shoes a card's foot scale modifiers act on top of the heel's scale while IK is off.
+- Esc during a drag now cancels it on every handle and value row: the value goes back, the history gets no entry, and
+  moving on or releasing the mouse does nothing.
+  - Maker: Esc while holding a step button of an accessory's transform stops it at once.
+  - Field of view: Esc during a drag on the slider puts the value back, also on the free camera.
+  - Timeline: Esc during a track row's drag keeps the order, and Esc during a value drag in the key editor no longer
+    leaves an empty history entry.
+- Maker: the inspector no longer keeps old Maker lists, costume browsers and the rest of a dropped inspector in memory after
+  it is rebuilt, and lists of an Edit tab that is not shown no longer run every frame.
+- Maker lists: the expand button is no longer cut off at the sidebar's right edge, also at its narrowest.
+- Accessories page: adding, removing or copying an accessory to a new slot no longer rebuilds the inspector. The + slot and
+  the copy target keep your choice, and the add panel keeps its list. Removing the selected accessory now selects the
+  next worn slot, or the lowest when none follows.
+- Loading an outfit on the Costume tab no longer rebuilds the inspector.
+- State tab: the accessory and clothes rows follow an undo, an outfit load or an item change while the tab is shown, and an
+  accessory's row names its current item.
+- Bridge: `ui.action` returns the result of `edit.show` as an object instead of a type's name. The help of `select` lists
+  every sub-object form it accepts.
+- For plugin authors: a motion stage after phase 120 sees card modifiers on every bone they affect. A plugin's inspector
+  section is no longer rebuilt when a character's accessory list changes. The documentation comment of `MotionPhase.Final`
+  no longer names bone modifiers, which do not run at that phase; the enum does not change.
+- Import scene brings the images of items along: panels, patterns and material edits. Before, only characters' images came
+  with them.
+- Tools: `unity_batch.ps1` stops its own Unity when the job's log has not changed for 30 minutes, or for 3 minutes once Unity
+  has started shutting down (`-StallMin`, `-StallEndMin`; 0 turns the watcher off). It says why and exits 125. It never
+  touches another Unity process.
+
 ## 1.2.0
 
 Released on 2026-11-03 (UTC).
@@ -137,7 +309,7 @@ The first public version, released on 2026-10-31 (UTC).
 ### The program
 
 - A new UI (UI Toolkit): scene tree, inspector, lists, toolbar, gizmos, a shortcut list; the HS2 Studio key layout as a
-  preset. English, Japanese and Simplified Chinese (machine-translated) with the Noto Sans CJK fonts.
+  preset. English, Japanese and Simplified Chinese with the Noto Sans CJK fonts.
 - A first-run guide for the language and the folders; File > Options for the common settings; a per-user data folder or a
   portable mode.
 - An automation bridge: 147 HTTP/JSON commands on 127.0.0.1:17322, a token in the release build
@@ -152,4 +324,3 @@ The first public version, released on 2026-10-31 (UTC).
   the game's own skin, with a finding.
 - Post-processing volumes that mod maps bring for the old post-processing stack are not applied.
 - Some rare mod shaders are drawn with an approximation or the URP default.
-- The Simplified Chinese strings are machine translations that no speaker has reviewed yet.

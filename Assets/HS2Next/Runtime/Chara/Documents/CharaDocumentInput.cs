@@ -46,11 +46,13 @@ namespace HS2Next.Chara.Documents
         }
 
         /// <summary>
-        /// After CharaAssembler.Build(input): the missing content the document resolver met (part.missingMod, part.missing,
-        /// part.unresolved) joins Context.Missing, as the card path's texture guard records do. No-op for card inputs.
+        /// After CharaAssembler.Build(input): the keyword items run again on the mapped materials, and the missing content the
+        /// document resolver met (part.missingMod, part.missing, part.unresolved) joins Context.Missing, as the card path's texture
+        /// guard records do. No-op for card inputs.
         /// </summary>
         public static void AfterBuild(CharaContext ctx)
         {
+            ctx?.Edit?.AfterUrpMapping();
             if (ctx?.Input?.Parts is DocumentPartResolver r)
                 foreach (var m in r.Missing)
                     if (!ctx.Missing.Exists(x => x.Kind == m.Kind && x.Detail == m.Detail)) ctx.Missing.Add(m);

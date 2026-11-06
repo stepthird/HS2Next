@@ -120,7 +120,8 @@ namespace HS2Next.App.Commands
                             real[b] = new BridgeReply().With("active", d.Active)
                                 .With("focus", new BridgeReply().With("key", d.FocusKey).With("kind", kind).With("resolved", d.FocusKind).With("point", CommandKit.D3(d.FocusPoint)))
                                 .With("coc", new BridgeReply().With("A", float.IsInfinity(d.A) ? (object)null : (double)d.A).With("focalSize", (double)d.FocalSize))
-                                .With("referenceHeight", d.ReferenceHeight).With("drawn", false);
+                                .With("referenceHeight", d.ReferenceHeight).With("drawn", false)
+                                .With("overridden", c.Runtime?.OverrideApp?.WinningOwner(null, HS2Next.Scenes.Overrides.OverrideChannel.DepthOfField));   // Phase 6.2
                             break;
                         }
                         case "vignette":

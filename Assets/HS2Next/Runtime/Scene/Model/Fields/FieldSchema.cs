@@ -332,8 +332,9 @@ namespace HS2Next.Scenes
                 try { copy = rule.Blank != null ? DocClone.CloneInto(doc, rule.Blank(), findings) : DocClone.Clone(doc, out _, findings); }
                 catch (Exception e) { throw Bad(c, "the value cannot be saved: " + e.Message); }
                 // Character documents carry plugin data whose enum strings may be newer than this build (MaterialEditor item
-                // types, bone-mod locations): a copy keeps them as read, like a load.
-                if (findings.Has("json.unknownEnum") && !AppearancePaths.IsAppearance(c.Path)) throw Bad(c, "unknown enum string inside the value");
+                // types, bone-mod locations): a copy keeps them as read, like a load. So does an
+                // item of the materialOverrides array of an item or the map, or an edit next to it could not be stored.
+                if (findings.Has("json.unknownEnum") && !AppearancePaths.IsAppearance(c.Path) && !(doc is MaterialOverride)) throw Bad(c, "unknown enum string inside the value");
                 if (doc is ItemLayout la && copy is ItemLayout lb && la.HasTilt && !lb.HasTilt)
                     throw Bad(c, "this layout has no tilt (a value with tilt does not fit)");
                 // An overlay entry without image and clearTarget is written as null: store the save form,

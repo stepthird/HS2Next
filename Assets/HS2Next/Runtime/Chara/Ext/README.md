@@ -19,7 +19,7 @@ only applies. Order, hooks and options are summarised in `Runtime/Chara/README.m
 | `InvisibleBodyApplier.cs` | InvisibleBody |
 | `SkinOverlayApplier.cs` | KSOX skin overlays + the skin layers that build hooks register, into the four skin passes |
 | `ClothesOverlayApplier.cs` | KCOX clothes overlays on the clothes colour render textures |
-| `MaterialEditorApplier.cs` | MaterialEditor, character side |
+| `MaterialEditorApplier.cs` | MaterialEditor, character side: object resolution, skip reasons, statistics, the status read; the writes are `Runtime/Rendering/MaterialWrites.cs`, around them `MaterialBaseline.cs` |
 | `MaterialEditorShaders.cs` | MaterialEditor's shader registry: the manifests' `<Shader>` declarations of the loaded zipmods (later wins, cached by zipmod stamp) and the declared copy of a name, loaded through the catalog |
 | `OverlayCompositor.cs` | GPU compositing (`ApplyOverlay`, skin pass with under / over layers, render-texture resize) |
 | `Resources/HS2NextOverlayComposite.shader` | `Hidden/HS2Next/OverlayComposite`, the overlay blend (Default / LinearAlpha, override) |
@@ -66,9 +66,11 @@ unknown shaders, properties absent from the fitted URP shader, missing material 
 
 ## Deliberate deviations and choices
 
-- ABMX position / rotation / length are applied as deltas on the current pose every `LateUpdate`. The base is re-taken
-  whenever something other than the component wrote the bone, so animation and shape re-evaluation are followed; for a still
-  frame this equals the plugin's result.
+- A card's bone modifiers are applied in the motion stage `bones.modifiers` (phase 120, `Runtime/Motion/Modifiers/BoneModifierStages.cs`), after the
+  animation, the hand patterns and the heel lift and before everything else that writes bones, as deltas on this frame's input. On a channel a clip
+  holds constant this equals the plugin's frozen baseline; on a channel a clip moves the motion is kept. A second stage (phase 960) records what the
+  frame ended on. A channel holding the pass's last write or that end value has not been rewritten, so its base stays; any other value becomes the base.
+  Only channels with a value are read or written. A controller's bind and the shape guard's and rest pose's captures see the bones without the modifiers.
 - The ABMX BodyTop lookup skips all accessory slot objects, the MoreAccessories slots included. Accessory locations stay
   limited to slots 0..19, as in the plugin.
 - Additional Accessory Controls: when STARTUP and a clothes rule meet in one slot, STARTUP wins (the plugin's order there was

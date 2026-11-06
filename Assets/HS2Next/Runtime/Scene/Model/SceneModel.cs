@@ -84,6 +84,12 @@ namespace HS2Next.Scenes
         public SceneSettings Settings { get; internal set; } = new SceneSettings();
         /// <summary>Scene-scope inline ext (scene.json top-level `ext`).</summary>
         public ExtInline SceneExt { get; internal set; } = new ExtInline();
+        /// <summary>The scene's Timeline (scene.json member <c>timeline</c>); null = the scene has none. Replaced only by
+        /// <see cref="TimelineEditCommand"/>; readers do not change it.</summary>
+        public TimelineDocument Timeline { get; internal set; }
+        /// <summary>The scene's constraints (scene.json member <c>constraints</c>); null = the scene has none, never an empty list. Replaced
+        /// only by <see cref="ConstraintEditCommand"/>, a list is not changed in place; readers do not change it.</summary>
+        public ConstraintList Constraints { get; internal set; }
         /// <summary>Unknown top-level members of the read scene.json (kept, written back).</summary>
         public JsonLeftovers RootUnknown { get; internal set; }
         /// <summary>Scene title (manifest.title).</summary>
@@ -168,6 +174,8 @@ namespace HS2Next.Scenes
             preOrder = null;
             Settings = new SceneSettings();
             SceneExt = new ExtInline();
+            Timeline = null;
+            Constraints = null;
             RootUnknown = null;
             Title = "";
             File = file ?? new SceneContainer();

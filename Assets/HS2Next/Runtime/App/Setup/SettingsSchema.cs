@@ -69,7 +69,8 @@ namespace HS2Next.App.Setup
             D("app.frameRate", SettingKind.Int, 0, "automation", 0, 1000),
             D("app.autoStart", SettingKind.Bool, true),
             D("plugins.enabled", SettingKind.Bool, true, "automation", args: new[] { "-noPlugins" }),
-            D("plugins.disabled", SettingKind.StringList, new JArray(), "automation"),
+            // the Options toggles and plugin.disable / plugin.enable act at once (Phase 6.1); the list is read again at the next start
+            new SettingDef { Key = "plugins.disabled", Kind = SettingKind.StringList, Default = new JArray(), Section = "automation", Restart = false },
             D("plugins.dir", SettingKind.Path, "", args: new[] { "-pluginsDir" }),
             D("maps.maxMirrors", SettingKind.Int, 4, "advanced", 0, 16),
             D("mapAudioLink", SettingKind.Bool, false, "advanced"),

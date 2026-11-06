@@ -71,7 +71,7 @@ namespace HS2Next.UI.Panels
             {
                 var view = ctx.Runtime?.GetPart<SceneViewCamera>()?.Camera;
                 var req = request ?? CaptureSettings.Current(view);
-                return CaptureCommands.TakeScreenshot(ctx.App, req, null, res =>
+                return CaptureCommands.TakeScreenshot(ctx.App, req, null, origin: HS2Next.Api.Plugins.CaptureOrigin.Ui, done: res =>
                 {
                     if (res.Ok)
                     {

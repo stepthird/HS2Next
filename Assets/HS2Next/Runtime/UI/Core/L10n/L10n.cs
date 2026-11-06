@@ -19,6 +19,8 @@ namespace HS2Next.UI.Core
         /// <summary>A key without a cell in the current language or en, or an unknown key (key, language); once per key and language.</summary>
         public event Action<string, string> Missing;
         public event Action<string> LanguageChanged;
+        /// <summary>The handlers of <see cref="LanguageChanged"/> (tests: a list dropped from the panel leaves none behind).</summary>
+        public int LanguageListeners => LanguageChanged?.GetInvocationList().Length ?? 0;
 
         public L10nTable Table => table;
         public string Language => language;

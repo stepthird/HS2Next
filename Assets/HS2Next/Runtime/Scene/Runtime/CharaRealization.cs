@@ -9,6 +9,8 @@
 // The model is never written back from these calls; runtime-owned values reach it only through captures.
 // After the build, changed field paths map to single actions; `appearance.` member
 // paths go to the character's editor first (Phase 4.0; CharaEdit/CharaRealization.Edit.cs).
+// Runtime overrides (Phase 6.2; Overrides/CharaRealization.Overrides.cs): the face, the animation speed and time, and the
+// animation row show the winning slot's value wherever the model's value is applied; without a slot nothing changes.
 using System;
 using System.Collections.Generic;
 using HS2Next.Chara;
@@ -19,6 +21,7 @@ using HS2Next.Motion.Corrective;
 using HS2Next.Motion.Face;
 using HS2Next.Motion.Look;
 using HS2Next.Save;
+using HS2Next.Scenes.Overrides;
 using UnityEngine;
 
 namespace HS2Next.Scenes.Runtime
@@ -99,7 +102,12 @@ namespace HS2Next.Scenes.Runtime
                 ReportOnce(FindingSeverity.Info, "chara.unbuildable", "stored character documents are kept and saved unchanged; no registered builder accepts them (the subtree builder is registered by default)");
                 return;
             }
-            var res = b.Build(a, new BuildContext { Runtime = Runtime, Services = Services, Node = Node, Holder = Holder });
+            // the skin layers plugins set on this node outside builds join the build after its BodyMesh hooks (none officially)
+            var outer = HS2Next.Chara.Ext.CharaBuildHooks.BuildingRecord;
+            HS2Next.Chara.Ext.CharaBuildHooks.BuildingRecord = PluginLayers.Layers.Count > 0 ? PluginLayers : null;
+            CharaBuildResult res;
+            try { res = b.Build(a, new BuildContext { Runtime = Runtime, Services = Services, Node = Node, Holder = Holder }); }
+            finally { HS2Next.Chara.Ext.CharaBuildHooks.BuildingRecord = outer; }
             BuildMilliseconds = res.Milliseconds;
             // build.* and part.* findings of the builder, once per (code, node) and realization.
             if (res.Findings != null)
@@ -128,6 +136,7 @@ namespace HS2Next.Scenes.Runtime
             {
                 Motion.AutoStep = !Runtime.Settings.ManualStepping;
                 Motion.DeltaSource = Runtime.FrameDtSource;   // the scene clock (Phase 3.6; kept on revive, set again on rebuild)
+                Motion.Scheduled = Runtime.Pass != null;      // built while a motion pass is active: the pass steps it
             }
             Animation = CharaAnimation.Of(Root);
             if (Animation) Animation.BundleOwnerLabel = BundleOwnerLabel("chara") + "/anime";
@@ -187,6 +196,9 @@ namespace HS2Next.Scenes.Runtime
         void ReportUnavailableMeShaders()
         {
             if (Context == null) return;
+            foreach (var m in Context.Missing)
+                if (m != null && m.Kind == HS2Next.Chara.Ext.MaterialEditorApplier.TextureTooLargeKind)
+                    Runtime.Findings.Add(FindingSeverity.Warning, HS2Next.Chara.Ext.MaterialEditorApplier.TextureTooLargeKind, NodeId, "an image of a material edit claims more pixels than can be read: " + m.Detail);
             var names = new SortedSet<string>(StringComparer.Ordinal);
             foreach (var m in Context.Missing)
                 if (m != null && m.Kind == "me.shader" && !string.IsNullOrEmpty(m.Guid)) names.Add(m.Guid);
@@ -196,7 +208,7 @@ namespace HS2Next.Scenes.Runtime
             foreach (var n in names) swaps += counts != null && counts.TryGetValue(n, out int c) && c > 0 ? c : 1;
             UnavailableMeShaders = new List<string>(names);
             var f = Runtime.Findings.Add(FindingSeverity.Warning, MeShaderUnavailableCode, NodeId,
-                swaps + " MaterialEditor shader swap" + (swaps == 1 ? "" : "s") + " kept on the standard skin (no URP shader in HS2Next): " +
+                swaps + " material shader swap" + (swaps == 1 ? "" : "s") + " kept on the standard skin (no URP shader in HS2Next): " +
                 string.Join(", ", names));
             f.Count = swaps;
         }
@@ -338,6 +350,10 @@ namespace HS2Next.Scenes.Runtime
         /// </summary>
         internal void BeforeRevive()
         {
+            AdvancedPoseDriver.RestoreNow(this);   // the Animator re-enabled with the holder binds the pose without the corrections
+            DrivenPoseDriver.RestoreNow(this);     // and without driven values
+            if (Context != null && Context.Bones) Context.Bones.ToBase();   // and without the card's modifiers
+            if (Animation) Animation.ExpectBindRead();
             if (State != RealizationState.Built || !Motion || !PhysicsResetOnReparent || !RestPoseBeforeRevive) return;
             Step("revive reset", () => Motion.Get<HS2Next.Motion.DynamicBones.DynamicBoneStage>()?.ResetBeforeUpdate());
         }
@@ -373,7 +389,7 @@ namespace HS2Next.Scenes.Runtime
         {
             if (!Holder) return;
             ResetPhysicsIfPending();
-            WantSettle();   // moved or turned while paused: the chains come to rest on the body as it now stands
+            if (!Runtime.QuietTransforms) WantSettle();   // moved or turned while paused: the chains come to rest on the body as it now stands
             var s = Holder.lossyScale;
             if (s == lastScale) return;
             bool first = float.IsNaN(lastScale.x);
@@ -390,6 +406,7 @@ namespace HS2Next.Scenes.Runtime
             Step("anime", () => ApplyAnime(st));
             Step("ik", () => CharaPoseDrivers.Ik?.Apply(this, st, PoseApplyReason.Build));
             Step("fk", () => CharaPoseDrivers.Fk?.Apply(this, st, PoseApplyReason.Build));
+            Step("advancedPose", () => CharaPoseDrivers.AdvancedPose?.Apply(this, st, PoseApplyReason.Build));
             Step("correction", () => ApplyCorrection(st));
             Step("face", () => ApplyFace(st.Face));
             Step("look", () => ApplyLook(st.Look));
@@ -448,12 +465,13 @@ namespace HS2Next.Scenes.Runtime
             if (Expression == null || f == null) return;
             var s = new FaceStatus
             {
-                EyebrowPtn = f.Eyebrow, EyesPtn = f.Eyes, EyesOpenMax = f.EyesOpen, EyesBlink = f.Blink, MouthPtn = f.Mouth,
+                EyebrowPtn = f.Eyebrow, EyesPtn = FaceShown(OverrideChannel.FaceEyes, f.Eyes), EyesOpenMax = FaceShown(OverrideChannel.FaceEyesOpen, f.EyesOpen),
+                EyesBlink = f.Blink, MouthPtn = FaceShown(OverrideChannel.FaceMouth, f.Mouth),
                 TearsRate = f.Tears, HohoAkaRate = f.Cheek, MouthAdjustWidth = f.MouthAdjustWidth,
                 EyebrowOpenMax = f.EyebrowOpenMax, MouthOpenMin = f.MouthOpenMin, MouthOpenMax = f.MouthOpenMax,
                 MouthFixed = f.MouthFixed, HideEyesHighlight = f.HideHighlight,
             };
-            Expression.ApplyStudioState(s, f.MouthOpen, f.LipSync);
+            Expression.ApplyStudioState(s, FaceShown(OverrideChannel.FaceMouthOpen, f.MouthOpen), f.LipSync);
             Expression.ChangeEyebrowOpenMax(f.EyebrowOpenMax);
             Expression.ChangeMouthOpenMin(f.MouthOpenMin);
             Expression.ChangeMouthOpenMax(f.MouthOpenMax);
@@ -552,13 +570,14 @@ namespace HS2Next.Scenes.Runtime
             bool applied = false;
             if (Touches(paths, "chara.anime.ref"))
             {
-                Step("anime", () =>
+                // a winning chara.anime.ref slot keeps its row (the model's shows when it is released)
+                if (!AnimeRowOverridden) Step("anime", () =>
                 {
                     if (st.Anime.Ref == null) Animation.Stop();
                     else
                     {
                         var row = CharaAnimation.Resolve(Services.Db, st.Anime.Ref.Source, st.Anime.Ref.Group, st.Anime.Ref.Category, st.Anime.Ref.No);
-                        if (!Animation.Load(row, st.Anime.Time))
+                        if (!Animation.Load(row, TimeShown(st.Anime.Time)))
                             ReportOnce(FindingSeverity.Info, "chara.animeNotPlayed", "animation " + st.Anime.Ref.Source + " " + st.Anime.Ref.Group + "/" + st.Anime.Ref.Category + "/" + st.Anime.Ref.No + " not played; the reference is kept");
                     }
                 });
@@ -566,13 +585,13 @@ namespace HS2Next.Scenes.Runtime
             }
             else if (Touches(paths, "chara.anime.time"))
             {
-                Step("anime.time", () => Animation.NormalizedTime = st.Anime.Time);
+                Step("anime.time", () => Animation.NormalizedTime = TimeShown(st.Anime.Time));
                 applied = true;
             }
             if (Animation)
             {
                 var an = st.Anime;
-                if (Touches(paths, "chara.anime.speed")) Animation.Speed = an.Speed;
+                if (Touches(paths, "chara.anime.speed")) Animation.Speed = SpeedShown(an.Speed);
                 if (Touches(paths, "chara.anime.pattern")) Animation.Pattern = an.Pattern;
                 if (Touches(paths, "chara.anime.forceLoop")) Animation.ForceLoop = an.ForceLoop;
                 if (Touches(paths, "chara.anime.optionVisible")) Animation.OptionVisible = an.OptionVisible;
@@ -602,6 +621,7 @@ namespace HS2Next.Scenes.Runtime
                 if (CharaPoseDrivers.Fk != null && FieldPath.Overlaps(p, "chara.fk")) Step("fk", () => CharaPoseDrivers.Fk.OnChanged(this, p));
                 if (CharaPoseDrivers.Ik != null && FieldPath.Overlaps(p, "chara.ik")) Step("ik", () => CharaPoseDrivers.Ik.OnChanged(this, p));
             }
+            Step("advancedPose", () => AdvancedPoseDriver.AfterChanges(this, paths));
             if (applied) MarkApplied();
             foreach (var p in SettlePaths)
                 if (Touches(paths, p)) { WantSettle(); break; }
@@ -611,7 +631,7 @@ namespace HS2Next.Scenes.Runtime
         static readonly string[] SettlePaths =
         {
             "chara.anime.ref", "chara.anime.time", "chara.anime.pattern", "chara.fk", "chara.ik",
-            "chara.state.clothes", "chara.state.nipple", "chara.state.silhouette", "chara.state.nippleThroughClothes",
+            "chara.state.clothes", "chara.state.nipple", "chara.state.silhouette", "chara.state.nippleThroughClothes", "chara.advancedPose",
         };
     }
 }

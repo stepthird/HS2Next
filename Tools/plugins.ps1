@@ -3,14 +3,21 @@
   Builds plugin projects and stages built plugins into a plugin folder (Phase 5.1).
 
 .DESCRIPTION
-  A plugin project is a folder with a *.csproj and a manifest.json (Samples\Sequencer, Tests\Plugins\<name>). The build is
-  `dotnet build -c Release` with the MSBuild properties the projects read:
+  A plugin project is a folder with a *.csproj and a manifest.json (Samples\Sequencer, Samples\PluginKit\Hello,
+  Samples\PluginKit\HelloUi, Tests\Plugins\<name>). The build is `dotnet build -c Release` with the MSBuild properties the
+  projects read:
     HS2NextApi      a folder holding HS2Next.Api.dll (default Library\ScriptAssemblies; the build refuses when that copy is
                     older than a file under Assets\HS2Next\Api: compile in Unity first, or pass -ApiDir)
     HS2NextScripts  Library\ScriptAssemblies (projects that reference the app's own assembly, an unsupported reference)
     NewtonsoftJson  the Newtonsoft.Json.dll of Library\PackageCache (found as Tools\mono_tests.ps1 finds it)
     UnityManaged    the Unity install's Editor\Data\Managed\UnityEngine folder
-  References to these are never copied next to the plugin (Private false in the projects).
+    and for the plugin kit's projects (Samples\PluginKit\HS2NextPlugin.props, whose users set only HS2NextDir):
+    HS2NextManaged       the HS2NextApi folder (HS2Next.Api.dll, HS2Next.Api.Unity.dll)
+    HS2NextUnityManaged  the UnityManaged folder
+    HS2NextJson          the NewtonsoftJson file
+  References to these are never copied next to the plugin (Private false in the projects). With -ApiDir, a project whose
+  manifest's apiVersion needs a newer minor than that folder's HS2Next.Api.dll (its informational version) is skipped by
+  'all' with a line saying so (so 'all' against the 1.0 fixtures builds the 1.0 plugins only) and refused when named.
 
   Staging copies, for each built plugin, manifest.json, the assemblies the manifest lists, the private dependencies (the
   other DLLs of the build output that the host does not provide, and the files of the project's lib\ folder) into
@@ -21,14 +28,16 @@
   *.old-* files it finds unlocked in the plugin's folders are deleted one by one.
 
 .PARAMETER Build
-  A project folder, or 'all' (Samples\Sequencer and every Tests\Plugins\<name> folder with a project and a manifest).
+  A project folder, or 'all' (Samples\Sequencer, the kit's Samples\PluginKit\Hello and HelloUi, and every
+  Tests\Plugins\<name> folder with a project and a manifest).
 .PARAMETER Stage
   The plugin folder: 'editor' (<project>\Plugins), 'player' (Builds\App\Plugins) or a path. Stages what -Build names (or
   'all' when -Build is absent), limited by -Only.
 .PARAMETER Only
   GUIDs (comma-separated) to stage.
 .PARAMETER Verify
-  A built DLL: prints its assembly references; with -Expect (or for the sample, whose set is fixed) checks that they are
+  A built DLL: prints its assembly references; with -Expect (or for the samples, whose sets are fixed: the Sequencer
+  netstandard, HS2Next.Api, Newtonsoft.Json; the kit's Hello and HelloUi netstandard, HS2Next.Api) checks that they are
   exactly the expected names (exit 1 otherwise).
 .PARAMETER Report
   With -Stage: a file that receives the staged files' full paths, one per line (callers remove exactly those afterwards).
@@ -38,6 +47,7 @@
   & Tools\plugins.ps1 -Build all -Stage Spike\out\plugins\core
   & Tools\plugins.ps1 -Build Tests\Plugins\Probe -Stage player -Only stp3.test.probe -Report $env:TEMP\staged.txt
   & Tools\plugins.ps1 -Verify Samples\Sequencer\bin\Release\netstandard2.1\Stp3.SampleSequencer.dll
+  & Tools\plugins.ps1 -Build all -ApiDir Tests\Plugins\fixtures\api10 -Stage Spike\out\plugins\core10   # the 1.0 plugins
 
 .NOTES
   Exit code: 0 = done; 1 = a build failed, a check failed or the target was refused.
@@ -60,6 +70,7 @@ $ScriptAssemblies = Join-Path $Project 'Library\ScriptAssemblies'
 # assembly names a plugin never ships (the host provides them)
 $HostNames = @('HS2Next.Api', 'HS2Next.Api.Unity', 'HS2Next.Bridge', 'Newtonsoft.Json', 'Assembly-CSharp', 'Assembly-CSharp-firstpass', 'netstandard')
 $SampleRefs = @('netstandard', 'HS2Next.Api', 'Newtonsoft.Json')
+$KitRefs = @('netstandard', 'HS2Next.Api')   # the plugin kit's engine-free samples
 
 function Fail([string]$msg) { Write-Host "[plugins] $msg"; exit 1 }
 
@@ -80,7 +91,8 @@ if ($Verify) {
     Write-Host "[plugins] $([IO.Path]::GetFileName($dll)) references:"
     $refs | ForEach-Object { Write-Host "  $_" }
     $want = if ($Expect.Count -gt 0) { @($Expect | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ }) }
-            elseif ([IO.Path]::GetFileName($dll) -eq 'Stp3.SampleSequencer.dll') { $SampleRefs } else { @() }
+            elseif ([IO.Path]::GetFileName($dll) -eq 'Stp3.SampleSequencer.dll') { $SampleRefs }
+            elseif (@('Stp3.SampleHello.dll', 'Stp3.SampleHelloUi.dll') -contains [IO.Path]::GetFileName($dll)) { $KitRefs } else { @() }
     if ($want.Count -gt 0) {
         $got = @($refs | ForEach-Object { ($_ -split ' ')[0] } | Sort-Object -Unique)
         $diff = Compare-Object ($want | Sort-Object -Unique) $got
@@ -96,6 +108,8 @@ function Get-Projects([string]$spec) {
     $dirs = @()
     if (-not $spec -or $spec -eq 'all') {
         $dirs += Join-Path $Project 'Samples\Sequencer'
+        $dirs += Join-Path $Project 'Samples\PluginKit\Hello'
+        $dirs += Join-Path $Project 'Samples\PluginKit\HelloUi'
         $tp = Join-Path $Project 'Tests\Plugins'
         if (Test-Path $tp) { $dirs += Get-ChildItem $tp -Directory | Sort-Object Name | ForEach-Object { $_.FullName } }
     } else {
@@ -112,7 +126,7 @@ function Get-Projects([string]$spec) {
         }
         $m = Get-Content -LiteralPath $man -Raw -Encoding UTF8 | ConvertFrom-Json
         $list += [pscustomobject]@{ Dir = (Resolve-Path -LiteralPath $d).Path; Csproj = $proj[0].FullName; Guid = $m.guid; Assemblies = @($m.assemblies)
-                                    Out = Join-Path $d 'bin\Release\netstandard2.1' }
+                                    Out = Join-Path $d 'bin\Release\netstandard2.1'; ApiVersion = "$($m.apiVersion)" }
     }
     return $list
 }
@@ -137,11 +151,27 @@ if ($Build) {
         $unityExe = Join-Path $env:ProgramFiles ('Unity\Hub\Editor\' + $mv.Matches[0].Groups[1].Value + '\Editor\Unity.exe')
     }
     $managed = Join-Path (Split-Path -Parent $unityExe) 'Data\Managed\UnityEngine'
+    if ($ApiDir) {
+        # the Api version of that folder (the informational version MAJOR.MINOR.PATCH): a project that needs a newer minor
+        # is skipped by 'all' and refused when named
+        $pv = [Diagnostics.FileVersionInfo]::GetVersionInfo($apiDll).ProductVersion
+        $have = $null
+        if (-not [Version]::TryParse(($pv -replace '^(\d+\.\d+).*$', '$1'), [ref]$have)) { Fail "cannot read the Api version of $apiDll ('$pv')" }
+        $keep = @()
+        foreach ($p in $projects) {
+            $need = $null
+            if (-not [Version]::TryParse($p.ApiVersion, [ref]$need) -or $need.Major -ne $have.Major -or $need.Minor -le $have.Minor) { $keep += $p; continue }
+            if ($Build -ne 'all') { Fail "$($p.Guid) declares apiVersion $($p.ApiVersion); $api holds Api $pv" }
+            Write-Host "[plugins] skipped $($p.Guid): apiVersion $($p.ApiVersion) needs a newer Api than $pv in $api"
+        }
+        $projects = $keep
+    }
     $dotnet = Join-Path $env:ProgramFiles 'dotnet\dotnet.exe'
     if (-not (Test-Path $dotnet)) { $dotnet = 'dotnet' }
     foreach ($p in $projects) {
         $t0 = Get-Date
-        & $dotnet build $p.Csproj -c Release -nologo -v:q "-p:HS2NextApi=$api" "-p:HS2NextScripts=$ScriptAssemblies" "-p:NewtonsoftJson=$nj" "-p:UnityManaged=$managed" | Out-Host
+        & $dotnet build $p.Csproj -c Release -nologo -v:q "-p:HS2NextApi=$api" "-p:HS2NextScripts=$ScriptAssemblies" "-p:NewtonsoftJson=$nj" "-p:UnityManaged=$managed" `
+            "-p:HS2NextManaged=$api" "-p:HS2NextUnityManaged=$managed" "-p:HS2NextJson=$nj" | Out-Host
         if ($LASTEXITCODE -ne 0) { Fail "build failed: $($p.Csproj)" }
         foreach ($a in $p.Assemblies) { if (-not (Test-Path -LiteralPath (Join-Path $p.Out $a))) { Fail "$($p.Guid): the listed assembly $a is not in $($p.Out)" } }
         Write-Host ("[plugins] built {0} in {1:N1} s" -f $p.Guid, ((Get-Date) - $t0).TotalSeconds)

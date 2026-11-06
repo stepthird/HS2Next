@@ -44,7 +44,7 @@ namespace HS2Next.Chara.Edit.Units
             x.MarkDynBone(false);   // chain lengths and object scales follow the shape bones
             Bones(x)?.ApplyNow();
             // animator parameters, shape-bone guard and rest pose after the plugin final stage (step 9, AnimRefreshUnit):
-            // the bone modifiers write on top of the shapes, and a fresh build captures them after its final stage
+            // the bone modifiers write on top of the shapes, and those captures hold the bones without them, as in a fresh build
             x.Editor.MarkUnit(UnitMap.AnimRefresh);
         }
     }

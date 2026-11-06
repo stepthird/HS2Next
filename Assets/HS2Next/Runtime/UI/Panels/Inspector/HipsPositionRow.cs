@@ -71,6 +71,7 @@ namespace HS2Next.UI.Panels
         {
             if (phase == EditPhase.Begin) { edit?.Cancel(); edit = ctx.BeginEdit(spec.OpLabel ?? OpLabels.FkBones); return; }
             if (phase == EditPhase.End) { var e = edit; edit = null; if (e != null) ctx.ShowResult(e.Commit()); Binding.MarkDirty(); return; }
+            if (edit != null && !edit.IsOpen) return;   // Esc took the drag back: a late preview writes nothing
             Write(v, Field.LastComponent, phase == EditPhase.Typed ? "ui.typed/" + string.Join(",", selector.Resolve(ctx)) + "/" + spec.Path : null);
         }
 

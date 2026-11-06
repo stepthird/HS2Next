@@ -33,6 +33,10 @@ namespace HS2Next.Api.Bridge
     /// <summary>An error reply: <c>{"ok": false, "error": Message, "code": Code, "detail": Detail}</c>.</summary>
     public sealed class BridgeError
     {
+        /// <summary>
+        /// An error with <paramref name="code"/> (internal when empty), <paramref name="message"/> (the code when null) and an
+        /// optional <paramref name="detail"/>.
+        /// </summary>
         public BridgeError(string code, string message, BridgeErrorDetail detail = null)
         {
             Code = string.IsNullOrEmpty(code) ? BridgeCodes.Internal : code;
@@ -44,39 +48,52 @@ namespace HS2Next.Api.Bridge
         public string Code { get; }
         /// <summary>Human-readable text (what <c>hs2scene.call</c> prints).</summary>
         public string Message { get; }
+        /// <summary>The <c>detail</c> object, or null.</summary>
         public BridgeErrorDetail Detail { get; }
 
+        /// <summary>bad_args for the argument <paramref name="arg"/>: "bad argument 'arg': expected …" unless <paramref name="message"/> is given.</summary>
         public static BridgeError BadArgs(string arg, string expected, string message = null) =>
             new BridgeError(BridgeCodes.BadArgs, message ?? ("bad argument '" + arg + "'" + (expected != null ? ": expected " + expected : "")),
                 new BridgeErrorDetail { Arg = arg, Expected = expected });
 
+        /// <summary>bad_args "missing argument 'arg'".</summary>
         public static BridgeError Missing(string arg, string expected = null) =>
             new BridgeError(BridgeCodes.BadArgs, "missing argument '" + arg + "'", new BridgeErrorDetail { Arg = arg, Expected = expected });
 
+        /// <summary>not_found with the argument at fault and the nearest names, when known.</summary>
         public static BridgeError NotFound(string message, string arg = null, IReadOnlyList<string> candidates = null) =>
             new BridgeError(BridgeCodes.NotFound, message, new BridgeErrorDetail { Arg = arg, Candidates = candidates });
 
+        /// <summary>wrong_kind with the argument at fault and the kind expected, when known.</summary>
         public static BridgeError WrongKind(string message, string arg = null, string expected = null) =>
             new BridgeError(BridgeCodes.WrongKind, message, new BridgeErrorDetail { Arg = arg, Expected = expected });
 
+        /// <summary>unsupported with the phase that brings the feature, when known.</summary>
         public static BridgeError Unsupported(string message, string phase = null) =>
             new BridgeError(BridgeCodes.Unsupported, message, new BridgeErrorDetail { Phase = phase });
 
+        /// <summary>io_denied with the path argument at fault, when known.</summary>
         public static BridgeError IoDenied(string message, string arg = null) =>
             new BridgeError(BridgeCodes.IoDenied, message, new BridgeErrorDetail { Arg = arg });
 
+        /// <summary>busy.</summary>
         public static BridgeError Busy(string message) => new BridgeError(BridgeCodes.Busy, message);
 
+        /// <summary>"code: message".</summary>
         public override string ToString() => Code + ": " + Message;
     }
 
     /// <summary>Thrown by a handler (or the argument view) to answer with <see cref="Error"/>.</summary>
     public class BridgeException : Exception
     {
+        /// <summary>An exception that answers with <paramref name="error"/> (internal "error" when null).</summary>
         public BridgeException(BridgeError error) : base(error?.Message) { Error = error ?? new BridgeError(BridgeCodes.Internal, "error"); }
+        /// <summary>An exception that answers with a new <see cref="BridgeError"/> of these values.</summary>
         public BridgeException(string code, string message, BridgeErrorDetail detail = null) : this(new BridgeError(code, message, detail)) { }
 
+        /// <summary>The error the reply carries.</summary>
         public BridgeError Error { get; }
+        /// <summary>The error's code.</summary>
         public string Code => Error.Code;
     }
 
@@ -87,15 +104,20 @@ namespace HS2Next.Api.Bridge
     /// </summary>
     public sealed class RawJson
     {
+        /// <summary>The JSON text <paramref name="text"/> (written as it is; null stands for JSON null).</summary>
         public RawJson(string text) { Text = text ?? "null"; }
+        /// <summary>The JSON text.</summary>
         public string Text { get; }
+        /// <summary>The JSON text.</summary>
         public override string ToString() => Text;
     }
 
     /// <summary>A dictionary reply with a fluent setter; members keep their insertion order in the reply.</summary>
     public sealed class BridgeReply : Dictionary<string, object>
     {
+        /// <summary>An empty reply (member names compare ordinally).</summary>
         public BridgeReply() : base(StringComparer.Ordinal) { }
+        /// <summary>Sets the member <paramref name="name"/> and returns this reply.</summary>
         public BridgeReply With(string name, object value) { this[name] = value; return this; }
     }
 }

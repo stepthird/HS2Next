@@ -24,6 +24,12 @@ namespace HS2Next.Scenes.Runtime
             return FieldPath.Canonical("item." + rel);
         }
 
+        /// <summary>The refusal of a path under <c>item.materialOverrides</c>: the array has one door, the material commands.</summary>
+        public const string ItemMaterialRefusal = "use item.materials.set";
+
+        /// <summary>True for <c>item.materialOverrides</c> and any path under it.</summary>
+        public static bool IsItemMaterialPath(string path) => path != null && FieldPath.IsPrefixOf("item.materialOverrides", path);
+
         /// <summary>
         /// Sets item-section values (canonical `item.` paths with their typed values, per node) as one entry: the label is the
         /// caller's or the first path's (Labels.ForItemPath). Changed = the paths that changed on any item (per-item order),
@@ -39,6 +45,8 @@ namespace HS2Next.Scenes.Runtime
             foreach (var (_, path, _) in plan)
                 if (path == null || !path.StartsWith("item.", StringComparison.Ordinal) || FieldPath.Canonical(path) != path)
                     return OpResult.BadArgs("set." + path, "an item-section path", "\"" + path + "\" is not a field path");
+            foreach (var (_, path, _) in plan)
+                if (IsItemMaterialPath(path)) return OpResult.BadArgs("set." + path.Substring(5), "an item-section path", ItemMaterialRefusal);
             string label = Labels.ForItemPath(plan[0].path.Substring(5));
             var perKey = new Dictionary<string, (List<string> ch, List<string> no)>(StringComparer.Ordinal);
             foreach (var n in nodes) perKey[n.Id] = (new List<string>(), new List<string>());

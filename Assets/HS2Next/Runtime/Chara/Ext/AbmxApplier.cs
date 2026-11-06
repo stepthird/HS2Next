@@ -4,7 +4,7 @@
 // accessory slot objects (ca_slotNN) or children named chaF_* / chaM_*; Accessory0..19 = the slot object's subtree;
 // Unknown (and any other value) = body first, then accessories 0..19. Alias c_J_hairXYZ <-> c_J_hair_XYZ.
 // Bones that are not found are skipped and listed once in the log. Extra rule effects (AAC body-part rules) are added
-// to the same component. The one-shot Apply here gives the static result; the component re-applies in LateUpdate.
+// to the same component. The one-shot Apply here gives the static result; the motion stage bones.modifiers applies it every step.
 using System.Collections.Generic;
 using HS2Next.Data.Ext;
 using UnityEngine;

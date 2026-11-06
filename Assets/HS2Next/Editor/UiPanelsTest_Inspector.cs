@@ -1,7 +1,7 @@
 // UiPanelsTest.play, package I's groups: the inspector binds every schema row of character / item /
 // light / camera / scene, editable (value set through the widget -> model), with the multi-selection mixed display and
 // apply-to-all:
-//   I character inspector: nine tabs; every visible, enabled FieldRow written through its widget path
+//   I character inspector: eleven tabs; every visible, enabled FieldRow written through its widget path
 //     (FieldWidgets.Write) -> model value, exactly one history entry with the row's label, undo restores the value;
 //     clothes rows (supported states enabled, numbers only), accessories per worn slot, face / hands index rows (wrap),
 //     FK on -> bone rows, the anime copy / paste buttons;
@@ -202,7 +202,7 @@ public static partial class UiPanelsTest
         insp.Refresh(true);
         c.Check(insp.PrimaryId == id && insp.Kind == NodeKind.Chara && insp.Chara != null, "inspector shows the character");
         var ch = insp.Chara;
-        c.Check(ch.TabBodies.Count == InspectorSchemas.Chara.Count + 2 && ch.TabBodies.ContainsKey(CharaEditTab.TabId) && ch.TabBodies.ContainsKey(CharaCostumeTab.TabId) && InspectorSchemas.Chara.All(t => ch.TabBodies.ContainsKey(t.Id)), "nine tabs + Costume + Edit (" + string.Join(", ", ch.TabBodies.Keys) + ")");
+        c.Check(ch.TabBodies.Count == InspectorSchemas.Chara.Count + 2 && ch.TabBodies.ContainsKey(CharaEditTab.TabId) && ch.TabBodies.ContainsKey(CharaCostumeTab.TabId) && InspectorSchemas.Chara.All(t => ch.TabBodies.ContainsKey(t.Id)), "eleven tabs + Costume + Edit (" + string.Join(", ", ch.TabBodies.Keys) + ")");
         c.Check(insp.Q<VisualElement>("section-transform") != null && insp.Q<Label>("kind") != null, "header and Transform section");
         // a fresh build of a character whose realization is read during the build: exactly one copy of each part
         ui.ShowResult(ui.Ops.SetClothesAll(new[] { id }, 0, User));

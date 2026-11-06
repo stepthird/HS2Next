@@ -17,16 +17,23 @@ The Editor assembly is compiled against the Assembly-CSharp built here, not the 
 project's own asmdef assemblies (HS2Next.Api, HS2Next.Api.Unity, HS2Next.Bridge) are compiled first from the same base and
 overlay (their response files of the last Unity compile with the sources replaced; a new asmdef Unity has not compiled yet
 takes the response file of a template assembly), and every later assembly references what was built here; --no-asm keeps
-the last Unity build of them. Other assemblies (the compat stubs, packages) are referenced as Unity last built them.
+the last Unity build of them; --asm-only builds only them (no Assembly-CSharp). Other assemblies (the compat stubs,
+packages) are referenced as Unity last built them.
+--doc DIR also writes the XML documentation of the two Api assemblies (DIR/HS2Next.Api.xml, DIR/HS2Next.Api.Unity.xml; a
+relative DIR is taken from the project folder), reports each file's size and its member count by kind (T types, F fields, P
+properties, M methods, E events), and fails (exit 1) when a public member has no doc comment (CS1591) or a documented
+method leaves a parameter undocumented (CS1573), listing them; the XML holds the C# doc comments only. The ApiDocs row and
+the distribution step (Tools/package_dist.ps1) run --doc DIR --asm-only.
 
 The Unity install is derived as Tools/unity_batch.ps1 derives its -Unity default (HS2N_UNITY, else the Hub install of the
 project's editor version; Tools/mono_tests.ps1 does the same); the dag
 folder is the newest one under Library/Bee/artifacts holding Assembly-CSharp-Editor.rsp (the Editor's, not a player
 build's), or the one --dag names. Outputs go to %TEMP%/hs2next_offline_compile (never into the project).
 
-Usage:  python -I Tools/offline_compile.py [--head | --tree DIR] [--overlay FILE] [--runtime-only] [--player] [--no-asm] [--dag NAME] [--max-errors N] [-q]
-Exit code: 0 = no compile errors; 1 = compile errors; 2 = the check could not run (no Unity install, no Library/Bee
-response files: open the project in Unity once).
+Usage:  python -I Tools/offline_compile.py [--head | --tree DIR] [--overlay FILE] [--runtime-only] [--player] [--no-asm | --asm-only]
+        [--doc DIR] [--dag NAME] [--max-errors N] [-q]
+Exit code: 0 = no compile errors (and with --doc no missing doc comment); 1 = compile errors (or with --doc a CS1591 /
+CS1573); 2 = the check could not run (no Unity install, no Library/Bee response files: open the project in Unity once).
 """
 import argparse
 import glob
@@ -51,6 +58,8 @@ PROJECT_ASMS = [
     ("HS2Next.Api.Unity", "Assets/HS2Next/ApiUnity", "HS2Next.Bridge"),
     ("HS2Next.Bridge", "Assets/HS2Next/Bridge", None),
 ]
+# The assemblies whose XML documentation --doc writes (the public plugin Api).
+DOC_ASMS = ("HS2Next.Api", "HS2Next.Api.Unity")
 
 
 def fail_setup(msg):
@@ -145,11 +154,19 @@ def main():
     ap.add_argument("--runtime-only", action="store_true", help="Assembly-CSharp only")
     ap.add_argument("--player", action="store_true", help="the player build's dag (Assembly-CSharp without UNITY_EDITOR)")
     ap.add_argument("--no-asm", action="store_true", help="reference HS2Next.Api / .Api.Unity / .Bridge as Unity last built them")
+    ap.add_argument("--asm-only", action="store_true", help="build only the project's asmdef assemblies (no Assembly-CSharp)")
+    ap.add_argument("--doc", metavar="DIR", help="write the XML documentation of HS2Next.Api / .Api.Unity into DIR; fail on CS1591 / CS1573")
     ap.add_argument("--dag", help="the dag folder name under Library/Bee/artifacts (default: discovered)")
     ap.add_argument("--out", help="output folder (default %%TEMP%%/hs2next_offline_compile)")
     ap.add_argument("--max-errors", type=int, default=60, help="error lines printed per assembly")
     ap.add_argument("-q", "--quiet", action="store_true", help="print only the summary and the errors")
     a = ap.parse_args()
+    if a.no_asm and (a.asm_only or a.doc):
+        fail_setup("--no-asm excludes --asm-only and --doc (they build the project's asmdef assemblies)")
+    doc_dir = None
+    if a.doc:
+        doc_dir = a.doc if os.path.isabs(a.doc) else os.path.join(PROJ, a.doc)
+        os.makedirs(doc_dir, exist_ok=True)
 
     t0 = time.time()
     dotnet, csc = compiler(unity_editor_dir())
@@ -257,6 +274,15 @@ def main():
     def ref_line(dll):
         return '-r:"%s"' % dll.replace("\\", "/")
 
+    def project_path(f):
+        """A compiled file named by the project path it stands for (HEAD's extracted copies, an exported tree's files, the
+        project's own files), or as given (overlay files)."""
+        f = os.path.normpath(f)
+        for root in (os.path.join(out, "head_src"), tree_root, PROJ):
+            if root and f.lower().startswith(os.path.normpath(root).lower() + os.sep):
+                return os.path.relpath(f, root).replace("\\", "/")
+        return f
+
     if not a.quiet:
         print("[offline_compile] base %s; dag %s, compiler %s" % ("tree " + tree_root if tree_root else "HEAD " + git_lines("rev-parse", "--short", "HEAD")[0] if a.head else "working tree", dag_rel, os.path.relpath(csc, os.path.dirname(os.path.dirname(os.path.dirname(dotnet))))))
     # The project's asmdef assemblies, built from the base (+ overlay) in PROJECT_ASMS order; every later response file
@@ -264,6 +290,35 @@ def main():
     built_asm = {}          # assembly name -> built ref dll
     auto_ref = {}           # assembly name -> autoReferenced (Assembly-CSharp(-Editor) reference it)
     total_errors = 0
+    doc_missing = 0
+
+    def doc_report(asm, xml, output):
+        """Prints the XML file's size and member counts and the CS1591 / CS1573 warnings of one compile; returns their
+        count (one more when no XML was written)."""
+        import collections
+        import xml.etree.ElementTree as ET
+        found = {}          # (code, text) -> first location
+        for ln in output.splitlines():
+            m = re.match(r"^(.*?)\((\d+),\d+\): warning (CS1591|CS1573): (.*?)(?: \[[^\]]*\])?$", ln.strip())
+            if m:
+                found.setdefault((m.group(3), m.group(4)), "%s:%s" % (project_path(m.group(1)), m.group(2)))
+        kinds = collections.Counter()
+        size = os.path.getsize(xml) if os.path.isfile(xml) else 0
+        if size:
+            for mem in ET.parse(xml).getroot().iter("member"):
+                kinds[(mem.get("name") or "?")[0]] += 1
+        counts = collections.Counter(code for code, _ in found)
+        shown = os.path.relpath(xml, PROJ).replace("\\", "/") if os.path.normpath(xml).lower().startswith(PROJ.lower() + os.sep) else xml
+        print("[offline_compile] %s: XML %s, %d B (%s); CS1591 %d, CS1573 %d" % (
+            asm, shown, size, ", ".join("%s %d" % (k, kinds[k]) for k in "TFPME"), counts["CS1591"], counts["CS1573"]))
+        for (code, text), where in sorted(found.items(), key=lambda kv: (kv[1], kv[0]))[: a.max_errors]:
+            print("  %s %s: %s" % (code, where, text))
+        if len(found) > a.max_errors:
+            print("  ... %d more" % (len(found) - a.max_errors))
+        if not size:
+            print("[offline_compile] %s: no XML documentation was written" % asm)
+            return len(found) + 1
+        return len(found)
     if not a.no_asm:
         for asm, folder, template in PROJECT_ASMS:
             path, js = asmdef_of(folder)
@@ -308,6 +363,15 @@ def main():
             for ref in sorted(wanted - have):
                 if ref in built_asm:
                     lines.append(ref_line(built_asm[ref]))
+            xml = None
+            if doc_dir and asm in DOC_ASMS:
+                xml = os.path.join(doc_dir, asm + ".xml")
+                lines = [ln for ln in lines if not ln.lower().startswith(("-doc:", "/doc:"))]
+                # the documentation warnings are reported whatever the response file suppresses
+                lines = [ln for ln in lines if not re.match(r"^[-/]nowarn:.*\b(cs)?(1591|1573)\b", ln, re.I)]
+                lines.append('-doc:"%s"' % xml.replace("\\", "/"))
+                if os.path.isfile(xml):
+                    os.remove(xml)
             lines += ['"%s"' % f.replace("\\", "/") for f in srcs]
             rsp = os.path.join(out, asm + ".rsp")
             with open(rsp, "w", encoding="utf-8") as fh:
@@ -323,8 +387,21 @@ def main():
             if errs:
                 print("[offline_compile] FAIL: %d compile errors (%.0f s)" % (total_errors, time.time() - t0))
                 return 1
+            if xml:
+                doc_missing += doc_report(asm, xml, r.stdout)
             built_asm[asm] = os.path.join(out, asm + ".ref.dll")
             auto_ref[asm] = js.get("autoReferenced", True) is not False
+    if doc_dir:
+        missing_asm = [x for x in DOC_ASMS if x not in built_asm]
+        if missing_asm:
+            print("[offline_compile] FAIL: not built, so not documented: " + ", ".join(missing_asm))
+            return 1
+        if doc_missing:
+            print("[offline_compile] FAIL: %d missing doc comments (CS1591 / CS1573) (%.0f s)" % (doc_missing, time.time() - t0))
+            return 1
+    if a.asm_only:
+        print("[offline_compile] OK: 0 compile errors%s (%.1f s)" % (", 0 missing doc comments" if doc_dir else "", time.time() - t0))
+        return 0
 
     names = ["Assembly-CSharp"] + ([] if a.runtime_only or a.player else ["Assembly-CSharp-Editor"])
     rsps = {n: read_rsp(os.path.join(dag, n + ".rsp")) for n in names}
@@ -396,7 +473,8 @@ def main():
                 print("[offline_compile] Assembly-CSharp-Editor not compiled (it needs Assembly-CSharp)")
             break
         built_ref = os.path.join(out, name + ".ref.dll")
-    print("[offline_compile] %s: %d compile errors (%.0f s)" % ("FAIL" if total_errors else "OK", total_errors, time.time() - t0))
+    print("[offline_compile] %s: %d compile errors%s (%.0f s)" % ("FAIL" if total_errors else "OK", total_errors,
+                                                                  ", 0 missing doc comments" if doc_dir and not total_errors else "", time.time() - t0))
     return 1 if total_errors else 0
 
 

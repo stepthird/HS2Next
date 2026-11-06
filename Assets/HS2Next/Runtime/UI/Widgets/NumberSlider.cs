@@ -207,6 +207,8 @@ namespace HS2Next.UI.Widgets
         public readonly VisualElement Axes;
         public string Format = "0.#####";
         public event Action<EditPhase, Vector4> Edited;
+        /// <summary>True while a label drag runs (from the press to its release, its loss or <see cref="EndDrag"/>).</summary>
+        public bool Dragging => dragging;
         /// <summary>Which components the last typed edit changed (the others keep their mixed values when applied).</summary>
         public int LastComponent { get; private set; } = -1;
         Vector4 value;
@@ -240,13 +242,27 @@ namespace HS2Next.UI.Widgets
                 });
                 // the FloatField's own label dragger captures the pointer on the label: one transaction per drag
                 f.RegisterCallback<PointerCaptureEvent>(_ => { if (!dragging) { dragging = true; f.isDelayed = false; LastComponent = k; Edited?.Invoke(EditPhase.Begin, value); } }, TrickleDown.TrickleDown);
-                f.RegisterCallback<PointerCaptureOutEvent>(_ => { if (dragging) { dragging = false; f.isDelayed = true; Edited?.Invoke(EditPhase.End, value); } }, TrickleDown.TrickleDown);
+                f.RegisterCallback<PointerCaptureOutEvent>(_ => { f.isDelayed = true; if (dragging) { dragging = false; Edited?.Invoke(EditPhase.End, value); } }, TrickleDown.TrickleDown);
+                // a label that lost the pointer early (Esc) keeps the field's dragger armed: its moves would change the field's text,
+                // a later blur would type that text, and its release would end the dragging with it
+                var axis = f.labelElement;
+                axis.RegisterCallback<PointerMoveEvent>(e => { if (!axis.HasPointerCapture(e.pointerId)) e.StopImmediatePropagation(); }, TrickleDown.TrickleDown);
+                axis.RegisterCallback<PointerUpEvent>(e => { if (!axis.HasPointerCapture(e.pointerId)) e.StopImmediatePropagation(); }, TrickleDown.TrickleDown);
                 Fields[i] = f;
                 Axes.Add(f);
             }
         }
 
         public Vector4 Value => value;
+
+        /// <summary>Ends a label drag at once (Esc): the row closes what it opened. The field takes typed text again when the capture's
+        /// own end arrives (a field that stays immediate until then gives no text back to a blur).</summary>
+        public void EndDrag()
+        {
+            if (!dragging) return;
+            dragging = false;
+            Edited?.Invoke(EditPhase.End, value);
+        }
 
         void UpdateStacked()
         {

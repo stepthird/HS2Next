@@ -384,17 +384,28 @@ public static class BackgroundTest
         {
             g.ClearStage();
             g.Quad("wall", new Vector3(0, -2, 30), new Vector2(20, 4), new Color(0.3f, 0.3f, 0.3f));
-            double T(int n)
+            // Each side's fastest capture, in five alternating rounds of two. Every other capture takes about 40 ms longer, background or not, so
+            // a mean over an odd count differs by a third of that between the sides, and one capture per round, or every second one, can
+            // sit on the long ones on one side only. Two in a round always hold a short one. The rounds alternate because the machine's
+            // load moves a capture's time over seconds, and because the first capture after a pause is the fastest: both sides get it.
+            double Timed()
             {
                 var sw = Stopwatch.StartNew();
-                for (int i = 0; i < n; i++) g.Capture(2560, 1440);
-                return sw.Elapsed.TotalMilliseconds / n;
+                g.Capture(2560, 1440);
+                return sw.Elapsed.TotalMilliseconds;
             }
-            T(1);
-            double with = T(3);
+            double with = double.MaxValue, without = double.MaxValue;
+            int gc0 = GC.CollectionCount(0);
+            for (int round = 0; round < 5; round++)
+            {
+                yield return SetImages(flat, Keep);
+                with = Math.Min(with, Math.Min(Timed(), Timed()));
+                yield return SetImages(null, Keep);
+                without = Math.Min(without, Math.Min(Timed(), Timed()));
+            }
+            int gcs = GC.CollectionCount(0) - gc0;
             yield return SetImages(null, null);
-            double without = T(3);
-            g.Measure($"2560 × 1440 capture with a background {with:F1} ms, without {without:F1} ms (difference {with - without:F2} ms incl. noise; the pass is one full-screen triangle)");
+            g.Measure($"2560 × 1440 capture, the fastest of 10 in alternating rounds, with a background {with:F1} ms, without {without:F1} ms (difference {with - without:F2} ms incl. noise; the pass is one full-screen triangle); {gcs} GC collections over the 20 captures");
             g.Check("the background adds little to a 1440p capture (≤ 10 % incl. read-back noise; the 0.1 ms target is the GPU pass, not measured here)", with - without <= 0.1 * without, $"{with - without:F2} ms of {without:F1}");
         }
     }

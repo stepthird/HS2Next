@@ -75,7 +75,7 @@ namespace HS2Next.UI.Panels
             Add(side);
             RegisterCallback<AttachToPanelEvent>(_ => { Current = this; RequestRender(); });
             RegisterCallback<DetachFromPanelEvent>(_ => { if (Current == this) Current = null; pending = false; Replace(null); Framing = null; });
-            PanelKit.EveryFrame(this, Tick);
+            PanelKit.EveryFrame(this, Tick, fromConstruction: false);
         }
 
         /// <summary>Renders on a later frame (not in the frame that built or attached the page), once the character is built.</summary>

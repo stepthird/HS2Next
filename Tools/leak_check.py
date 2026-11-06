@@ -91,7 +91,7 @@ TEXT_EXT = {
     ".overridecontroller", ".mask", ".physicmaterial", ".preset", ".rendertexture", ".shadergraph",
     ".shadersubgraph", ".shadervariants", ".spriteatlas", ".terrainlayer", ".mixer", ".playable", ".signal",
     ".inputactions", ".fontsettings", ".guiskin", ".flare", ".brush", ".giparams", ".html", ".css", ".js", ".toml",
-    ".slnx", ".csproj", ".props", ".targets", ".editorconfig", ".gitignore", ".gitattributes",
+    ".sln", ".slnx", ".csproj", ".props", ".targets", ".config", ".editorconfig", ".gitignore", ".gitattributes",
 }
 TEXT_NAMES = {"license", "licence", "copying", "notice", ".gitignore", ".gitattributes", ".editorconfig"}
 

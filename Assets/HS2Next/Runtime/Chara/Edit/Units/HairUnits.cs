@@ -39,7 +39,7 @@ namespace HS2Next.Chara.Edit.Units
         readonly int k;
         ListEntry appliedRow;
         Shader appliedShader;
-        string appliedOverrides, appliedRates, appliedShake;
+        string appliedRates, appliedShake;
         bool loaded;
         // the mesh pattern texture of the last resolved 306 reference (cached per row; a bundle asset, not owned)
         string meshRef;
@@ -149,9 +149,9 @@ namespace HS2Next.Chara.Edit.Units
             int shaderType = hair.ShaderType;
             var hairShader = HairMaterials.ShaderOf(x.Catalog, shaderType);
             var e = x.Row(300 + k, p.Item, HairProps[k], PartKeys.Hair(k), "hair." + name + ".item") ?? x.Lookup(300 + k, k == 1 ? x.S.HairFrontDefault : 0, null, null);
-            string overrides = x.InBuild ? null : Signature.Of(p.MaterialOverrides);
+            string array = "hair." + name + ".materialOverrides";
             var go = x.Ctx.Hair[k];
-            bool swap = !loaded || e != appliedRow || (!x.InBuild && overrides != appliedOverrides);
+            bool swap = !loaded || e != appliedRow || (!x.InBuild && x.MeStructureChanged(array, p.MaterialOverrides));
             if (swap)
             {
                 int sibling = go ? go.transform.GetSiblingIndex() : -1;
@@ -163,7 +163,7 @@ namespace HS2Next.Chara.Edit.Units
                 x.EndPartLoad(Id);
                 loaded = true;
                 appliedRow = e;
-                appliedOverrides = overrides ?? Signature.Of(p.MaterialOverrides);
+                x.MeLoaded(array, p.MaterialOverrides);
                 appliedShader = null;
                 prefabMesh.Clear();
                 if (!go) { if (x.Report != null && !x.InBuild) x.Report.HairSwapped[k] = true; x.Swapped(EditObject.Hair(k)); return; }
@@ -180,6 +180,7 @@ namespace HS2Next.Chara.Edit.Units
                     x.Editor.MarkUnit(UnitMap.ExtFinal);
                 }
             }
+            else if (!x.InBuild) x.MeCheckValues(array, EditObject.Hair(k), p.MaterialOverrides);
             if (!go) return;
             var cmp = go.GetComponent<CmpHair>();
             var rends = HairRenderers(go, cmp);
@@ -504,7 +505,8 @@ namespace HS2Next.Chara.Edit.Units
         }
     }
 
-    /// <summary>Canonical text of document values for change detection (the members that need a part reload).</summary>
+    /// <summary>Canonical text of document values for change detection (the members that need a part reload; of a material array, its
+    /// values: its structure is MeStructure's).</summary>
     public static class Signature
     {
         public static string Of(System.Collections.Generic.IEnumerable<DocObject> l)

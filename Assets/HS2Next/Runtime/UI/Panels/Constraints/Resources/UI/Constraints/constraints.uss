@@ -1,0 +1,19 @@
+/* The Constraints panel and section (Phase 6.5): the rows of the list, the editor, the bone popup. */
+.hs-constraints { flex-grow: 1; flex-direction: column; background-color: var(--hs-bg-1); }
+.hs-constraints__bar { flex-direction: row; align-items: center; flex-wrap: wrap; flex-shrink: 0; padding: 2px 4px; border-bottom-width: 1px; border-color: var(--hs-border); }
+.hs-constraints__pane { flex-grow: 1; flex-direction: column; min-height: 40px; }
+.hs-constraints__editor { flex-grow: 1; padding: 2px 6px; }
+.hs-constraints__line { flex-direction: row; align-items: center; height: 26px; padding: 0 2px; border-bottom-width: 1px; border-color: var(--hs-bg-0); }
+.hs-constraints__line--selected { background-color: var(--hs-accent-dim); }
+.hs-constraints__on { margin: 0 4px 0 0; flex-shrink: 0; }
+.hs-constraints__text { flex-grow: 1; flex-shrink: 1; min-width: 32px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; -unity-text-align: middle-left; }
+.hs-constraints__text--broken { opacity: 0.6; }
+.hs-constraints__lag { flex-shrink: 1; min-width: 0; margin-left: 4px; padding: 0 4px; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-radius: 3px; background-color: var(--hs-bg-3); color: var(--hs-text-dim); }
+.hs-constraints__mark { flex-shrink: 0; width: 16px; -unity-text-align: middle-center; color: var(--hs-text-dim); }
+.hs-constraints__mark--warning { color: var(--hs-warning); }
+.hs-constraints__weight { flex-shrink: 0; width: 64px; margin: 0 2px; }
+.hs-constraints__btn { flex-shrink: 0; width: 20px; height: 20px; margin: 0 1px; padding: 0; }
+.hs-constraints__error { color: var(--hs-warning); white-space: normal; margin: 2px 0; }
+.hs-constraints__comps { flex-direction: row; flex-wrap: wrap; }
+.hs-constraints__comps > * { margin-right: 8px; }
+.hs-constraints__popup { flex-direction: column; padding: 4px; }

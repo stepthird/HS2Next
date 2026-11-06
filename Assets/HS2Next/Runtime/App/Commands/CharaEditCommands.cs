@@ -1324,7 +1324,7 @@ namespace HS2Next.App.Commands
         /// and ints as numbers, colours and vectors as [4] numbers (non-finite as null), textures as {name, w, h, format} or null.
         /// <paramref name="hair"/> (part hair, the HS2 side's chara.hairInfo props): a texture is followed by "&lt;name&gt;_ST"
         /// [scale x, y, offset x, y] and its object also gives wrapU, wrapV, mips.</summary>
-        static BridgeReply PropsOf(Material m, HashSet<string> only, bool hair = false)
+        internal static BridgeReply PropsOf(Material m, HashSet<string> only, bool hair = false)
         {
             var props = new BridgeReply();
             var sh = m ? m.shader : null;

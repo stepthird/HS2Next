@@ -13,7 +13,9 @@ namespace HS2Next.Motion
         public readonly float Time;
         /// <summary>Step counter (first step after a reset is 0).</summary>
         public readonly int Index;
+        /// <summary>True when the step has no scaled time (the scene is paused).</summary>
         public bool Paused => Dt <= 0f;
+        /// <summary>The time information of one step.</summary>
         public MotionFrame(float dt, float unscaledDt, float time, int index) { Dt = dt; UnscaledDt = unscaledDt; Time = time; Index = index; }
     }
 }

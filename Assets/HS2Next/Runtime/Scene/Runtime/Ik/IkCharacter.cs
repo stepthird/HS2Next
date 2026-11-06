@@ -63,6 +63,17 @@ namespace HS2Next.Scenes.Runtime
         /// <summary>The effective target of <paramref name="t"/> (model value, or the runtime snapshot; Has false = none yet).</summary>
         public IkTargetValue Effective(IkTargetId t) => Stage.Targets[(int)t];
 
+        /// <summary>The target as the solve takes it: <see cref="Effective"/> with a runtime override's channels over it. What the handle shows;
+        /// never what an edit fills its missing half from.</summary>
+        public IkTargetValue Shown(IkTargetId t)
+        {
+            var v = Stage.Targets[(int)t];
+            var o = Stage.TargetOverrides[(int)t];
+            if (o.HasPos) { v.Pos = o.Pos; v.Has = true; }
+            if (o.HasRot) { v.Rot = o.Rot; v.Has = true; }
+            return v;
+        }
+
         /// <summary>The bones the last solve wrote (the "IK-driven" mark of the 3.5 UI).</summary>
         public IReadOnlyCollection<Transform> Owned => Stage.Owned;
 
@@ -201,7 +212,7 @@ namespace HS2Next.Scenes.Runtime
         public IkTargetValue[] CurrentPose()
         {
             var v = new IkTargetValue[IkGroupInfo.TargetCount];
-            Bones.ReadTargets(v);
+            AdvancedPoseDriver.Bare(Realization, () => Bones.ReadTargets(v));
             return v;
         }
 
@@ -243,7 +254,7 @@ namespace HS2Next.Scenes.Runtime
             {
                 if (c.motion && c.motion.Probing) return;
                 var v = new IkTargetValue[IkGroupInfo.TargetCount];
-                c.Bones.ReadTargets(v);
+                AdvancedPoseDriver.Bare(c.Realization, () => c.Bones.ReadTargets(v));
                 c.FirstFrame = v;
                 Enabled = false;
                 var ik = IkOf(c.Realization);

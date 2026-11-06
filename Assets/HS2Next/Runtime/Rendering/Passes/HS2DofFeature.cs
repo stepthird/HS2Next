@@ -10,6 +10,8 @@
 // CoC (exact): coc = saturate(A |d - f| / d - focalSize), A = 1 / (1 - aperture) - 1, d and f linear eye depths of the pixel
 // and of the focus point (f = the focus point's view-space depth, as the legacy viewport z). Blur (approximate): HS2's
 // maxBlurSize 2 half-resolution texels at coc 1, scaled by frame height / reference height for captures.
+// Input.MaxBlur1080 (Phase 6.2, a runtime override's blur): when above 0 the radius at coc 1 is MaxBlur1080 x frame height
+// / 1080 half-resolution texels instead; 0 (every official render) keeps the path above unchanged.
 // The shader is referenced by the feature asset (kept in the player, U5).
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -29,6 +31,11 @@ namespace HS2Next
             public float FocalSize, Aperture;
             /// <summary>The view's pixel height (0 = the frame's own height).</summary>
             public int ReferenceHeight;
+            /// <summary>
+            /// The largest blur radius on a 1080-line frame (a runtime override's blur): above 0 the radius at coc 1 is this x frame
+            /// height / 1080 half-resolution texels; 0 = the feature's maxBlurSize scaled by frame height / reference height.
+            /// </summary>
+            public float MaxBlur1080;
 
             /// <summary>enabled and aperture > 0 (HS2: aperture 0 gives A = 0, no blur).</summary>
             public bool Active => Enabled && Aperture > 0f;
@@ -73,6 +80,9 @@ namespace HS2Next
         public static float Radius(float maxBlur, int frameHeight, int referenceHeight) =>
             maxBlur * (referenceHeight > 0 && frameHeight > 0 ? (float)frameHeight / referenceHeight : 1f);
 
+        /// <summary>The radius R in half-resolution texels of a blur given on a 1080-line frame, for a frame of <paramref name="frameHeight"/> pixels.</summary>
+        public static float Radius1080(float maxBlur1080, int frameHeight) => maxBlur1080 * (frameHeight > 0 ? frameHeight / 1080f : 1f);
+
         /// <summary>The legacy CoC formula (DofTest's reference).</summary>
         public static float Coc(float a, float focalSize, float d, float f) =>
             Mathf.Clamp01(a * Mathf.Abs(d - f) / Mathf.Max(d, 1e-5f) - focalSize);
@@ -89,7 +99,8 @@ namespace HS2Next
             // the focus point's view-space depth (the legacy viewport z)
             float f = Mathf.Max(cam.worldToCameraMatrix.MultiplyPoint(input.FocusPoint).z * -1f, 1e-4f);
             int frameH = cd.cameraTargetDescriptor.height;
-            pass.Setup(input.A, input.FocalSize, f, Radius(maxBlurSize, frameH, input.ReferenceHeight), DebugView);
+            float radius = input.MaxBlur1080 > 0f ? Radius1080(input.MaxBlur1080, frameH) : Radius(maxBlurSize, frameH, input.ReferenceHeight);
+            pass.Setup(input.A, input.FocalSize, f, radius, DebugView);
             pass.ConfigureInput(ScriptableRenderPassInput.Depth);
             pass.requiresIntermediateTexture = true;
             renderer.EnqueuePass(pass);

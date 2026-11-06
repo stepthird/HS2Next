@@ -212,16 +212,20 @@ namespace HS2Next.Chara.Edit.Units
             AccessorySlots.Register(x, e, slot);
             var cur = x.Ctx.Accessories[slot];
             var view = AccessorySlots.FromEntry(e, slot);
-            string reload = Signature.Of(e.MaterialOverrides) + "|" + Signature.Of(e.DynamicBones);
+            string array = UnitMap.AccessoryArray(accId);
+            string reload = Signature.Of(e.DynamicBones);
             if (appliedReload == null) appliedReload = reload;
+            bool structure = x.MeStructureChanged(array, e.MaterialOverrides);
             // the row as the loader resolves it (ids of different mods can be equal: compare rows, not raw ids)
             var row = view.IsEmpty ? null : x.Lookup(view.Type, view.Id, view.Property, PartKeys.Accessory(slot));
-            if (x.ForceReload.Remove(slot) || row != cur.Entry || !AccessorySlots.SamePart(cur, view) || reload != appliedReload || !cur.Object && !view.IsEmpty)
+            if (x.ForceReload.Remove(slot) || row != cur.Entry || !AccessorySlots.SamePart(cur, view) || reload != appliedReload || structure || !cur.Object && !view.IsEmpty)
             {
                 appliedReload = reload;
+                x.MeLoaded(array, e.MaterialOverrides);
                 x.ReloadAccessory(view, accId);
                 return;
             }
+            x.MeCheckValues(array, EditObject.Accessory(slot), e.MaterialOverrides);
             // same part: moves, colours, flags on the loaded object
             bool moved = !AccessorySlots.SameMoves(cur.AddMove, view.AddMove);
             cur.AddMove = view.AddMove; cur.Color = view.Color; cur.Gloss = view.Gloss; cur.Metallic = view.Metallic; cur.Smoothness = view.Smoothness;

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using HS2Next.Save;
+using HS2Next.Scenes.Constraints;
 
 namespace HS2Next.Scenes
 {
@@ -249,6 +250,41 @@ namespace HS2Next.Scenes
 
         static void Report(FindingList f, FindingSeverity severity, string code, string nodeId, string message) =>
             f.Add(severity, code, nodeId == null ? "" : "nodes:" + nodeId, message);
+
+        /// <summary>
+        /// The ext instances of the current model as a save hands them to the dispatcher (scene, the nodes in pre-order, then
+        /// each character's chara and coord scopes in node order), without converting the model into its container: the
+        /// scene scope's file data with the scene's inline holder, each node's file data (a node without any gets a detached
+        /// one) with its inline holder, and the stored subtree of each character (a card-backed character not imported yet has
+        /// none). Unknown kinds are left out, as a save leaves them. A read: nothing in the model or the container changes.
+        /// </summary>
+        public IEnumerable<ExtInstance> ExtInstances()
+        {
+            CheckThread();
+            string format = SaveFormats.Scene;
+            yield return new ExtInstance { Scope = HS2Next.Api.Save.ExtScope.Scene, ContainerFormat = format, Root = "", Data = Model.File?.SceneExt ?? new ExtScopeData(HS2Next.Api.Save.ExtScope.Scene), Main = Model.SceneExt };
+            var charas = new List<TreeNode>();
+            foreach (var n in Model.PreOrder())
+            {
+                if (n.Kind == NodeKind.Opaque) continue;
+                yield return new ExtInstance { Scope = HS2Next.Api.Save.ExtScope.Node, OwnerId = n.Id, ContainerFormat = format, Root = "", Data = n.FileExt ?? new ExtScopeData(HS2Next.Api.Save.ExtScope.Node), Main = n.Doc.Ext };
+                if (n.Kind == NodeKind.Chara && n.Appearance?.Stored != null) charas.Add(n);
+            }
+            foreach (var n in charas)
+                foreach (var i in n.Appearance.Stored.Instances(format, SceneContainer.CharaRoot(n.Id), n.Id)) yield return i;
+        }
+
+        /// <summary>
+        /// Offers the open scene's blocks of <paramref name="namespaces"/> to their handlers again (a plugin enabled while the
+        /// app runs: its new instance reads the scene's data, so a later save writes it back instead of removing the blocks);
+        /// blocks of these namespaces kept as unknown are decided again. Returns the number of blocks a handler read; the
+        /// findings of the pass go to <paramref name="findings"/>.
+        /// </summary>
+        public int ReadExtAgain(ICollection<string> namespaces, ExtRegistry registry = null, FindingList findings = null)
+        {
+            CheckThread();
+            return ExtDispatcher.ReadAgain(ExtInstances(), registry ?? ExtRegistry.Default, namespaces, findings ?? new FindingList());
+        }
 
         /// <summary>Converts the model into its container and saves atomically. Never throws; Saving before, Saved after.</summary>
         public SaveResult Save(string path, SaveOptions options = null)
@@ -525,7 +561,8 @@ namespace HS2Next.Scenes
             return Commands.Execute(new RemoveNodesCommand(ids), o);
         }
 
-        /// <summary>Copies the top-most selected subtrees right after their originals; the copies become the selection.</summary>
+        /// <summary>Copies the top-most selected subtrees right after their originals; the copies become the selection. The constraints
+        /// with both ends among the copied nodes are copied too, in the same history entry; a scene with no such entry runs the plain add.</summary>
         public CommandResult Duplicate(IEnumerable<string> ids, ExecuteOptions o = default)
         {
             CheckThread();
@@ -553,13 +590,14 @@ namespace HS2Next.Scenes
             // the k copies placed before it.
             var placed = new Dictionary<string, int>(StringComparer.Ordinal);
             var specs = new List<NodeSpec>();
+            var copied = Model.Constraints != null ? new Dictionary<string, string>(StringComparer.Ordinal) : null;
             try
             {
                 foreach (var t in tops)
                 {
                     string key = (t.Parent?.Id ?? "") + "\u0000" + (t.Point ?? "\u0001");
                     placed.TryGetValue(key, out int k);
-                    var spec = CopySpec(t);
+                    var spec = CopySpec(t, copied);
                     spec.ParentId = t.Parent?.Id;
                     spec.Point = t.Point;
                     spec.Index = t.Index + 1 + k;
@@ -568,14 +606,59 @@ namespace HS2Next.Scenes
                 }
             }
             catch (Exception e) { return CommandResult.Error(CommandCodes.BadArgs, "cannot copy: " + e.Message); }
-            return Commands.Execute(new AddNodesCommand(specs, "Duplicate", true), o);
+            var add = new AddNodesCommand(specs, "Duplicate", true);
+            var after = CarryConstraints(Model.Constraints, copied, out _, out int refused);
+            ConstraintsLeftOut = refused;
+            return after != null ? AddWithConstraints(add, after, o) : Commands.Execute(add, o);
         }
 
-        // A deep copy of a subtree with new ids (nodes and route points); a copied camera is inactive.
-        NodeSpec CopySpec(TreeNode n)
+        /// <summary>The constraints the last <see cref="Duplicate"/> could not carry though both their ends were copied.</summary>
+        public int ConstraintsLeftOut { get; private set; }
+
+        /// <summary>
+        /// The list the scene holds once the entries of <paramref name="from"/> whose two ends are keys of <paramref name="map"/> (old node id to
+        /// new) are copied after its own: new ids, ends on the copies. Null when none comes along. An entry with an end outside counts in
+        /// <paramref name="outside"/>; one the list cannot take, because it is full or the entry breaks a rule an edit may not break, counts in
+        /// <paramref name="refused"/>: nodes are never refused because of a constraint, so such an entry stays behind.
+        /// </summary>
+        public ConstraintList CarryConstraints(ConstraintList from, IReadOnlyDictionary<string, string> map, out int outside, out int refused)
+        {
+            outside = refused = 0;
+            if (from == null || map == null) return null;
+            var copies = ConstraintRemap.Copy(from.Entries, map, NewId, out outside);
+            int room = ConstraintLimits.MaxEntries - (Model.Constraints?.Count ?? 0);
+            var kept = new List<ConstraintEntry>(copies.Count);
+            foreach (var e in copies)
+            {
+                if (kept.Count < room && e.Problem() == null) kept.Add(e);
+                else refused++;
+            }
+            return ConstraintRemap.Appended(Model.Constraints, kept);
+        }
+
+        // The add and the list as one history entry, or as steps of the transaction that is open.
+        CommandResult AddWithConstraints(AddNodesCommand add, ConstraintList after, ExecuteOptions o)
+        {
+            string label = o.Label ?? add.Label;
+            var tx = Commands.BeginOrJoin(label, o);
+            if (!tx.IsOpen) return tx.Failure ?? CommandResult.Error(CommandCodes.Busy, "the bus is busy");
+            using (tx)
+            {
+                var added = tx.Execute(add);
+                if (added.Status == CommandStatus.Error) return added;
+                var edit = tx.Execute(ConstraintEditCommand.ReplaceList(after, label));
+                if (edit.Status == CommandStatus.Error) return edit;
+                var done = tx.Commit();
+                return done.Status == CommandStatus.Error ? done : CommandResult.Success(done.Command, added.NewIds);
+            }
+        }
+
+        // A deep copy of a subtree with new ids (nodes and route points); a copied camera is inactive. `copied`, when given, collects old id to new.
+        NodeSpec CopySpec(TreeNode n, Dictionary<string, string> copied)
         {
             var doc = (SceneNode)DocClone.Clone(n.Doc, out _, null);
             doc.Id = NewId();
+            if (copied != null) copied[n.Id] = doc.Id;
             if (doc.State is RouteNodeState r) foreach (var p in r.Points) p.Id = NewId();
             if (doc.State is CameraNodeState cam) cam.Active = false;
             var spec = new NodeSpec { Doc = doc, Appearance = n.Appearance?.Clone(), FileExt = n.FileExt?.Clone() };
@@ -585,7 +668,7 @@ namespace HS2Next.Scenes
                 spec.Children = new NodeSpec[kids.Count];
                 for (int i = 0; i < kids.Count; i++)
                 {
-                    var c = CopySpec(kids[i]);
+                    var c = CopySpec(kids[i], copied);
                     c.Point = kids[i].Point;
                     c.Index = kids[i].Index;
                     spec.Children[i] = c;
@@ -633,16 +716,21 @@ namespace HS2Next.Scenes
             }), o);
         }
 
-        /// <summary>`map.ref` and a reset map pose (one entry).</summary>
+        /// <summary>`map.ref` and a reset map pose (one entry). Material edits name the materials of one map, so another map (or none)
+        /// starts without them, in the same entry.</summary>
         public CommandResult SetMap(string mapRef, ExecuteOptions o = default)
         {
             CheckThread();
-            return Commands.Execute(new CompositeCommand("Map", new ISceneCommand[]
+            var steps = new List<ISceneCommand>
             {
                 new SetPropertyCommand(null, "map.ref", mapRef),
                 new SetPropertyCommand(null, "map.pos", Vec3.Zero),
                 new SetPropertyCommand(null, "map.rot", Vec3.Zero),
-            }), o);
+            };
+            var map = Model.Settings.Map;
+            if (map.MaterialOverrides.Count > 0 && !string.Equals(map.Ref, mapRef, StringComparison.Ordinal))
+                steps.Add(new SetPropertyCommand(null, "map.materialOverrides", new List<MaterialOverride>()));
+            return Commands.Execute(new CompositeCommand("Map", steps), o);
         }
 
         /// <summary>Activates one camera node and deactivates the others; null deactivates all.</summary>

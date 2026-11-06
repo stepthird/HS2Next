@@ -1,6 +1,4 @@
-（本文为机器翻译，未经人工审校；内容以英文版 [README.md](README.md) 为准。）
-
-# HS2Next 1.2.0
+# HS2Next 1.3.0
 
 HS2Next 是一个使用 Honey Select 2 内容的场景与角色编辑器，基于 Unity 6 全新编写。它把 HS2 Studio 的工作和游戏本体
 的角色编辑（捏人）放在同一个窗口中：角色、物品、地图、灯光、相机、动画、FK / IK、表情、画面效果，以及脸、身体、
@@ -31,7 +29,7 @@ English: [README.md](README.md) · 日本語: [README_ja.md](README_ja.md)
 
 ## 使用发布版
 
-发布的 zip（`HS2Next-1.2.0-win64.zip`，旁边附有其 SHA-256）就是程序本身。解压到任意位置后启动 `HS2Next.exe`，无需
+发布的 zip（`HS2Next-1.3.0-win64.zip`，旁边附有其 SHA-256）就是程序本身。解压到任意位置后启动 `HS2Next.exe`，无需
 安装程序。程序没有代码签名，因此 Windows SmartScreen 可能会询问一次（点击“更多信息”，再点击“仍要运行”）。首次运行
 向导会依次询问语言、Honey Select 2 文件夹、额外的 mod 文件夹和缓存文件夹，然后建立内容索引（根据 mod 数量和磁盘，
 需要几秒到几分钟）。

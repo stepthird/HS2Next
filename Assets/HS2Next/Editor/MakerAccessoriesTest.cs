@@ -1826,14 +1826,24 @@ public static class MakerAccessoriesTest
 
     static void Classify(MakerCoreTest.Built b, CharaSnapshot basis, CharaSnapshot now, Classes cls, List<string> others)
     {
-        string card = System.IO.Path.GetFileName(b.File);
+        string card = b.CardSha != null && b.CardSha.Length >= 12 ? b.CardSha.Substring(0, 12) : System.IO.Path.GetFileName(b.File);
         var paths = MakerClothesTest.SnapPaths(b.Root.transform);
         var a = Keyed(basis.Lines); var c = Keyed(now.Lines);
         bool gained = BonemodsGainedOnMoved(b.Context, paths, a, c);
+        var mods = ModifiersByPath(b.Context, paths);
+        bool hasMods = b.Context.Bones && b.Context.Bones.Modifiers.Count > 0;
         foreach (var kv in a.Concat(c.Where(x => !a.ContainsKey(x.Key))))
         {
             a.TryGetValue(kv.Key, out var la); c.TryGetValue(kv.Key, out var lc);
             if (la == lc) continue;
+            // a card's bone modifiers became motion stages: any line on a card without modifiers is "other"
+            string mod = hasMods ? ModifierClass(b.Context, mods, kv.Key, la, lc) : "other";
+            if (mod != null)
+            {
+                if (mod == "other" || mod == "mod.driven" || mod == "mod.physics") others.Add($"{card} [{mod}] " + ModifierLine(kv.Key, la, lc) + (mod == "mod.driven" ? DrivenNote(b.Context, mods, kv.Key) : ""));
+                cls.Add(mod, card);
+                continue;
+            }
             string klass = (gained && (kv.Key.StartsWith("ctx|bonemod[", StringComparison.Ordinal) || kv.Key == "ctx|ext" && AbmxCountsOnly(la, lc)
                                        || kv.Key.StartsWith("obj|", StringComparison.Ordinal) && la != null && lc != null && lc.Replace("BoneModifierApplier,", "") == la)
                             ? "part.additionalBones" : null)
@@ -1841,6 +1851,105 @@ public static class MakerAccessoriesTest
             if (klass == "other") others.Add($"{card} {Short(kv.Key, 160)}: " + (la != null && lc != null ? "tokens [" + string.Join(",", TokenNames(la, lc)) + "] " : "") + $"{Short(la, 160)} <> {Short(lc, 160)}");
             cls.Add(klass, card);
         }
+    }
+
+    // ---------------------------------------------------------------- the card's bone modifiers as motion stages (classes mod.*, FS1)
+
+    sealed class PathMod { public Transform T; public Vector3 S = Vector3.one, P = Vector3.zero, R = Vector3.zero; public float L = 1f; public bool HasS, HasP, HasR; }
+
+    static Dictionary<string, PathMod> ModifiersByPath(CharaContext ctx, Dictionary<Transform, string> paths)
+    {
+        var d = new Dictionary<string, PathMod>(StringComparer.Ordinal);
+        if (ctx?.Bones == null || !ctx.Bones) return d;
+        foreach (var m in ctx.Bones.Modifiers)
+        {
+            if (!m.Target || !paths.TryGetValue(m.Target, out var p)) continue;
+            if (!d.TryGetValue(p, out var x)) d[p] = x = new PathMod { T = m.Target };
+            x.S = Vector3.Scale(x.S, m.Scale); x.P += m.Position; x.R += m.Rotation; x.L *= m.Length;
+            x.HasS |= m.Scale != Vector3.one; x.HasP |= m.Position != Vector3.zero || m.Length != 1f; x.HasR |= m.Rotation != Vector3.zero;
+        }
+        return d;
+    }
+
+    static bool ParseBone(string line, out Vector3 p, out Quaternion r, out Vector3 s)
+    {
+        p = s = default; r = default;
+        var parts = line.Split('|');
+        var v = parts[parts.Length - 1].Split(' ');
+        if (v.Length != 3) return false;
+        var a = v[0].Split(','); var b = v[1].Split(','); var c = v[2].Split(',');
+        if (a.Length != 3 || b.Length != 4 || c.Length != 3) return false;
+        float H(string x) => BitConverter.Int32BitsToSingle(unchecked((int)uint.Parse(x, NumberStyles.HexNumber, CultureInfo.InvariantCulture)));
+        p = new Vector3(H(a[0]), H(a[1]), H(a[2])); r = new Quaternion(H(b[0]), H(b[1]), H(b[2]), H(b[3])); s = new Vector3(H(c[0]), H(c[1]), H(c[2]));
+        return true;
+    }
+
+    // a differing line for the report: a bone by its name with the values, no path (the root's name is the card's)
+    static string ModifierLine(string key, string before, string after)
+    {
+        int slash = key.LastIndexOf('/');
+        string V(string line)
+        {
+            if (line == null) return "none";
+            if (!ParseBone(line, out var p, out var r, out var s)) return Short(line.Substring(Math.Max(0, line.LastIndexOf('|') + 1)), 120);
+            return $"p {p.x:F5},{p.y:F5},{p.z:F5} r {r.x:F5},{r.y:F5},{r.z:F5},{r.w:F5} s {s.x:F5},{s.y:F5},{s.z:F5}";
+        }
+        string far = before != null && after != null && ParseBone(before, out var p0, out var r0, out var s0) && ParseBone(after, out var p1, out var r1, out var s1)
+            ? $" (moved p {DV(p0, p1):0.###e+0}, r {Quaternion.Angle(r0, r1):0.###e+0} deg, s {DV(s0, s1):0.###e+0})" : "";
+        return (slash >= 0 ? key.Substring(0, key.IndexOf('|') + 1) + key.Substring(slash + 1) : key) + ": " + V(before) + " <> " + V(after) + far;
+    }
+
+    // what lies above a bone without a modifier whose value moved: the modifiers on its ancestors (by bone name) and whether the heels hold it
+    static string DrivenNote(CharaContext ctx, Dictionary<string, PathMod> mods, string key)
+    {
+        string path = key.Substring(key.IndexOf('|') + 1);
+        int hash = path.LastIndexOf('#');
+        if (hash > 0 && path.Substring(hash + 1).All(char.IsDigit)) path = path.Substring(0, hash);
+        var above = new List<string>();
+        foreach (var kv in mods)
+            if (path.StartsWith(kv.Key + "/", StringComparison.Ordinal))
+                above.Add(kv.Key.Substring(kv.Key.LastIndexOf('/') + 1) + " " + (kv.Value.HasS ? "s" : "") + (kv.Value.HasP ? "p" : "") + (kv.Value.HasR ? "r" : ""));
+        var f = ctx?.Motion ? ctx.Motion.Get<HS2Next.Motion.Heels.HeelsFoot>() : null;
+        bool joint = f != null && f.State.Active != null && f.Joints.Any(t => t && key.EndsWith("/" + t.name, StringComparison.Ordinal));
+        return $" [heel joint {(joint ? "yes" : "no")}; modifiers above: {(above.Count == 0 ? "none" : string.Join(", ", above))}]";
+    }
+
+    static double DV(Vector3 a, Vector3 b) => Math.Max(Math.Abs((double)a.x - b.x), Math.Max(Math.Abs((double)a.y - b.y), Math.Abs((double)a.z - b.z)));
+
+    /// <summary>The class of a differing line on a card with modifiers, or null for the older classes: mod.stages; mod.channel (a bone with a modifier: a channel with a
+    /// value is old or old with the modifier; a channel without one the same up to a rotation's last bits); mod.heel (the scale of a heel joint); mod.mouth (x of the mouth width
+    /// bone gets the modifier); mod.bounds (a renderer's world bounds); mod.driven (a bone without a modifier); mod.physics (a chain or bust line); other.</summary>
+    static string ModifierClass(CharaContext ctx, Dictionary<string, PathMod> mods, string key, string before, string after)
+    {
+        if (key.StartsWith("motion|stage[", StringComparison.Ordinal))
+        {
+            var types = new HashSet<string>(ctx.Motion.Stages.Select(s => s.GetType().Name));
+            string TypeOf(string line) { var p = line.Split('|'); return p.Length > 2 ? p[2].Split(' ')[0] : null; }
+            return (before == null || types.Contains(TypeOf(before))) && (after == null || types.Contains(TypeOf(after))) ? "mod.stages" : "other";
+        }
+        if (key.StartsWith("motion|dynbone", StringComparison.Ordinal) || key.StartsWith("motion|bust", StringComparison.Ordinal) || key.StartsWith("motion|chain[", StringComparison.Ordinal)
+            || key.StartsWith("motion|particle", StringComparison.Ordinal) || key.StartsWith("motion|collider", StringComparison.Ordinal))
+            return "mod.physics";
+        // a renderer's world bounds on a card with modifiers: they follow the bones
+        if (key.StartsWith("rend|", StringComparison.Ordinal) && before != null && after != null && TokenNames(before, after).All(t => t == "bounds")) return "mod.bounds";
+        if (!key.StartsWith("bone|", StringComparison.Ordinal)) return null;
+        if (before == null || after == null) return "other";
+        string path = key.Substring(5);
+        int hash = path.LastIndexOf('#');
+        if (hash > 0 && path.Substring(hash + 1).All(char.IsDigit)) path = path.Substring(0, hash);
+        if (!ParseBone(before, out var op, out var or, out var os) || !ParseBone(after, out var np, out var nr, out var ns)) return "other";
+        if (!mods.TryGetValue(path, out var m)) return "mod.driven";
+        const double Pos = 1e-4, Deg = 0.01;
+        bool heel = ctx.Motion?.Get<HS2Next.Motion.Heels.HeelsFoot>() is var f && f != null && f.State.Active != null && f.Joints.Contains(m.T);
+        bool posOk = m.HasP ? DV(np, op) <= Pos || DV(np, m.L != 1f ? op * m.L + m.P : op + m.P) <= Pos : op == np;
+        double aOld = Quaternion.Angle(nr, or), aMod = Quaternion.Angle(nr, or * Quaternion.Euler(m.R));
+        bool rotOk = m.HasR ? aOld <= Deg || aMod <= Deg : aOld <= Deg;
+        bool sclOk = m.HasS ? DV(ns, os) <= Pos || DV(ns, Vector3.Scale(os, m.S)) <= Pos : os == ns;
+        // the mouth width bone: the modifier owns its scale now, so x gets the modifier where it held the width
+        if (posOk && rotOk && !sclOk && path.EndsWith("/cf_J_MouthMove", StringComparison.Ordinal) && Mathf.Abs(ns.y - os.y) <= Pos && Mathf.Abs(ns.z - os.z) <= Pos
+            && Mathf.Abs(ns.x - os.x * m.S.x) <= Pos) return "mod.mouth";
+        if (!(posOk && rotOk && sclOk)) return "other";
+        return heel && m.HasS && DV(ns, os) > Pos ? "mod.heel" : "mod.channel";
     }
 
     // part.additionalBones (after 1.0.0): ABMX modifiers whose bone is a moved bone resolve now. The modifier

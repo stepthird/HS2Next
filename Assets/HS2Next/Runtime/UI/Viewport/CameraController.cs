@@ -7,10 +7,14 @@
 // Pan / dolly rate m = 0.0025 × max(d, 1) per px × camera.speed; camera.constantSpeed (hs2studio) = vanilla constants
 // (0.05 per mouse-axis unit, one unit = 10 logical px). Keys (held, frame-rate independent): move 1 unit/s ×
 // camera.keySpeed (Shift ×5, Ctrl ×0.2 from the resolver), orbit 10 × rot speed °/s, roll 10 °/s, FOV 15 °/s in [1, 60].
+// Also disabled while a runtime override drives the camera (a plugin's slot, or the Timeline while it plays a camera track):
+// the viewport's overlay says "Camera driven by <owner>"; while the Timeline is paused or ended the controller works and
+// starts from the view as shown.
 using System;
 using System.Collections.Generic;
 using HS2Next.Save;
 using HS2Next.Scenes;
+using HS2Next.Scenes.Overrides;
 using HS2Next.Scenes.Runtime;
 using HS2Next.UI.Core;
 using UnityEngine;
@@ -39,7 +43,10 @@ namespace HS2Next.UI.Viewport
             this.vp = vp;
         }
 
-        public bool Enabled => ctx.Runtime?.GetPart<SceneViewCamera>()?.ActiveCameraId == null;
+        public bool Enabled => ctx.Runtime?.GetPart<SceneViewCamera>()?.ActiveCameraId == null && DrivenBy == null;
+
+        /// <summary>The owner of a runtime override that drives the camera now (the controller is disabled), or null.</summary>
+        public string DrivenBy => ctx.Runtime?.Overrides?.CameraDrivenBy();
         public Vector3 Pivot => pivot;
 
         // ---------------- model view
@@ -54,6 +61,15 @@ namespace HS2Next.UI.Viewport
             rot = new Vector3(v.Rot.X, v.Rot.Y, v.Rot.Z);
             distance = v.Distance;
             fov = v.Fov;
+            // a camera override that holds a value but does not drive (a paused Timeline): start from the view as shown
+            var w = ctx.Runtime?.Overrides?.WinnerOf(null, OverrideChannel.Camera);
+            if (w != null && w.HasValue && w.ValueCount >= 9)
+            {
+                pivot = new Vector3((float)w[0], (float)w[1], (float)w[2]);
+                rot = new Quaternion((float)w[3], (float)w[4], (float)w[5], (float)w[6]).eulerAngles;
+                distance = Mathf.Max(MinDistance, (float)w[7]);
+                fov = (float)w[8];
+            }
         }
 
         /// <summary>The current view (model value, or the working copy while a write is pending).</summary>
@@ -258,7 +274,32 @@ namespace HS2Next.UI.Viewport
             if (hit.NodeId != null) Frame(new[] { hit.NodeId });
         }
 
-        public void Update(float dt) => Flush();
+        public void Update(float dt)
+        {
+            Flush();
+            ShowDriven();
+        }
+
+        Label drivenLabel;
+        float drivenAt;
+
+        /// <summary>The overlay "Camera driven by &lt;owner&gt;" in the viewport's info box while an override drives the camera.</summary>
+        void ShowDriven()
+        {
+            if (Time.unscaledTime < drivenAt) return;
+            drivenAt = Time.unscaledTime + 0.2f;
+            var box = vp?.Element?.Q("viewport-info-box");
+            if (box == null) return;
+            if (drivenLabel == null || drivenLabel.parent != box)
+            {
+                drivenLabel = new Label { name = "viewport-camera-driven", pickingMode = PickingMode.Ignore };
+                box.Add(drivenLabel);
+            }
+            string owner = DrivenBy;
+            string text = owner == null ? "" : ctx.L10n.Format("viewport.cameraDriven", HS2Next.UI.Panels.TimelineOverrideUi.OwnerText(ctx.Runtime?.Overrides, owner));
+            if (drivenLabel.text != text) drivenLabel.text = text;
+            drivenLabel.style.display = text.Length > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+        }
     }
 
     /// <summary>World bounds of nodes from their realized renderers (holder position when a node has none).</summary>

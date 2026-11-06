@@ -2,7 +2,9 @@
 // option / light flags (map.set's validation and labels), screen effects sets and block resets (effects.set /
 // effects.reset), sky, title; new / load / save, and Import scene (U28): the nodes of another scene file added at the root
 // with new ids for every node and route point (parents inside the imported subtree remapped; the other file's `scene`
-// settings ignored as in HS2), one entry "Import scene", the imported top nodes selected.
+// settings ignored as in HS2), one entry "Import scene", the imported top nodes selected. Every node brings the images its
+// document names (item panels, patterns, material edits), a character also those of its documents, and the file's constraints
+// between imported nodes come along.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -179,8 +181,9 @@ namespace HS2Next.Scenes.Runtime
 
         /// <summary>
         /// Import scene (U28): the nodes of the scene file at <paramref name="path"/> added at the root (new ids for nodes and route
-        /// points, parents inside the imported subtree remapped, character documents and their resources copied, the file's
-        /// scene settings ignored), one entry "Import scene"; the imported top nodes become the selection (NewIds).
+        /// points, parents inside the imported subtree remapped, character documents and every node's resources copied, the file's
+        /// scene settings ignored), one entry "Import scene"; the imported top nodes become the selection (NewIds). The file's constraints with
+        /// both ends among the imported nodes follow, ids remapped; the others stay behind, counted in a warning.
         /// Value = the file's load findings (FindingList).
         /// </summary>
         public OpResult ImportScene(string path, ExecuteOptions o = default)
@@ -206,14 +209,19 @@ namespace HS2Next.Scenes.Runtime
             int Order(SceneNode n) => n.Order;
             tops.Sort((a, b) => Order(a).CompareTo(Order(b)));
             foreach (var l in byParent.Values) l.Sort((a, b) => Order(a).CompareTo(Order(b)));
+            var imported = file.Scene.Constraints != null ? new Dictionary<string, string>(StringComparer.Ordinal) : null;
             NodeSpec Spec(SceneNode d)
             {
                 var doc = DocClone.Clone(d);
                 doc.Id = Session.NewId();
                 doc.Parent = null;
+                if (imported != null) imported[d.Id] = doc.Id;
                 if (doc.State is RouteNodeState route) foreach (var pt in route.Points) pt.Id = Session.NewId();
                 if (doc.State is CameraNodeState cam) cam.Active = false;
                 var spec = new NodeSpec { Doc = doc, Point = d.Parent?.Point };
+                var images = new HashSet<string>(StringComparer.Ordinal);
+                ResStore.ScanReferences(CanonicalJsonWriter.ToBytes(SceneDocument.EntryName, d.WriteTo), images);
+                Model.File.Res.CopyFrom(file.Res, images);
                 if (file.NodeExt.TryGetValue(d.Id, out var ext) && ext != null) spec.FileExt = ext.Clone();
                 if (d.Kind == SceneNode.KindChara && file.Charas.TryGetValue(d.Id, out var t))
                 {
@@ -255,6 +263,7 @@ namespace HS2Next.Scenes.Runtime
             var tx = Open(Labels.ImportScene, o, out var fail);
             if (tx == null) return fail;
             OpResult r;
+            int outside, refused;
             using (tx)
             {
                 var o2 = Labelled(o, Labels.ImportScene);
@@ -262,6 +271,12 @@ namespace HS2Next.Scenes.Runtime
                 var res = Session.AddNodes(specs, o2);
                 if (res.Status == CommandStatus.Error) return OpResult.From(res, "path");
                 r = OpResult.From(res);
+                var carried = Session.CarryConstraints(file.Scene.Constraints, imported, out outside, out refused);
+                if (carried != null)
+                {
+                    var edit = tx.Execute(ConstraintEditCommand.ReplaceList(carried, Labels.ImportScene));
+                    if (edit.Status == CommandStatus.Error) return OpResult.From(edit, "path");
+                }
                 var newIds = new List<string>();
                 foreach (var s in specs) newIds.Add(s.Doc.Id);
                 r.NewIds = newIds;
@@ -272,6 +287,7 @@ namespace HS2Next.Scenes.Runtime
             {
                 Session.Selection.Set(r.NewIds);
                 rt.ApplyNow();
+                if (outside + refused > 0) r.Warnings.Add((outside + refused) + " constraints of the file left out: an end is not among the imported nodes, the list is full, or they cannot act");
             }
             r.Value = lr.Findings;
             return r;

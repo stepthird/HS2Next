@@ -29,27 +29,35 @@ namespace HS2Next.App.Plugins.Engine
         {
             if (entry == null) return null;
             var app = host?.App;
+            var forms = new PluginUiForms(host, entry);
             var s = new PluginEngineServices(entry.Guid, entry.Guard, Debug.Log, Debug.LogWarning,
                 () => app?.Runtime, () => UiHost.Current != null && UiHost.Current.Context?.App == app ? UiHost.Current.Context : null);
             return new PluginEngineParts
             {
                 Services = s,
                 Shaders = s,
-                Unload = s.Unload,
-                Report = () => Report(s),
+                Unload = () => { s.Unload(); forms.Unload(); },
+                Report = () => Report(s, forms),
+                Forms = forms,
+                RebuildTouched = s.RebuildTouched,
+                RebuildIfHooked = s.RebuildIfHooked,
             };
         }
 
-        /// <summary>plugin.list members: hooks ("id@Stage"), supplies, ui {panels, sections, actions, strings}, mosaicProtected.</summary>
-        public static JObject Report(PluginEngineServices s)
+        /// <summary>plugin.list members: hooks ("id@Stage"), supplies, ui {panels, sections, actions, strings, forms (the declarative forms, drawn or not)}, mosaicProtected,
+        /// skinLayers (the plugin's skin layers on the built scene characters, set by its hooks and outside builds), bodyParts
+        /// (the body parts it supplied in their last builds).</summary>
+        public static JObject Report(PluginEngineServices s, PluginUiForms forms = null)
         {
             var ui = s.UiCounts;
             return new JObject
             {
                 ["hooks"] = new JArray(s.Hooks.ToArray()),
                 ["supplies"] = s.SupplyCount,
-                ["ui"] = new JObject { ["panels"] = ui.Panels, ["sections"] = ui.Sections, ["actions"] = ui.Actions, ["strings"] = ui.Strings },
+                ["ui"] = new JObject { ["panels"] = ui.Panels, ["sections"] = ui.Sections, ["actions"] = ui.Actions, ["strings"] = ui.Strings, ["forms"] = forms?.Count ?? 0 },
                 ["mosaicProtected"] = s.MosaicProtected,
+                ["skinLayers"] = s.SkinLayerCount,
+                ["bodyParts"] = s.BodyPartCount,
             };
         }
     }

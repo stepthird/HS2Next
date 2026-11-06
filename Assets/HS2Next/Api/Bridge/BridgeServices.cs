@@ -117,14 +117,15 @@ namespace HS2Next.Api.Bridge
         int Count { get; }
         /// <summary>Index of the member running now (−1 before the first).</summary>
         int Index { get; }
+        /// <summary>The batch stops at the first member that fails (the request's <c>stopOnError</c>).</summary>
         bool StopOnError { get; }
         /// <summary>The raw JSON text of the batch request's <c>id</c>, or null.</summary>
         string RequestId { get; }
-        /// <summary>State that hooks and handlers keep for the batch's lifetime (e.g. Core's model transaction).</summary>
+        /// <summary>State that hooks and handlers keep for the batch's lifetime (e.g. the app's scene transaction).</summary>
         IDictionary<string, object> Items { get; }
     }
 
-    /// <summary>Observes batches on the main thread (Core opens one transaction per batch).</summary>
+    /// <summary>Observes batches on the main thread (the app opens one scene transaction per batch). Implemented by the code that adds it.</summary>
     public interface IBatchHook
     {
         /// <summary>Before the first member runs.</summary>
@@ -136,11 +137,17 @@ namespace HS2Next.Api.Bridge
     /// <summary>The bridge services a command provider works with.</summary>
     public interface IBridgeServices
     {
+        /// <summary>The command registry.</summary>
         ICommandRegistry Commands { get; }
+        /// <summary>The readiness stages.</summary>
         IBridgeReadiness Readiness { get; }
+        /// <summary>The frame clock.</summary>
         IBridgeFrames Frames { get; }
+        /// <summary>The output root.</summary>
         IOutputRoot Output { get; }
+        /// <summary>Adds a batch observer (called for every later batch).</summary>
         void AddBatchHook(IBatchHook hook);
+        /// <summary>Removes a batch observer; false when it was not added.</summary>
         bool RemoveBatchHook(IBatchHook hook);
     }
 }

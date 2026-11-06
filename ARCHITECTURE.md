@@ -25,8 +25,8 @@ assembly definition cannot reference the default assembly.
 
 Other top-level folders: `Tools/` (Python and PowerShell tools: the test runner, the Unity runner, the offline compile
 check, scanners and generators, the packaging), `Tests/` (fixtures, the sample and test plugins, the probe cases of the
-shader fits in `Tests/FitCases/`), `Samples/Sequencer` (the sample plugin), `Config/` (`settings.example.json`),
-`Reference/` (the command reference and the plugin guide).
+shader fits in `Tests/FitCases/`), `Samples/` (the sample plugins: `Sequencer`, and `PluginKit` with Hello and HelloUi,
+the plugin kit of the zip), `Config/` (`settings.example.json`), `Reference/` (the command reference and the plugin guide).
 
 ## Content
 
@@ -144,10 +144,10 @@ tables baked on the CPU (the game's base grade is read from the user's install),
 item-focus depth of field, sun shafts and height fog reproduced from the original formulas, and screen-space reflections as
 an option. A "modern" HDR grading is an option.
 
-**Mosaic.** The parts the game covers with a mosaic always draw it. Plugins can add mosaic members but cannot remove or
-change them: material overrides refuse mosaic slots, build hooks offer no stage after the mosaic, and the host restores a
-member's mosaic material after hooks ran. The wide screen-space mosaic over the same area is an option (`render.mosaicWide`,
-on by default).
+**Mosaic.** The parts of the app's own content that the game covers with a mosaic always draw it. The plugin API guards it
+at its points: material overrides refuse mosaic slots, build hooks offer no stage after the mosaic, the host restores a
+member's mosaic material after plugin hooks ran, and added members stay members. A body part a plugin supplies is drawn as
+the plugin supplies it. The wide screen-space mosaic over the same area is an option (`render.mosaicWide`, on by default).
 
 ## Scenes and files
 
@@ -207,10 +207,17 @@ describes every command, and names that HS2 Studio's automation already used kee
 Plugins are .NET assemblies in `<app>/Plugins/<guid>/` with a `manifest.json` (`Assets/HS2Next/Runtime/App/Plugins`).
 The loader checks the manifests, the API version, dependencies and command prefixes, orders the plugins by their
 dependencies and loads them in the start-up stage `plugins`. A plugin registers commands under its prefixes, ext blocks under
-its GUID, event handlers, shader supplies and, through `HS2Next.Api.Unity`, character build hooks, material overrides,
-additional mosaic members and (experimental) UI panels. Every call into a plugin is guarded: an exception is logged and counted, and after 10 faults the plugin is
-stopped. Plugins run with the app's rights; there is no sandbox. [Reference/PLUGINS.md](Reference/PLUGINS.md) is the guide;
-`Samples/Sequencer` is a complete example.
+its GUID, event handlers (the capture events among them), shader supplies and, through `HS2Next.Api.Unity`, character build
+hooks, material overrides and additional mosaic members; it calls commands through typed helpers. Experimental in 1.1: undo
+entries in the scene's own history, forms (panels and inspector sections that the app draws with its own widgets from the
+plugin's read and write commands), UI panels of its own with the app's widgets, and at the build's `BodyMesh` point skin
+layers and body-part replacement, with rebuild requests outside builds. A plugin can be disabled and enabled again while the
+app runs: disabling unloads it and removes what it registered, enabling runs its load again on the loaded assembly and reads
+the open scene's data of its namespaces again; a replaced DLL loads after a restart. Every call into a plugin is guarded: an
+exception is logged and counted, and after 10 faults the plugin is stopped. Plugins run with the app's rights; there is no
+sandbox. [Reference/PLUGINS.md](Reference/PLUGINS.md) is the guide (also in Japanese and Simplified Chinese). The
+distribution zip carries it in `PluginKit/` with the command reference, the XML documentation of the API and two
+engine-free samples whose sources are `Samples/PluginKit`; `Samples/Sequencer` is a complete example.
 
 ## Start-up
 

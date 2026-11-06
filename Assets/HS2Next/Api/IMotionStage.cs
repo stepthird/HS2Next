@@ -5,6 +5,7 @@ namespace HS2Next.Motion
     /// <summary>One motion stage. Implementations are plain classes (not MonoBehaviours) owned by the character's CharaMotion.</summary>
     public interface IMotionStage
     {
+        /// <summary>Where the stage runs within a step.</summary>
         MotionPhase Phase { get; }
         /// <summary>Short name for logs ("dynbone", "face", ...).</summary>
         string Name { get; }

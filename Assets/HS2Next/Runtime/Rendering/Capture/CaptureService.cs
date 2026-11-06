@@ -17,7 +17,9 @@
 // RenderSync does 3–5 on the calling thread (edit-mode tests, `capture`). RenderAsync renders on the main thread and
 // returns at once; the read-back completes a few frames later (main thread), 4–5 and the write run on a worker, and
 // the callback is posted back to the main thread (CaptureDriver; play mode and the player only). Main thread, graphics
-// device needed. Built-in is never used.
+// device needed. Built-in is never used. A caller that passes a CaptureEvents.Pending gets its Starting raised right
+// before the render (after the request's checks) and its Rendered right after it (also when it threw); the caller raises
+// Finished.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -187,9 +189,16 @@ namespace HS2Next.Screenshots
         }
 
         /// <summary>Renders into a new target (main thread); the caller reads it back and releases the frame.</summary>
-        static Frame RenderFrame(SceneRuntime rt, Camera view, CaptureRequest req)
+        static Frame RenderFrame(SceneRuntime rt, Camera view, CaptureRequest req, CaptureEvents.Pending events)
         {
             Validate(view, req);
+            CaptureEvents.RaiseStarting(events);
+            try { return RenderFrameCore(rt, view, req); }
+            finally { CaptureEvents.RaiseRendered(events); }
+        }
+
+        static Frame RenderFrameCore(SceneRuntime rt, Camera view, CaptureRequest req)
+        {
             int k = req.Supersample, w = req.Width * k, h = req.Height * k;
             var f = new Frame { W = req.Width, H = req.Height, K = k, Total = Stopwatch.StartNew() };
             var res = f.Result = new CaptureResult { Width = req.Width, Height = req.Height, RenderWidth = w, RenderHeight = h };
@@ -259,9 +268,9 @@ namespace HS2Next.Screenshots
         }
 
         /// <summary>Renders, reads back, reduces and encodes on the calling thread; returns the PNG in the result.</summary>
-        public static CaptureResult RenderSync(SceneRuntime rt, Camera view, CaptureRequest req)
+        public static CaptureResult RenderSync(SceneRuntime rt, Camera view, CaptureRequest req, CaptureEvents.Pending events = null)
         {
-            var f = RenderFrame(rt, view, req);
+            var f = RenderFrame(rt, view, req, events);
             var res = f.Result;
             try
             {
@@ -287,17 +296,17 @@ namespace HS2Next.Screenshots
         /// the main thread with the result (Error set on failure). Falls back to <see cref="RenderSync"/> outside play mode.
         /// Throws for bad requests (before anything is rendered).
         /// </summary>
-        public static void RenderAsync(SceneRuntime rt, Camera view, CaptureRequest req, string path, Action<CaptureResult> done)
+        public static void RenderAsync(SceneRuntime rt, Camera view, CaptureRequest req, string path, Action<CaptureResult> done, CaptureEvents.Pending events = null)
         {
             if (!Application.isPlaying)
             {
-                var r = RenderSync(rt, view, req);
+                var r = RenderSync(rt, view, req, events);
                 if (path != null) WriteFile(path, r);
                 done?.Invoke(r);
                 if (path != null && r.Ok) RaiseSaved(r);
                 return;
             }
-            var f = RenderFrame(rt, view, req);
+            var f = RenderFrame(rt, view, req, events);
             var res = f.Result;
             res.MainThreadMs = res.RenderMs;
             System.Threading.Interlocked.Increment(ref inFlight);

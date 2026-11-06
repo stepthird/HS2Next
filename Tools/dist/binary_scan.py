@@ -13,8 +13,9 @@ Files and their kinds:
              the runtime's files at the top level and under MonoBleedingEdge/, D3D12/ and HS2Next_Data/Plugins/
   data       (--all-files) every other file under HS2Next_Data/ (the serialized assets, the boot and build files) and any
              other file the build wrote
-  text       (--all-files) the package texts at the top level (*.txt, *.md, *.json): Tools/leak_check.py --tree checks them
-             with the package allow-list; not read here
+  text       (--all-files) the package texts at the top level (*.txt, *.md, *.json), every file of the plugin kit
+             (PluginKit/: its sources and documents) and the API's XML documentation next to the assemblies
+             (HS2Next_Data/Managed/*.xml): Tools/leak_check.py --tree checks them with the package allow-list; not read here
 Without --all-files only the executable and HS2Next_Data/Managed/*.dll are read (runs of 4 or more characters). With
 --all-files every file of the folder is read; reparse points (links, junctions) are never entered and the folders a player
 writes next to itself (UserData, Cache, Config, Plugins, the abdata link) are skipped. In the files outside the default set
@@ -220,6 +221,10 @@ def all_files(tree, skipped, links):
 
 def kind_of(rel, built_names, default_set):
     low = rel.lower()
+    if low.startswith("pluginkit/"):
+        return "text"   # the plugin kit's sources and documents (the packager allows only text types there)
+    if low.startswith("hs2next_data/managed/") and low.endswith(".xml") and "/" not in rel[len("HS2Next_Data/Managed/"):]:
+        return "text"   # the XML documentation of the API assemblies
     if low.startswith("hs2next_data/managed/") and low.endswith(".dll") and "/" not in rel[len("HS2Next_Data/Managed/"):]:
         return "built" if os.path.basename(low) in built_names else "vendor"
     if rel in default_set:

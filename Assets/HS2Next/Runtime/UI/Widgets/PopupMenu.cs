@@ -103,6 +103,12 @@ namespace HS2Next.UI.Widgets
             return box;
         }
 
+        /// <summary>While a menu is open: false lets the pointer through to what stands under it (a popup that picks in the view).</summary>
+        public void SetBlocking(bool on)
+        {
+            if (open.Count > 0) blocker.style.display = on ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
         public void CloseAll()
         {
             bool was = open.Count > 0;

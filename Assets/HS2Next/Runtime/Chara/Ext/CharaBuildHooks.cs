@@ -25,12 +25,19 @@
 // together when the plugin unloads (UnregisterOwner), and after each owned hook at Final the mosaic is re-asserted
 // (MosaicUnit.Reassert: every member slot gets its mosaic material back; warning api.mosaicProtected naming the hook and the
 // member; the owner is told). Core registrations are not re-asserted.
+// Body-part replacement (ReplacePart, BodyMesh only): a renderer under the body object gets the supplied mesh, its bones
+// bound by name to the character's body bones, an optional root bone, materials as per-character copies (on the body
+// renderer slot 0 stays the body draw material) and an optional normals source; the renderer is recorded as a supplied part
+// (CharaContext.SuppliedParts, MosaicSet.MarkSupplied), and replacing the body renderer sets ReplacedBodyMesh. After the
+// BodyMesh hooks the skin layers plugins set on the scene character outside builds are joined (JoinRecord).
 // The official build registers no hook.
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using HS2Next.Chara.Edit;
+using HS2Next.Chara.Mosaic;
 using HS2Next.Content;
+using HS2Next.Data.Ext;
 using HS2Next.Motion.Fk;
 using HS2Next.Save;
 using UnityEngine;
@@ -104,6 +111,10 @@ namespace HS2Next.Chara.Ext
         sealed class NodeProvider { public string Id; public string Owner; public Func<ContentCatalog, FkNodeSet> Get; public long Seq; }
 
         static readonly List<Registration> hooks = new List<Registration>();
+
+        /// <summary>The skin layers plugins set outside builds on the scene character being built now (its realization sets it
+        /// around the build; null otherwise): joined after the BodyMesh hooks (<see cref="JoinRecord"/>).</summary>
+        [ThreadStatic] public static SkinLayerRecord BuildingRecord;
         static readonly List<NodeProvider> nodeProviders = new List<NodeProvider>();
         static long seq;
 
@@ -201,6 +212,142 @@ namespace HS2Next.Chara.Ext
                 try { h.OnMosaicProtected(path); }
                 catch (Exception) { }
             }
+        }
+
+        /// <summary>
+        /// After the BodyMesh hooks: the layers of <see cref="BuildingRecord"/> join the context's skin layers (a layer of the
+        /// same source is replaced, else appended in the record's order). Nothing without a record (the official build).
+        /// </summary>
+        public static void JoinRecord(CharaContext ctx)
+        {
+            var rec = BuildingRecord;
+            if (ctx == null || rec == null || rec.Layers.Count == 0) return;
+            foreach (var l in rec.Layers)
+            {
+                int i = ctx.SkinLayers.FindIndex(x => x.Source == l.Source);
+                if (i >= 0) ctx.SkinLayers[i] = l; else ctx.SkinLayers.Add(l);
+                ctx.Log?.Add("skin layer " + l.Source + " (" + (SkinTexType)l.TexType + ", set outside the build) joined");
+            }
+        }
+
+        // ---------------------------------------------------------------- body parts
+
+        /// <summary>The outcome of <see cref="ReplacePart"/>.</summary>
+        public enum PartResult { Replaced = 0, NotFound = 1, Mismatch = 2 }
+
+        /// <summary>The renderers under the character's body object, depth-first (inactive ones included): the replaceable parts.</summary>
+        public static List<Renderer> BodyPartRenderers(CharaContext ctx)
+        {
+            var l = new List<Renderer>();
+            void Walk(Transform t)
+            {
+                foreach (var r in t.GetComponents<Renderer>()) l.Add(r);
+                for (int i = 0; i < t.childCount; i++) Walk(t.GetChild(i));
+            }
+            if (ctx != null && ctx.Body) Walk(ctx.Body.transform);
+            return l;
+        }
+
+        /// <summary>
+        /// Body-part replacement at BodyMesh: replaces in place the renderer <paramref name="part"/> under the body object. The
+        /// mesh is set; for a skinned renderer the bones are <paramref name="boneNames"/> bound by name (the body bones first, then
+        /// a bone of the same name the renderer uses now), or the renderer's current bones when null (the mesh must then have as
+        /// many bind poses); <paramref name="rootBone"/> by name (null keeps it); <paramref name="materials"/> become
+        /// per-character copies (null keeps the current ones; a null entry keeps that slot; on the body renderer slot 0 stays the
+        /// body draw material); <paramref name="normals"/> (null keeps the current source) becomes the character's normals source.
+        /// NotFound: no renderer of that name; Mismatch (nothing changed, <paramref name="detail"/> says why): a bone or the root
+        /// bone that does not bind, a bone count that differs from the mesh's bind poses, bones for a renderer without skinning.
+        /// The renderer is recorded as a supplied part of this build; the body renderer also sets ReplacedBodyMesh to
+        /// <paramref name="hookId"/>.
+        /// </summary>
+        public static PartResult ReplacePart(CharaContext ctx, string owner, string hookId, string part, Mesh mesh, string[] boneNames, string rootBone,
+                                             Material[] materials, BodyNormalsSource normals, out string detail)
+        {
+            detail = null;
+            if (ctx == null || string.IsNullOrEmpty(part)) { detail = "no part"; return PartResult.NotFound; }
+            if (!mesh) throw new ArgumentNullException(nameof(mesh), "a body part needs a mesh");
+            var r = BodyPartRenderers(ctx).FirstOrDefault(x => x && x.name == part);
+            if (!r) { detail = "no renderer " + part + " under the body object"; return PartResult.NotFound; }
+            var smr = r as SkinnedMeshRenderer;
+            Transform[] bones = null;
+            Transform root = null;
+            if (smr)
+            {
+                var cur = smr.bones;
+                int need = mesh.bindposes.Length;
+                if (boneNames == null)
+                {
+                    if (need != cur.Length) { detail = $"the mesh has {need} bind poses, the part {cur.Length} bones (and no bone names)"; return PartResult.Mismatch; }
+                    bones = cur;
+                }
+                else
+                {
+                    if (boneNames.Length != need) { detail = $"{boneNames.Length} bone names for {need} bind poses"; return PartResult.Mismatch; }
+                    bones = new Transform[boneNames.Length];
+                    for (int i = 0; i < boneNames.Length; i++)
+                    {
+                        bones[i] = BindBone(ctx, cur, boneNames[i]);
+                        if (!bones[i]) { detail = "bone " + (boneNames[i] ?? "(null)") + " does not bind to the character's body bones"; return PartResult.Mismatch; }
+                    }
+                }
+                if (rootBone != null)
+                {
+                    root = BindBone(ctx, cur, rootBone);
+                    if (!root) { detail = "root bone " + rootBone + " does not bind to the character's body bones"; return PartResult.Mismatch; }
+                }
+            }
+            else if ((boneNames != null && boneNames.Length > 0) || rootBone != null)
+            {
+                detail = "bones for " + part + ", which has no skinning";
+                return PartResult.Mismatch;
+            }
+            else if (!r.GetComponent<MeshFilter>()) { detail = part + " draws no mesh"; return PartResult.Mismatch; }
+
+            if (smr)
+            {
+                var lb = smr.localBounds;   // (assigning the mesh resets the bounds the rebind set)
+                smr.sharedMesh = mesh;
+                smr.bones = bones;
+                if (root) smr.rootBone = root;
+                smr.localBounds = lb;
+            }
+            else r.GetComponent<MeshFilter>().sharedMesh = mesh;
+            bool body = r == ctx.BodyRenderer;
+            if (materials != null)
+            {
+                var cur = r.sharedMaterials;
+                var mats = new Material[body ? Math.Max(1, materials.Length) : materials.Length];
+                for (int i = 0; i < mats.Length; i++)
+                {
+                    if (body && i == 0) { mats[i] = ctx.BodyDraw ? ctx.BodyDraw : cur.Length > 0 ? cur[0] : null; continue; }
+                    mats[i] = materials[i] ? OwnCopy(ctx, materials[i]) : i < cur.Length ? cur[i] : null;
+                }
+                r.sharedMaterials = mats;
+            }
+            if (normals != null) ctx.BodyNormals = normals;
+            if (body) ctx.ReplacedBodyMesh = hookId;
+            MosaicSet.MarkSupplied(r);
+            ctx.SuppliedParts.RemoveAll(p => p.Renderer == r);
+            ctx.SuppliedParts.Add(new SuppliedPart { Owner = owner, HookId = hookId, Part = part, Renderer = r });
+            ctx.Log?.Add("body part " + part + " supplied by " + hookId + " (" + mesh.vertexCount + " vertices" +
+                         (materials != null ? ", " + materials.Length + " materials" : "") + (normals != null ? ", normals " + normals : "") + ")");
+            return PartResult.Replaced;
+        }
+
+        static Transform BindBone(CharaContext ctx, Transform[] current, string name)
+        {
+            if (string.IsNullOrEmpty(name)) return null;
+            if (ctx.BodyBones != null && ctx.BodyBones.TryGetValue(name, out var t) && t) return t;
+            if (current != null) foreach (var b in current) if (b && b.name == name) return b;
+            return null;
+        }
+
+        static Material OwnCopy(CharaContext ctx, Material m)
+        {
+            if (ctx.Edit != null) return ctx.Edit.Instance(m);
+            var c = MaterialCopies.Copy(m, m.name + " (Instance)");
+            ctx.OwnedMaterials.Add(c);
+            return c;
         }
 
         // ---------------------------------------------------------------- bones

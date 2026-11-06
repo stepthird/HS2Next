@@ -730,10 +730,11 @@ namespace HS2Next.App
             services.Readiness.Declare("setup", true);
             services.Readiness.Declare("scene", true);
             services.Readiness.Declare(PluginHost.ReadinessStage, true);
-            // in-process inline calls (a plugin's Call) never change the scene while another party's transaction is open or a
-            // scene event is being delivered
+            // in-process inline calls (a plugin's Call) never change the scene while another party's transaction is open, a
+            // scene event or a capture event is being delivered
             Bridge.Server.InlineGate = spec =>
             {
+                if (HS2Next.Screenshots.CaptureEvents.IsDelivering) return "a capture event is being delivered (the capture renders the scene as it is); try again in a later frame";
                 var bus = Session?.Commands;
                 if (bus == null) return null;
                 if (bus.ActiveTransaction != null) return "a scene transaction is open (a drag or a batch); try again in a later frame";
@@ -815,9 +816,9 @@ namespace HS2Next.App
             if (edit) Runtime.BeginFrame(dt);
             Runtime.Apply();
             float fdt = edit ? Runtime.Clock.FrameDt : dt;
-            foreach (var c in Runtime.Charas())
-                if (c.State == RealizationState.Built && c.Motion && c.Motion.AutoStep && !c.InGraveyard) c.Motion.Step(fdt);
+            Runtime.StepCharacters(fdt, false);
             Runtime.StepItems(fdt);   // items after the characters, before LateApply (ItemMotionDriver's place in play mode)
+            if (edit) Runtime.RunPost(fdt);   // the scene post stage; in play mode ScenePostDriver has the frame
             Runtime.LateApply();
             if (Bridge != null && !Bridge.IsDisposed) Bridge.PumpLate();
         }

@@ -3,7 +3,9 @@
 // faults) the plugin becomes faulted once: the host then stops its updates and events, removes its other
 // registrations and tries its Unload once; its commands stay and answer plugin_fault. Thread-safe (a command or a
 // deferred continuation may fault off the main thread); the faulted notification is raised on the thread of the fault
-// that reached the threshold, so the host marshals it to the main thread.
+// that reached the threshold, so the host marshals it to the main thread. The guard also counts how deep the plugin's
+// code is on the stack (every call it wraps, and the host's Enter / Exit around calls it does not wrap), so a runtime
+// disable can refuse while the plugin's code runs.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,6 +22,7 @@ namespace HS2Next.App.Plugins
         readonly Action<string> logWarning;
         int total;
         bool faulted;
+        int depth;
 
         public PluginGuard(string guid, Action<string> logWarning, int threshold = DefaultThreshold)
         {
@@ -44,9 +47,18 @@ namespace HS2Next.App.Plugins
             lock (gate) return new Dictionary<string, int>(byHook, StringComparer.Ordinal);
         }
 
+        /// <summary>Calls into the plugin's code now on the stack (any thread): above 0 while the plugin's code runs.</summary>
+        public int Depth => System.Threading.Volatile.Read(ref depth);
+
+        /// <summary>Marks a call into the plugin's code that the guard does not wrap itself (pair with <see cref="Exit"/>).</summary>
+        public void Enter() => System.Threading.Interlocked.Increment(ref depth);
+
+        public void Exit() => System.Threading.Interlocked.Decrement(ref depth);
+
         /// <summary>Runs <paramref name="action"/>; false when it threw (the fault is counted).</summary>
         public bool Run(string hook, Action action)
         {
+            Enter();
             try
             {
                 action();
@@ -57,17 +69,20 @@ namespace HS2Next.App.Plugins
                 Count(hook, e);
                 return false;
             }
+            finally { Exit(); }
         }
 
         /// <summary>Runs <paramref name="f"/>; <paramref name="fallback"/> when it threw (the fault is counted).</summary>
         public T Run<T>(string hook, Func<T> f, T fallback)
         {
+            Enter();
             try { return f(); }
             catch (Exception e)
             {
                 Count(hook, e);
                 return fallback;
             }
+            finally { Exit(); }
         }
 
         /// <summary>Counts one fault of <paramref name="hook"/>.</summary>

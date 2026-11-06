@@ -41,6 +41,8 @@ namespace HS2Next.Motion.Face
         public Transform MouthWidthBone;
         /// <summary>Status `mouthAdjustWidth` (default true): apply the width to the bone; false leaves the bone as it is.</summary>
         public bool ApplyMouthWidth = true;
+        /// <summary>The character (set by FaceSetup): while a card's bone modifier gives the width bone a scale, that modifier owns the bone's scale and the width is not written.</summary>
+        internal HS2Next.Chara.CharaContext Context;
 
         /// <summary>The Studio / game facade (set by FaceSetup).</summary>
         public CharaExpression Api { get; internal set; }
@@ -113,7 +115,8 @@ namespace HS2Next.Motion.Face
             if (Width.Enabled) Width.Calc(Mouth.OpenRate, dt);
 
             // the width goes to cf_J_MouthMove. Written only when it changes (README), never reset when disabled.
-            if (ApplyMouthWidth && MouthWidthBone)
+            var mods = Context?.Bones;
+            if (ApplyMouthWidth && MouthWidthBone && !(mods && mods.HasScale(MouthWidthBone)))
             {
                 float s = Width.AdjustWidthScale;
                 if (s != lastWidth)

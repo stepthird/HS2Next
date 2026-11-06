@@ -96,6 +96,7 @@ namespace HS2Next.Scenes.Runtime
         /// </summary>
         internal FlushReport FlushEdit(FlushMode mode = FlushMode.Normal)
         {
+            if (TakePluginRebuild()) return null;
             var ed = Editor;
             if (ed == null || !ed.NeedsFlush(mode)) return null;
             if (ed.RebuildRequested)
@@ -103,12 +104,15 @@ namespace HS2Next.Scenes.Runtime
                 RebuildForEdit(ed);
                 return null;
             }
+            AdvancedPoseDriver.RestoreNow(this);   // shapes and rest poses are captured from the bones without the corrections
+            DrivenPoseDriver.RestoreNow(this);     // and without driven values
             var r = ed.Flush(mode);
             if (r.RebuildRequested)
             {
                 RebuildForEdit(ed);
                 return r;
             }
+            AdvancedPoseDriver.ApplyIfRestored(this);
             EditFlushes++;
             LastEditFlush = r;
             if (r.Errors.Count > 0)
@@ -138,6 +142,11 @@ namespace HS2Next.Scenes.Runtime
             if (st != null && (r.AccessorySlotsSwapped.Count > 0 || r.ExtFinalRan || r.AnySwap)) Step("edit.accessories", () => ApplyAccessories(st.State));
             if (r.EyesChanged && !r.HeadSwapped) Step("edit.eyes", () => Expression?.Materials?.Refresh());
             if (r.NewObjects.Count > 0) Step("edit.objects", () => PrepareNewObjects(r.NewObjects));
+            if (r.AnySwap || r.HeadSwapped || r.AccessorySlotsSwapped.Count > 0 || r.DynBone != "none" || r.ExtFinalRan || r.NewObjects.Count > 0)
+            {
+                Step("edit.advancedPose", () => AdvancedPoseDriver.Reresolve(this));
+                Runtime.NoteReresolved(this);
+            }
             // while paused, an edit that reshapes the body or replaces parts settles the physics (after 1.1.0); a drag frame's
             // preview waits for the commit
             if (r.Mode == FlushMode.Normal && (r.BodyShapeChanged || r.FaceShapeChanged || r.AnySwap || r.DynBone != "none" || r.ExtFinalRan ||

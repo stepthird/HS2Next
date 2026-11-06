@@ -4,7 +4,8 @@
 //              exactly what this stage wrote, restore the input it read last step (bones no earlier stage rewrites stay
 //              deterministic; replaces FBBIK's fixTransforms without a stage before the animation, K17)
 //   2. FK base FkStage.WriteApplied() when an FK group is applied and FK is not suspended (IK over an FK base, K2)
-//   3. solve   IkSolver on the effective targets (missing targets of applied groups are snapshot from this input pose)
+//   3. solve   IkSolver on the effective targets (missing targets of applied groups are snapshot from this input pose), with the
+//              channels of TargetOverrides laid over them; Targets itself is never written by an override
 //   4. mask    FkStage.Owned := the FK bones of the owned set, so FK at 400 skips them
 // When the stage stops (no group applied, disabled, suspended) the inputs are written back once to the bones that still
 // hold the stage's values and FkStage.Owned is cleared (K24). The FkStage is found lazily through CharaMotion each step
@@ -15,6 +16,13 @@ using UnityEngine;
 
 namespace HS2Next.Motion.Ik
 {
+    /// <summary>A value laid over one target for the solve (a runtime override), by channel. The rotation is Euler degrees, as a target's.</summary>
+    public struct IkTargetOverride
+    {
+        public bool HasPos, HasRot;
+        public Vector3 Pos, Rot;
+    }
+
     public sealed class IkStage : IMotionStage
     {
         public MotionPhase Phase => MotionPhase.Ik;
@@ -36,6 +44,8 @@ namespace HS2Next.Motion.Ik
         /// <summary>Effective targets in root space, indexed by IkTargetId (set by the driver from the model; Has = false
         /// → the stage snapshots the target from the step's input pose the first time its group runs).</summary>
         public readonly IkTargetValue[] Targets = new IkTargetValue[IkGroupInfo.TargetCount];
+        /// <summary>Values laid over <see cref="Targets"/> for the solve, indexed by IkTargetId; set through <see cref="SetOverridePos"/>, <see cref="SetOverrideRot"/>.</summary>
+        public readonly IkTargetOverride[] TargetOverrides = new IkTargetOverride[IkGroupInfo.TargetCount];
         /// <summary>Applied(g) = ik.enabled AND ik.groups.g, indexed by IkGroup (set by the driver; call Refresh after a change).</summary>
         public readonly bool[] Applied = new bool[IkGroupInfo.Count];
         /// <summary>No writes while suspended (StudioDefaultPoseScope).</summary>
@@ -51,7 +61,8 @@ namespace HS2Next.Motion.Ik
         /// <summary>The scene layer's per-character state (IkCharacter), for lookups through CharaMotion.Get&lt;IkStage&gt;().</summary>
         public object Owner;
 
-        bool enabled;
+        bool enabled, anyOverride;
+        IkTargetValue[] overlaid;
 
         public IkStage(Transform root, IkBones bones, CharaMotion motion)
         {
@@ -75,6 +86,39 @@ namespace HS2Next.Motion.Ik
 
         /// <summary>Marks a target missing (a snapshot is taken the next time its group runs).</summary>
         public void ClearTarget(IkTargetId t) => Targets[(int)t] = default;
+
+        /// <summary>Lays a position over a target (root space) for the solves to come, or takes it off.</summary>
+        public void SetOverridePos(IkTargetId t, bool on, Vector3 pos)
+        {
+            TargetOverrides[(int)t].HasPos = on;
+            TargetOverrides[(int)t].Pos = pos;
+            NoteOverrides();
+        }
+
+        /// <summary>Lays a rotation (root space) over a hand's or a foot's target for the solves to come, or takes it off.</summary>
+        public void SetOverrideRot(IkTargetId t, bool on, Quaternion rot)
+        {
+            TargetOverrides[(int)t].HasRot = on;
+            TargetOverrides[(int)t].Rot = on ? rot.eulerAngles : Vector3.zero;
+            NoteOverrides();
+        }
+
+        void NoteOverrides()
+        {
+            anyOverride = false;
+            for (int i = 0; i < TargetOverrides.Length; i++) anyOverride |= TargetOverrides[i].HasPos || TargetOverrides[i].HasRot;
+        }
+
+        /// <summary>
+        /// A later writer took its value off the bone in <paramref name="slot"/> and gave back <paramref name="wrote"/>. Unity's setter may store other last bits than it
+        /// was given: when <paramref name="wrote"/> is what this stage left, the latch takes the bits the bone holds now, so it still finds its own write.
+        /// </summary>
+        public void Relatch(int slot, Quaternion wrote)
+        {
+            if (slot < 0 || !ownedPrev[slot] || !Same(wrote, outRot[slot])) return;
+            var t = Bones.Slots[slot];
+            if (t) outRot[slot] = t.localRotation;
+        }
 
         /// <summary>After a change of Applied: Enabled := any applied; releases when nothing is applied.</summary>
         public void Refresh()
@@ -147,7 +191,7 @@ namespace HS2Next.Motion.Ik
             // 3. solve
             System.Array.Clear(ownedNow, 0, ownedNow.Length);
             double t0 = sw.Elapsed.TotalMilliseconds;
-            IkSolver.Solve(Bones, Root, Targets, run, LastSolve, ownedNow);
+            IkSolver.Solve(Bones, Root, anyOverride ? Overlaid() : Targets, run, LastSolve, ownedNow);
             LastSolve.Milliseconds = sw.Elapsed.TotalMilliseconds - t0;
             LastSolve.Step = frame.Index;
             Owned.Clear();
@@ -169,6 +213,21 @@ namespace HS2Next.Motion.Ik
                 for (int s = 0; s < IkBones.SlotCount; s++) if (ownedNow[s] && fkOfSlot[s] != null) fk.Owned.Add(fkOfSlot[s]);
             }
             LastSolve.StageMilliseconds = sw.Elapsed.TotalMilliseconds;
+        }
+
+        // the array the solve reads while an override is set: the override's channels over the targets
+        IkTargetValue[] Overlaid()
+        {
+            overlaid = overlaid ?? new IkTargetValue[IkGroupInfo.TargetCount];
+            for (int i = 0; i < overlaid.Length; i++)
+            {
+                var v = Targets[i];
+                ref var o = ref TargetOverrides[i];
+                if (o.HasPos) v.Pos = o.Pos;
+                if (o.HasRot) v.Rot = o.Rot;
+                overlaid[i] = v;
+            }
+            return overlaid;
         }
 
         void MapFk()

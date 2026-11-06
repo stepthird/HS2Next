@@ -1,0 +1,12 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.bodyprobe",
+  "name": "Body probe",
+  "version": "0.1.0",
+  "apiVersion": "1.1",
+  "assemblies": ["Stp3.Test.BodyProbe.dll"],
+  "commandPrefixes": ["bodyprobe."],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of skin layers and body-part replacement: a PNG and a texture layer, the body renderer replaced by a copy of the character's own body mesh with the hands scaled by 1.05, layers outside builds, rebuild requests."
+}

@@ -23,7 +23,16 @@ namespace HS2Next.Api.Save
         Node = 8,
     }
 
-    public enum ExtSeverity { Info, Warning, Error }
+    /// <summary>The severity of a finding a handler reports.</summary>
+    public enum ExtSeverity
+    {
+        /// <summary>For information.</summary>
+        Info,
+        /// <summary>A problem worth a look.</summary>
+        Warning,
+        /// <summary>A failure.</summary>
+        Error,
+    }
 
     /// <summary>Reads and writes the data of one namespace.</summary>
     public interface IExtBlockHandler
@@ -42,8 +51,10 @@ namespace HS2Next.Api.Save
         void Write(IExtWriteContext ctx);
     }
 
+    /// <summary>What every ext call sees: the scope instance and its owner. Implemented by the host; valid during the call.</summary>
     public interface IExtContext
     {
+        /// <summary>The scope of the instance being read or written.</summary>
         ExtScope Scope { get; }
         /// <summary>The owner: the scene node id (node scope, and chara/coord scopes inside a scene), or null.</summary>
         string OwnerId { get; }
@@ -53,10 +64,12 @@ namespace HS2Next.Api.Save
         void Report(ExtSeverity severity, string code, string message);
     }
 
+    /// <summary>One block being read while a file loads. Implemented by the host; valid during the call.</summary>
     public interface IExtReadContext : IExtContext
     {
         /// <summary>The `version` of the manifest ext entry (0 when the data had no entry).</summary>
         int StoredVersion { get; }
+        /// <summary>The `required` flag of the manifest ext entry (false when the data had no entry).</summary>
         bool StoredRequired { get; }
         /// <summary>Canonical JSON text of the inline value on the scope's main object, or null.</summary>
         string Json { get; }
@@ -76,6 +89,7 @@ namespace HS2Next.Api.Save
         void Decline(string reason);
     }
 
+    /// <summary>One block being written while a file saves. Implemented by the host; valid during the call.</summary>
     public interface IExtWriteContext : IExtContext
     {
         /// <summary>Sets the inline value of the scope's main object (one JSON value; ArgumentException otherwise). Null clears it.</summary>
@@ -86,12 +100,16 @@ namespace HS2Next.Api.Save
         /// <see cref="IExtReadContext.ClothesJson"/>; one JSON value, at most 1 MiB of canonical text). Null clears it.
         /// ArgumentException for another kind name or outside the coord scope.</summary>
         void SetClothesJson(string kind, string json);
-        /// <summary>Adds a file under <c>ext/&lt;ns&gt;/</c>: path grammar of the container, at most 200 characters.</summary>
+        /// <summary>
+        /// Adds a file under <c>ext/&lt;ns&gt;/</c>: ASCII segments of letters, digits and <c>. _ % -</c> joined by '/', no "." or
+        /// ".." segment, at most 200 characters (ArgumentException otherwise).
+        /// </summary>
         void AddFile(string path, byte[] data);
         /// <summary>Starts at <see cref="IExtBlockHandler.RequiredByDefault"/>.</summary>
         bool Required { get; set; }
     }
 
+    /// <summary>The ext block handlers of the plugin's namespaces (the GUID and &lt;guid&gt;.*). Implemented by the host.</summary>
     public interface IExtRegistry
     {
         /// <summary>Registers a handler. Reserved, malformed or taken namespaces (ignoring case) throw ArgumentException.</summary>

@@ -35,6 +35,8 @@ namespace HS2Next.Scenes.Runtime
 
         /// <summary>Tracked objects (materials and whatever else was handed to <see cref="Track"/>).</summary>
         public int Count => owned.Count;
+        /// <summary>Raised once at the start of <see cref="Release"/> (the map's material edits go with the copies).</summary>
+        public event Action Releasing;
         /// <summary>Distinct bundle materials copied by <see cref="Apply"/>.</summary>
         public int Copied { get; private set; }
         /// <summary>Copies ShaderMap swapped (fitted or the URP/Lit fallback).</summary>
@@ -178,6 +180,8 @@ namespace HS2Next.Scenes.Runtime
         /// <summary>Destroys every tracked object (call after the scene unload completed).</summary>
         public void Release()
         {
+            Releasing?.Invoke();
+            Releasing = null;
             foreach (var o in owned)
             {
                 if (!o) continue;

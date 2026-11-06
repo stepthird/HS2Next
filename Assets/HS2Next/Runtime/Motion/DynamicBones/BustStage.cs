@@ -128,6 +128,7 @@ namespace HS2Next.Motion.DynamicBones
         {
             if (!enabled || c.Source == null || !c.Source.enabled || !c.Source.gameObject.activeInHierarchy) return false;
             if (IsMale && !Options.MaleBustPhysics) return false;
+            if (c.Override?.Enabled == false) return false;   // a scene value turns a chain off; true never overrides the switches below
             switch (c.Kind)
             {
                 case 0: return AnimeBustL && !FkBreastActive;

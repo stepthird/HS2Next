@@ -14,6 +14,7 @@
 //    9 blocks     MapBehaviour.Apply(options, lights); the sea one frame later (HS2's LateUpdate)
 //   10 scripts    MapScripts.Start (ME_LightCurves, UVScroll, AnimatedFountainUVs)
 //   11 mirrors    MapHooks.Mirrors (package B); the handle is disposed when the map is dropped
+//      materialEdits  scene.map.materialOverrides (MapMaterialEdits) on top of the materials, routes, scripts' captures and mirror copies
 //   12 main light MainLight.Refresh (the map's lights are a source while the map is loaded)
 //   13 Loaded     state Loaded, StateChanged, MapHooks.Loaded (Phase 3.3 re-applies the Studio-owned RenderSettings)
 // Unload: scripts stopped, mirrors disposed, the scene unloaded asynchronously (the runtime's own scene active
@@ -70,7 +71,7 @@ namespace HS2Next.Scenes.Runtime
         string targetRef;
         Vector3 targetPos, targetRot;
         bool targetOption = true, targetLight = true;
-        bool refDirty, poseDirty, flagsDirty;
+        bool refDirty, poseDirty, flagsDirty, materialEditsDirty;
 
         // current map
         Vector3[] rootPos0;
@@ -151,6 +152,7 @@ namespace HS2Next.Scenes.Runtime
         public void OnChanged(SceneChangeBatch b)
         {
             if (b.Touches(null, "map")) modelDirty = true;
+            if (b.Touches(null, "map.materialOverrides")) materialEditsDirty = true;
         }
 
         void ISceneRuntimePart.Apply()
@@ -195,6 +197,8 @@ namespace HS2Next.Scenes.Runtime
         public MapStructure Structure { get; private set; }
         /// <summary>The owned material copies of the loaded map (released after its unload; null when none is loaded).</summary>
         public MapMaterials Materials { get; private set; }
+        /// <summary>The material edits of the loaded map (null when none is loaded).</summary>
+        public MapMaterialEdits MaterialEdits { get; private set; }
         /// <summary>Option / light blocks and the sea.</summary>
         public MapBehaviour Behaviour { get; } = new MapBehaviour();
         /// <summary>The hull probe for renderers outside the map's light probes (Unity 6 gives them the ambient probe).</summary>
@@ -242,6 +246,17 @@ namespace HS2Next.Scenes.Runtime
             MapFindings.Add(findings, code, message);
             loadFindings.Add(new SceneFinding { Severity = MapFindings.Level(code), Code = code, Message = message ?? "" });
         }
+        /// <summary>A material edit's finding: on the scene, not a map.* code.</summary>
+        internal void EditFinding(FindingSeverity severity, string code, string message)
+        {
+            findings?.Add(severity, code, null, message);
+            loadFindings.Add(new SceneFinding { Severity = severity, Code = code, Message = message ?? "" });
+        }
+
+        internal IReadOnlyList<MaterialOverride> DocumentEdits => runtime?.Model.Settings.Map.MaterialOverrides;
+        internal ResStore ResourceStore => runtime?.Session?.Model?.File?.Res;
+        internal ContentCatalog ContentCatalog => catalog;
+
         /// <summary>The findings the part writes to (the runtime's or the standalone caller's).</summary>
         public SceneFindings Findings => findings;
         /// <summary>Increments with every change of the requested map.</summary>
@@ -297,6 +312,7 @@ namespace HS2Next.Scenes.Runtime
             if (State != MapState.Loaded) return;
             if (poseDirty) ApplyPose();
             if (flagsDirty) ApplyFlags();
+            if (materialEditsDirty) ApplyMaterialEdits();
             if (seaPending && (!Application.isPlaying || Time.frameCount > seaFrame)) ApplySea();
             if (ProbeFallback.Active && Time.frameCount != probeFrame)
             {
@@ -515,6 +531,7 @@ namespace HS2Next.Scenes.Runtime
             ScenePath = j.Path;
             Bundle = j.Bundle;
             Materials = new MapMaterials();
+            MaterialEdits = new MapMaterialEdits(this, Materials);
             roots = scene.GetRootGameObjects();
             rootPos0 = new Vector3[roots.Length];
             rootRot0 = new Quaternion[roots.Length];
@@ -581,6 +598,9 @@ namespace HS2Next.Scenes.Runtime
             Step("scripts", () => Scripts.Start(s, Materials));
             // 11 mirrors (package B)
             Step("mirrors", () => mirrors = MapHooks.Mirrors?.Invoke(this));
+            // the array on top of all of it (not a step of the numbered list: nothing happens without an array)
+            materialEditsDirty = false;
+            Step("materialEdits", MaterialEdits.Apply);
             // 12 main light
             Step("mainLight", () =>
             {
@@ -689,6 +709,17 @@ namespace HS2Next.Scenes.Runtime
                 if (!roots[i]) continue;
                 if (i == 0) roots[i].transform.SetPositionAndRotation(pos, q);
                 else roots[i].transform.SetPositionAndRotation(q * p0[i] + pos, q * r0[i]);
+            }
+        }
+
+        void ApplyMaterialEdits()
+        {
+            materialEditsDirty = false;
+            try { MaterialEdits?.Apply(); }
+            catch (Exception e)
+            {
+                AddFinding("map.stepFailed", $"map {Ref}: step materialEdits threw {e.GetType().Name}: {e.Message}");
+                Debug.LogWarning("map: applying the material edits threw: " + e);
             }
         }
 
@@ -822,6 +853,7 @@ namespace HS2Next.Scenes.Runtime
                 Scene = default;
                 Bundle = null;
                 Materials = null;
+                MaterialEdits = null;
                 if (SceneManager.GetActiveScene() == s) RestoreActive(s);
                 MainLight.Refresh();
                 BeginUnload(s, b, mats);

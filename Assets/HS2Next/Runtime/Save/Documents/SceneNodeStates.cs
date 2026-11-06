@@ -52,6 +52,9 @@ namespace HS2Next.Save
         public CharaState State = new CharaState();
         /// <summary>(R)</summary>
         public CharaVoiceState Voice = new CharaVoiceState();
+        /// <summary>Scene-only bone corrections, jiggle values and blend weights; never null, empty by default. The last member of
+        /// the section, written only when not empty (format revision 4).</summary>
+        public CharaAdvancedPose AdvancedPose = new CharaAdvancedPose();
 
         internal override void ReadMembers(DocReader r)
         {
@@ -64,6 +67,7 @@ namespace HS2Next.Save
             Correction = r.BoolArray("correction", Correction, 8);
             State.ReadFrom(r.Obj("state"));
             Voice.ReadFrom(r.Obj("voice"));
+            AdvancedPose.ReadFrom(r.Obj(CharaAdvancedPose.MemberName));
         }
 
         internal override void WriteMembers(CanonicalJsonWriter w)
@@ -77,6 +81,8 @@ namespace HS2Next.Save
             Bools(w, "correction", Correction, 8);
             State.WriteTo(w, "state");
             Voice.WriteTo(w, "voice");
+            // an optional member of revision 4: written only when it holds something, so every other scene stays byte-equal
+            if (!AdvancedPose.IsEmpty) AdvancedPose.WriteTo(w, CharaAdvancedPose.MemberName);
         }
     }
 
@@ -524,6 +530,8 @@ namespace HS2Next.Save
         public bool DynamicBones = true;
         /// <summary>One per ItemComponent.optionInfos entry.</summary>
         public List<bool> Options = new List<bool>();
+        /// <summary>Material edits of the item, in the schema of a character's arrays; never null; written only when not empty, as the last member.</summary>
+        public List<MaterialOverride> MaterialOverrides = new List<MaterialOverride>();
 
         internal override void ReadMembers(DocReader r)
         {
@@ -539,6 +547,7 @@ namespace HS2Next.Save
             Fk.ReadFrom(r.Obj("fk"));
             DynamicBones = r.Bool("dynamicBones", DynamicBones);
             Options = new List<bool>(r.BoolArray("options", Options.ToArray()));
+            MaterialOverrides = MaterialOverride.ReadList(r, "materialOverrides");
         }
 
         internal override void WriteMembers(CanonicalJsonWriter w)
@@ -555,6 +564,7 @@ namespace HS2Next.Save
             Fk.WriteTo(w, "fk");
             w.Bool("dynamicBones", DynamicBones);
             Bools(w, "options", Options);
+            if (MaterialOverrides.Count > 0) MaterialOverride.WriteList(w, "materialOverrides", MaterialOverrides);
         }
     }
 

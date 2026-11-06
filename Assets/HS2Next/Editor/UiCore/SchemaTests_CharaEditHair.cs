@@ -46,6 +46,7 @@ namespace HS2Next.UI.Core.Tests
             var secs = HairSections.ToList();
             var expect = new List<string> { "hair.hair.options", "hair.hair.part" };
             foreach (var p in Parts) foreach (var s in new[] { "style", "colour", "decoration", "bundles", "mesh" }) expect.Add("hair.hair." + p + "." + s);
+            expect.Add(InspectorSchemas.HairBoneModsSection);
             t.Check(secs.Select(s => s.Id).SequenceEqual(expect), "hair: the sections in order (options, part, then per part style, colour, decoration, bundles, mesh; " +
                 string.Join(", ", secs.Select(s => s.Id).Take(8)) + " …)");
             t.Check(InspectorSchemas.HairPages.SequenceEqual(new[] { "hair" }) && InspectorSchemas.CharaEditPagesOf("hair").SequenceEqual(new[] { "hair" }),

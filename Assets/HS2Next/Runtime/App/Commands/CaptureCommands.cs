@@ -9,11 +9,14 @@
 //                 "hs2:" + a path relative to the HS2 root) or null; FileRefs.FromPicked (DefaultData referenced, other
 //                 files embedded unless embed is false); one entry per call ("Background", "Frame"; both = "Background");
 //                 without arguments it reads. Reply: the stored references and the realized state of each image.
-// TakeScreenshot is the one entry the UI's F11 / dialog and the bridge share.
+// TakeScreenshot is the one entry the UI's F11 / dialog and the bridge share; it raises the capture events (CaptureEvents:
+// Starting and Rendered around the render, Finished when the file is written or the capture failed) with the origin its
+// caller gives (the UI, or the screenshot command).
 using System;
 using System.Collections.Generic;
 using System.IO;
 using HS2Next.Api.Bridge;
+using HS2Next.Api.Plugins;
 using HS2Next.Save;
 using HS2Next.Scenes;
 using HS2Next.Scenes.Runtime;
@@ -79,15 +82,18 @@ namespace HS2Next.App.Commands
         /// Takes a screenshot of the app's view into &lt;UserData&gt;/cap (name: the stamp when null) and calls
         /// <paramref name="done"/> on the main thread once the file is written (Error set on failure). Returns the path
         /// reserved for it. Throws ArgumentException for a request the cap refuses, InvalidOperationException when there is
-        /// no view, no device or too many screenshots in flight.
+        /// no view, no device or too many screenshots in flight (no capture event then). The capture events carry
+        /// <paramref name="origin"/>: Ui for the key, the toolbar, the dialog and the UI action, Command for the screenshot
+        /// command; Finished comes before <paramref name="done"/>.
         /// </summary>
-        public static string TakeScreenshot(AppCore app, CaptureRequest req, string name, Action<CaptureResult> done)
+        public static string TakeScreenshot(AppCore app, CaptureRequest req, string name, Action<CaptureResult> done, CaptureOrigin origin = CaptureOrigin.Ui)
         {
             if (app?.Paths == null || app.Runtime == null) throw new InvalidOperationException("the app has no scene runtime");
             if (!CaptureService.Available) throw new InvalidOperationException("screenshots need a graphics device");
             var view = ViewOf(app);
             if (!view) throw new InvalidOperationException("no view camera");
-            if (CaptureService.InFlight >= MaxInFlight) throw new InvalidOperationException("a screenshot is still being written");
+            // the frames of a recording (Phase 6.2) are not screenshots: a screenshot works during a recording
+            if (CaptureService.InFlight - FrameRecorder.CapturesInFlight >= MaxInFlight) throw new InvalidOperationException("a screenshot is still being written");
             string why = CaptureLimits.Check(req.Width, req.Height, req.Supersample, req.MaxPixels, out _);
             if (why != null) throw new ArgumentException(why);
             string dir = app.Paths.CapDir;
@@ -95,24 +101,36 @@ namespace HS2Next.App.Commands
             if (string.IsNullOrEmpty(name)) name = CaptureService.StampName(DateTime.Now);
             foreach (var ch in Path.GetInvalidFileNameChars()) name = name.Replace(ch, '_');
             string path = CaptureService.UniquePath(dir, name);
+            CaptureEvents.Pending events = null;
             try
             {
                 // the output-root guard of the cap folder (rooted names, "..", devices, outside the folder → io_denied)
                 path = app.RootFor(dir).Resolve(Path.GetFileName(path), overwrite: false);
                 SceneImages.Ensure(app.Runtime);
                 string reserved = path;
+                events = CaptureEvents.Prepare(CaptureKind.Screenshot, origin, req, path, app.Bridge?.Server?.Frames?.Frame ?? Time.frameCount);
                 CaptureService.RenderAsync(app.Runtime, view, req, path, res =>
                 {
                     CaptureService.ReleaseName(reserved);
+                    CaptureEvents.RaiseFinished(events, res.Ok, res.Path ?? reserved, res.Ok ? FileBytes(res) : 0, res.Error);
                     done?.Invoke(res);
-                });
+                }, events);
             }
-            catch
+            catch (Exception e)
             {
                 CaptureService.ReleaseName(path);
+                CaptureEvents.RaiseFinished(events, false, null, 0, e.GetType().Name + ": " + e.Message);
                 throw;
             }
             return path;
+        }
+
+        /// <summary>The size of a written screenshot (its PNG, else the file).</summary>
+        static long FileBytes(CaptureResult res)
+        {
+            if (res.Png != null) return res.Png.LongLength;
+            try { return res.Path != null && File.Exists(res.Path) ? new FileInfo(res.Path).Length : 0; }
+            catch (Exception) { return 0; }
         }
 
         /// <summary>The request of the bridge arguments over the current settings.</summary>
@@ -152,7 +170,7 @@ namespace HS2Next.App.Commands
             if (why != null) throw CommandKit.BadArgs(req.Supersample > 1 ? "supersample" : "width", "a render of at most " + CaptureLimits.MaxPixels + " pixels", why);
             // the arguments (and the cap) are judged before the device, so a headless run answers bad_args the same way
             if (!CaptureService.Available) throw CommandKit.Unsupported("screenshot needs a graphics device (this run is headless)");
-            if (CaptureService.InFlight >= MaxInFlight) throw new BridgeException(CommandKit.Unavailable, "a screenshot is still being written", null);
+            if (CaptureService.InFlight - FrameRecorder.CapturesInFlight >= MaxInFlight) throw new BridgeException(CommandKit.Unavailable, "a screenshot is still being written", null);
             if ((long)req.Width * req.Height * req.Supersample * req.Supersample > CaptureLimits.WarnPixels) c.Warn(CaptureLimits.LargeRenderWarning);
             string name = c.Args.Get<string>("name");
             int wait = Math.Max(0, c.Ctx.WaitFrames);
@@ -173,7 +191,7 @@ namespace HS2Next.App.Commands
                     {
                         if (!res.Ok) { d.Fail(new BridgeError(BridgeCodes.Internal, "capture.failed: " + res.Error)); return; }
                         d.Complete(Reply(res, sw.Elapsed.TotalMilliseconds, images != null && images.Pending));
-                    });
+                    }, CaptureOrigin.Command);
                 }
                 catch (ArgumentException e) { d.Fail(BridgeError.BadArgs("width", "a render within the pixel cap", e.Message)); }
                 catch (InvalidOperationException e) { d.Fail(new BridgeError(CommandKit.Unavailable, e.Message)); }

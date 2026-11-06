@@ -60,13 +60,18 @@ namespace HS2Next.UI.Panels
     public sealed class PartThumbSource : IThumbSource<PartItem>
     {
         readonly PartThumbnails pt;
-        public event Action<string, Texture2D> Loaded;
+        Action<string, Texture2D> loaded;
 
-        public PartThumbSource(PartThumbnails thumbs)
+        /// <summary>The shared thumbnails are listened to only while this event has a listener.</summary>
+        public event Action<string, Texture2D> Loaded
         {
-            pt = thumbs;
-            if (pt != null) pt.LoadedColumn += (cat, key, col, t) => Loaded?.Invoke(Key(cat, key, col), t);
+            add { bool first = loaded == null; loaded += value; if (first && loaded != null && pt != null) pt.LoadedColumn += OnLoadedColumn; }
+            remove { bool had = loaded != null; loaded -= value; if (had && loaded == null && pt != null) pt.LoadedColumn -= OnLoadedColumn; }
         }
+
+        public PartThumbSource(PartThumbnails thumbs) { pt = thumbs; }
+
+        void OnLoadedColumn(int cat, ContentId key, string col, Texture2D t) => loaded?.Invoke(Key(cat, key, col), t);
 
         static string Key(int cat, ContentId key, string col) => cat.ToString(System.Globalization.CultureInfo.InvariantCulture) + "|" + key + "|" + col;
 
@@ -164,13 +169,17 @@ namespace HS2Next.UI.Panels
             // the kind's size follows the option while the list is shown (a change made on another list, the options panel)
             RegisterCallback<AttachToPanelEvent>(_ => { if (ctx.Options == null) return; ctx.Options.Changed -= OnOption; ctx.Options.Changed += OnOption; ApplyKindSize(); });
             RegisterCallback<DetachFromPanelEvent>(_ => { if (ctx.Options != null) ctx.Options.Changed -= OnOption; });
-            PanelKit.EveryFrame(this, Tick);
-            L10n.Default.LanguageChanged += _ => { if (panel != null) LanguageChanged(); };
+            PanelKit.EveryFrame(this, Tick, fromConstruction: false);   // an Edit tab that is not shown builds its page's lists all the same
+            // the language while the list is shown (a list shown again rebinds, and its rows' signature holds the language)
+            RegisterCallback<AttachToPanelEvent>(_ => { L10n.Default.LanguageChanged -= OnLanguage; L10n.Default.LanguageChanged += OnLanguage; });
+            RegisterCallback<DetachFromPanelEvent>(_ => L10n.Default.LanguageChanged -= OnLanguage);
             ApplyHeight();
         }
 
         protected abstract string CellNameOf(PartItem i);
         protected virtual void LanguageChanged() { }
+
+        void OnLanguage(string _) { if (panel != null) LanguageChanged(); }
 
         protected virtual string TooltipOf(PartItem i)
         {

@@ -264,7 +264,8 @@ namespace HS2Next.Content.Tests
             t.Check(Bad("modsFolders", SetupFixtures.Abs('G', "mods")) && Bad("modsFolders", new JArray(1)) && !Bad("modsFolders", new JArray(SetupFixtures.Abs('G', "mods"))), "modsFolders: an array of strings");
             t.Check(SettingsSchema.Validate(D("cacheDir"), "") == null && SettingsSchema.Validate(D("modsFolders"), new JArray()) == null, "an empty path or list removes the member (the default)");
             t.Check(Bad("render.aa", "msaa") && !Bad("render.aa", "fxaa") && Bad("render.shadowDistance", 5) && !Bad("content.unloadUnusedMinSec", 12.5), "choices and number ranges");
-            t.Check(SettingsSchema.All.All(d => d.Restart), "every key applies after a restart (the file is read at start)");
+            t.Check(SettingsSchema.All.Where(d => d.Key != "plugins.disabled").All(d => d.Restart) && !D("plugins.disabled").Restart,
+                "every key applies after a restart (the file is read at start), except plugins.disabled, which the Options toggles apply at once (Phase 6.1)");
             t.Check(SettingsSchema.FromCommandLine(D("bridge.port"), new[] { "x", "-bridgePort", "17400" }) && !SettingsSchema.FromCommandLine(D("bridge.port"), new[] { "x" }), "a command-line flag locks its key");
 
             // unknown keys with the nearest known key

@@ -68,26 +68,43 @@ public static partial class BridgeCoreTest
         if (AppDomain.CurrentDomain.GetData("stp3.test.lifecycle") is List<string> l) lock (l) l.Clear();
     }
 
-    /// <summary>Stages the plugin set when the folder lacks one (plugins.ps1 -Build all -Stage), then writes the fixtures.</summary>
+    /// <summary>The Api 1.0.0 reference assemblies (Tests/Plugins/fixtures/api10): the 5.1 set is built against them (Phase 6.1, KX4a).</summary>
+    static string C37Api10 => Path.Combine(ContentSettings.ProjectRoot, "Tests", "Plugins", "fixtures", "api10");
+    static bool c37StagedInProcess;
+
+    /// <summary>
+    /// Stages the plugin set when the folder lacks one (or with -c37Stage), then writes the fixtures. Since Phase 6.1 two
+    /// builds: plugins.ps1 -Build all -Stage (every plugin against the current Api: the 6.1 probes and the kit samples), then
+    /// plugins.ps1 -Build all -ApiDir Tests/Plugins/fixtures/api10 -Stage, which rebuilds the plugins that declare Api 1.0 (the
+    /// 5.1 set: the sample sequencer and the 5.1 test plugins) against the Api 1.0.0 assemblies and stages them over the
+    /// first copies; so the loads below are 1.0-built plugins on the current host (KX4a, the 1.x compatibility check).
+    /// </summary>
     static bool C37Stage(Ctx c)
     {
         string dir = C37Dir;
-        bool complete = C37Plugins.Concat(C37Refusing).All(g => File.Exists(Path.Combine(dir, g, "manifest.json")));
-        if (!complete || Array.IndexOf(TestArgs.Get(), "-c37Stage") >= 0)
+        bool complete = C37Plugins.Concat(C37Refusing).Concat(C40Plugins).All(g => File.Exists(Path.Combine(dir, g, "manifest.json")));
+        // -c37Stage forces one staging per process: C40 shares the folder, and a re-staged DLL would be stale for the images
+        // C37 loaded (plugin.staleAssembly)
+        if (!complete || (Array.IndexOf(TestArgs.Get(), "-c37Stage") >= 0 && !c37StagedInProcess))
         {
             var sw = Stopwatch.StartNew();
             string tool = Path.Combine(ContentSettings.ProjectRoot, "Tools", "plugins.ps1");
-            var psi = new ProcessStartInfo("pwsh", "-NoProfile -File \"" + tool + "\" -Build all -Stage \"" + dir + "\"")
+            foreach (var extra in new[] { "", " -ApiDir \"" + C37Api10 + "\"" })
             {
-                UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true, WorkingDirectory = ContentSettings.ProjectRoot,
-            };
-            using (var p = Process.Start(psi))
-            {
-                string o = p.StandardOutput.ReadToEnd() + p.StandardError.ReadToEnd();
-                bool exited = p.WaitForExit(300000);
-                c.Info("staged by the check: plugins.ps1 exit " + (exited ? p.ExitCode.ToString() : "timeout") + " in " + sw.Elapsed.TotalSeconds.ToString("F1") + " s");
-                if (!exited || p.ExitCode != 0) { c.Check(false, "plugins.ps1 -Build all -Stage " + dir, Ctx.Short(o)); return false; }
+                var psi = new ProcessStartInfo("pwsh", "-NoProfile -File \"" + tool + "\" -Build all" + extra + " -Stage \"" + dir + "\"")
+                {
+                    UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true, WorkingDirectory = ContentSettings.ProjectRoot,
+                };
+                using (var p = Process.Start(psi))
+                {
+                    string o = p.StandardOutput.ReadToEnd() + p.StandardError.ReadToEnd();
+                    bool exited = p.WaitForExit(300000);
+                    c.Info("staged by the check: plugins.ps1 -Build all" + (extra.Length > 0 ? " -ApiDir fixtures/api10" : "") + " exit " + (exited ? p.ExitCode.ToString() : "timeout") +
+                           " in " + sw.Elapsed.TotalSeconds.ToString("F1") + " s");
+                    if (!exited || p.ExitCode != 0) { c.Check(false, "plugins.ps1 -Build all" + extra + " -Stage " + dir, Ctx.Short(o)); return false; }
+                }
             }
+            c37StagedInProcess = true;
         }
         foreach (var (folder, manifest, _) in C37Fixtures)
         {
@@ -225,11 +242,13 @@ public static partial class BridgeCoreTest
         var (app, host) = C37Host(c);
         var order = host.Entries.Where(e => e.IsLoaded).Select(e => e.Guid).ToList();
         var want = new[] { "stp3.sample.sequencer", "stp3.test.faulty", "stp3.test.probe", "stp3.test.dependent", "stp3.test.probecore", "stp3.test.probeui" };
+        // the folder also holds later plugins (the 6.1 probes, the kit samples): the 5.1 set keeps this relative order
+        order = order.Where(g => want.Contains(g)).ToList();
         c.Check(order.SequenceEqual(want), "load order: dependencies, then loadAfter, ties by GUID", string.Join(" ", order));
         var loads = C37Log().Where(l => l.StartsWith("load ", StringComparison.Ordinal)).Select(l => l.Substring(5)).ToList();
         c.Check(loads.SequenceEqual(want.Where(g => g == "stp3.test.faulty" || g == "stp3.test.probe" || g == "stp3.test.dependent")), "the plugins' Load calls ran in that order", string.Join(" ", loads));
         var list = c.Ok(new { cmd = "plugin.list" }, "plugin.list");
-        var listed = (list["plugins"] as JArray).OfType<JObject>().Where(p => (string)p["state"] == "loaded").Select(p => (string)p["guid"]).ToList();
+        var listed = (list["plugins"] as JArray).OfType<JObject>().Where(p => (string)p["state"] == "loaded").Select(p => (string)p["guid"]).Where(g => want.Contains(g)).ToList();
         c.Check(listed.SequenceEqual(want), "plugin.list lists the loaded plugins in load order", string.Join(" ", listed));
     }
 

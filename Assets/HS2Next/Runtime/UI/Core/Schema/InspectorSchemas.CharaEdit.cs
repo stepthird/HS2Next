@@ -83,6 +83,8 @@ namespace HS2Next.UI.Core
         /// <summary>The two sections before the part groups: the switches and the draw type, and the part selector (a section
         /// without rows; the host puts the PartSelector widget there).</summary>
         public const string HairOptionsSection = "hair.hair.options", HairPartSection = "hair.hair.part";
+        /// <summary>The hair bone adjustments, after the part groups (HairBoneSection draws them).</summary>
+        public const string HairBoneModsSection = "hair.hair.boneMods";
 
         /// <summary>The label key of a hair part ("inspector.charaEdit.hair.part.back" «後ろ髪»; the part selector's buttons).</summary>
         public static string HairPartLabelKey(int part) => HairLabels + "part." + HairParts[part];
@@ -678,6 +680,7 @@ namespace HS2Next.UI.Core
             shader.Whole = true;
             HairSection(list, HairPartSection, "part", out _);
             for (int k = 0; k < HairParts.Count; k++) HairPartGroup(list, k);
+            list.Add(new SchemaSection(HairBoneModsSection, "inspector.charaEdit.hair.boneMods"));
         }
 
         static void HairPartGroup(List<SchemaSection> list, int k)

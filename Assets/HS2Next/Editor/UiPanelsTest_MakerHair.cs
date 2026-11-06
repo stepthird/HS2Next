@@ -199,13 +199,10 @@ public static partial class UiPanelsTest
         double firstGroup = tab.PageBuildMs.TryGetValue("hair.group.back", out var fg) ? fg : -1;
         var parts0 = tab.PageBuildMs.Where(kv => kv.Key.StartsWith("section.hair.hair.", StringComparison.Ordinal)).Select(kv => kv.Key.Substring("section.hair.hair.".Length) + " " + kv.Value.ToString("0.0")).ToList();
         c.Info($"UH5 first show breakdown (ms): {string.Join(", ", parts0)}; ShowNode call {showCall:0.0}; GC collections (gen 0) during it {gcs}");
-        // the plain criterion (a decision): hb1's 119.5 ms in the full row did not come back (hb3 22.0 ms, 0 GC) and was
-        // not shown to be a GC; the breakdown and the GC count above stay as information
-        c.Check(firstShow >= 0 && firstShow <= 2 * PageTargetMs, $"UH5: Hair page first show {firstShow:0.0} ms (back group {firstGroup:0.0} ms; ≤ {2 * PageTargetMs}; GC collections in the window {gcs})");
-        if (firstShow > PageTargetMs) c.Warning($"UH5: Hair page first show {firstShow:0.0} ms above the {PageTargetMs} ms target (GC collections in the window {gcs})");
+        TimedShow(c, "UH5: Hair page first show", firstShow, gcs, PageTargetMs, $"back group {firstGroup:0.0} ms");
         var secs = page?.Query<Foldout>().ToList().Select(x => x.name).Where(n => n.StartsWith("edit-section-hair.hair.", StringComparison.Ordinal)).Select(n => n.Substring("edit-section-hair.hair.".Length)).ToList() ?? new List<string>();
-        var wantSecs = new List<string> { "options", "part" }.Concat(InspectorSchemas.HairPartSections.Select(s => "back." + s)).ToList();
-        c.Check(secs.SequenceEqual(wantSecs), "sections in order: options, part, back style / colour / decoration / bundles / mesh (" + string.Join(", ", secs) + ")");
+        var wantSecs = new List<string> { "options", "part" }.Concat(InspectorSchemas.HairPartSections.Select(s => "back." + s)).Concat(new[] { "boneMods" }).ToList();
+        c.Check(secs.SequenceEqual(wantSecs), "sections in order: options, part, back style / colour / decoration / bundles / mesh, the bone adjustments (" + string.Join(", ", secs) + ")");
         var sel = tab.HairParts;
         var partBtns = Enumerable.Range(0, 4).Select(k => MfQ<Button>(tab, "hair-part-" + MhP(k))).ToList();
         c.Check(sel != null && partBtns.All(b => b != null) && sel.Buttons.Index == 0 && PartSelector.Part == 0,
@@ -221,28 +218,30 @@ public static partial class UiPanelsTest
         MhCheckRows(c, tab, f, 0, "first show");
 
         // ---------------------------------------------------------------- part switch, detached groups
+        int gcGroup0 = GC.CollectionCount(0);
         sel.Select(1);
+        int gcsGroup = GC.CollectionCount(0) - gcGroup0;
         yield return PlayModeHarness.WaitFrames(2);
         double frontGroup = tab.PageBuildMs.TryGetValue("hair.group.front", out var fg1) ? fg1 : -1;
-        c.Check(frontGroup >= 0 && frontGroup <= 2 * PageTargetMs, $"UH5: first Front group {frontGroup:0.0} ms (≤ {2 * PageTargetMs})");
-        if (frontGroup > PageTargetMs) c.Warning($"UH5: first part group {frontGroup:0.0} ms above the {PageTargetMs} ms target");
+        TimedShow(c, "UH5: first Front group", frontGroup, gcsGroup, PageTargetMs);
         c.Check(tab.HairGroups[0] != null && tab.HairGroups[0].panel == null && tab.HairGroups[1]?.panel != null,
             "the Back group is detached (kept), the Front group attached");
         c.Check(tab.Query<VisualElement>("push-colour:305").ToList().Count == 1 && tab.Query<VisualElement>("hair-bundles-reset-back").ToList().Count == 0,
             "element names stay unique: one push-colour:305 in the tab, no Back element attached");
         MhCheckRows(c, tab, f, 1, "front");
-        var switches = new List<double>();
+        var switches = new List<(double ms, int gcs)>();
         for (int n = 0; n < 6; n++)
         {
+            int gcSwitch0 = GC.CollectionCount(0);
             sel.Select(n % 2 == 0 ? 0 : 1);
+            int gcsSwitch = GC.CollectionCount(0) - gcSwitch0;
             yield return PlayModeHarness.WaitFrames(2);
-            switches.Add(tab.HairPartSwitchMs);
+            switches.Add((tab.HairPartSwitchMs, gcsSwitch));
         }
-        double cached = Median(switches);
-        c.Check(cached <= 10 && sel.Selected == 1 && tab.HairGroups[1].panel != null, $"UH5: cached part switch median {cached:0.000} ms over {switches.Count} (max {switches.Max():0.000}; ≤ 10)");
+        double cached = TimedMedian(c, "UH5: cached part switch", switches, 5);
+        c.Check(sel.Selected == 1 && tab.HairGroups[1].panel != null, "after the cached switches the Front group is shown");
         sel.Select(0);
         yield return PlayModeHarness.WaitFrames(2);
-        if (cached > 5) c.Warning($"UH5: cached part switch {cached:0.00} ms above the 5 ms target");
         c.Info($"UH5 (Editor play): Hair page first show {firstShow:0.0} ms (incl. the Back group {firstGroup:0.0}), first Front group {frontGroup:0.0} ms, cached switch {cached:0.000} ms");
 
         // ---------------------------------------------------------------- live gates: the auto toggle

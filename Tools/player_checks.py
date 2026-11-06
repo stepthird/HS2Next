@@ -31,8 +31,9 @@ Run:
 Checks (one report line each; scene content: vanilla item 399, vanilla map 10 and the SFW female visual target of
 Tools/targets.json; captures are checked by size only):
   SETUP           ready time, help count, versions
-  T1.listen       the player's listening sockets (netstat -ano, Get-NetTCPConnection / Get-NetUDPEndpoint) at ready
-                  and at the end: TCP listeners bound to 127.0.0.1 only (FAIL on 0.0.0.0 / ::); non-loopback UDP = WARN
+  T1.listen       the player's listening sockets (the system's TCP listener table, netstat -ano, Get-NetTCPConnection /
+                  Get-NetUDPEndpoint) at ready and at the end: TCP listeners bound to 127.0.0.1 only (FAIL on 0.0.0.0 / ::);
+                  non-loopback UDP = WARN. A listener of the script's own is the control of the table
   T1.firewall     firewall rules naming the exe before and after the run: no new rule. A firewall prompt itself cannot
                   be observed unattended; none is expected because the bridge binds the loopback address only.
   T1.busy.chara   pings answered while chara.load builds the card on the main thread (frame counter stalled)
@@ -103,6 +104,7 @@ EDGE_DEFAULTS = (r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 ITEM_NO = 399
 MAP_NO = 10
 CREATE_NO_WINDOW = 0x08000000
+TCP_TABLE_OWNER_PID_LISTENER = 3
 LOOPBACK = ("127.0.0.1", "::1", "[::1]")
 T0 = time.perf_counter()
 
@@ -307,12 +309,53 @@ def ps_json(script, timeout=180):
 
 
 def port_listeners(port):
-    """PIDs listening on TCP <port> (any address), from netstat."""
-    pids = set()
+    """PIDs listening on TCP <port> (any address), from the listener table and netstat."""
+    pids = {pid for addr, p, pid in tcp_listener_rows() if p == port}
     for proto, addr, p, pid, listening in netstat_rows():
         if proto == "TCP" and listening and p == port:
             pids.add(pid)
     return pids
+
+
+def tcp_listener_rows():
+    """(addr, port, pid) of every TCP listener, IPv4 and IPv6, from GetExtendedTcpTable's listener class. The class selects
+    the rows, so the state column is not read: a system can report a wrong state there, and netstat -ano then hides the row
+    and Get-NetTCPConnection -State Listen leaves it out."""
+    api = ctypes.WinDLL("iphlpapi")
+    rows = []
+    for family in (socket.AF_INET, socket.AF_INET6):
+        need = ctypes.c_ulong(0)
+        api.GetExtendedTcpTable(None, ctypes.byref(need), False, int(family), TCP_TABLE_OWNER_PID_LISTENER, 0)
+        buf = ctypes.create_string_buffer(need.value + 4096)
+        need = ctypes.c_ulong(len(buf))
+        code = api.GetExtendedTcpTable(buf, ctypes.byref(need), False, int(family), TCP_TABLE_OWNER_PID_LISTENER, 0)
+        if code:
+            raise OSError("GetExtendedTcpTable: %d" % code)
+        raw = buf.raw
+        count = struct.unpack_from("<I", raw, 0)[0]
+        for i in range(count):
+            if family == socket.AF_INET:
+                at = 4 + i * 24
+                addr = socket.inet_ntop(family, raw[at + 4:at + 8])
+                port, pid = struct.unpack_from("<I", raw, at + 8)[0], struct.unpack_from("<I", raw, at + 20)[0]
+            else:
+                at = 4 + i * 56
+                addr = socket.inet_ntop(family, raw[at:at + 16])
+                port, pid = struct.unpack_from("<I", raw, at + 20)[0], struct.unpack_from("<I", raw, at + 52)[0]
+            rows.append((addr, socket.ntohs(port & 0xFFFF), pid))
+    return rows
+
+
+def listener_table_works():
+    """A listener of this script must show in the table: the control of what T1.listen reads."""
+    s = socket.socket()
+    try:
+        s.bind(("127.0.0.1", 0))
+        s.listen(1)
+        port = s.getsockname()[1]
+        return ("127.0.0.1", port, os.getpid()) in tcp_listener_rows()
+    finally:
+        s.close()
 
 
 def netstat_rows():
@@ -620,6 +663,12 @@ def t1_listen_sample(C, label):
         C.listen.append({"label": label, "error": "no PID known"})
         return
     rows = [(proto, addr, port) for proto, addr, port, pid, listening in netstat_rows() if pid == C.pid and listening]
+    table, control = [], None
+    try:
+        table = [("TCP", addr, port) for addr, port, pid in tcp_listener_rows() if pid == C.pid]
+        control = listener_table_works()
+    except Exception as e:
+        control = "listener table: %s" % e
     ps = None
     try:
         ps = ps_json(
@@ -630,7 +679,8 @@ def t1_listen_sample(C, label):
             "ConvertTo-Json -Compress -Depth 3 -InputObject $o" % (C.pid, C.pid), timeout=120)
     except Exception as e:
         ps = {"error": str(e)}
-    C.listen.append({"label": label, "netstat": [list(r) for r in rows], "powershell": ps})
+    C.listen.append({"label": label, "netstat": [list(r) for r in rows], "table": [list(r) for r in table], "control": control,
+                     "powershell": ps})
 
 
 def t1_listen_verdict(C):
@@ -639,7 +689,9 @@ def t1_listen_verdict(C):
         if "error" in s:
             notes.append("%s: %s" % (s["label"], s["error"]))
             continue
-        entries = {(r[0], str(r[1]).strip("[]"), int(r[2])) for r in s["netstat"]}
+        entries = {(r[0], str(r[1]).strip("[]"), int(r[2])) for r in s["netstat"] + s["table"]}
+        if s["control"] is not True:
+            notes.append("%s: the listener table missed this script's own listener (%s)" % (s["label"], s["control"]))
         if isinstance(s.get("powershell"), list):
             entries |= {(e.get("proto"), str(e.get("addr")).strip("[]"), int(e.get("port") or 0)) for e in s["powershell"]}
         elif isinstance(s.get("powershell"), dict):

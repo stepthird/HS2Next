@@ -1,13 +1,15 @@
 // The engine-side points of the plugin Api (assembly HS2Next.Api.Unity, same version as HS2Next.Api): what needs engine
-// types — the realized objects of scene nodes and characters, the build hooks of a character, typed material overrides,
-// the additive mosaic and the experimental UI registration. A plugin opts into them by referencing this assembly; the
+// types — the realized objects of scene nodes and characters, the build hooks of a character (with skin layers and
+// body-part replacement), typed material overrides, the additive mosaic, skin layers and rebuild requests outside builds,
+// and the experimental UI registration with the host's widgets. A plugin opts into them by referencing this assembly; the
 // engine-free contract (HS2Next.Api) hands them out through IPluginContext.GetService, wrapped by ctx.Unity().
 //
 // Engine objects are the live realization of the scene: reading them is supported; changing state the scene model owns
 // (node transforms, visibility, materials outside IMaterialOverrides) is unsupported and may be overwritten by the next
-// apply or build. None of these points can turn the mosaic off, change its look or remove a member: the overrides refuse
-// the mosaic set, the build hooks offer no stage right after the mosaic, the host puts a member's mosaic material back
-// after the final hooks of a build in which a plugin hook ran, and the additive mosaic only adds.
+// apply or build. The mosaic guards of these points: the overrides refuse the mosaic set, the build hooks offer no stage
+// right after the mosaic, the host puts a member's mosaic material back after the final hooks of a build in which a plugin
+// hook ran, and the additive mosaic only adds. A body part supplied through body-part replacement is drawn as supplied (a
+// mosaic member only when the plugin adds it).
 using System.Reflection;
 using HS2Next.Api.Plugins;
 using UnityEngine;
@@ -38,6 +40,29 @@ namespace HS2Next.Api.Unity
         /// <summary>Panels, inspector sections, actions and strings of the Studio UI; null when the UI does not run.</summary>
         [Experimental("the UI registration may change in any minor release")]
         IPluginUi Ui { get; }
+
+        /// <summary>
+        /// The plugin's skin layers on a built scene character, changed outside builds (<see cref="ISkinLayers"/>); null when
+        /// the node is not a built character.
+        /// </summary>
+        [Experimental("skin layers and body-part replacement may change in any minor release")]
+        ISkinLayers SkinLayers(string nodeId);
+
+        /// <summary>
+        /// Rebuilds a scene character at the next apply, so its BodyMesh hooks run again (the way to change a replaced body part
+        /// after the build); requests for one character in one frame merge into one rebuild. False when the node is not a built
+        /// character.
+        /// </summary>
+        [Experimental("skin layers and body-part replacement may change in any minor release")]
+        bool RequestRebuild(string nodeId);
+
+        /// <summary>
+        /// A plugin wrote a bone's transform after the character's step (in the scene post stage): the next step takes that write
+        /// off where the host's own bookkeeping would otherwise keep it as new input. False when the node is no built character
+        /// or the bone is null. A plugin that shows a value through a runtime override slot needs no such call.
+        /// </summary>
+        [Experimental("the scene post stage may change in any minor release")]
+        bool BoneWritten(string nodeId, Transform bone);
     }
 
     /// <summary>The entry from the engine-free context.</summary>

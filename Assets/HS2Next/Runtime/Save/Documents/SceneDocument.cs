@@ -4,7 +4,9 @@
 // siblings by (order, array position) and keeps the nodes in the canonical array order the writer emits:
 // depth-first pre-order, siblings by order, the children of a character grouped by attach point in
 // AccessoryParentKey value order (unknown point names last, ordinal). Character appearance is not here: it is
-// the subtree charas/<nodeId>/ (CharaSubtree).
+// the subtree charas/<nodeId>/ (CharaSubtree). The scene's Timeline (revision 4) is the member `timeline` after `scene`,
+// written only when the scene has one (SceneTimeline.cs); its constraints (revision 4) the array `constraints` after that, written
+// only when it has an entry (SceneConstraints.cs).
 using System;
 using System.Collections.Generic;
 
@@ -17,6 +19,12 @@ namespace HS2Next.Save
         /// <summary>Every node, in canonical array order after reading (any order is accepted on write).</summary>
         public List<SceneNode> Nodes = new List<SceneNode>();
         public SceneSettings Scene = new SceneSettings();
+        /// <summary>The scene's Timeline (member <c>timeline</c>, after <c>scene</c>); null = the scene has none and the member
+        /// is not written.</summary>
+        public TimelineDocument Timeline;
+        /// <summary>The scene's constraints (member <c>constraints</c>, after <c>timeline</c>); null or empty = the scene has none and the
+        /// member is not written.</summary>
+        public ConstraintList Constraints;
         /// <summary>Inline ext of the scene scope.</summary>
         public ExtInline Ext = new ExtInline();
 
@@ -50,6 +58,9 @@ namespace HS2Next.Save
                 nodes.Add(n);
             }
             Scene.ReadFrom(r.Obj("scene"));
+            var timeline = r.ObjN(TimelineDocument.MemberName);
+            Timeline = timeline == null ? null : TimelineDocument.Read(timeline);
+            Constraints = ConstraintList.Read(r);
             Ext = r.Ext();
 
             RepairParents(nodes, byId, r);
@@ -57,6 +68,8 @@ namespace HS2Next.Save
             foreach (var n in Nodes) n.Order = order[n];
             CheckNodeRef(r, byId, Scene.Effects.DepthOfField.Focus, "scene.effects.depthOfField.focus");
             CheckNodeRef(r, byId, Scene.Effects.SunShafts.Caster, "scene.effects.sunShafts.caster");
+            Timeline?.ReportUnknownNodes(byId.ContainsKey, r.Context, DocReader.Join(r.Path, TimelineDocument.MemberName));
+            Constraints?.ReportUnknownNodes(byId.ContainsKey, r.Context, DocReader.Join(r.Path, ConstraintList.MemberName));
         }
 
         internal override void WriteMembers(CanonicalJsonWriter w)
@@ -78,6 +91,8 @@ namespace HS2Next.Save
             foreach (var n in sorted) n.Write(w, order[n]);
             w.EndArray();
             Scene.WriteTo(w, "scene");
+            if (Timeline != null) Timeline.WriteTo(w, TimelineDocument.MemberName);
+            if (Constraints != null && Constraints.Count > 0) Constraints.WriteTo(w, ConstraintList.MemberName);
         }
 
         static void CheckNodeRef(DocReader r, Dictionary<string, SceneNode> byId, string id, string path)

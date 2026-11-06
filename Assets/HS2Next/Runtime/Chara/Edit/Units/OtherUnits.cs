@@ -73,6 +73,7 @@ namespace HS2Next.Chara.Edit.Units
             }
             foreach (var go in x.RemapRoots.Where(g => g && !x.NewSubtrees.Contains(g)))
                 ShaderMap.ApplyUrp(go, copy: false);
+            if (x.UrpMapped && (x.NewSubtrees.Count > 0 || x.RemapRoots.Count > 0)) x.AfterUrpMapping();
         }
     }
 

@@ -56,6 +56,7 @@ namespace HS2Next.UI.Panels
                 });
             }
             ButtonActions.Register("ui.anime.copy", (ctx, targets, arg) => CopyAnime(ctx, targets));
+            ButtonActions.Register("ui.materials.open", (ctx, targets, arg) => MaterialEditView.Open(ctx, arg));   // Phase 6.4: the Edit tab's buttons
             ButtonActions.Register("ops.SavePose", (ctx, targets, arg) => InspectorFlows.SavePose(ctx, targets));
             ButtonActions.Register("ops.LoadPose", (ctx, targets, arg) => InspectorFlows.BrowsePoses(ctx, targets));
             ButtonActions.Register("ui.pose.browse", (ctx, targets, arg) => InspectorFlows.BrowsePoses(ctx, targets));

@@ -1107,11 +1107,12 @@ public static partial class PausedEditTest
             SetCover(f, id, true);
             var mods = ctx.Bones ? ctx.Bones : c.Root.AddComponent<HS2Next.Chara.Ext.BoneModifierApplier>();
             if (!ctx.Bones) ctx.Bones = mods;
+            HS2Next.Motion.Modifiers.BoneModifierSetup.Sync(ctx);
             // a modifier as 4 of the cards carry on the areola and 3 on the nipple (scale)
             mods.Add(new HS2Next.Chara.Ext.BoneModifierApplier.Modifier { Target = ctx.BodyBones["cf_J_Mune_Nip02_s_L"], Bone = "cf_J_Mune_Nip02_s_L", Source = "test", Location = 1, Scale = new Vector3(1.6f, 1.6f, 1.6f) });
             mods.Add(new HS2Next.Chara.Ext.BoneModifierApplier.Modifier { Target = ctx.BodyBones["cf_J_Mune04_s_L"], Bone = "cf_J_Mune04_s_L", Source = "test", Location = 1, Scale = new Vector3(1.4f, 1.4f, 1.4f) });
             mods.Apply();
-            // as a card's modifiers after the build's final stage: the animation's shape captures take them
+            // as a card's modifiers after the build's final stage: the animation's shape captures hold the bones without them
             if (c.Animation) c.Animation.RefreshBodyShape(ctx);
             Frames(f, 2);
             Check("N4 the modifiers show (switch on)", (ctx.BodyBones["cf_J_Mune_Nip02_s_L"].localScale - ctx.BodyBones["cf_J_Mune_Nip02_s_R"].localScale).magnitude > 1e-3,

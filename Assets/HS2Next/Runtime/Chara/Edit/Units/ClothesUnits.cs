@@ -74,9 +74,11 @@ namespace HS2Next.Chara.Edit.Units
             var e = Resolve(x, k);
             // One-piece rules: a top (inner top) whose row has Coordinate = 1 skips the bottom (inner bottom).
             bool skip = k == 1 && Resolve(x, 0)?["Coordinate"] == "1" || k == 3 && Resolve(x, 2)?["Coordinate"] == "1";
-            string reload = x.InBuild ? null : Signature.Of(p.MaterialOverrides) + "|" + Signature.Of(p.Overlays);
+            string array = "clothes." + ClothesSet.Names[k] + ".materialOverrides";
+            string reload = x.InBuild ? null : Signature.Of(p.Overlays);
             var go = x.Ctx.Clothes[k];
-            bool swap = !loaded || e != appliedRow || skip != appliedSkip || (!x.InBuild && reload != appliedReload);
+            bool swap = !loaded || e != appliedRow || skip != appliedSkip || (!x.InBuild && (reload != appliedReload || x.MeStructureChanged(array, p.MaterialOverrides)));
+            if (!swap && !x.InBuild) x.MeCheckValues(array, EditObject.Clothes(k), p.MaterialOverrides);
             if (swap)
             {
                 int sibling = go ? go.transform.GetSiblingIndex() : -1;
@@ -86,7 +88,8 @@ namespace HS2Next.Chara.Edit.Units
                 x.Ctx.Clothes[k] = null;
                 x.Ctx.ClothesEntries[k] = null;
                 loaded = true; appliedRow = e; appliedSkip = skip;
-                appliedReload = reload ?? Signature.Of(p.MaterialOverrides) + "|" + Signature.Of(p.Overlays);
+                appliedReload = reload ?? Signature.Of(p.Overlays);
+                x.MeLoaded(array, p.MaterialOverrides);
                 if (!x.InBuild)
                 {
                     x.Swapped(EditObject.Clothes(k));

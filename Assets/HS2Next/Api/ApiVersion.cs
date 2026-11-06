@@ -22,6 +22,11 @@
 //   1.0.0  Phase 5.4: the freeze; experimental commands marked (CommandFlags.Experimental). The public surface of both
 //          Api assemblies, the bridge protocol, the commands and the plugin manifest schema are listed under Tools/api/
 //          and compared with the code by the ApiSurfaceTest row.
+//   1.1.0  Phase 6.1: request helpers with typed replies; capture events; undo entries of plugins; declarative forms and the
+//          host's widgets (experimental); skin layers, body-part replacement and character rebuild requests on the engine
+//          side (experimental); every public member documented (XML documentation in the distribution).
+//   1.2.0  Phase 6.2: runtime overrides — values laid over the scene for display, never saved (experimental); the record
+//          capture kind; the scene post stage and bone and IK target paths of the overrides (experimental).
 using System.Reflection;
 
 // MAJOR.0.0.0 keeps assembly binding stable across minor and patch releases; the full version is informational.
@@ -33,11 +38,14 @@ namespace HS2Next
     /// <summary>Version of the stable API surface (assembly HS2Next.Api).</summary>
     public static class ApiVersion
     {
+        /// <summary>The major version: it rises when public surface is removed or changed.</summary>
         public const int Major = 1;
-        public const int Minor = 0;
+        /// <summary>The minor version: it rises when public surface is added.</summary>
+        public const int Minor = 2;
+        /// <summary>The patch version: it rises for fixes that change no public surface.</summary>
         public const int Patch = 0;
 
         /// <summary>"MAJOR.MINOR.PATCH".</summary>
-        public const string Semver = "1.0.0";
+        public const string Semver = "1.2.0";
     }
 }

@@ -79,15 +79,17 @@ public static partial class UiPanelsTest
         public AppCore App;
         public TestTargets Targets;
         public string FemaleCard, MaleCard;
+        /// <summary>A fixture's own counts (UiPanelsTest_Timing.cs): nothing goes to the log, where a line of it would read as the row's.</summary>
+        public bool Quiet;
         public bool Want(string g) => Only == null || Only.Contains(g);
         public void Check(bool ok, string what)
         {
             if (ok) Pass++; else Fail++;
             string l = (ok ? "PASS " : "FAIL ") + Group + " " + what;
             Rep.AppendLine(l);
-            Debug.Log("UI PANELS " + l);
+            if (!Quiet) Debug.Log("UI PANELS " + l);
         }
-        public void Warning(string what) { Warn++; Rep.AppendLine("WARN " + Group + " " + what); Debug.Log("UI PANELS WARN " + Group + " " + what); }
+        public void Warning(string what) { Warn++; Rep.AppendLine("WARN " + Group + " " + what); if (!Quiet) Debug.Log("UI PANELS WARN " + Group + " " + what); }
         public void Info(string what) { Rep.AppendLine("INFO " + Group + " " + what); Debug.Log("UI PANELS INFO " + Group + " " + what); }
         public string UndoLabel => App.Session.Commands.UndoList.FirstOrDefault()?.Label;
     }
@@ -109,6 +111,14 @@ public static partial class UiPanelsTest
 
     /// <summary>Package I's groups (UiPanelsTest_Inspector.cs).</summary>
     static partial void AddMoreGroups();
+
+    /// <summary>The order of a full run. The Maker groups join <see cref="Groups"/> from load-time hooks whose order changes with a
+    /// compile, and what runs before a timed window moves its number (a first show from about 9 to about 30 ms with no code on the
+    /// path), so the run takes this order, whatever the compile gave. A group not named here runs after these, by id.</summary>
+    static readonly string[] GroupOrder = { "T", "R", "B", "G", "D", "F", "O", "P", "I", "J", "M", "S", "MI", "MC", "MA", "MF", "MB", "MBW1", "MBW2", "R2P", "R2S", "R2C", "MH", "U2G" };
+
+    static List<(string id, Func<Ctx, IEnumerator> run)> InFixedOrder(IEnumerable<(string id, Func<Ctx, IEnumerator> run)> groups) =>
+        groups.OrderBy(g => { int i = Array.IndexOf(GroupOrder, g.id); return i >= 0 ? i : int.MaxValue; }).ThenBy(g => g.id, StringComparer.Ordinal).ToList();
 
     static IEnumerator Play()
     {
@@ -134,9 +144,9 @@ public static partial class UiPanelsTest
         foreach (var id in new[] { WorkspacePanel.PanelId, CharaBrowser.PanelId, "add.item", "add.anime", "add.map", "add.light", PoseBrowser.PanelId })
             c.Check(c.Ui.Registry.Panels.TryGet(id, out _), "panel registered: " + id);
         yield return PlayModeHarness.WaitFrames(5);
-        // With -only the groups run in the order written there: the Maker groups join the list from load-time hooks
-        // whose order is not fixed, and a reproduction may need one group to run right after another.
-        var order = onlyOrder == null ? Groups : Groups.OrderBy(x => Array.IndexOf(onlyOrder, x.id)).ToList();
+        // With -only the groups run in the order written there: a reproduction may need one group to run right after another.
+        var order = onlyOrder == null ? InFixedOrder(Groups) : Groups.OrderBy(x => Array.IndexOf(onlyOrder, x.id)).ToList();
+        c.Info("group order: " + string.Join(" ", order.Where(x => c.Want(x.id)).Select(x => x.id)) + " (joined as " + string.Join(" ", Groups.Select(x => x.id)) + ")");
         foreach (var g in order)
         {
             if (!c.Want(g.id)) continue;
@@ -145,6 +155,8 @@ public static partial class UiPanelsTest
             IEnumerator e = null;
             try { e = g.run(c); }
             catch (Exception ex) { c.Check(false, "threw " + ex); continue; }
+            var alloc = new AllocWatch();
+            alloc.Begin();
             while (true)
             {
                 bool more;
@@ -154,7 +166,10 @@ public static partial class UiPanelsTest
                 yield return e.Current;
             }
             while (c.Ui.Dialogs != null && c.Ui.Dialogs.IsModalOpen) c.Ui.Dialogs.CloseCurrent();
+            var used = alloc.End();
+            AllocByGroup.Add((g.id, used.gcs, used.bytes));
         }
+        AllocReport(c);
         Finish(c);
     }
 

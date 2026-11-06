@@ -79,6 +79,7 @@ Studio switches:
 - Per chain: `Chains[i].Enabled`.
 - Extra switches that the game does not have: `ClothesEnabled`, `AccessoriesEnabled`, `OtherEnabled`.
 - `BustStage.FkBreastActive`, `AnimeBustL/R`, `HipL/R`.
+- `DynamicBoneChain.Override` + `ApplyOverride()`, `BustChain.SetOverride`: the scene values of advanced pose, read in front of the component's fields and the live values; nothing writes those.
 
 All switches are applied at the start of each step with enable / disable semantics: disabling restores the start pose (Ver02:
 the reference pose), and enabling resets the particles to the bones, so enabling again never jumps.

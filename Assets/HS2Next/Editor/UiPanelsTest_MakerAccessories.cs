@@ -2,7 +2,8 @@
 // play mode (same harness and Ctx as UiPanelsTest, helpers of the MF / MH / MC groups).
 //   page: one page — the slot list (the worn slots by build slot «NN», the «＋» row), the selected slot's group (Type · Colour
 //     or Hair colour · Parent · Adjust in HS2's order), the Copy section; first show, first slot group, cached slot switch
-//     and the slot list rebuild with 20 worn slots (XU4: ≤ 50 / 50 / 5 / 5 ms; WARN above, FAIL above 2×);
+//     and the slot list rebuild with 20 worn slots (XU4: ≤ 50 / 50 / 5 / 5 ms; WARN above, FAIL above 2×; the first show and the
+//     cached switch through TimedShow / TimedMedian: a window with a garbage collection gives a WARN with its number);
 //   «＋»: the free slots (lowest chosen), a type, the type's list; a pick = one entry "Add accessory" in the chosen slot (a gap
 //     below it shown with its number), a slot ≥ 20 labelled «21» with the MoreAccessories badge per the switch;
 //   rows against the accessory facts (MakerServices.Accessories) — colour areas 1–3, the alpha colour, the hair colour section
@@ -20,7 +21,11 @@
 //   handles (XU7): the markers of the selected slot's sets (option maker.accessoryHandles), a marker pick (ui.input pointer),
 //     a Y-arrow drag (one entry, position on the 0.1 grid), an X-ring drag (rotation x an integer in [0, 360)), option off;
 //   XU6: the thumbnails of the lists shown (after step 0's guard records): guard-skipped and mip < 1 rejected counts;
-//   male (HERO107): its slots, the head-weighted row 351#202 shows the note and stores a picked key.
+//   male (HERO107): its slots, the head-weighted row 351#202 shows the note and stores a picked key;
+//   FU2 (6.3a): an add, a removal, a copy into a new slot and their undo keep the inspector (InspectorPanel.Builds), both pickers'
+//     choices and the Edit tab; the State tab's accessory-<id> rows match the document, shown or not; what a rebuild used to do for
+//     them: the group of an accessory that left is dropped (another one takes its section ids), the removal's next slot, the focus of
+//     a closed add panel, the sections marked after a list change, the clothes and FK rows after a coordinate load.
 // Characters: the SFW targets of Tools/targets.json; items: vanilla rows named (353#0, 351#40,
 // 351#0, 352#0, 351#202) by data name only; thumbnails are drawn by the grids and counted, never viewed; values are numbers only.
 // Run alone: & Tools\unity_batch.ps1 -Method UiPanelsTest.Run -NoQuit -MethodArgs @('-only','MA')
@@ -35,6 +40,7 @@ using HS2Next.Save;
 using HS2Next.Scenes;
 using HS2Next.Scenes.Runtime;
 using HS2Next.UI;
+using HS2Next.UI.Binding;
 using HS2Next.UI.Bridge;
 using HS2Next.UI.Core;
 using HS2Next.UI.Gizmos;
@@ -108,9 +114,8 @@ public static partial class UiPanelsTest
         yield return PlayModeHarness.WaitFrames(2);
     }
 
-    /// <summary>The Edit tab shown for character <paramref name="id"/> on the Accessories node: an add, a removal or a copy into a
-    /// new slot changes the character's accessory ids, which rebuilds the inspector (its State tab lists them), so the tab is
-    /// taken again after each of them.</summary>
+    /// <summary>The Edit tab shown for character <paramref name="id"/> on the Accessories node (a finding or a build can still
+    /// rebuild the inspector during an operation, so the tab is taken again after each of them).</summary>
     static CharaEditTab MaTab(Ctx c, string id, CharaEditTab fallback)
     {
         var t = CharaEditTab.Current;
@@ -216,6 +221,423 @@ public static partial class UiPanelsTest
         return t ? t : null;
     }
 
+    // ---------------------------------------------------------------- FU2 (6.3a, item 9)
+
+    /// <summary>The State tab's accessory rows against the document: one `accessory-&lt;id&gt;` per worn accessory in slot order, each
+    /// labelled with its slot (and <paramref name="part"/> on its own accessory); what differs, empty = they match.</summary>
+    static List<string> MaStateDiff(Ctx c, InspectorPanel insp, string id)
+    {
+        var bad = new List<string>();
+        var body = insp?.Chara?.TabBodies["state"];
+        if (body == null) { bad.Add("no State tab"); return bad; }
+        var rows = body.Query<FieldRow>().ToList().Where(r => r.name != null && r.name.StartsWith("accessory-", StringComparison.Ordinal)).ToList();
+        var want = MaTable(c, id).EntryBySlot.ToList();
+        var names = want.Select(kv => "accessory-" + kv.Value.Id).ToList();
+        if (!rows.Select(r => r.name).SequenceEqual(names)) bad.Add(rows.Count + " rows for " + names.Count + " worn, or another order");
+        foreach (var kv in want)
+        {
+            var row = rows.FirstOrDefault(r => r.name == "accessory-" + kv.Value.Id);
+            if (row != null && !row.Query<Label>().ToList().Any(l => l.text != null && l.text.Contains(MaNN(kv.Key)))) bad.Add("no slot " + MaNN(kv.Key) + " in its label");
+        }
+        bool note = MfQ<VisualElement>(body, "state-no-accessories") != null;
+        if (note != (want.Count == 0)) bad.Add("the no-accessories note " + (note ? "shown" : "missing"));
+        return bad;
+    }
+
+    /// <summary>What every step of FU2 keeps on the Edit tab: the inspector not built again, the same tab, both pickers' choices, the
+    /// free slots offered, the slot list = the slot table, a worn slot selected. The State tab's rows are read by showing the tab.</summary>
+    static IEnumerator MaFu2Check(Ctx c, string when, InspectorPanel insp, int builds, CharaEditTab tab, string id, int addChoice, int target)
+    {
+        yield return PlayModeHarness.WaitFrames(3);
+        var table = MaTable(c, id);
+        var list = tab.AccessorySlots?.Slots.Select(s => s.Id).ToList() ?? new List<string>();
+        var worn = table.EntryBySlot.Values.Select(e => e.Id).ToList();
+        c.Check(insp.Builds == builds && CharaEditTab.Current == tab, $"FU2 {when}: the inspector is not built again (builds {insp.Builds}, was {builds}), the same Edit tab");
+        c.Check(tab.AccessoryAddSlot.Selected == addChoice && tab.AccessoryTargetPicker.Selected == target,
+            $"FU2 {when}: both pickers keep their choices (＋ {tab.AccessoryAddSlot.Selected}, wanted {addChoice}; target {tab.AccessoryTargetPicker.Selected}, wanted {target})");
+        c.Check(tab.AccessoryAddSlot.Offered.SequenceEqual(table.FreeSlots()) && tab.AccessoryTargetPicker.IsOccupied(worn.Count > 0 ? table.SlotOfId(worn[0]) : -1) == (worn.Count > 0),
+            $"FU2 {when}: the pickers follow the slot table (＋ offers the {table.FreeSlots().Count()} free slots)");
+        c.Check(list.SequenceEqual(worn) && (worn.Count == 0 ? tab.AccessoryShownId == null : worn.Contains(tab.AccessoryShownId)),
+            $"FU2 {when}: the slot list = the slot table ({list.Count}), a worn slot is shown ({MaNN(tab.AccessoryShownSlot)})");
+        insp.Chara.ShowTab("state");
+        var bad = MaStateDiff(c, insp, id);
+        c.Check(bad.Count == 0, $"FU2 {when}: the State tab's rows match the document as soon as it is shown ({worn.Count} worn)" + (bad.Count > 0 ? "; " + string.Join(", ", bad) : ""));
+        insp.Chara.ShowTab(CharaEditTab.TabId);
+        yield return PlayModeHarness.WaitFrames(3);
+    }
+
+    /// <summary>A step of FU2 with the State tab shown: the rows follow without showing it again and the inspector stays.</summary>
+    static IEnumerator MaFu2State(Ctx c, string when, InspectorPanel insp, int builds, string id)
+    {
+        yield return PlayModeHarness.WaitFrames(3);
+        var bad = MaStateDiff(c, insp, id);
+        c.Check(bad.Count == 0 && insp.Builds == builds && insp.Chara.CurrentTab == "state",
+            $"FU2 {when}, State tab shown: the rows match the document ({MaTable(c, id).Count} worn), builds {insp.Builds} (was {builds})" + (bad.Count > 0 ? "; " + string.Join(", ", bad) : ""));
+    }
+
+    /// <summary>The clothes rows of the State tab against the realization's state set: which rows show, which buttons are enabled.</summary>
+    static List<string> MaClothesDiff(Ctx c, InspectorPanel insp, string id)
+    {
+        var bad = new List<string>();
+        var set = c.Ui.Ops.ClothesStatesOf(id);
+        var body = insp.Chara.TabBodies["state"];
+        for (int k = 0; k < ClothesStateSet.KindCount; k++)
+        {
+            var row = MfQ<ClothesRow>(body, "field-chara.state.clothes[" + k + "]");
+            if (row == null) { bad.Add("kind " + k + " has no row"); continue; }
+            bool has = !set.Known || set.IsStateKind(k);
+            if ((row.style.display != DisplayStyle.None) != has) bad.Add(ClothesStateSet.KindNames[k] + " " + (has ? "hidden" : "shown"));
+            else if (has)
+                for (int s = 0; s < 3; s++)
+                    if (row.Buttons.Buttons[s].enabledSelf != (!set.Known || set.Supports(k, s))) bad.Add(ClothesStateSet.KindNames[k] + " state " + s);
+        }
+        return bad;
+    }
+
+    /// <summary>The FK rows of the kinematics tab against the character's bone table, group by group (the applied groups' keys).</summary>
+    static List<string> MaFkDiff(Ctx c, InspectorPanel insp, string id)
+    {
+        var bad = new List<string>();
+        var real = c.App.Runtime.FindChara(id);
+        var st = MaNode(c, id).State as CharaNodeState;
+        var table = HS2Next.Scenes.Runtime.FkDriver.TableFor(real);
+        if (table == null || st == null) { bad.Add("no bone table"); return bad; }
+        var want = new HashSet<string>();
+        var g = st.Fk.Groups;
+        foreach (HS2Next.Motion.Fk.FkGroup x in Enum.GetValues(typeof(HS2Next.Motion.Fk.FkGroup)))
+        {
+            bool on = x == HS2Next.Motion.Fk.FkGroup.Hair ? g.Hair : x == HS2Next.Motion.Fk.FkGroup.Neck ? g.Neck : x == HS2Next.Motion.Fk.FkGroup.Breast ? g.Breast : x == HS2Next.Motion.Fk.FkGroup.Body ? g.Body
+                : x == HS2Next.Motion.Fk.FkGroup.RightHand ? g.RightHand : x == HS2Next.Motion.Fk.FkGroup.LeftHand ? g.LeftHand : g.Skirt;
+            if (!on) continue;
+            foreach (var b in table.Of(x)) if (b?.Key != null) want.Add(b.Key);
+        }
+        var got = new HashSet<string>(insp.Chara.TabBodies["kinematics"].Query<FieldRow>().ToList().Where(r => r.name != null && r.name.StartsWith("fk-", StringComparison.Ordinal)).Select(r => r.name.Substring(3)));
+        var missing = want.Except(got).ToList();
+        var extra = got.Except(want).ToList();
+        if (missing.Count > 0) bad.Add(missing.Count + " bones without a row (" + string.Join(", ", missing.Take(3)) + ")");
+        if (extra.Count > 0) bad.Add(extra.Count + " rows without a bone (" + string.Join(", ", extra.Take(3)) + ")");
+        return bad;
+    }
+
+    static int MaFkRows(InspectorPanel insp) => insp.Chara.TabBodies["kinematics"].Query<FieldRow>().ToList().Count(r => r.name != null && r.name.StartsWith("fk-", StringComparison.Ordinal));
+
+    static int MaBones(Ctx c, string id) => HS2Next.Scenes.Runtime.FkDriver.TableFor(c.App.Runtime.FindChara(id))?.Of(HS2Next.Motion.Fk.FkGroup.Skirt).Count ?? -1;
+
+    static IEnumerator MaFu2(Ctx c, string f, string m)
+    {
+        var ui = c.Ui;
+        const string item = "illusion.hs2#0";
+        int u0 = UndoCount(c);
+        var tab = MfOpenEdit(c, f);
+        tab.ShowNode("accessories");
+        yield return PlayModeHarness.WaitFrames(3);
+        var insp = Inspector(c);
+        int builds = insp.Builds;
+        var frees = Enumerable.Range(0, 20).Where(s => MaTable(c, f).IsFree(s)).ToList();
+        if (frees.Count < 6) { c.Warning("FU2: fewer than 6 free slots on BR-Chan (" + frees.Count + "): not taken"); yield break; }
+        // the choices FU2 keeps: the two highest free slots below 20; the operations use the lowest ones
+        int addChoice = frees[frees.Count - 1], target = frees[frees.Count - 2];
+        tab.OpenAccessoryAdd(true);
+        yield return PlayModeHarness.WaitFrames(2);
+        c.Check(tab.AccessoryAddSlot.Choose(addChoice) && tab.AccessoryTargetPicker.Choose(target), $"FU2: the choices: ＋ {MaNN(addChoice)}, copy target {MaNN(target)}");
+        tab.OpenAccessoryAdd(false);
+        var ok = new bool[1];
+
+        // ---- add, remove, copy to a new slot, undo, redo on the Edit tab
+        int s1 = MaTable(c, f).LowestFree();
+        int u1 = UndoCount(c);
+        var r1 = tab.AddAccessoryNow(352, item, s1);
+        string a1 = (r1.Value as MakerResult)?.NewAccessoryIds.FirstOrDefault();
+        c.Check(r1.Ok && a1 != null && UndoCount(c) == u1 + 1 && tab.AccessoryShownId == a1 && c.UndoLabel == "Add accessory", $"FU2 add: slot {MaNN(s1)}, one entry \"{c.UndoLabel}\", selected at once ({tab.AccessoryShownId == a1})");
+        int marked = tab.AccessoryPending, sections = tab.AccessoryLive.Entries.Values.Count(x => x.Section.Watch != null);
+        c.Check(marked > sections, $"FU2 add: every live section is looked at again after the flush that realizes the change ({marked} marks, {sections} sections with a watch)");
+        yield return MaFu2Check(c, "add", insp, builds, tab, f, addChoice, target);
+        yield return MaWaitRows(c, tab, f, a1, s1);
+        MaCheckRows(c, tab, f, a1, s1, "FU2 add");
+
+        var r2 = tab.CopyAccessorySlot("copyToSlot");
+        string a2 = (r2.Value as MakerResult)?.NewAccessoryIds.FirstOrDefault();
+        c.Check(r2.Ok && a2 != null && MaTable(c, f).SlotOfId(a2) == target && tab.AccessoryShownId == a1 && tab.AccessoryTargetPicker.Selected == target,
+            $"FU2 copy: a new accessory in the target {MaNN(target)}, the source stays selected, the target stays chosen");
+        yield return MaFu2Check(c, "copy to a new slot", insp, builds, tab, f, addChoice, target);
+        c.Check(tab.AccessoryTargetPicker.IsOccupied(target) && MfQ<Button>(tab, "acc-target-slot-" + MaNN(target))?.ClassListContains(AccessorySlotPicker.OccupiedClass) == true, "FU2 copy: the target is marked occupied");
+
+        var r3 = tab.RemoveAccessoryNow(a1);
+        c.Check(r3.Ok && MaEntry(c, f, a1) == null && c.UndoLabel == "Remove accessory", "FU2 remove: gone, one entry \"" + c.UndoLabel + "\"");
+        yield return MaFu2Check(c, "remove", insp, builds, tab, f, addChoice, target);
+
+        int undoFloor = u1;
+        string[] names = { "undo of the removal", "undo of the copy", "undo of the add" };
+        for (int i = 0; i < 3; i++)
+        {
+            c.App.Session.Commands.Undo();
+            yield return MaFu2Check(c, names[i], insp, builds, tab, f, addChoice, target);
+        }
+        c.Check(UndoCount(c) == undoFloor && MaEntry(c, f, a1) == null && MaEntry(c, f, a2) == null, "FU2: undone to the start");
+        for (int i = 0; i < 3; i++) c.App.Session.Commands.Redo();
+        yield return MaFu2Check(c, "redo of the three", insp, builds, tab, f, addChoice, target);
+        c.Check(MaEntry(c, f, a1) == null && MaEntry(c, f, a2) != null, "FU2: redo gives the end state (the copy worn, the first add removed)");
+        yield return MfUndoTo(c, u1);
+        yield return MaFu2Check(c, "undone again", insp, builds, tab, f, addChoice, target);
+
+        // ---- a pick in the kept list: into the chosen slot (the choice falls back to the lowest free), the same row again
+        tab.OpenAccessoryAdd(true);
+        var addList = tab.ShowAccessoryAddList(352);
+        yield return PlayModeHarness.WaitFrames(3);
+        addList.Grid.Focus();
+        yield return PlayModeHarness.WaitFrames(1);
+        int u2 = UndoCount(c);
+        c.Check(addList.Pick(item), "FU2: a pick in the add panel's list");
+        yield return WaitFor(() => UndoCount(c) == u2 + 1, 30, ok);
+        var fe = tab.panel?.focusController?.focusedElement as VisualElement;
+        c.Check(ok[0] && tab.AccessoryAddPanel.style.display == DisplayStyle.None && MaTable(c, f).EntryAt(addChoice) != null && (fe == null || !tab.AccessoryAddPanel.Contains(fe)),
+            $"FU2: the pick went into the chosen slot {MaNN(addChoice)}, the panel closed, the focus is not left in it ({(fe == null ? "none" : fe.name)})");
+        int lowest = MaTable(c, f).LowestFree();
+        yield return MaFu2Check(c, "a pick into the chosen slot (it falls back to the lowest free)", insp, builds, tab, f, lowest, target);
+        tab.OpenAccessoryAdd(true);
+        yield return PlayModeHarness.WaitFrames(2);
+        int u3 = UndoCount(c);
+        c.Check(tab.AccessoryAddList == addList && addList.Pick(item), "FU2: the add panel's list is kept and the same row can be picked again");
+        yield return WaitFor(() => UndoCount(c) == u3 + 1, 30, ok);
+        c.Check(ok[0] && MaTable(c, f).EntryAt(lowest) != null, $"FU2: the second pick of the row adds another accessory in {MaNN(lowest)}");
+        yield return MfUndoTo(c, u1);
+        tab.AccessoryAddSlot.Choose(addChoice);
+        yield return MaFu2Check(c, "both picks undone", insp, builds, tab, f, addChoice, target);
+
+        // ---- the add panel stays open over a removal, with the slot it freed offered
+        {
+            int sx = MaTable(c, f).LowestFree();
+            var rx = ui.Ops.AddAccessory(f, 352, item, null, null, UiContext.User(OpLabels.AddAccessory), sx);
+            string ax = (rx.Value as MakerResult)?.NewAccessoryIds.FirstOrDefault();
+            yield return PlayModeHarness.WaitFrames(3);
+            tab.OpenAccessoryAdd(true);
+            yield return PlayModeHarness.WaitFrames(2);
+            c.Check(!tab.AccessoryAddSlot.Offered.Contains(sx), $"FU2: slot {MaNN(sx)} is worn: not offered");
+            ui.Ops.RemoveAccessory(f, ax, UiContext.User(OpLabels.RemoveAccessory));
+            yield return MaFu2Check(c, "an operation's removal, add panel open", insp, builds, tab, f, addChoice, target);
+            c.Check(tab.AccessoryAddPanel.style.display == DisplayStyle.Flex && tab.AccessoryAddSlot.Offered.Contains(sx), $"FU2: the add panel stays open and offers the freed slot {MaNN(sx)}");
+            tab.OpenAccessoryAdd(false);
+            yield return MfUndoTo(c, u1);
+        }
+
+        // ---- the slot after a removal: the next worn one, else the lowest (the rebuild always gave the lowest)
+        {
+            var worn = MaTable(c, f).EntryBySlot.Keys.ToList();
+            int top = worn[worn.Count - 1];
+            int mid = frees.First(s => s > worn[0]);
+            int after = worn.First(s => s > mid);
+            var rm = ui.Ops.AddAccessory(f, 352, item, null, null, UiContext.User(OpLabels.AddAccessory), mid);
+            string am = (rm.Value as MakerResult)?.NewAccessoryIds.FirstOrDefault();
+            yield return PlayModeHarness.WaitFrames(3);
+            tab.SelectAccessory(am);
+            yield return PlayModeHarness.WaitFrames(2);
+            tab.RemoveAccessoryNow(am);
+            yield return PlayModeHarness.WaitFrames(3);
+            c.Check(tab.AccessoryShownSlot == after, $"FU2: removing the selected {MaNN(mid)} selects the next worn slot {MaNN(after)} ({MaNN(tab.AccessoryShownSlot)})");
+            yield return MfUndoTo(c, u1);
+            int high = Enumerable.Range(top + 1, 19 - top).FirstOrDefault(s => s != addChoice && s != target);
+            if (high > top)
+            {
+                var rh = ui.Ops.AddAccessory(f, 352, item, null, null, UiContext.User(OpLabels.AddAccessory), high);
+                string ah = (rh.Value as MakerResult)?.NewAccessoryIds.FirstOrDefault();
+                yield return PlayModeHarness.WaitFrames(3);
+                tab.SelectAccessory(ah);
+                yield return PlayModeHarness.WaitFrames(2);
+                tab.RemoveAccessoryNow(ah);
+                yield return PlayModeHarness.WaitFrames(3);
+                c.Check(tab.AccessoryShownSlot == worn[0], $"FU2: removing the selected highest slot {MaNN(high)} selects the lowest {MaNN(worn[0])} ({MaNN(tab.AccessoryShownSlot)})");
+                yield return MfUndoTo(c, u1);
+            }
+            else c.Warning("FU2: no free slot above the highest worn: the lowest-slot case was not taken");
+        }
+
+        // ---- a handle on the accessory that leaves; its group; another accessory in its slot, then undo twice: the group is its own
+        {
+            int sa = MaTable(c, f).LowestFree();
+            var ra = ui.Ops.AddAccessory(f, 353, item, null, null, UiContext.User(OpLabels.AddAccessory), sa);
+            string aa = (ra.Value as MakerResult)?.NewAccessoryIds.FirstOrDefault();
+            yield return PlayModeHarness.WaitFrames(3);
+            tab.SelectAccessory(aa);
+            yield return MaWaitRows(c, tab, f, aa, sa);
+            tab.SelectAccessoryHandle(aa, 1, GizmoTool.Move);
+            yield return PlayModeHarness.WaitFrames(2);
+            string sub = ui.SubSelection;
+            int u4 = UndoCount(c);
+            tab.RemoveAccessoryNow(aa);
+            yield return PlayModeHarness.WaitFrames(3);
+            c.Check(sub == StudioOps.AccessorySub(f, aa, 0) && ui.SubSelection == null && tab.AccessoryShownId != aa, "FU2: the handle of the accessory that left is no longer the sub-selection (" + (ui.SubSelection ?? "none") + ")");
+            var rb = tab.AddAccessoryNow(352, item, sa);
+            string ab = (rb.Value as MakerResult)?.NewAccessoryIds.FirstOrDefault();
+            yield return MaWaitRows(c, tab, f, ab, sa);
+            MaCheckRows(c, tab, f, ab, sa, "FU2 another accessory in the slot that was freed");
+            c.App.Session.Commands.Undo();
+            yield return PlayModeHarness.WaitFrames(3);
+            c.App.Session.Commands.Undo();
+            yield return PlayModeHarness.WaitFrames(3);
+            c.Check(UndoCount(c) == u4 && MaEntry(c, f, aa) != null, "FU2: undo twice brings the first accessory back");
+            tab.SelectAccessory(aa);
+            yield return MaWaitRows(c, tab, f, aa, sa);
+            MaCheckRows(c, tab, f, aa, sa, "FU2 the accessory that came back");
+            var live = tab.AccessoryLive?.Entries;
+            string adj = InspectorSchemas.AccessorySectionId(sa, "adjust");
+            bool own = live != null && live.TryGetValue(adj, out var e) && tab.AccessoryGroup != null && tab.AccessoryGroup.Contains(e.Fold);
+            c.Check(own, "FU2: its sections are live on the group shown (its own, not a kept copy's)");
+            bool target0 = tab.AccessoryHandleTarget(out var hc, out var ha, out int hs);
+            c.Check(target0 && hc == f && ha == aa && hs == sa, $"FU2: its handles follow the group shown ({target0}, slot {MaNN(hs)})");
+            yield return MfUndoTo(c, u1);
+        }
+        yield return MaFu2Check(c, "after the slot cases", insp, builds, tab, f, addChoice, target);
+
+        // ---- the State tab shown: every step follows at once
+        {
+            insp.Chara.ShowTab("state");
+            yield return PlayModeHarness.WaitFrames(3);
+            var bad0 = MaStateDiff(c, insp, f);
+            c.Check(bad0.Count == 0, "FU2: the State tab at the start" + (bad0.Count > 0 ? ": " + string.Join(", ", bad0) : ""));
+            int sb = MaTable(c, f).LowestFree();
+            var ra = ui.Ops.AddAccessory(f, 352, item, null, null, UiContext.User(OpLabels.AddAccessory), sb);
+            string aa = (ra.Value as MakerResult)?.NewAccessoryIds.FirstOrDefault();
+            yield return MaFu2State(c, "an add", insp, builds, f);
+            int sc = MaTable(c, f).LowestFree();
+            var rc = ui.Ops.CopyAccessory(f, aa, sc, null, AccessoryCopyParts.Slot, false, MirrorAxis.None, UiContext.User(OpLabels.CopyAccessory));
+            string ac = (rc.Value as MakerResult)?.NewAccessoryIds.FirstOrDefault();
+            c.Check(rc.Ok && ac != null, "FU2: a copy into the new slot " + MaNN(sc));
+            yield return MaFu2State(c, "a copy to a new slot", insp, builds, f);
+            // a refilled row writes: one entry, the state key; undo shows it again
+            var row = MfQ<FieldRow>(insp.Chara.TabBodies["state"], "accessory-" + ac);
+            var toggle = row?.Control as Toggle;
+            int uw = UndoCount(c);
+            if (toggle != null) toggle.value = false;
+            yield return PlayModeHarness.WaitFrames(2);
+            var stMap = (MaNode(c, f).State as CharaNodeState)?.State.Accessories;
+            c.Check(toggle != null && stMap != null && stMap.TryGetValue(ac, out bool vis) && !vis && UndoCount(c) == uw + 1 && c.UndoLabel == OpLabels.Accessories,
+                "FU2: the new row hides its accessory, one entry \"" + c.UndoLabel + "\"");
+            c.App.Session.Commands.Undo();
+            yield return PlayModeHarness.WaitFrames(3);
+            c.Check(toggle != null && toggle.value, "FU2: undo shows the row on again");
+            // the row names the worn item: an item change renames it, without a new row's position changing
+            var other = MakerCatalog.For(c.App.Catalog)?.Rows(352, 1).Skip(1).FirstOrDefault();
+            if (other != null)
+            {
+                string wantName = c.App.Catalog.GetEntry(352, other.Key)?["Name"];
+                ui.Ops.ChangeItem(new[] { f }, MaPath(ac, "item"), other.Key.ToString(), UiContext.User(OpLabels.ChangeItem));
+                yield return MaFu2State(c, "an item change", insp, builds, f);
+                var row2 = MfQ<FieldRow>(insp.Chara.TabBodies["state"], "accessory-" + ac);
+                c.Check(wantName != null && row2 != null && row2.Query<Label>().ToList().Any(l => l.text != null && l.text.Contains(wantName)), "FU2: the row names the new item (" + wantName + ")");
+                c.App.Session.Commands.Undo();
+                yield return MaFu2State(c, "the item change undone", insp, builds, f);
+            }
+            ui.Ops.RemoveAccessory(f, aa, UiContext.User(OpLabels.RemoveAccessory));
+            yield return MaFu2State(c, "a removal", insp, builds, f);
+            c.App.Session.Commands.Undo();
+            yield return MaFu2State(c, "the removal undone", insp, builds, f);
+            c.App.Session.Commands.Undo();
+            yield return MaFu2State(c, "the copy undone", insp, builds, f);
+            c.App.Session.Commands.Undo();
+            yield return MaFu2State(c, "the add undone", insp, builds, f);
+            c.App.Session.Commands.Redo();
+            yield return MaFu2State(c, "the add redone", insp, builds, f);
+            yield return MfUndoTo(c, u1);
+        }
+
+        // ---- a coordinate load and its undo, the State tab shown: accessories and clothes rows follow; the FK rows of the load
+        string girly = McCoordFile(c, 1, "ガーリーブラウス");
+        if (girly != null)
+        {
+            ui.Ops.SetFkEnabled(f, true, User);
+            ui.Session.Commands.Set(f, "chara.fk.groups.skirt", true, User);
+            yield return PlayModeHarness.WaitFrames(3);
+            insp.Refresh();
+            insp.Chara.ShowTab("state");
+            builds = insp.Builds;
+            yield return PlayModeHarness.WaitFrames(3);
+            string set0 = ui.Ops.ClothesStatesOf(f).ToString();
+            int fk0 = MaFkRows(insp), bones0 = MaBones(c, f);
+            var load = ui.Ops.ApplyCoordinateFile(new[] { f }, girly, CoordinateApplyMode.All, UiContext.User(OpLabels.LoadCoordinate));
+            yield return WaitFor(() => c.App.Runtime.FindChara(f)?.State == RealizationState.Built, 30, ok);
+            yield return WaitFor(() => MaClothesDiff(c, insp, f).Count == 0 && MaStateDiff(c, insp, f).Count == 0, 3, ok);
+            string set1 = ui.Ops.ClothesStatesOf(f).ToString();
+            var dc = MaClothesDiff(c, insp, f);
+            var ds = MaStateDiff(c, insp, f);
+            c.Info($"FU2 a coordinate load: inspector builds {insp.Builds} (was {builds}), clothes state set {set0} -> {set1}; FK rows {fk0} -> {MaFkRows(insp)}, skirt bones of the table {bones0} -> {MaBones(c, f)}");
+            c.Check(load.Ok && dc.Count == 0, "FU2: a coordinate load with the State tab shown: the clothes rows follow the worn outfit" + (dc.Count > 0 ? ": " + string.Join(", ", dc) : ""));
+            c.Check(ds.Count == 0, "FU2: a coordinate load with the State tab shown: the accessory rows match the document" + (ds.Count > 0 ? ": " + string.Join(", ", ds) : ""));
+            yield return WaitFor(() => MaFkDiff(c, insp, f).Count == 0, 3, ok);
+            var dk = MaFkDiff(c, insp, f);
+            c.Check(dk.Count == 0, "FU2: a coordinate load with FK on: the FK rows match the bone table" + (dk.Count > 0 ? ": " + string.Join(", ", dk) : ""));
+            c.App.Session.Commands.Undo();
+            yield return WaitFor(() => MaClothesDiff(c, insp, f).Count == 0 && MaStateDiff(c, insp, f).Count == 0, 3, ok);
+            dc = MaClothesDiff(c, insp, f);
+            ds = MaStateDiff(c, insp, f);
+            c.Check(dc.Count == 0 && ds.Count == 0, "FU2: its undo: the clothes and accessory rows follow" + (dc.Count + ds.Count > 0 ? ": " + string.Join(", ", dc.Concat(ds)) : ""));
+            yield return WaitFor(() => MaFkDiff(c, insp, f).Count == 0, 3, ok);
+            dk = MaFkDiff(c, insp, f);
+            c.Check(dk.Count == 0, "FU2: its undo: the FK rows match the bone table" + (dk.Count > 0 ? ": " + string.Join(", ", dk) : ""));
+            string jersey = McCoordFile(c, 1, "ジャージ");
+            if (jersey != null)
+            {
+                int jb = MaBones(c, f);
+                ui.Ops.ApplyCoordinateFile(new[] { f }, jersey, CoordinateApplyMode.All, UiContext.User(OpLabels.LoadCoordinate));
+                yield return WaitFor(() => MaFkDiff(c, insp, f).Count == 0 && MaClothesDiff(c, insp, f).Count == 0, 3, ok);
+                dk = MaFkDiff(c, insp, f);
+                dc = MaClothesDiff(c, insp, f);
+                c.Info($"FU2 a second coordinate: inspector builds {insp.Builds} (was {builds}), FK rows {MaFkRows(insp)}, skirt bones of the table {jb} -> {MaBones(c, f)}");
+                c.Check(dk.Count == 0 && dc.Count == 0, "FU2: a second coordinate: the FK and clothes rows follow" + (dk.Count + dc.Count > 0 ? ": " + string.Join(", ", dk.Concat(dc)) : ""));
+                c.App.Session.Commands.Undo();
+                yield return WaitFor(() => MaFkDiff(c, insp, f).Count == 0 && MaClothesDiff(c, insp, f).Count == 0, 3, ok);
+                dk = MaFkDiff(c, insp, f);
+                dc = MaClothesDiff(c, insp, f);
+                c.Check(dk.Count == 0 && dc.Count == 0, "FU2: its undo: the FK and clothes rows follow" + (dk.Count + dc.Count > 0 ? ": " + string.Join(", ", dk.Concat(dc)) : ""));
+            }
+            yield return MfUndoTo(c, u1);
+        }
+        else c.Warning("FU2: the female coordinate «ガーリーブラウス» is not in the install (the coordinate case was not taken)");
+
+        // ---- the Advanced pose tab keeps its Pick over an add and a removal
+        {
+            yield return PlayModeHarness.WaitFrames(2);
+            insp.Refresh();
+            builds = insp.Builds;
+            insp.Chara.ShowTab(AdvancedPoseTab.TabId);
+            yield return PlayModeHarness.WaitFrames(3);
+            var adv = AdvancedPoseTab.Current;
+            adv?.SetPick(true);
+            var rp = ui.Ops.AddAccessory(f, 352, item, null, null, UiContext.User(OpLabels.AddAccessory), MaTable(c, f).LowestFree());
+            yield return PlayModeHarness.WaitFrames(3);
+            c.Check(adv != null && rp.Ok && adv.PickOn && AdvancedPoseTab.Current == adv && insp.Builds == builds, $"FU2: the Advanced pose tab keeps its Pick over an add (builds {insp.Builds}, was {builds})");
+            c.App.Session.Commands.Undo();
+            yield return PlayModeHarness.WaitFrames(3);
+            c.Check(adv != null && adv.PickOn && insp.Builds == builds, "FU2: and over its undo");
+            adv?.SetPick(false);
+        }
+
+        // ---- no accessory at all: the note, then the rows again (the male)
+        {
+            ui.Ops.Select(new[] { m });
+            yield return PlayModeHarness.WaitFrames(3);
+            insp = Inspector(c);
+            insp.Chara.ShowTab("state");
+            yield return PlayModeHarness.WaitFrames(3);
+            builds = insp.Builds;
+            int um = UndoCount(c);
+            var worn0 = MaTable(c, m).EntryBySlot.Values.Select(e => e.Id).ToList();
+            foreach (var a in worn0) ui.Ops.RemoveAccessory(m, a, UiContext.User(OpLabels.RemoveAccessory));
+            yield return MaFu2State(c, "every accessory of the male removed", insp, builds, m);
+            c.Check(MaTable(c, m).Count == 0 && MfQ<VisualElement>(insp.Chara.TabBodies["state"], "state-no-accessories") != null, $"FU2: no accessory left ({worn0.Count} removed), the note is shown");
+            var rn = ui.Ops.AddAccessory(m, 352, item, null, null, UiContext.User(OpLabels.AddAccessory), null);
+            yield return MaFu2State(c, "the first accessory added", insp, builds, m);
+            c.Check(rn.Ok && MaTable(c, m).Count == 1 && MfQ<VisualElement>(insp.Chara.TabBodies["state"], "state-no-accessories") == null, "FU2: one accessory, its row instead of the note");
+            c.App.Session.Commands.Undo();
+            yield return MaFu2State(c, "its undo", insp, builds, m);
+            c.Check(MfQ<VisualElement>(insp.Chara.TabBodies["state"], "state-no-accessories") != null, "FU2: the note again");
+            yield return MfUndoTo(c, um);
+            yield return MaFu2State(c, "back at the start", insp, builds, m);
+            ui.Ops.Select(new[] { f });
+            yield return PlayModeHarness.WaitFrames(3);
+        }
+        c.Check(UndoCount(c) == u0, $"FU2: the history is back at the start ({UndoCount(c)}, {u0})");
+    }
+
     static IEnumerator MakerAccessoriesGroup(Ctx c)
     {
         var ui = c.Ui;
@@ -266,8 +688,7 @@ public static partial class UiPanelsTest
         double firstShow = tab.PageBuildMs.TryGetValue("accessories.accessories", out var fs) ? fs : -1;
         double firstGroup = s0 >= 0 && tab.PageBuildMs.TryGetValue("accessories.group." + MaNN(s0), out var fg) ? fg : -1;
         c.Check(tab.AccessoryShownId == a0 && tab.AccessoryGroup?.name == "acc-slot-group-" + MaNN(s0), "the lowest worn slot is selected and its group shown (" + tab.AccessoryGroup?.name + ")");
-        c.Check(firstShow >= 0 && firstShow <= 2 * PageTargetMs, $"XU4: Accessories page first show {firstShow:0.0} ms (incl. the first slot group {firstGroup:0.0} ms; ≤ {2 * PageTargetMs})");
-        if (firstShow > PageTargetMs) c.Warning($"XU4: Accessories page first show {firstShow:0.0} ms above the {PageTargetMs} ms target");
+        TimedShow(c, "XU4: Accessories page first show", firstShow, gcs, PageTargetMs, $"incl. the first slot group {firstGroup:0.0} ms");
         c.Info("XU4 first show breakdown (ms): " + string.Join(", ", tab.PageBuildMs.Where(kv => kv.Key.StartsWith("section.accessories.", StringComparison.Ordinal)).Select(kv => kv.Key.Substring("section.accessories.accessories.".Length) + " " + kv.Value.ToString("0.0")))
             + "; type list rows built " + (MfQ<PartList>(tab, "field-" + MaPath(a0, "item"))?.LastBuildMs.ToString("0.0") ?? "-") + " ms; GC collections (gen 0) during it " + gcs + "; gate evaluations " + gates);
         var secs = page?.Query<Foldout>().ToList().Select(x => x.name).Where(n => n.StartsWith("edit-section-accessories.accessories.", StringComparison.Ordinal) && MhShown(page.Q<Foldout>(n))).Select(n => n.Substring("edit-section-accessories.accessories.".Length)).ToList() ?? new List<string>();
@@ -737,16 +1158,16 @@ public static partial class UiPanelsTest
             var all = MaTable(c, f).EntryBySlot.Values.Select(e => e.Id).ToList();
             foreach (var a in all) { tab.SelectAccessory(a); yield return PlayModeHarness.WaitFrames(1); }
             c.Check(tab.AccessoryGroupCount <= CharaEditTab.AccessoryGroupsKept, $"after selecting each of {all.Count} slots: {tab.AccessoryGroupCount} slot groups kept (≤ {CharaEditTab.AccessoryGroupsKept})");
-            var switches = new List<double>();
+            var switches = new List<(double ms, int gcs)>();
             for (int n = 0; n < 8; n++)
             {
+                int g0 = GC.CollectionCount(0);
                 tab.SelectAccessory(n % 2 == 0 ? all[all.Count - 1] : all[all.Count - 2]);
+                int g = GC.CollectionCount(0) - g0;
                 yield return PlayModeHarness.WaitFrames(1);
-                if (n >= 2) switches.Add(tab.AccessorySlotSwitchMs);
+                if (n >= 2) switches.Add((tab.AccessorySlotSwitchMs, g));
             }
-            double cached = Median(switches);
-            c.Check(cached <= 2 * AccSwitchTargetMs, $"XU4: cached slot switch median {cached:0.000} ms over {switches.Count} (max {switches.DefaultIfEmpty(0).Max():0.000}; ≤ {2 * AccSwitchTargetMs})");
-            if (cached > AccSwitchTargetMs) c.Warning($"XU4: cached slot switch {cached:0.00} ms above the {AccSwitchTargetMs} ms target");
+            TimedMedian(c, "XU4: cached slot switch", switches, AccSwitchTargetMs);
             // slot 21 (index 20) and up to 20 worn slots through the op (one cheap item), then the list rebuild
             int ub = UndoCount(c);
             var r20 = ui.Ops.AddAccessory(f, 352, "illusion.hs2#0", null, null, UiContext.User(OpLabels.AddAccessory), 20);
@@ -813,6 +1234,12 @@ public static partial class UiPanelsTest
             yield return PlayModeHarness.WaitFrames(3);
             c.Check(!tab.AccessoriesMultiDisabled, "one character selected again: the page is enabled");
         }
+
+        // ---------------------------------------------------------------- FU2: the list of accessories changes, the inspector stays
+        yield return MaFu2(c, f, m);
+        tab = MfOpenEdit(c, f) ?? tab;
+        tab.ShowNode("accessories");
+        yield return PlayModeHarness.WaitFrames(3);
 
         // ---------------------------------------------------------------- XU6: the 351 list scrolled (thumbnails, after the guard records)
         {

@@ -496,11 +496,15 @@ namespace HS2Next.Chara.Edit
                 var mats = r.sharedMaterials;
                 bool changed = false;
                 for (int i = 0; i < mats.Length; i++)
-                    if (mats[i] && !Owned.Contains(mats[i])) { mats[i] = Instance(mats[i]); changed = true; }
+                    if (mats[i] && !Owned.Contains(mats[i])) { mats[i] = Instance(mats[i]); LateCopies.Add(mats[i]); changed = true; }
                 if (changed) r.sharedMaterials = mats;
             }
             return Owned.Count - n;
         }
+
+        /// <summary>The copies OwnAll made because nothing before it asked for them. An object with material items has plain copies there
+        /// instead (MaterialEditorApplier), which differ in the name alone: a value edit moves a material between the two.</summary>
+        public readonly HashSet<Material> LateCopies = new HashSet<Material>();
 
         // The material Unity gives an empty slot: the default material of a new primitive (Built-in: Default-Material;
         // with a render pipeline asset: the pipeline's default material).

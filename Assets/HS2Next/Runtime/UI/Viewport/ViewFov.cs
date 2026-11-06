@@ -99,6 +99,10 @@ namespace HS2Next.UI.Viewport
         public readonly NumberSlider Slider;
         UiEdit edit;
         float shownValue = float.NaN;
+        // a drag on the free camera has no edit to cancel: the view state it wrote goes back here on Esc
+        float pressValue;
+        VisualElement freeEscRoot;
+        EventCallback<KeyDownEvent> freeEsc;
 
         public FovRow(UiContext ctx, string name)
         {
@@ -121,6 +125,7 @@ namespace HS2Next.UI.Viewport
             Add(Slider);
             schedule.Execute(Refresh).Every(100);
             Refresh();
+            RegisterCallback<DetachFromPanelEvent>(_ => UnhookFreeEsc());
         }
 
         void OnEdited(EditPhase phase, double value)
@@ -131,11 +136,14 @@ namespace HS2Next.UI.Viewport
                 case EditPhase.Begin:
                     edit?.Cancel();
                     edit = ViewFov.Target(ctx) != null ? ctx.BeginEdit(OpLabels.Camera) : null;
+                    if (edit == null) HookFreeEsc();
                     break;
                 case EditPhase.Preview:
+                    if (edit != null && !edit.IsOpen) break;   // Esc took the drag back: a late preview writes nothing
                     ViewFov.Set(ctx, v);
                     break;
                 case EditPhase.End:
+                    UnhookFreeEsc();
                     var e = edit;
                     edit = null;
                     if (e != null) ctx.ShowResult(e.Commit());
@@ -150,6 +158,34 @@ namespace HS2Next.UI.Viewport
                     Refresh(true);
                     break;
             }
+        }
+
+        void HookFreeEsc()
+        {
+            UnhookFreeEsc();
+            pressValue = ViewFov.Current(ctx);
+            var at = panel;
+            freeEscRoot = at?.visualTree;
+            if (freeEscRoot == null) return;
+            freeEsc = e =>
+            {
+                if (e.keyCode != KeyCode.Escape || e.modifiers != EventModifiers.None) return;
+                ViewFov.Set(ctx, pressValue);
+                // only this row's own pointer; the row may have left the panel already (a popup's own Esc comes first)
+                for (int id = 0; id < PointerId.maxPointers; id++)
+                    if (at.GetCapturingElement(id) is VisualElement holder && (holder == Slider || Slider.Contains(holder))) at.ReleasePointer(id);
+                Slider.End();
+                UnhookFreeEsc();
+                e.StopPropagation();
+            };
+            freeEscRoot.RegisterCallback(freeEsc, TrickleDown.TrickleDown);
+        }
+
+        void UnhookFreeEsc()
+        {
+            if (freeEscRoot != null && freeEsc != null) freeEscRoot.UnregisterCallback(freeEsc, TrickleDown.TrickleDown);
+            freeEscRoot = null;
+            freeEsc = null;
         }
 
         /// <summary>Shows the current view's value and its tooltip (not while dragging). Tests call it.</summary>

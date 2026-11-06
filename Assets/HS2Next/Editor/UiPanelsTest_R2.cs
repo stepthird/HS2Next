@@ -50,13 +50,18 @@ public static partial class UiPanelsTest
 
     // ---------------------------------------------------------------- R2P pose browser
 
-    static IEnumerator R2PumpUntil(PoseBrowser b, Func<bool> done, double sec, List<double> frameMs = null)
+    /// <summary>Pumps <paramref name="b"/> until <paramref name="done"/>. <paramref name="gcsInLongest"/>[0]: the collections in the pump
+    /// that holds the longest fill step so far, the step's own window (a scan runs for seconds; one elsewhere says nothing about it).</summary>
+    static IEnumerator R2PumpUntil(PoseBrowser b, Func<bool> done, double sec, List<double> frameMs = null, int[] gcsInLongest = null)
     {
         var sw = Stopwatch.StartNew();
         while (!done() && sw.Elapsed.TotalSeconds < sec)
         {
             var f = Stopwatch.StartNew();
+            double longest0 = b.MaxStepMs;
+            int gc0 = GC.CollectionCount(0);
             b.Pump();
+            if (gcsInLongest != null && b.MaxStepMs > longest0) gcsInLongest[0] = GC.CollectionCount(0) - gc0;
             frameMs?.Add(f.Elapsed.TotalMilliseconds);
             yield return null;
         }
@@ -95,18 +100,19 @@ public static partial class UiPanelsTest
         try { if (File.Exists(idx)) File.Delete(idx); } catch (Exception) { }
         var cold = new PoseBrowser(ui) { UseAppFolders = false, Hs2Dir = hs2, OwnDir = own, IndexFile = idx };
         var frames = new List<double>();
+        var gcsInLongest = new int[1];
         cold.StartScan();
-        yield return R2PumpUntil(cold, () => cold.Ready, 30, frames);
+        yield return R2PumpUntil(cold, () => cold.Ready, 30, frames, gcsInLongest);
         int unreadAtList = cold.Files?.Unread ?? -1, shownAtList = cold.Index?.Indices.Count ?? -1;
         bool pngAtList = cold.Files != null && cold.Index.Indices.Any(i => cold.Files.Entries[i].HasImage && cold.Files.Entries[i].Status == PoseEntryStatus.Pending);
-        yield return R2PumpUntil(cold, () => cold.Complete, 120, frames);
+        yield return R2PumpUntil(cold, () => cold.Complete, 120, frames, gcsInLongest);
         var cf = cold.Files;
         c.Info($"no index: list {cold.FirstListMs:0} ms ({shownAtList} shown, {unreadAtList} files to read), every name {cold.CompleteMs:0} ms; files read {cf?.FilesRead}, index written {cf?.IndexWritten}; "
             + $"main-thread step max {cold.MaxStepMs:0.0} ms (names {cold.MaxTakeMs:0.0}, folders {cold.MaxFolderMs:0.0}, list {cold.MaxRefreshMs:0.0}; {cold.FillSteps} steps), pumped frame p95 {Pct(frames, 0.95):0.0} ms / max {(frames.Count > 0 ? frames.Max() : 0):0.0} ms");
         c.Check(cold.Complete && cf.IndexHits == 0 && cf.FilesRead == cf.Entries.Count && cf.IndexWritten && File.Exists(idx), "no index: every file read once, the index written");
         c.Check(cold.FirstListMs <= 500 && unreadAtList > 0 && shownAtList > 0, $"no index: the list shows from the folder walk before the files are read ({cold.FirstListMs:0} ms, {shownAtList} shown, {unreadAtList} unread)");
         c.Check(!pngAtList, "no index: a PNG not read yet is not listed (it may be a plain image)");
-        c.Check(cold.MaxStepMs < 100, $"no index: the longest main-thread fill step {cold.MaxStepMs:0.0} ms (< 100)");
+        TimedShow(c, "no index: the longest main-thread fill step", cold.MaxStepMs, gcsInLongest[0], 100, barMs: 100);
         if (cold.CompleteMs <= 2000) c.Check(true, $"no index: every name in {cold.CompleteMs:0} ms (target ≤ 2,000)");
         else
         {

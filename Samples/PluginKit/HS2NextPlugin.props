@@ -1,0 +1,63 @@
+<Project>
+  <!--
+    HS2Next plugin kit (CC0-1.0): the build settings that the plugin projects of the kit share. A project imports this file
+    and sets PluginGuid (the guid of its manifest.json); `dotnet build` then compiles it against the API assemblies of the
+    app and copies the plugin into out\<PluginGuid>\, the folder to copy into the app's Plugins folder.
+
+    One property is meant to be set by you:
+      HS2NextDir           the folder that holds HS2Next.exe. Default: the folder above this kit, so the kit builds where
+                           the zip put it. A kit copied elsewhere passes -p:HS2NextDir=<the folder of HS2Next.exe>
+                           (an absolute path).
+    The others follow from it:
+      HS2NextManaged       the folder of HS2Next.Api.dll and HS2Next.Api.Unity.dll (default HS2NextDir\HS2Next_Data\Managed)
+      HS2NextUnityManaged  the folder of the UnityEngine module assemblies (default HS2NextManaged)
+      HS2NextJson          Newtonsoft.Json.dll (default HS2NextManaged\Newtonsoft.Json.dll)
+      HS2NextKitOut        where built plugins are staged (default the out folder next to this file)
+    Opt-in references (set them in the project, true or absent):
+      HS2NextUseUnity      HS2Next.Api.Unity, UnityEngine.CoreModule and UnityEngine.UIElementsModule (engine-side plugins)
+      HS2NextUseJson       Newtonsoft.Json (the app provides version 13 to every plugin)
+    No reference is copied next to the plugin: the app provides them all.
+  -->
+  <PropertyGroup>
+    <HS2NextDir Condition="'$(HS2NextDir)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))</HS2NextDir>
+    <HS2NextManaged Condition="'$(HS2NextManaged)' == ''">$(HS2NextDir)\HS2Next_Data\Managed</HS2NextManaged>
+    <HS2NextUnityManaged Condition="'$(HS2NextUnityManaged)' == ''">$(HS2NextManaged)</HS2NextUnityManaged>
+    <HS2NextJson Condition="'$(HS2NextJson)' == ''">$(HS2NextManaged)\Newtonsoft.Json.dll</HS2NextJson>
+    <HS2NextKitOut Condition="'$(HS2NextKitOut)' == ''">$(MSBuildThisFileDirectory)out\</HS2NextKitOut>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Deterministic>true</Deterministic>
+    <DebugType>none</DebugType>
+    <Nullable>disable</Nullable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="HS2Next.Api"><HintPath>$(HS2NextManaged)\HS2Next.Api.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(HS2NextUseUnity)' == 'true'">
+    <Reference Include="HS2Next.Api.Unity"><HintPath>$(HS2NextManaged)\HS2Next.Api.Unity.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(HS2NextUnityManaged)\UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.UIElementsModule"><HintPath>$(HS2NextUnityManaged)\UnityEngine.UIElementsModule.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(HS2NextUseJson)' == 'true'">
+    <Reference Include="Newtonsoft.Json"><HintPath>$(HS2NextJson)</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+  <!-- Before the references resolve: a clear message instead of a missing-type error when the app is not found. -->
+  <Target Name="HS2NextCheckDir" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="!Exists('$(HS2NextManaged)\HS2Next.Api.dll')" Text="HS2Next.Api.dll not found under $(HS2NextManaged): pass -p:HS2NextDir=&lt;the folder of HS2Next.exe&gt;" />
+    <Error Condition="'$(PluginGuid)' == ''" Text="$(MSBuildProjectName): set PluginGuid to the guid of the project's manifest.json" />
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\manifest.json')" Text="$(MSBuildProjectName): no manifest.json next to the project" />
+  </Target>
+
+  <!-- After the build: the plugin folder out\<PluginGuid>\ with the assembly, manifest.json and strings.tsv (when there is one). -->
+  <Target Name="HS2NextStage" AfterTargets="Build">
+    <ItemGroup>
+      <_HS2NextStage Include="$(TargetPath);$(MSBuildProjectDirectory)\manifest.json" />
+      <_HS2NextStage Include="$(MSBuildProjectDirectory)\strings.tsv" Condition="Exists('$(MSBuildProjectDirectory)\strings.tsv')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_HS2NextStage)" DestinationFolder="$(HS2NextKitOut)$(PluginGuid)" SkipUnchangedFiles="true" />
+    <Message Importance="high" Text="$(MSBuildProjectName) -> $(HS2NextKitOut)$(PluginGuid)" />
+  </Target>
+</Project>

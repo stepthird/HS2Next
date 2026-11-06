@@ -276,6 +276,10 @@ namespace HS2Next.UI.Panels
         public readonly VectorField Field;
         public FieldBinding Binding { get; }
         public OpResult LastResult { get; private set; }
+        /// <summary>The row's override channel.</summary>
+        public string Channel => path;
+        /// <summary>The characters the row shows.</summary>
+        public IReadOnlyList<string> Targets => selector.Resolve(ctx);
 
         public IkTargetRow(UiContext ctx, HS2Next.UI.Core.FieldSpec spec, TargetSelector selector, string target)
         {
@@ -325,6 +329,7 @@ namespace HS2Next.UI.Panels
         {
             if (phase == EditPhase.Begin) { edit?.Cancel(); edit = ctx.BeginEdit(spec.OpLabel ?? "IK targets"); return; }
             if (phase == EditPhase.End) { var e = edit; edit = null; if (e != null) ctx.ShowResult(e.Commit()); Binding.MarkDirty(); return; }
+            if (edit != null && !edit.IsOpen) return;   // Esc took the drag back: a late preview writes nothing
             int k = Field.LastComponent;
             Write(v, k, phase == EditPhase.Typed ? "ui.typed/" + string.Join(",", selector.Resolve(ctx)) + "/" + path : null);
         }

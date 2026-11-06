@@ -10,7 +10,7 @@
 //   - Cell escapes: `\n` newline, `\t` tab, `\\` backslash. A cell wholly enclosed in double quotes is unquoted with ""
 //     → " (spreadsheet exports); quotes elsewhere are literal.
 //   - Placeholders `{0}`, `{1}` … (string.Format); every language of a key must use the same placeholder set.
-//   - The note column flags unreviewed machine translations: `zh?` (zh-Hans), `ja?` (ja); free text after them is allowed.
+//   - The note column flags cells awaiting review by a speaker: `zh?` (zh-Hans), `ja?` (ja); free text after them is allowed.
 //   - An empty cell = missing (lookup falls back to en, then to the key).
 //   - A key defined twice: the first row wins, the duplicate is reported.
 using System;
@@ -55,7 +55,7 @@ namespace HS2Next.UI.Core
         public string Note(string key) => key != null && notes.TryGetValue(key, out var n) ? n : "";
         public int LineOf(string key) => key != null && lineOf.TryGetValue(key, out int l) ? l : 0;
 
-        /// <summary>Whether the language's cell of a key is a machine translation awaiting review (note `zh?` / `ja?`).</summary>
+        /// <summary>Whether the language's cell of a key awaits review by a speaker (note `zh?` / `ja?`).</summary>
         public bool Unreviewed(string key, string lang)
         {
             string n = Note(key);

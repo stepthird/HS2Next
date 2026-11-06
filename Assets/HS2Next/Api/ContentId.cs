@@ -51,14 +51,19 @@ namespace HS2Next.Content
         /// <summary>The GUID for mod/pack references, or null for vanilla and empty references.</summary>
         public string ModGuid => IsVanilla ? null : SourceGuid;
 
+        /// <summary>Equal ID and GUID (the GUID ignoring case).</summary>
         public bool Equals(ContentId other) => Id == other.Id && GuidComparer.Equals(SourceGuid, other.SourceGuid);
 
+        /// <summary>True for an equal <see cref="ContentId"/>.</summary>
         public override bool Equals(object obj) => obj is ContentId o && Equals(o);
 
+        /// <summary>A hash consistent with <see cref="Equals(ContentId)"/>.</summary>
         public override int GetHashCode() =>
             unchecked((SourceGuid == null ? 0 : GuidComparer.GetHashCode(SourceGuid)) * 397 ^ Id);
 
+        /// <summary>Equal references.</summary>
         public static bool operator ==(ContentId a, ContentId b) => a.Equals(b);
+        /// <summary>Different references.</summary>
         public static bool operator !=(ContentId a, ContentId b) => !a.Equals(b);
 
         /// <summary>Orders by GUID (ordinal, case-insensitive; empty first), then by ID.</summary>

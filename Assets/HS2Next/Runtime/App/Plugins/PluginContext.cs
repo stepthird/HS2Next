@@ -2,8 +2,11 @@
 // owner-scoped command registry, the bridge's frames and output root, a readiness view whose stages are never required
 // for the app, the plugin's ext registry view (faults count for the plugin), its events, the scene clock, its settings
 // file and log, the engine-side services (GetService) and the in-process calls: Call runs a request inline through the
-// bridge (BridgeServer.RunNow), CallAsync queues it like an HTTP request. After the plugin unloads every member except
-// Guid and Log throws ObjectDisposedException.
+// bridge (BridgeServer.RunNow), CallAsync queues it like an HTTP request; Request / RequestAsync build the envelope from a
+// command name and an argument object (PluginRequests) and return the typed reply. History puts the plugin's entries on
+// the scene's undo list (PluginHistory). Overrides is the plugin's view of the scene's runtime override layer
+// (PluginOverrides; the plugin's GUID owns its slots). After the plugin unloads every member except Guid, Log and IsActive
+// throws ObjectDisposedException.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,6 +31,9 @@ namespace HS2Next.App.Plugins
         readonly PluginReadiness readiness;
         readonly PluginClock clock;
         readonly IExtRegistry ext;
+        readonly PluginHistory history;
+        readonly PluginFrames frames;
+        readonly PluginOverrides overrides;
         volatile bool valid = true;
 
         internal PluginContext(PluginHost host, PluginEntry entry)
@@ -46,7 +52,13 @@ namespace HS2Next.App.Plugins
             readiness = new PluginReadiness(host.Bridge.Readiness);
             clock = new PluginClock(host);
             ext = ExtRegistry.Default.ForOwner(Guid, (ns, hook, e) => entry.Guard?.Count("ext " + ns + " " + hook, e));
+            history = new PluginHistory(host, entry);
+            frames = new PluginFrames(host.Bridge.Frames, () => valid && entry.Context == this && entry.State == PluginStates.Loaded, () => entry.Guard);
+            overrides = new PluginOverrides(host, entry, () => valid && entry.State != PluginStates.Faulted);
         }
+
+        /// <summary>The plugin's view of the frame clock (its scheduled actions run only while this instance is loaded).</summary>
+        internal PluginFrames FramesView => frames;
 
         /// <summary>Ends the context: later member access throws (Guid and Log keep working).</summary>
         internal void Invalidate() => valid = false;
@@ -67,7 +79,7 @@ namespace HS2Next.App.Plugins
         public IPluginLog Log => log;
         public IPluginSettings Settings => Check(settings);
         public ICommandRegistry Commands => Check(entry.Commands);
-        public IBridgeFrames Frames => Check(host.Bridge.Frames);
+        public IBridgeFrames Frames => Check(frames);
         public IBridgeReadiness Readiness => Check(readiness);
         public IOutputRoot Output => Check(host.Bridge.Output);
         public IExtRegistry Ext => Check(ext);
@@ -97,6 +109,39 @@ namespace HS2Next.App.Plugins
             Check(this);
             return host.Bridge.SubmitAsync(requestJson);
         }
+
+        public ICommandReply Request(string command, object args = null)
+        {
+            Check(this);
+            return new CommandReply(Call(PluginRequests.Envelope(command, args)));
+        }
+
+        public ICommandReply Request(CommandRequest request)
+        {
+            Check(this);
+            return new CommandReply(Call(PluginRequests.Envelope(request)));
+        }
+
+        public Task<ICommandReply> RequestAsync(string command, object args = null)
+        {
+            Check(this);
+            return Wrap(CallAsync(PluginRequests.Envelope(command, args)));
+        }
+
+        public Task<ICommandReply> RequestAsync(CommandRequest request)
+        {
+            Check(this);
+            return Wrap(CallAsync(PluginRequests.Envelope(request)));
+        }
+
+        static Task<ICommandReply> Wrap(Task<string> t) =>
+            t.ContinueWith(x => (ICommandReply)new CommandReply(x.Result), TaskContinuationOptions.ExecuteSynchronously);
+
+        /// <summary>From Load until Unload returns; false once the plugin is unloaded, disabled or faulted (never throws).</summary>
+        public bool IsActive => valid && entry.State != PluginStates.Faulted;
+        public IPluginHistory History => Check(history);
+        public HS2Next.Api.Ui.IPluginForms Forms => Check(entry.Engine?.Forms) ?? throw new NotSupportedException("declarative forms are not available in this host");
+        public IRuntimeOverrides Overrides => Check(overrides);
 
         public override string ToString() => "plugin context " + Guid + (valid ? "" : " (unloaded)");
 
@@ -163,5 +208,6 @@ namespace HS2Next.App.Plugins
             public bool Withdraw(string original) => false;
             public IReadOnlyList<KeyValuePair<string, string>> Supplied => Array.Empty<KeyValuePair<string, string>>();
         }
+
     }
 }

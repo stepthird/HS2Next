@@ -4,11 +4,12 @@
 // neck/eye look, expression, dynamic bones) is a stage registered on the character's CharaMotion.
 // One LateUpdate steps all stages in a fixed, documented order, so the result does not depend on
 // component order or on Unity's undefined script order, and tests can step a character by hand
-// (Step(dt)) without a play loop. The phase order follows the authoritative per-frame table;
+// (Step(dt)) without a play loop. A card's bone modifiers are stages here as well (phase 120, Modifiers/BoneModifierStages.cs).
+// The phase order follows the authoritative per-frame table;
 // MotionPhase values leave room for insertions. MotionPhase, MotionFrame and
 // IMotionStage live in the HS2Next.Api assembly (Assets/HS2Next/Api).
 // Probe (Phase 3.4): a side-effect-free run of the stages before a phase (the pose
-// "clip + hand patterns" for the animation copies), every transform under the root restored afterwards.
+// "clip + hand patterns + the card's bone modifiers" for the animation copies), every transform under the root restored afterwards.
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -36,6 +37,8 @@ namespace HS2Next.Motion
 
         /// <summary>Step from LateUpdate with <see cref="DeltaSource"/> (false: only manual Step calls move the character).</summary>
         public bool AutoStep = true;
+        /// <summary>The scene's motion pass steps this character in its place among the others, so LateUpdate leaves it alone. Step works as ever.</summary>
+        public bool Scheduled;
         /// <summary>The delta of the LateUpdate step (null = Time.deltaTime). Scene characters get the scene clock's FrameDt
         /// (0 while the scene is paused).</summary>
         public Func<float> DeltaSource;
@@ -287,9 +290,12 @@ namespace HS2Next.Motion
             for (int i = 0; i < c; i++) Collect(t.GetChild(i), stop, false);
         }
 
+        /// <summary>One step with <see cref="DeltaSource"/>: what LateUpdate does for a character that steps itself.</summary>
+        public void StepAuto() => Step(DeltaSource != null ? DeltaSource() : UnityEngine.Time.deltaTime);
+
         void LateUpdate()
         {
-            if (AutoStep) Step(DeltaSource != null ? DeltaSource() : UnityEngine.Time.deltaTime);
+            if (AutoStep && !Scheduled) StepAuto();
         }
 
         void OnEnable() { if (StepCount > 0) ResetAll(); }

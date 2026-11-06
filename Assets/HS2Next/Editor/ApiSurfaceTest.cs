@@ -51,8 +51,8 @@ public static class ApiSurfaceTest
     public static readonly string[] PluginImplemented =
     {
         "HS2Next.Api.Bridge.IBatchHook", "HS2Next.Api.Plugins.IPlugin", "HS2Next.Api.Plugins.IPluginSceneLoaded",
-        "HS2Next.Api.Plugins.IPluginUpdate", "HS2Next.Api.Save.IExtBlockHandler", "HS2Next.Api.Save.IKkexConsumer",
-        "HS2Next.Motion.IMotionStage",
+        "HS2Next.Api.Plugins.IPluginScenePost", "HS2Next.Api.Plugins.IPluginUpdate", "HS2Next.Api.Save.IExtBlockHandler",
+        "HS2Next.Api.Save.IKkexConsumer", "HS2Next.Motion.IMotionStage",
     };
 
     /// <summary>The commands flagged experimental at the freeze (Api 1.0.0): UI introspection, dumps, diagnostics.</summary>
@@ -185,7 +185,7 @@ public static class ApiSurfaceTest
             Az4(cmdJson);
 
             // AZ5 the plugin manifests of the repository
-            rep.AppendLine("AZ5 the plugin manifests of the sample and the test plugins");
+            rep.AppendLine("AZ5 the plugin manifests of the samples, the plugin kit's samples and the test plugins");
             Az5(cur);
         }
         catch (Exception e) { Check("run", "no exception", false, e.ToString()); }
@@ -303,8 +303,8 @@ public static class ApiSurfaceTest
             else if (n.Kind == "member" && pluginTypes.Contains(DeclaringType(n.Key))) { k = Change.Major; why = " (an interface plugins implement)"; }
             else if (n.Kind == "member" && classTypes.Contains(DeclaringType(n.Key)) && Regex.IsMatch(n.Value, @"\babstract\b")) { k = Change.Major; why = " (a new abstract member)"; }
             else if (n.Kind == "mkey" && Field(n.Value, "required") == "true") { k = Change.Major; why = " (newly required)"; }
-            else if (n.Kind == "arg" && Field(n.Value, "required") == "true" && b.ContainsKey(n.Key.Substring(0, n.Key.IndexOf(" arg ", StringComparison.Ordinal))))
-            { k = Change.Major; why = " (newly required)"; }   // a required argument of a new command (or a new alias) is part of an addition
+            else if (n.Kind == "arg" && Field(n.Value, "required") == "true" && b.TryGetValue(n.Key.Substring(0, n.Key.IndexOf(" arg ", StringComparison.Ordinal)), out var was) && !was.Exp)
+            { k = Change.Major; why = " (newly required)"; }   // a required argument of a new command (or a new alias, or a command that was experimental) is part of an addition
             else k = Change.Minor;
             list.Add(new Diff { Class = k, Text = "added: " + n + why });
         }
@@ -412,6 +412,15 @@ public static class ApiSurfaceTest
         CmdPair("a command made experimental", cmd, edit(c => { ((JArray)c["commands"]).Clear(); ((JArray)c["experimental"]).Add("a.b"); }), Change.Major);
         CmdPair("an experimental command added", cmd, edit(c => ((JArray)c["experimental"]).Add("ui.y")), Change.Info);
         CmdPair("an experimental command removed", cmd, edit(c => ((JArray)c["experimental"]).Clear()), Change.Info);
+        CmdPair("an experimental command made official, with a required argument", cmd, edit(c =>
+        {
+            ((JArray)c["experimental"]).Clear();
+            ((JArray)c["commands"]).Add(new JObject
+            {
+                ["name"] = "ui.x", ["group"] = "ui", ["owner"] = "core", ["since"] = "1.0.0", ["gate"] = "app", ["flags"] = new JArray("readOnly"), ["allowExtraArgs"] = false,
+                ["args"] = new JArray(new JObject { ["name"] = "key", ["type"] = "node", ["required"] = true }), ["returns"] = new JArray(),
+            });
+        }), Change.Minor);
         CmdPair("an added error code", cmd, edit(c => ((JArray)c["protocol"]["errorCodes"]).Add("new_code")), Change.Minor);
         CmdPair("a removed error code", cmd, edit(c => ((JArray)c["protocol"]["errorCodes"]).RemoveAt(0)), Change.Major);
         CmdPair("a changed protocol version", cmd, edit(c => c["protocol"]["version"] = 2), Change.Major);
@@ -482,7 +491,7 @@ public static class ApiSurfaceTest
     {
         var root = ContentSettings.ProjectRoot;
         var files = new List<string>();
-        foreach (var top in new[] { "Samples", Path.Combine("Tests", "Plugins") })
+        foreach (var top in new[] { "Samples", Path.Combine("Samples", "PluginKit"), Path.Combine("Tests", "Plugins") })
         {
             string d = Path.Combine(root, top);
             if (!Directory.Exists(d)) continue;

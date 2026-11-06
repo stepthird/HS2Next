@@ -1,6 +1,10 @@
 // Core bridge commands in edit mode: AppCore.ForTests hosts (no HTTP, package B's
 // dispatcher through AppCore.Call, frames pumped by hand), checks C1–C17 (later phases add C18–C25 in further files; C25 the
-// Phase 3.4 FK / IK commands, Editor/BridgeCoreTest_Kinematics.cs). Package W1 owns this file, the fixture and
+// Phase 3.4 FK / IK commands, Editor/BridgeCoreTest_Kinematics.cs; C40 the Phase 6.1 plugin host points with package B's KB
+// checks, Editor/BridgeCoreTest_Plugins61.cs; C41 the Phase 6.2 runtime overrides of plugins, Editor/BridgeCoreTest_Overrides62.cs;
+// C42 the Phase 6.3 advanced-pose commands, Editor/BridgeCoreTest_AdvancedPose63.cs; C43 the Phase 6.4 material commands,
+// Editor/BridgeCoreTest_Materials64.cs; C44 the Phase 6.5 constraint commands, Editor/BridgeCoreTest_Constraints65.cs).
+// Package W1 owns this file, the fixture and
 // C1–C9; package W2 adds Editor/BridgeCoreTest_Chara.cs with C10–C17 as further methods of this partial class.
 // A check is a static method named C<number> taking one Ctx; Run finds them by reflection and runs them in number
 // order (each in a guard: an exception is a FAIL; the hosts a check created are disposed after it).
@@ -335,8 +339,14 @@ public static partial class BridgeCoreTest
         {
             if (x.Owner != "core") bad.Add(x.Name + ": owner " + x.Owner);
             if (string.IsNullOrEmpty(x.Summary)) bad.Add(x.Name + ": no summary");
-            // every Core command of the first public version carries CommandKit.Since (1.0.0, the Api freeze)
-            if (x.Since != HS2Next.App.Commands.CommandKit.Since) bad.Add(x.Name + ": since " + x.Since);
+            // every Core command of the first public version carries CommandKit.Since (1.0.0, the Api freeze); a later one the Api
+            // version that added it (Phase 6.1: 1.1.0; Phase 6.2 to 6.5: 1.2.0)
+            string since = HS2Next.App.Commands.CoreCommands.Phase61Names.Contains(x.Name) ? HS2Next.App.Plugins.PluginCommands.Since61
+                : HS2Next.App.Commands.CoreCommands.Phase62Names.Contains(x.Name) ? HS2Next.App.Commands.TimelineCommands.Since62
+                : HS2Next.App.Commands.CoreCommands.Phase63Names.Contains(x.Name) ? HS2Next.App.Commands.AdvancedPoseCommands.Since63
+                : HS2Next.App.Commands.CoreCommands.Phase64Names.Contains(x.Name) ? HS2Next.App.Commands.MaterialCommands.Since64
+                : HS2Next.App.Commands.CoreCommands.Phase65Names.Contains(x.Name) ? HS2Next.App.Commands.ConstraintCommands.Since65 : HS2Next.App.Commands.CommandKit.Since;
+            if (x.Since != since) bad.Add(x.Name + ": since " + x.Since);
             foreach (var a in x.Args) if (string.IsNullOrEmpty(a.Doc)) bad.Add(x.Name + "." + a.Name + ": no doc");
         }
         c.Check(bad.Count == 0, "every core spec has owner core, Since " + HS2Next.App.Commands.CommandKit.Since + ", a summary and argument docs", string.Join("; ", bad.Take(10)));

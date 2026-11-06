@@ -4,6 +4,6 @@
   "include": ["**"],
   "exclude": [],
   "why": {
-    "**": "the staged package Builds/Dist/HS2Next: the tested app build's allow-listed files and the package texts, all shipped"
+    "**": "the staged package Builds/Dist/HS2Next: the tested app build's allow-listed files, the package texts, the plugin kit PluginKit/ (its sources, guides, command reference and XML documentation) and the XML documentation next to the API assemblies, all shipped"
   }
 }

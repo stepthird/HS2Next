@@ -189,7 +189,7 @@ namespace HS2Next.Content
                 var byName = new Dictionary<string, TextureHeader>(StringComparer.OrdinalIgnoreCase);
                 foreach (var n in b.Nodes)
                 {
-                    if (!IsSerialized(n)) continue;
+                    if (!IsSerialized(b, n)) continue;
                     var node = n;
                     var sf = Hs2SerializedFile.FromStream(() => b.OpenNode(node), b.Label + ":" + n.Path);
                     if (!ParseVersion(sf.UnityVersion, out int major, out int minor) && !ParseVersion(b.UnityRevision, out major, out minor))
@@ -239,8 +239,16 @@ namespace HS2Next.Content
             return false;
         }
 
-        // Serialized files carry node flag 4; older writers leave the flags 0, so a name without an extension counts too.
-        static bool IsSerialized(Hs2BundleNode n) => (n.Flags & 4) != 0 || (n.Flags == 0 && n.Path.IndexOf('.') < 0);
+        // Serialized files carry node flag 4; older writers leave every node's flags 0, so there a name without an extension
+        // counts too (the pre-upload check's rule). An empty node holds nothing to read.
+        static bool IsSerialized(Hs2BundleFile b, Hs2BundleNode n)
+        {
+            if (n.Size <= 0) return false;
+            if ((n.Flags & 4) != 0) return true;
+            if (n.Flags != 0 || n.Path.IndexOf('.') >= 0) return false;
+            foreach (var x in b.Nodes) if ((x.Flags & 4) != 0) return false;
+            return true;
+        }
 
         static bool ParseVersion(string v, out int major, out int minor)
         {

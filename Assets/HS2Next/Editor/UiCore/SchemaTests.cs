@@ -52,12 +52,19 @@ namespace HS2Next.UI.Core.Tests
             foreach (var name in InspectorSchemas.IkTargets)
                 t.Check(s.Set(chara, "chara.ik.targets." + name, new IkTarget()).Status != CommandStatus.Error, "schema: IK target " + name + " set for the walk");
             t.Check(s.Set(ids[InspectorSchemas.KindItem], "item.options", new List<bool> { true }).Status != CommandStatus.Error, "schema: an item option for the walk");
+            // the entries of the Advanced pose tab's rows (a blend row keeps its second placeholder as the key)
+            t.Check(s.Set(chara, AdvancedPosePaths.Bone("cf_J_Hips"), new BoneCorrection()).Status != CommandStatus.Error, "schema: a bone correction for the walk");
+            t.Check(s.Set(chara, AdvancedPosePaths.Chain("hair:0/root"), new ChainValues()).Status != CommandStatus.Error, "schema: chain values for the walk");
+            var blend = new BlendValues();
+            blend.Weights["{shape}"] = 1f;
+            t.Check(s.Set(chara, AdvancedPosePaths.Blend("head/o_head"), blend).Status != CommandStatus.Error, "schema: a blend weight for the walk");
             return ids;
         }
 
         static readonly Dictionary<string, string> TemplateSample = new Dictionary<string, string>
         {
             ["slot"] = "1", ["bone"] = "cf_J_Hips", ["k"] = "0", [InspectorSchemas.RoutePointPlaceholder] = "0",
+            ["chain"] = "hair:0/root", ["bust"] = "breastL", ["renderer"] = "head/o_head",
         };
 
         static IEnumerable<string> Expansions(FieldSpec f)
@@ -78,12 +85,12 @@ namespace HS2Next.UI.Core.Tests
             {
                 case FieldKind.Float: return leaf == typeof(float) || leaf == typeof(float?);
                 case FieldKind.Int: return leaf == typeof(int);
-                case FieldKind.Bool: return leaf == typeof(bool);
+                case FieldKind.Bool: return leaf == typeof(bool) || leaf == typeof(bool?);
                 case FieldKind.Color:
                 case FieldKind.ColorHdr: return leaf == typeof(Color4);
                 case FieldKind.Vec2: return leaf == typeof(Vec2);
                 case FieldKind.Vec3: return leaf == typeof(Vec3) || leaf == typeof(Vec3?);
-                case FieldKind.Enum: return leaf == typeof(string) || leaf == typeof(int);
+                case FieldKind.Enum: return leaf == typeof(string) || leaf == typeof(int) || leaf == typeof(int?);
                 case FieldKind.Ref: return leaf == typeof(string) || leaf == typeof(AnimeRef);
                 case FieldKind.File: return leaf == typeof(FileRef);
                 case FieldKind.Text: return leaf == typeof(string);
@@ -197,6 +204,12 @@ namespace HS2Next.UI.Core.Tests
             [OptionDefs.CaptureScale] = "screenshot scale (vanilla capRate 1, no UI)",
             [OptionDefs.CaptureWidth] = "custom screenshot width",
             [OptionDefs.CaptureHeight] = "custom screenshot height",
+            [InspectorSchemas.AdvChainPrefix + "weight"] = "advanced pose", [InspectorSchemas.AdvChainPrefix + "damping"] = "advanced pose",
+            [InspectorSchemas.AdvChainPrefix + "elasticity"] = "advanced pose", [InspectorSchemas.AdvChainPrefix + "stiffness"] = "advanced pose",
+            [InspectorSchemas.AdvChainPrefix + "inert"] = "advanced pose", [InspectorSchemas.AdvChainPrefix + "radius"] = "advanced pose",
+            [InspectorSchemas.AdvBustPrefix + "damping"] = "advanced pose", [InspectorSchemas.AdvBustPrefix + "elasticity"] = "advanced pose",
+            [InspectorSchemas.AdvBustPrefix + "stiffness"] = "advanced pose", [InspectorSchemas.AdvBustPrefix + "inert"] = "advanced pose",
+            [InspectorSchemas.AdvBlendWeight] = "advanced pose",
         };
 
         static string RangeKey(FieldSpec f) =>
@@ -325,7 +338,7 @@ namespace HS2Next.UI.Core.Tests
         static void Structure(TestRunner t)
         {
             var tabs = InspectorSchemas.Chara.Select(x => x.Id).ToArray();
-            t.Check(tabs.SequenceEqual(new[] { "anime", "state", "face", "look", "hands", "kinematics", "pose", "correction", "character" }),
+            t.Check(tabs.SequenceEqual(new[] { "anime", "state", "face", "look", "hands", "kinematics", "pose", "correction", InspectorSchemas.AdvancedPoseTabId, InspectorSchemas.MaterialsTabId, "character" }),
                 "structure: character tabs in the order (" + string.Join(", ", tabs) + ")");
             var fx = InspectorSchemas.Scene.Select(x => x.Id).Where(x => x.StartsWith("effects.", StringComparison.Ordinal)).Select(x => x.Substring(8)).ToArray();
             t.Check(fx.SequenceEqual(InspectorSchemas.EffectBlocks), "structure: 12 effect blocks in the vanilla order");
@@ -340,9 +353,10 @@ namespace HS2Next.UI.Core.Tests
             var applyPrimary = InspectorSchemas.AllFields().Where(f => f.Applies == Applies.Primary).Select(f => f.Id).ToList();
             // the header name renames the primary (integrator, a question on the schema rows)
             var routePointIds = new HashSet<string>(InspectorSchemas.Route.Where(x => x.Id == "routePoint").SelectMany(x => x.Fields).Select(f => f.Id));
+            routePointIds.UnionWith(InspectorSchemas.AdvancedPoseRows.Select(f => f.Id));   // the Advanced pose tab edits the primary
             t.Check(applyPrimary.All(id => id == "node:name" || id.StartsWith("node:camera.active", StringComparison.Ordinal) || id.StartsWith("button:ops.SetActiveCamera", StringComparison.Ordinal)
                     || routePointIds.Contains(id)),
-                "structure: only the header name, the active-camera rows and the route point rows (one sub-selection, R25) apply to the primary (U25, T22) (" + string.Join(", ", applyPrimary) + ")");
+                "structure: only the header name, the active-camera rows, the route point rows (one sub-selection, R25) and the Advanced pose tab apply to the primary (U25, T22) (" + string.Join(", ", applyPrimary) + ")");
             Phase36(t);
         }
 

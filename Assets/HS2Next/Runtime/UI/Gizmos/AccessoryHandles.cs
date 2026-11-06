@@ -171,6 +171,8 @@ namespace HS2Next.UI.Gizmos
             {
                 var parent = trf.parent;
                 var local = parent ? parent.InverseTransformPoint(worldPos.Value) : worldPos.Value;
+                // the handle stands on the corrected transform; the stored position is the pose under the correction
+                local = AdvancedPoseDriver.WithoutPosition(ctx.Runtime?.FindChara(t.NodeId), trf, local);
                 var axes = MovedAxes(h);
                 v = accStartPos;
                 for (int a = 0; a < 3; a++)

@@ -228,7 +228,7 @@ namespace HS2Next.Content
                 int ck = b.DataCompression;
                 r.Compression = ck >= 0 && ck < CompressionNames.Length ? CompressionNames[ck] : ck.ToString(CultureInfo.InvariantCulture);
                 var ser = new List<string>(); var res = new List<string>();
-                foreach (var n in b.Nodes) (IsSerialized(n) ? ser : res).Add(n.Path);
+                foreach (var n in b.Nodes) (IsSerialized(b, n) ? ser : res).Add(n.Path);
                 r.SerializedFiles = string.Join(",", ser);
                 r.ResourceFiles = string.Join(",", res);
                 if (ck == 1) { r.Status = Kind.Lzma; r.Error = "LZMA blocks"; return r; }
@@ -237,7 +237,7 @@ namespace HS2Next.Content
                 bool found = false;
                 foreach (var n in b.Nodes)
                 {
-                    if (!IsSerialized(n)) continue;
+                    if (!IsSerialized(b, n)) continue;
                     var node = n;
                     var sf = Hs2SerializedFile.FromStream(() => b.OpenNode(node), label + ":" + n.Path);
                     foreach (var x in sf.Externals)
@@ -284,8 +284,16 @@ namespace HS2Next.Content
                 : Read(() => Hs2BundleFile.FromBytes(zip.ReadAll(e), label), label);
         }
 
-        // Serialized files carry node flag 4; older writers leave the flags 0, so a name without an extension counts too.
-        static bool IsSerialized(Hs2BundleNode n) => (n.Flags & 4) != 0 || (n.Flags == 0 && n.Path.IndexOf('.') < 0);
+        // Serialized files carry node flag 4; older writers leave every node's flags 0, so there a name without an extension
+        // counts too (the pre-upload check's rule). An empty node holds nothing to read.
+        static bool IsSerialized(Hs2BundleFile b, Hs2BundleNode n)
+        {
+            if (n.Size <= 0) return false;
+            if ((n.Flags & 4) != 0) return true;
+            if (n.Flags != 0 || n.Path.IndexOf('.') >= 0) return false;
+            foreach (var x in b.Nodes) if ((x.Flags & 4) != 0) return false;
+            return true;
+        }
 
         public override string ToString() => Status == Kind.Ok ? Count + " names" : Status + (Error != null ? " (" + Error + ")" : "");
     }

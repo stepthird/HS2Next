@@ -202,6 +202,8 @@ namespace HS2Next.Bridge.Tests
                     t.Check(ms >= 250 && ms < 2000, "timeout after about 0.3 s (" + ms + " ms)");
                     t.Equal("1", Kit.Str(r, "id"), "timeout reply echoes the id");
                     t.Equal("running", Kit.Str(r, "detail.state"), "timeout detail.state running");
+                    // the reaper replies first, then retires the job and cancels its token: the reply can arrive before the cancel
+                    Kit.WaitFor(() => token.IsCancellationRequested && never.IsAbandoned, 1000);
                     t.Check(token.IsCancellationRequested && never.IsAbandoned, "the handler's token is cancelled and the reply abandoned");
                     t.Check(!never.Complete(null), "completing after the timeout is ignored");
                     var after = Http.Call(s.Port, "{\"cmd\":\"t.count\"}");

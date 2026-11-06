@@ -6,7 +6,7 @@ mods of your own Honey Select 2 installation where they are; it contains no game
 folder, except when you delete a character, outfit or pose file of the game from a list yourself: then it moves that
 file to the Windows recycle bin.
 
-README_ja.txt is this text in Japanese; README_zh-Hans.txt in Simplified Chinese (machine translation).
+README_ja.txt is this text in Japanese; README_zh-Hans.txt in Simplified Chinese.
 
 
 Requirements
@@ -54,6 +54,16 @@ Automation bridge
 HS2Next listens on 127.0.0.1:17322 (this computer only) so that scripts can drive it. In this package every request
 needs the token in UserData\Bridge\token (a new token at each start), sent in the header X-HS2Next-Token. To turn the
 bridge off, use File > Options > Automation or set "bridge": {"enabled": false} in the settings file.
+
+
+Plugins
+-------
+HS2Next loads plugins from the Plugins folder next to HS2Next.exe: each plugin is a folder Plugins\<its id>\ with its
+manifest.json and DLLs. A plugin runs with the same rights as HS2Next itself; install only plugins whose source you trust.
+File > Options > Automation lists the installed plugins; turning one off or on takes effect at once (a plugin whose DLL was
+replaced loads after a restart). The PluginKit folder is for writing plugins: PLUGINS.md (also in Japanese and Simplified
+Chinese), the command reference, two small sample projects and the API documentation. Building them needs the .NET SDK 8
+or later.
 
 
 Update check

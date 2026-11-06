@@ -167,7 +167,7 @@ namespace HS2Next.Import
                         if (x.Slots.TryGetValue(item.Slot, out var e)) { target = e.MaterialOverrides; p = x.CoordPath + "accessories[slot " + N(item.Slot) + "].materialOverrides"; }
                         else
                         {
-                            x.Report.Warning("me.slotEmpty", x.CoordPath + "accessories[slot " + N(item.Slot) + "].materialOverrides", "MaterialEditor item aimed at a slot without an accessory; dropped");
+                            x.Report.Warning("me.slotEmpty", x.CoordPath + "accessories[slot " + N(item.Slot) + "].materialOverrides", "material item aimed at a slot without an accessory; dropped");
                             x.Report.Count("me.dropped");
                             continue;
                         }
@@ -236,7 +236,7 @@ namespace HS2Next.Import
                 case MaterialEditorData.ProjectorProperty pr:
                     return new MeProjector { Projector = pr.ProjectorName ?? "", Property = EnumName<MeProjectorProperty>(pr.Property), Value = pr.Value ?? "", Original = pr.ValueOriginal };
             }
-            x.Report.Warning("me.unknownItem", p, "unknown MaterialEditor item kind; dropped");
+            x.Report.Warning("me.unknownItem", p, "unknown material item kind; dropped");
             return null;
         }
 

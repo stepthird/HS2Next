@@ -211,6 +211,17 @@ namespace HS2Next.Motion.Animation
         /// <summary>Layer-0 state info of the body (default when nothing is loaded).</summary>
         public AnimatorStateInfo StateInfo => IsLoaded ? driver.State(0) : default;
 
+        /// <summary>
+        /// A runtime override of the time (the scene's override layer; not saved): while pinned, every step samples exactly
+        /// <see cref="PinnedTime"/> instead of advancing by dt x speed. Survives motion changes; a new component starts unpinned.
+        /// </summary>
+        public bool TimePinned { get; private set; }
+        public float PinnedTime { get; private set; }
+        /// <summary>Pins the time (the caller also sets <see cref="NormalizedTime"/> to show it at once).</summary>
+        public void PinTime(float normalizedTime) { TimePinned = true; PinnedTime = normalizedTime; }
+        /// <summary>Ends the pin: the animation goes on from where it is.</summary>
+        public void UnpinTime() => TimePinned = false;
+
         // ------------------------------------------------------------ setup
 
         internal void Bind(CharaContext ctx, Animator animator, AnimationOptions options)
@@ -221,9 +232,19 @@ namespace HS2Next.Motion.Animation
             Options = options ?? new AnimationOptions();
             Stage = new AnimationStage(this);
             ReadBodyShape(ctx);
-            shapeGuard = ShapeBoneGuard.Capture(ctx);
-            CaptureRest(ctx);
+            Bare(ctx, () =>
+            {
+                shapeGuard = ShapeBoneGuard.Capture(ctx);
+                CaptureRest(ctx);
+            });
             for (int i = 0; i < 4; i++) PvFlags[i] = true;
+        }
+
+        // A capture holds the bones without the card's modifiers: the modifiers act on what the frame gives, also on a guarded bone.
+        static void Bare(CharaContext ctx, Action read)
+        {
+            var b = ctx?.Bones;
+            if (b) b.Bare(read); else read();
         }
 
         // BodyHeight / BodyBust from the character's documents (card builds carry documents
@@ -254,16 +275,20 @@ namespace HS2Next.Motion.Animation
             // the flush (the bust chains) see the body as it stands
             var lift = ctx.Motion?.Get<Heels.HeelsLift>();
             lift?.Unlift();
-            shapeGuard?.Recapture();
-            NoteShapeRecapture();
-            if (shapeGuard != null && restBones != null)
+            Bare(ctx, () =>
             {
-                var shapeSet = new HashSet<Transform>(shapeGuard.Bones);
-                for (int i = 0; i < restBones.Length; i++)
-                    if (restBones[i] && shapeSet.Contains(restBones[i]))
-                    { restPos[i] = restBones[i].localPosition; restRot[i] = restBones[i].localRotation; restScale[i] = restBones[i].localScale; }
-            }
+                shapeGuard?.Recapture();
+                NoteShapeRecapture();
+                if (shapeGuard != null && restBones != null)
+                {
+                    var shapeSet = new HashSet<Transform>(shapeGuard.Bones);
+                    for (int i = 0; i < restBones.Length; i++)
+                        if (restBones[i] && shapeSet.Contains(restBones[i]))
+                        { restPos[i] = restBones[i].localPosition; restRot[i] = restBones[i].localRotation; restScale[i] = restBones[i].localScale; }
+                }
+            });
             lift?.Apply();
+            if (ctx.Bones && lift != null && lift.Lifted) ctx.Bones.ApplyNew();
         }
 
         void CaptureRest(CharaContext ctx)
@@ -294,9 +319,14 @@ namespace HS2Next.Motion.Animation
         {
             var lift = Context?.Motion?.Get<Heels.HeelsLift>();   // as RefreshBodyShape: the capture without the heels' lift
             lift?.Unlift();
-            shapeGuard?.Recapture();
-            NoteShapeRecapture();
+            Bare(Context, () =>
+            {
+                shapeGuard?.Recapture();
+                NoteShapeRecapture();
+            });
             lift?.Apply();
+            var mods = Context?.Bones;
+            if (mods && lift != null && lift.Lifted) mods.ApplyNew();
         }
 
         // A capture taken while a bust mask is on holds the masked values: opening the masks then evaluates the shapes again.
@@ -479,6 +509,7 @@ namespace HS2Next.Motion.Animation
         void SetController(RuntimeAnimatorController ctrl)
         {
             RaiseBeforeBind();   // the new driver binds the current pose as the defaults (see BeforeBind)
+            ExpectBindRead();
             driver?.Dispose();
             Animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             Animator.applyRootMotion = true;   // as the game's Animator: the root-node orientation offset stays on cf_J_Hips
@@ -524,7 +555,7 @@ namespace HS2Next.Motion.Animation
             if (!IsLoaded) return;
             for (int i = 0; i < driver.LayerCount; i++) driver.Play(driver.State(i).shortNameHash, i, 0f);
             Items.Restart();
-            if (Options.ResampleOnSetTime) { driver.Evaluate(0f); KeepInPlace(); AfterSample(); for (int i = 0; i < Items.Count; i++) Items.Items[i].Driver?.Evaluate(0f); }
+            if (Options.ResampleOnSetTime) { BareForBindRead(); driver.Evaluate(0f); KeepInPlace(); AfterSample(); for (int i = 0; i < Items.Count; i++) Items.Items[i].Driver?.Evaluate(0f); ShowModifiers(); }
         }
 
         /// <summary>
@@ -550,6 +581,7 @@ namespace HS2Next.Motion.Animation
             if (restBones != null)
                 for (int i = 0; i < restBones.Length; i++)
                     if (restBones[i]) { restBones[i].localPosition = restPos[i]; restBones[i].localRotation = restRot[i]; restBones[i].localScale = restScale[i]; }
+            ShowModifiers();
         }
 
         /// <summary>Card replaced: re-apply `height` (deviation c), re-arm counter-scale, re-capture shape bones.</summary>
@@ -595,6 +627,19 @@ namespace HS2Next.Motion.Animation
         internal void Tick(in MotionFrame frame)
         {
             if (driver == null || !driver.Valid) return;
+            BareForBindRead();
+            if (TimePinned)
+            {
+                // the override layer's pin: sample exactly the pinned time (no force-loop wrap)
+                driver.Play(stateHash, 0, PinnedTime);
+                driver.Evaluate(0f);
+                KeepInPlace();
+                AfterSample();
+                var ps = driver.State(0);
+                Items.Step(frame.Dt, ps.shortNameHash, ps.normalizedTime, true, Options.GameFrameDelay);
+                if (Sway.Step(ps.shortNameHash)) ApplySway();
+                return;
+            }
             driver.Evaluate(frame.Dt * speed);
             KeepInPlace();
             AfterSample();
@@ -615,12 +660,21 @@ namespace HS2Next.Motion.Animation
 
         void Resample()
         {
+            BareForBindRead();
             driver.Evaluate(0f);
             KeepInPlace();
             AfterSample();
             var st = driver.State(0);
             Items.SyncNow(st.shortNameHash, st.normalizedTime);
             if (Sway.Step(st.shortNameHash)) ApplySway();
+            ShowModifiers();
+        }
+
+        // A sample outside a step: what it rewrote shows the card's modifiers at once, so a read in the same request sees them. Inside a step the stage does it.
+        void ShowModifiers()
+        {
+            var b = Context?.Bones;
+            if (b) b.ApplyNew();
         }
 
         // ------------------------------------------------------------ sway table
@@ -639,7 +693,7 @@ namespace HS2Next.Motion.Animation
         /// <summary>
         /// Sets the body's bust shape masks (bit k = the k-th id of ShapeEngine.BustMaskIds evaluated at 0.5 on that side).
         /// A side whose mask changed is written and the bone modifiers go on top again; the shape-bone guard keeps the new
-        /// values. A side whose masks all open again gets its build values back exactly (unless a shape edit happened while
+        /// values without them. A side whose masks all open again gets its build values back exactly (unless a shape edit happened while
         /// masked: then the shapes are evaluated again). True when a mask changed.
         /// </summary>
         public bool ApplyShapeMasks(int maskL, int maskR)
@@ -651,6 +705,8 @@ namespace HS2Next.Motion.Animation
             {
                 int m = side == 0 ? maskL : maskR;
                 if (shape.BustMask(side) == m) continue;
+                // a shape row that writes one axis keeps the others, which must not carry a modifier then
+                if (!any) { var mods = Context.Bones; if (mods) mods.ToBase(); }
                 any = true;
                 bool back = m == 0 && !shapeBuildStale && shapeGuard != null;
                 shape.SetBustMask(side, m, !back);
@@ -660,10 +716,10 @@ namespace HS2Next.Motion.Animation
             if (!any) return false;
             if (wroteL || wroteR)
             {
-                var mods = Context.Bones;
-                if (mods) mods.Apply();   // the bone modifiers on top of the new shape values, as after a shape edit
                 if (wroteL) shapeGuard?.Adopt(shape.BustMaskBones(0));
                 if (wroteR) shapeGuard?.Adopt(shape.BustMaskBones(1));
+                var mods = Context.Bones;
+                if (mods) mods.Pass(!(Context.Motion && Context.Motion.Probing));   // the bone modifiers on top of the new shape values, as after a shape edit
             }
             if (shapeBuildStale && shape.BustMask(0) == 0 && shape.BustMask(1) == 0)
             {
@@ -686,6 +742,29 @@ namespace HS2Next.Motion.Animation
         void AfterSample()
         {
             if (Options.RestoreShapeBones) shapeGuard?.Restore();
+        }
+
+        // Unity reads a bound property's default at the bind and, in real frames, once more: at the first evaluation after a frame has passed. Measured on Unity 6000.6.5f1,
+        // PlayableGraph with manual update: a value written on the bone just before that evaluation comes back as the default, a value written before an earlier evaluation
+        // in the bind's frame does not, the read happens once, and Animator.Rebind does not move it; in edit frames, where no frame passes, only the bind reads. This is
+        // engine behaviour, not documented: after an engine upgrade run ModifierOrderTest FM3P (AdvancedPoseTest.play), which guards it. So the card's modifiers come off
+        // again before each evaluation until that read has passed: otherwise a state that does not animate a channel writes a default holding the modifier.
+        bool bindRead;
+        int bindFrame;
+
+        /// <summary>A bind just happened, or the Animator came back with its holder: the second read of the defaults is ahead.</summary>
+        internal void ExpectBindRead()
+        {
+            bindRead = Application.isPlaying;
+            bindFrame = UnityEngine.Time.frameCount;
+        }
+
+        void BareForBindRead()
+        {
+            if (!bindRead) return;
+            var b = Context?.Bones;
+            if (b) b.ToBase();
+            if (UnityEngine.Time.frameCount > bindFrame + 1) bindRead = false;   // one frame more: a bind in a LateUpdate has the engine's frame update still ahead
         }
 
         void Note(string s)

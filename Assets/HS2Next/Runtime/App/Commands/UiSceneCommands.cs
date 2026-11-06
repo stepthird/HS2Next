@@ -52,11 +52,11 @@ namespace HS2Next.App.Commands
 
         public static void Register(ICommandRegistry r, AppCore app)
         {
-            CommandKit.Register(r, app, CommandKit.Spec("select", "Sets the node selection (view state, not recorded): keys replace it (empty clears), add appends; sub selects one sub-object (FK bone, IK target, look target) and its character alone.", "ui scene")
+            CommandKit.Register(r, app, CommandKit.Spec("select", "Sets the node selection (view state, not recorded): keys replace it (empty clears), add appends; sub selects one sub-object (FK bone, IK target, look target, bone, hair bundle, accessory transform set, route point) and its node alone.", "ui scene")
                 .Arg("key", ArgTypes.Node, "one node")
                 .Arg("keys", ArgTypes.ArrayOf(ArgTypes.Node), "the nodes (empty = clear)")
                 .Arg("add", ArgTypes.Bool, "append to the selection instead of replacing it", false, false)
-                .Arg("sub", ArgTypes.String, "\"<id>/fk/<bone>\", \"<id>/ik/<Target>\" or \"<id>/look\"; null clears the sub-selection")
+                .Arg("sub", ArgTypes.String, "\"<id>/fk/<bone>\", \"<id>/ik/<Target>\", \"<id>/look\", \"<id>/bone/<address>\", \"<id>/hair/<part>/<index>\" (part back, front, side or option), \"<id>/accmove/<accessoryId>/<set>\" (set 0 or 1) or \"<routeId>/points/<pointId>[/aid]\"; null clears the sub-selection")
                 .Return("selected", ArgTypes.ArrayOf(ArgTypes.String), "ids in order (primary first)").Return("primary", ArgTypes.String, "")
                 .Return("sub", ArgTypes.String, "the sub-selection or null")
                 .Example("{\"cmd\":\"select\",\"keys\":[\"<id>\"]}")

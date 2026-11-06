@@ -3,7 +3,8 @@
 // plugin's GUID, the help group becomes the GUID unless the plugin chose a group that is not one of the host's, and
 // the version shown by help defaults to the plugin's. Handlers are wrapped: a faulted plugin's command answers
 // plugin_fault without running, and an exception other than a BridgeException counts as a fault of the plugin (the
-// dispatcher answers plugin_fault for it). Unregistering only reaches the plugin's own commands.
+// dispatcher answers plugin_fault for it). A handler's run counts in the guard's depth (the plugin's code is on the stack).
+// Unregistering only reaches the plugin's own commands.
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -47,12 +48,14 @@ namespace HS2Next.App.Plugins
             inner.Register(spec, ctx =>
             {
                 CheckFaulted();
+                guard?.Enter();
                 try { return handler(ctx); }
                 catch (Exception e) when (Counts(e))
                 {
                     guard?.Count("command " + name, e);
                     throw;
                 }
+                finally { guard?.Exit(); }
             });
             lock (gate) names.Add(name);
         }
@@ -66,12 +69,14 @@ namespace HS2Next.App.Plugins
             {
                 CheckFaulted();
                 Task<object> t;
+                guard?.Enter();
                 try { t = handler(ctx); }
                 catch (Exception e) when (Counts(e))
                 {
                     guard?.Count("command " + name, e);
                     throw;
                 }
+                finally { guard?.Exit(); }
                 if (t != null)
                     t.ContinueWith(tk =>
                     {

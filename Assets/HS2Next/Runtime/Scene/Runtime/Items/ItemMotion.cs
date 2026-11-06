@@ -55,6 +55,8 @@ namespace HS2Next.Scenes.Runtime
         public long LastStepSequence { get; private set; }
         /// <summary>Time.frameCount at the last step.</summary>
         public int LastStepFrame { get; private set; } = -1;
+        /// <summary>The walk of the motion pass that stepped this item last (SceneRuntime.PassStamp): StepItems skips it in that frame.</summary>
+        internal long LastPass = -1;
 
         static long sequence;
         /// <summary>The global step counter (every item step increments it).</summary>

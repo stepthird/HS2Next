@@ -1,0 +1,45 @@
+key	en	ja	zh-Hans	note
+plugin.stp3.test.formprobe.panel	Form probe panel	フォーム試験パネル	表单测试面板	test
+plugin.stp3.test.formprobe.section	Form probe section	フォーム試験セクション	表单测试分区	test
+plugin.stp3.test.formprobe.deferred	Deferred form	遅延フォーム	延迟表单	test
+plugin.stp3.test.formprobe.hair	Hair form	髪フォーム	头发表单	test
+plugin.stp3.test.formprobe.hb	Hair bundles	髪の束	发束	test
+plugin.stp3.test.formprobe.widgets	Probe widgets	試験ウィジェット	测试控件	test
+plugin.stp3.test.formprobe.f	Size	サイズ	大小	test
+plugin.stp3.test.formprobe.i	Count	数	数量	test
+plugin.stp3.test.formprobe.b	Enabled	有効	启用	test
+plugin.stp3.test.formprobe.c	Tint	色合い	色调	test
+plugin.stp3.test.formprobe.h	Glow	発光	发光	test
+plugin.stp3.test.formprobe.v2	Offset	オフセット	偏移	test
+plugin.stp3.test.formprobe.v3	Position	位置	位置	test
+plugin.stp3.test.formprobe.e	Mode	モード	模式	test
+plugin.stp3.test.formprobe.soft	Soft	やわらかい	柔和	test
+plugin.stp3.test.formprobe.hard	Hard	硬い	硬	test
+plugin.stp3.test.formprobe.r	Reference	参照	引用	test
+plugin.stp3.test.formprobe.r1	First	1 番目	第一	test
+plugin.stp3.test.formprobe.file	Image	画像	图像	test
+plugin.stp3.test.formprobe.t	Note	メモ	备注	test
+plugin.stp3.test.formprobe.n	Node	ノード	节点	test
+plugin.stp3.test.formprobe.btn	Count up	カウント	计数	test
+plugin.stp3.test.formprobe.pl	Eyebrows	眉	眉毛	test
+plugin.stp3.test.formprobe.push	Skin swatch	肌の色見本	肤色样本	test
+plugin.stp3.test.formprobe.ap	Attach point	取り付け位置	挂载点	test
+plugin.stp3.test.formprobe.w	Weight	重さ	重量	test
+plugin.stp3.test.formprobe.flag	Flag	フラグ	标志	test
+plugin.stp3.test.formprobe.note	Note	メモ	备注	test
+plugin.stp3.test.formprobe.w.number	Number	数値	数值	test
+plugin.stp3.test.formprobe.w.vector	Vector	ベクトル	向量	test
+plugin.stp3.test.formprobe.w.toggle	Toggle	切り替え	开关	test
+plugin.stp3.test.formprobe.w.choice	Choice	選択	选择	test
+plugin.stp3.test.formprobe.w.color	Colour	色	颜色	test
+plugin.stp3.test.formprobe.w.ref	Ref	参照	引用	test
+plugin.stp3.test.formprobe.w.file	File	ファイル	文件	test
+plugin.stp3.test.formprobe.w.text	Text	テキスト	文本	test
+plugin.stp3.test.formprobe.w.button	Press	押す	按下	test
+plugin.stp3.test.formprobe.w.attach	Attach	取り付け	挂载	test
+plugin.stp3.test.formprobe.d.title	Probe dialog	試験ダイアログ	测试对话框	test
+plugin.stp3.test.formprobe.d.message	Pick a button.	ボタンを選んでください。	请选择按钮。	test
+plugin.stp3.test.formprobe.d.first	First	1 番目	第一	test
+plugin.stp3.test.formprobe.d.second	Second	2 番目	第二	test
+plugin.stp3.test.formprobe.m.first	First entry	1 番目の項目	第一项	test
+plugin.stp3.test.formprobe.m.second	Second entry	2 番目の項目	第二项	test

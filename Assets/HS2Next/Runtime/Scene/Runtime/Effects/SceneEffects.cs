@@ -19,6 +19,12 @@
 // Focus / caster binding (Q-c not reproduced, E16): any node; the point is the node holder's world position, a
 // character's the midpoint of cf_J_Eye_t_L / _R (else its head bone, else its holder); an id that names no node acts as
 // none (DOF: the camera pivot; shafts: the screen centre) and the finding scene.unknownNodeRef stays (FieldSchema's).
+// Runtime overrides (Phase 6.2): a winning `effects.depthOfField` slot of the override layer is used instead of the block
+// every LateApply, with its focus forms (the camera pivot as shown, a node's point, a transform under a node plus a world
+// offset, a world point, a distance along the camera's forward axis; a second focus blended with the first) and its blur
+// (the largest radius on a 1080-line frame -> HS2DofFeature.Input.MaxBlur1080; 0 = the renderer's own). A focus that does
+// not resolve acts as the pivot (DofOverrideResolved false). The camera pivot is the winning `camera` slot's target while
+// one wins.
 // Map hooks: Loaded and Unloaded re-apply every block at once (the map scene, or the runtime's scene, is active, so the
 // RenderSettings writes land in it). Render option `grading` (hs2 | hdr): hs2 = LDR grading, Tonemapping None, the baked
 // strip; hdr = the pipeline asset's grading mode switched to HDR at run time (restored when the part is disposed), ACES,
@@ -28,6 +34,7 @@ using System.Collections.Generic;
 using HS2Next.Content;
 using HS2Next.Content.Studio;
 using HS2Next.Save;
+using HS2Next.Scenes.Overrides;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -50,6 +57,10 @@ namespace HS2Next.Scenes.Runtime
         public string FocusKey, FocusKind;
         /// <summary>CoC slope A = 1 / (1 − aperture) − 1.</summary>
         public float A => Aperture >= 1f ? float.PositiveInfinity : 1f / (1f - Aperture) - 1f;
+        /// <summary>The largest blur radius on a 1080-line frame from a runtime override; 0 = the renderer's own.</summary>
+        public float MaxBlur1080;
+        /// <summary>The owner of the winning depth-of-field slot whose value is shown, or null (the model block).</summary>
+        public string Overridden;
     }
 
     public sealed class SceneEffects : ISceneRuntimePart, IDisposable
@@ -459,6 +470,7 @@ namespace HS2Next.Scenes.Runtime
 
         Vector3 Pivot()
         {
+            if (runtime.OverrideApp.TryCamera(out var target, out _, out _, out _)) return target;   // the camera as shown
             var cur = runtime.Model.Settings.Camera.Current;
             return cur != null ? new Vector3(cur.Pivot.X, cur.Pivot.Y, cur.Pivot.Z) : SceneViewCamera.DefaultPivot;
         }
@@ -493,8 +505,108 @@ namespace HS2Next.Scenes.Runtime
         readonly Dictionary<string, (GameObject root, Transform l, Transform r, Transform head)> eyeCache =
             new Dictionary<string, (GameObject, Transform, Transform, Transform)>(StringComparer.Ordinal);
 
+        /// <summary>False when the last late apply's winning depth-of-field slot had a focus that did not resolve (it acted as the pivot).</summary>
+        public bool DofOverrideResolved { get; private set; } = true;
+
+        readonly Dictionary<string, (GameObject root, Transform t)> boneCache = new Dictionary<string, (GameObject, Transform)>(StringComparer.Ordinal);
+
+        /// <summary>A focus form of the override layer as a world point; false when its node or bone does not resolve (then the pivot).</summary>
+        bool FocusPoint(OverrideFocus f, out Vector3 point, out string kind)
+        {
+            switch (f.Kind)
+            {
+                case OverrideFocusKind.Point:
+                    point = new Vector3((float)f.X, (float)f.Y, (float)f.Z);
+                    kind = "point";
+                    return true;
+                case OverrideFocusKind.Dist:
+                {
+                    var cam = runtime.GetPart<SceneViewCamera>()?.Camera;
+                    if (cam)
+                    {
+                        point = cam.transform.position + cam.transform.forward * (float)f.Dist;
+                        kind = "dist";
+                        return true;
+                    }
+                    break;
+                }
+                case OverrideFocusKind.Node:
+                {
+                    var (p, k) = PointOf(f.Node);
+                    if (p.HasValue) { point = p.Value; kind = k; return true; }
+                    break;
+                }
+                case OverrideFocusKind.NodeBone:
+                {
+                    var t = BoneOf(f.Node, f.Bone);
+                    if (t)
+                    {
+                        point = t.position + new Vector3((float)f.X, (float)f.Y, (float)f.Z);
+                        kind = "bone";
+                        return true;
+                    }
+                    break;
+                }
+                default:
+                    point = Pivot();
+                    kind = "pivot";
+                    return true;
+            }
+            point = Pivot();
+            kind = "missing";
+            return false;
+        }
+
+        /// <summary>The transform named <paramref name="bone"/> under a realized node's built object (a character's root, else its holder).</summary>
+        Transform BoneOf(string id, string bone)
+        {
+            var n = runtime.Model.Find(id);
+            var r = runtime.Find(id);
+            if (n == null || r == null || !r.HasHolder || r.InGraveyard || string.IsNullOrEmpty(bone)) return null;
+            var root = r is CharaRealization c && c.Root ? c.Root : r.HolderObject;
+            string key = id + "/" + bone;
+            if (boneCache.TryGetValue(key, out var e) && e.root == root && e.t) return e.t;
+            Transform found = null;
+            foreach (var t in root.GetComponentsInChildren<Transform>(true))
+                if (t.name == bone) { found = t; break; }
+            boneCache[key] = (root, found);
+            return found;
+        }
+
+        void ResolveDofOverride(OverrideSlot w)
+        {
+            var v = w.Dof;
+            bool ok = FocusPoint(v.Focus, out var point, out string kind);
+            if (v.FocusTo != null)
+            {
+                ok &= FocusPoint(v.FocusTo, out var to, out _);
+                point = Vector3.LerpUnclamped(point, to, (float)v.FocusBlend);
+                kind = "blend";
+            }
+            DofOverrideResolved = ok;
+            int refH = runtime.GetPart<SceneViewCamera>()?.Setup.ReferenceHeight ?? 0;
+            var inputs = new DofInputs
+            {
+                Enabled = v.Enabled,
+                Active = v.Enabled && v.Aperture > 0,
+                FocusPoint = point,
+                FocalSize = (float)v.FocalSize,
+                Aperture = (float)v.Aperture,
+                ReferenceHeight = refH,
+                FocusKey = v.Focus.Kind == OverrideFocusKind.Node || v.Focus.Kind == OverrideFocusKind.NodeBone ? v.Focus.Node : null,
+                FocusKind = ok ? kind : "missing",
+                MaxBlur1080 = v.Blur > 0 ? (float)v.Blur : 0f,
+                Overridden = w.Owner,
+            };
+            Dof = inputs;
+            PushDof(inputs);
+        }
+
         void ResolveDof(DepthOfFieldEffect d)
         {
+            var w = runtime.Overrides.WinnerOf(null, OverrideChannel.DepthOfField);
+            if (w != null && w.Dof != null) { ResolveDofOverride(w); return; }
+            DofOverrideResolved = true;
             var (p, kind) = PointOf(d.Focus);
             Vector3 point = p ?? Pivot();
             if (p == null) kind = d.Focus == null ? "pivot" : "missing";
@@ -521,6 +633,7 @@ namespace HS2Next.Scenes.Runtime
             HS2DofFeature.Inputs = new HS2DofFeature.Input
             {
                 Enabled = d.Enabled, FocusPoint = d.FocusPoint, FocalSize = d.FocalSize, Aperture = d.Aperture, ReferenceHeight = d.ReferenceHeight,
+                MaxBlur1080 = d.MaxBlur1080,
             };
         }
 
@@ -599,6 +712,8 @@ namespace HS2Next.Scenes.Runtime
         {
             MarkAll();
             eyeCache.Clear();
+            boneCache.Clear();
+            DofOverrideResolved = true;
             ResetDof();
             HS2SunShaftsFeature.Inputs = default;
             SsrControl.Reset();

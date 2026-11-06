@@ -1,8 +1,9 @@
 // UI registration of a plugin (engine side of the plugin Api; experimental: it may change in any minor release). Panels go
 // to a region of the Studio shell, inspector sections to the inspector of a node kind, actions to the action list
 // (reachable through ui.action and shortcuts); labels are localisation keys of the plugin's own strings. Ids are stored
-// under the plugin's GUID; everything is removed when the plugin unloads. Factories run inside the plugin's fault wrapper:
-// a throwing factory shows an error label in its place.
+// under the plugin's GUID; everything is removed when the plugin unloads or is disabled. Factories run inside the plugin's
+// fault wrapper: a throwing factory shows an error label in its place. Widgets hands out the host's own widgets, dialogs,
+// menus and toasts for the elements a plugin builds.
 using System;
 using UnityEngine.UIElements;
 
@@ -30,6 +31,10 @@ namespace HS2Next.Api.Unity
         /// key must start with "plugin.&lt;guid&gt;." (ArgumentException otherwise; nothing is added then).
         /// </summary>
         void AddStrings(string tsv);
+
+        /// <summary>The host's widgets, dialogs, popup menus and toasts for elements the plugin builds; null when the UI does not run.</summary>
+        [Experimental("the host widgets may change in any minor release")]
+        IUiWidgets Widgets { get; }
     }
 
     /// <summary>What an inspector section is built for. Implemented by the host.</summary>

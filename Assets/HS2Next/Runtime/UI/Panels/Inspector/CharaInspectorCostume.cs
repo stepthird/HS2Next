@@ -2,9 +2,9 @@
 // (HS2's files and HS2Next's own, name / date sort, the 3.5 thumbnail grid) and «読込» (`costume-load`; a double click on a
 // card does the same), which wears the whole coordinate — clothes, accessories, their rules and plugin data, the name — on
 // every selected character of that sex (StudioOps.ApplyCoordinateFile with mode all, one entry "Load coordinate"); the
-// characters' clothes state is kept. The browser is built when the tab is first shown. v1.2 (owner item 6): «読込» rebuilds the
-// character inspector (the character is built again), and with it this tab; the browser keeps its sort, search, chosen card and
-// scroll per sex for the app run (CoordinateBrowser's view state), so the list stays as it was.
+// characters' clothes state is kept. The browser is built when the tab is first shown. v1.2 (owner item 6): a rebuilt character
+// inspector builds this tab again; the browser keeps its sort, search, chosen card and scroll per sex for the app run
+// (CoordinateBrowser's view state), so the list stays as it was.
 using System;
 using System.Collections.Generic;
 using HS2Next.Scenes;

@@ -8,7 +8,9 @@ namespace HS2Next.Api
     [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = false)]
     public sealed class ExperimentalAttribute : Attribute
     {
+        /// <summary>Marks the type or member without a note.</summary>
         public ExperimentalAttribute() { }
+        /// <summary>Marks the type or member with a note on why it is experimental.</summary>
         public ExperimentalAttribute(string note) { Note = note; }
 
         /// <summary>Why it is experimental, or null.</summary>

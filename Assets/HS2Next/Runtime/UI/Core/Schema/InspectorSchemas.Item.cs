@@ -8,6 +8,9 @@ namespace HS2Next.UI.Core
 {
     public static partial class InspectorSchemas
     {
+        /// <summary>The item's Material edits (MaterialEditView draws it; «質感» stays HS2's fields).</summary>
+        public const string ItemMaterialEditSection = "materialEdit";
+
         static List<SchemaSection> BuildItem()
         {
             var l = new List<SchemaSection>();
@@ -120,6 +123,7 @@ namespace HS2Next.UI.Core
             asp.OpLabel = OpLabels.ItemAnimation;
             m.Button("ops.RestartItemAnimation", "animeRestart", "").Gate = SchemaGates.ItemAnimated;
             l.Add(motion);
+            l.Add(new SchemaSection(ItemMaterialEditSection, "inspector.item.section.materialEdit"));
             return l;
         }
 

@@ -970,7 +970,7 @@ namespace HS2Next.App
             yield return U4ClickCell(c, s.S4, list, reference, what);
             var a = new JObject[1];
             yield return U8WaitAcc(c, id, slot, x => (string)x?["id"] == reference && (bool?)x?["loaded"] == true && (string)x?["accessory"] != null, 300, a);
-            yield return c.Frames(6);   // the rebuilt inspector selects the new accessory; live sections after the realizing flush
+            yield return c.Frames(6);   // the page selects the new accessory; live sections after the realizing flush
             yield return U7Entry(c, n[0], OpLabels.AddAccessory, what + " into «" + U8NN(slot) + "»");
             if (!c.Check((string)a[0]?["id"] == reference && (bool?)a[0]?["loaded"] == true, $"slot «{U8NN(slot)}» holds {reference} (loaded {(bool?)a[0]?["loaded"]}, accessory {(string)a[0]?["accessory"]})")) yield break;
             newAcc[0] = (string)a[0]["accessory"];

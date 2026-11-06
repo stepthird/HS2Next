@@ -200,6 +200,8 @@
 .hs-partlist__label { color: var(--hs-text-dim); -unity-text-align: middle-left; }
 .hs-partlist__current { flex-grow: 1; flex-shrink: 1; min-width: 0; margin-left: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; -unity-text-align: middle-right; }
 .hs-partlist__tools { flex-direction: row; align-items: center; }
+/* the search field takes what the row's fixed parts leave, whatever its placeholder's length, so the expand button stays in the pane */
+.hs-partlist__tools > .hs-search { flex-grow: 1; flex-shrink: 1; flex-basis: 0; min-width: 0; }
 .hs-partlist__button { width: 24px; height: 20px; padding: 0; margin: 0 0 0 2px; }
 .hs-partlist__grid { flex-shrink: 0; background-color: var(--hs-bg-0); border-radius: var(--hs-radius); }
 .hs-partlist .hs-card-grid__row { flex-direction: row; padding-left: 4px; }

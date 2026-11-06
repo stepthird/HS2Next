@@ -2,14 +2,14 @@
 # Rows starting with '#' are comments; blank rows are skipped. The first non-comment row is the column header.
 # Columns: key, en (required), ja, zh-Hans (Simplified Chinese only), note. Escapes in cells: \n newline, \t tab, \\ backslash;
 # a cell wholly in double quotes is unquoted ("" = "). Placeholders {0} {1} ... must match across languages.
-# note: 'zh?' = the zh-Hans cell is a machine translation awaiting review (U20); 'ja?' likewise for ja.
+# note: 'zh?' = the zh-Hans cell awaits review by a speaker of the language (U20); 'ja?' likewise for ja.
 # Shared append-only file: each package appends its rows in its own block headed by a comment row
 # '#<package>' (e.g. '#C'); never reorder or edit another package's block; keys are unique across the file.
 key	en	ja	zh-Hans	note
 #P
 lang.en	English	English	English	
 lang.ja	日本語	日本語	日本語	
-lang.zh-Hans	简体中文 (machine translated)	简体中文（機械翻訳）	简体中文（机器翻译）	
+lang.zh-Hans	简体中文	简体中文	简体中文	
 common.ok	OK	OK	确定	zh?
 common.cancel	Cancel	キャンセル	取消	zh?
 common.close	Close	閉じる	关闭	zh?
@@ -829,7 +829,7 @@ inspector.chara.character.saveTitle	Save character	キャラを保存	保存角�
 inspector.chara.character.saveMessage	Name of the character file	キャラファイルの名前	角色文件名	zh?
 inspector.chara.character.overwriteTitle	Overwrite character	キャラの上書き	覆盖角色	zh?
 inspector.chara.character.saved	Character saved: {0}	キャラを保存しました: {0}	已保存角色：{0}	zh?
-inspector.chara.meShaderUnavailable	MaterialEditor shaders not available in HS2Next (drawn with the standard skin): {0}	HS2Next では描けない MaterialEditor のシェーダー（標準の肌で描画）: {0}	HS2Next 无法绘制的 MaterialEditor 着色器（以标准皮肤绘制）：{0}	zh?
+inspector.chara.meShaderUnavailable	Shaders from this character that HS2Next cannot draw (drawn with the standard skin): {0}	HS2Next では描けない、このキャラのシェーダー（標準の肌で描画）: {0}	HS2Next 无法绘制的此角色着色器（以标准皮肤绘制）：{0}	zh?
 inspector.chara.meShaderUnavailable.tip	A plugin can supply a URP shader for these names through the plugin shader supply point; HS2Next itself ships none for them.	プラグインはプラグインのシェーダー供給口からこれらの名前に URP のシェーダーを供給できます。HS2Next 自体には含まれていません。	插件可以通过插件着色器提供接口为这些名称提供 URP 着色器；HS2Next 本身不包含它们。	zh?
 #P36 (Phase 3.6 package P: time / capture / route actions, routes / time / capture options, route and scene image rows, the 32 eases)
 action.time.pause	Pause / resume the scene	シーンの一時停止 / 再開	暂停 / 继续场景	zh?
@@ -1605,7 +1605,6 @@ setup.nav.finish	Start HS2Next	HS2Next を始める	开始使用 HS2Next	zh?
 setup.welcome.version	Version {0}	バージョン {0}	版本 {0}	zh?
 setup.welcome.text	HS2Next is a studio for scenes with Honey Select 2 characters. It reads your own Honey Select 2 install and changes nothing there, except that a file you delete from a list goes to the recycle bin. This guide sets up the folders it needs; it takes a few minutes.	HS2Next は Honey Select 2 のキャラクターでシーンを作るスタジオです。あなたの Honey Select 2 のインストールを読むだけで、変更はしません（一覧から削除を選んだファイルをごみ箱へ移すときを除きます）。この案内で必要なフォルダーを設定します（数分かかります）。	HS2Next 是使用 Honey Select 2 角色制作场景的工作室。它只读取你的 Honey Select 2 安装，从不修改它（在列表中删除你选定的文件、将其移到回收站时除外）。本向导会设置所需的文件夹，需要几分钟。	zh?
 setup.welcome.language	Language	言語	语言	zh?
-setup.welcome.machineNote	The Chinese text is a machine translation and has not been reviewed.	中国語の表示は機械翻訳で、見直されていません。	中文界面为机器翻译，尚未经过审校。	zh?
 setup.files.text	HS2Next keeps your characters, scenes, settings and caches in this folder:	HS2Next は、キャラクター・シーン・設定・キャッシュをこのフォルダーに置きます:	HS2Next 将你的角色、场景、设置和缓存保存在此文件夹中：	zh?
 setup.files.mode.perUser	This is your own user folder, outside the folders that cloud sync may move; every Windows user has their own.	クラウドの同期が動かしうるフォルダーの外にある、あなたのユーザーのフォルダーです。Windows のユーザーごとに別です。	这是你自己的用户文件夹，位于云同步可能移动的文件夹之外；每个 Windows 用户各有一个。	zh?
 setup.files.mode.portable	Portable mode: the files stay next to HS2Next.exe because portable.txt lies there.	ポータブルモード: portable.txt があるので、ファイルは HS2Next.exe の隣に置きます。	便携模式：由于存在 portable.txt，文件保存在 HS2Next.exe 旁边。	zh?
@@ -1730,6 +1729,9 @@ settings.copyPath	Copy path	パスをコピー	复制路径	zh?
 settings.copied	Copied.	コピーしました。	已复制。	zh?
 settings.plugins	Plugins (each can be turned off)	プラグイン（ひとつずつ切れます）	插件（可逐个关闭）	zh?
 settings.plugins.none	No plugin is installed.	プラグインはありません。	未安装插件。	zh?
+settings.plugins.enableFailed	{0} could not be turned on: {1}	{0} を有効にできませんでした: {1}	{0} 无法启用：{1}	zh?
+settings.plugins.disableFailed	{0} could not be turned off: {1}	{0} を無効にできませんでした: {1}	{0} 无法停用：{1}	zh?
+settings.plugins.afterRestart	{0}: its DLL changed; it loads after a restart.	{0}: DLL が変わったため、再起動の後に読み込まれます。	{0}：DLL 已更改，将在重启后加载。	zh?
 settings.token.off	off	なし	关闭	zh?
 settings.token.required	required	必須	必需	zh?
 about.line	Version {0} · {1}: {2} · {3}: {4}	バージョン {0} · {1}: {2} · {3}: {4}	版本 {0} · {1}：{2} · {3}：{4}	zh?
@@ -1829,3 +1831,284 @@ list.fav.corrupt	The favourites file could not be read: it was kept as {0} and t
 list.fav.problem	The favourites: {0}	お気に入り: {0}	收藏：{0}	zh?
 #C12 (v1.2 package C: the switch for the nipple shape through clothes in the character's state tab)
 inspector.chara.state.nippleThroughClothes	Nipple shape through clothes	服の上に乳首の形を出す	在衣服上显示乳头形状	zh?
+#U61 (Phase 6.1 package U: the declarative forms of plugins)
+plugins.form.failed	Plugin {0}: {1}	プラグイン {0}: {1}	插件 {0}：{1}	zh?
+plugins.form.readFailed	The values could not be read: {0}	値を読み込めませんでした: {0}	无法读取数值：{0}	zh?
+#U62 (Phase 6.2 package U: the Timeline panel and its actions, the export dialog (with package W's rows), the history labels, the overridden mark, the driven camera and the refused drag)
+action.timeline.panel	Timeline panel	タイムラインパネル	时间轴面板	zh?
+action.timeline.playPause	Play / pause the Timeline	タイムラインを再生 / 一時停止	播放 / 暂停时间轴	zh?
+action.timeline.stop	Stop the Timeline	タイムラインを停止	停止时间轴	zh?
+action.timeline.key	Key the selected tracks	選択中のトラックにキーを打つ	为所选轨道添加关键帧	zh?
+action.timeline.export	Export frames…	連番画像を書き出す…	导出序列帧…	zh?
+keys.group.timeline	Timeline	タイムライン	时间轴	zh?
+panel.timeline	Timeline	タイムライン	时间轴	zh?
+timeline.new	New Timeline	タイムラインを作成	新建时间轴	zh?
+timeline.empty	A Timeline moves objects, characters and the camera over time. It is saved with the scene.	タイムラインは、物やキャラやカメラを時間に沿って動かします。シーンと一緒に保存されます。	时间轴可让物体、角色和相机随时间运动，并随场景一起保存。	zh?
+timeline.play	Play	再生	播放	zh?
+timeline.pause	Pause	一時停止	暂停	zh?
+timeline.stop	Stop	停止	停止	zh?
+timeline.stopBake	Stop and keep this pose	停止して今の姿勢をシーンに残す	停止并将当前姿势写入场景	zh?
+timeline.loop	Loop	ループ	循环	zh?
+timeline.autoplay	Play on load	読み込み時に再生	加载时播放	zh?
+timeline.duration	Length	長さ	时长	zh?
+timeline.key	Key	キー	关键帧	zh?
+timeline.ease.step	Step	ステップ	阶跃	zh?
+timeline.ease.linear	Linear	直線	线性	zh?
+timeline.ease.inout	Ease	なめらか	缓动	zh?
+timeline.ease.in	Ease in	ゆっくり始まる	缓入	zh?
+timeline.ease.out	Ease out	ゆっくり終わる	缓出	zh?
+timeline.addTrack	Add track	トラックを追加	添加轨道	zh?
+timeline.removeTrack	Remove track	トラックを削除	删除轨道	zh?
+timeline.retarget	Use the selection	選択中の対象に付け替え	改用当前选择	zh?
+timeline.rename	Rename	名前を変更	重命名	zh?
+timeline.type.pos	Position	位置	位置	zh?
+timeline.type.rot	Rotation	回転	旋转	zh?
+timeline.type.scale	Scale	拡大縮小	缩放	zh?
+timeline.type.bone	Bone rotation	骨の回転	骨骼旋转	zh?
+timeline.type.camera	Camera	カメラ	相机	zh?
+timeline.type.dof	Depth of field	被写界深度	景深	zh?
+timeline.type.anime	Animation	アニメ	动画	zh?
+timeline.type.animeSpeed	Animation speed	アニメの速さ	动画速度	zh?
+timeline.type.animeTime	Animation time	アニメの時刻	动画时间	zh?
+timeline.type.eyes	Eyes	目	眼睛	zh?
+timeline.type.mouth	Mouth	口	嘴	zh?
+timeline.type.eyesOpen	Eyes open	目の開き	睁眼程度	zh?
+timeline.type.mouthOpen	Mouth open	口の開き	张嘴程度	zh?
+timeline.type.color	Colour {0}	色 {0}	颜色 {0}	zh?
+timeline.type.lightColor	Light colour	ライトの色	灯光颜色	zh?
+timeline.events	Events	時刻の命令	定时命令	zh?
+timeline.missing	Target not found	対象が見つかりません	找不到目标	zh?
+timeline.fkOff	FK is off for this bone	この骨の FK がオフです	此骨骼的 FK 未开启	zh?
+timeline.suspended	Showing your edit until the play head moves	再生位置が動くまで編集した値を表示しています	在播放位置移动前显示您的编辑	zh?
+timeline.eventClears	Clears the undo history when it runs	実行すると、元に戻す履歴が消えます	运行时会清除撤销历史	zh?
+ui.override.tip	Shown from {0} while it runs. This field is the value that is saved.	実行中は {0} の値を表示しています。保存されるのはこの欄の値です。	运行期间显示 {0} 的值。保存的是此栏中的值。	zh?
+viewport.cameraDriven	Camera driven by {0}	カメラは {0} が動かしています	相机由 {0} 控制	zh?
+toast.timelinePlaying	Driven by the Timeline while it plays. Pause it to edit.	タイムラインの再生中は動かせません。一時停止してから編集してください。	时间轴播放期间无法移动。请暂停后再编辑。	zh?
+status.timeline	Timeline {0} {1}	タイムライン {0} {1}	时间轴 {0} {1}	zh?
+timeline.clear	Clear Timeline	タイムラインを消去	清除时间轴	zh?
+timeline.clearConfirm	Clear the Timeline? Its tracks, keys and events are removed (Undo brings them back).	タイムラインを消去しますか？トラック、キー、時刻の命令がなくなります（元に戻すで復元できます）。	清除时间轴？其轨道、关键帧和定时命令将被删除（可撤销恢复）。	zh?
+timeline.eventsList	Events…	時刻の命令…	定时命令…	zh?
+timeline.noEvents	No events	時刻の命令はありません	没有定时命令	zh?
+timeline.fit	Fit the length	全体を表示	显示全部时长	zh?
+timeline.easeMenu	Ease	補間	缓动	zh?
+timeline.setShown	Set to the shown value	今表示している値にする	设为当前显示的值	zh?
+timeline.deleteKeys	Delete	削除	删除	zh?
+timeline.boneMissing	This character has no such bone	このキャラにはこの骨がありません	此角色没有该骨骼	zh?
+timeline.inactive	Inactive: another track drives this channel, or the type is unknown	無効: 同じ対象を別のトラックが動かしているか、種類が不明です	未生效：另一轨道驱动同一通道，或类型未知	zh?
+timeline.channelHasTrack	This already has a track	すでにトラックがあります	已有轨道	zh?
+timeline.slotUnused	This item does not use this colour	このアイテムはこの色を使いません	此物品不使用此颜色	zh?
+timeline.moveOutside	A key would leave the Timeline ({0})	キーがタイムラインの外に出ます（{0}）	关键帧将超出时间轴（{0}）	zh?
+timeline.moveMeets	Two keys would meet at {0}	{0} で 2 つのキーが重なります	两个关键帧将在 {0} 重合	zh?
+timeline.keyedit.t	Time	時刻	时间	zh?
+timeline.keyedit.ease	Ease	補間	缓动	zh?
+timeline.keyedit.value	Value	値	值	zh?
+timeline.cam.target	Target	注視点	目标点	zh?
+timeline.cam.rot	Rotation	回転	旋转	zh?
+timeline.cam.dist	Distance	距離	距离	zh?
+timeline.cam.fov	Field of view	画角	视场角	zh?
+timeline.dof.on	On	有効	启用	zh?
+timeline.dof.focus	Focus target	ピントの対象	对焦目标	zh?
+timeline.dof.size	Focal size	ピントの幅	焦点范围	zh?
+timeline.dof.aperture	Aperture	絞り	光圈	zh?
+timeline.dof.blur	Blur (0 = the default)	ぼかし（0 = 既定）	模糊（0 = 默认）	zh?
+timeline.dof.pivot	Camera pivot	カメラの注視点	相机注视点	zh?
+timeline.dof.point	Point {0}	点 {0}	点 {0}	zh?
+timeline.dof.dist	Distance {0}	距離 {0}	距离 {0}	zh?
+timeline.anime.group	Group	グループ	组	zh?
+timeline.anime.category	Category	カテゴリ	类别	zh?
+timeline.anime.no	No.	番号	编号	zh?
+timeline.export.fps	Frame rate	フレームレート	帧率	zh?
+timeline.export.custom	Custom	指定	自定义	zh?
+timeline.export.frames	Frames (0 = until stopped)	枚数（0 = 停止するまで）	帧数（0 = 直到停止）	zh?
+timeline.export.folder	Folder	フォルダー	文件夹	zh?
+timeline.export.start	Start	開始	开始	zh?
+timeline.export.size	Output {0} × {1}, render {2} × {3}, {4} fps	出力 {0} × {1}、描画 {2} × {3}、{4} fps	输出 {0} × {1}，渲染 {2} × {3}，{4} fps	zh?
+timeline.export.busy	A recording is still running	書き出しの途中です	正在导出	zh?
+timeline.export.noDevice	Recording needs a graphics device	書き出しにはグラフィックス デバイスが必要です	导出需要图形设备	zh?
+timeline.export.failed	Export frames failed: {0}	連番画像を書き出せませんでした: {0}	导出序列帧失败：{0}	zh?
+history.timeline	Timeline	タイムライン	时间轴	zh?
+history.timeline.build	Build Timeline	タイムラインを構築	构建时间轴	zh?
+history.timeline.events	Timeline events	時刻の命令	定时命令	zh?
+history.timeline.clear	Clear Timeline	タイムラインを消去	清除时间轴	zh?
+history.timeline.addTrack	Add track	トラックを追加	添加轨道	zh?
+history.timeline.removeTrack	Remove track	トラックを削除	删除轨道	zh?
+history.timeline.track	Track	トラック	轨道	zh?
+history.timeline.key	Key	キー	关键帧	zh?
+history.timeline.deleteKeys	Delete keys	キーを削除	删除关键帧	zh?
+history.timeline.moveKeys	Move keys	キーを移動	移动关键帧	zh?
+history.timeline.bake	Bake Timeline pose	タイムラインの姿勢を反映	写入时间轴姿势	zh?
+timeline.export	Export frames…	連番画像を書き出す…	导出序列帧…	zh?
+timeline.export.note	Frames are saved as PNG files. To make a video, use an external tool such as ffmpeg (not included).	画像は PNG のファイルで保存されます。動画にするには ffmpeg などの外部のツールを使ってください（同梱していません）。	帧以 PNG 文件保存。如需制作视频，请使用 ffmpeg 等外部工具（未附带）。	zh?
+timeline.onePass	One pass of the Timeline	タイムラインを 1 周	时间轴一个循环	zh?
+timeline.recording	Recording {0} frames	書き出し中 {0} 枚	正在导出 {0} 帧	zh?
+timeline.recordDone	{0} frames saved	{0} 枚を保存しました	已保存 {0} 帧	zh?
+toast.stepRecording	A recording is running: Step waits until it ends	書き出しの途中はコマ送りできません	正在导出，无法单步	zh?
+#U63 (Phase 6.3 package U: the Advanced pose tab of the character inspector, the history labels of its edits)
+inspector.tab.advancedPose	Advanced pose	高度なポーズ	高级姿势	zh?
+inspector.chara.adv.primaryOnly	Edits the first selected character only.	最初に選んだキャラだけを編集します。	仅编辑第一个所选角色。	zh?
+inspector.chara.adv.bones	Bones	骨	骨骼	zh?
+inspector.chara.adv.jiggle	Jiggle	揺れ	抖动	zh?
+inspector.chara.adv.blend	Blend shapes	ブレンドシェイプ	混合形状	zh?
+inspector.chara.adv.part	Part	部位	部位	zh?
+inspector.chara.adv.search	Search bones	骨を検索	搜索骨骼	zh?
+inspector.chara.adv.pick	Pick in view	画面で選ぶ	在视图中选取	zh?
+inspector.chara.adv.corrected	Corrected only	補正した骨だけ	仅已修正	zh?
+inspector.chara.adv.part.body	Body	体	身体	zh?
+inspector.chara.adv.part.head	Head	頭	头部	zh?
+inspector.chara.adv.part.hair	Hair {0}	髪 {0}	头发 {0}	zh?
+inspector.chara.adv.part.clothes	Clothes {0}	服 {0}	服装 {0}	zh?
+inspector.chara.adv.part.acc	Accessory {0}	アクセ {0}	饰品 {0}	zh?
+inspector.chara.adv.part.other	Other	その他	其他	zh?
+inspector.chara.adv.pos	Position offset	位置のずれ	位置偏移	zh?
+inspector.chara.adv.rot	Rotation offset	回転のずれ	旋转偏移	zh?
+inspector.chara.adv.scale	Scale factor	拡大の倍率	缩放倍率	zh?
+inspector.chara.adv.reset	Reset	戻す	重置	zh?
+inspector.chara.adv.resetAll	Reset all	すべて戻す	全部重置	zh?
+inspector.chara.adv.selectBone	Select a bone in the list to edit it.	一覧で骨を選ぶと編集できます。	在列表中选择骨骼即可编辑。	zh?
+inspector.chara.adv.stale	Not found on this character ({0})	このキャラに無いもの（{0}）	此角色上不存在（{0}）	zh?
+inspector.chara.adv.remove	Remove	削除	删除	zh?
+inspector.chara.adv.fkMark	FK	FK	FK	zh?
+inspector.chara.adv.fkTip	FK sets this bone's rotation while it is on. The correction is added to it.	FK が入っている間は FK がこの骨の回転を決めます。補正はその上に足されます。	FK 开启时由 FK 决定此骨骼的旋转，修正量会叠加在其上。	zh?
+inspector.chara.adv.notShownTip	Another stage writes this bone after the correction, so the value does not show now: {0}.	この骨は補正の後に別の処理が書くので、今は値が見えません: {0}。	修正之后另有处理会写入此骨骼，因此当前看不到该值：{0}。	zh?
+inspector.chara.adv.why.eyeLook	the eye look	視線	视线	zh?
+inspector.chara.adv.why.mouthWidth	the mouth's width	口の幅	嘴的宽度	zh?
+inspector.chara.adv.why.physics	the jiggle	揺れ	抖动	zh?
+inspector.chara.adv.why.jointCorrection	the joint correction	関節補正	关节修正	zh?
+inspector.chara.adv.why.other	a later stage	後の処理	后续处理	zh?
+inspector.chara.adv.ikTip	With IK on, a correction here can take the hand or foot off its target.	IK が入っていると、ここの補正で手や足が目標から離れることがあります。	IK 开启时，此处的修正可能使手脚偏离目标。	zh?
+inspector.chara.adv.protectedTip	This part keeps the mosaic in place and cannot be edited.	この部位はモザイクの位置を保つため、編集できません。	此部位用于保持马赛克的位置，无法编辑。	zh?
+inspector.chara.adv.noChains	This character has no swing chains.	このキャラに揺れるチェーンはありません。	此角色没有摆动链。	zh?
+inspector.chara.adv.chain.enabled	Active	有効	启用	zh?
+inspector.chara.adv.chain.weight	Weight	重み	权重	zh?
+inspector.chara.adv.chain.damping	Damping	減衰	阻尼	zh?
+inspector.chara.adv.chain.elasticity	Elasticity	弾性	弹性	zh?
+inspector.chara.adv.chain.stiffness	Stiffness	硬さ	硬度	zh?
+inspector.chara.adv.chain.inert	Inertia	慣性	惯性	zh?
+inspector.chara.adv.chain.radius	Radius	半径	半径	zh?
+inspector.chara.adv.chain.gravity	Gravity	重力	重力	zh?
+inspector.chara.adv.chain.force	Force	力	外力	zh?
+inspector.chara.adv.chain.freezeAxis	Freeze axis	固定軸	冻结轴	zh?
+enum.freezeAxis.none	None	なし	无	zh?
+enum.freezeAxis.x	X	X	X	zh?
+enum.freezeAxis.y	Y	Y	Y	zh?
+enum.freezeAxis.z	Z	Z	Z	zh?
+inspector.chara.adv.breastL	Breast L	胸 左	胸部左	zh?
+inspector.chara.adv.breastR	Breast R	胸 右	胸部右	zh?
+inspector.chara.adv.hipL	Hip L	尻 左	臀部左	zh?
+inspector.chara.adv.hipR	Hip R	尻 右	臀部右	zh?
+inspector.chara.adv.chainOverride	Scene value. The card's value is {0}.	シーンの値です。カードの値は {0} です。	场景值。角色卡的值为 {0}。	zh?
+inspector.chara.adv.blendRenderer	Mesh	メッシュ	网格	zh?
+history.advancedPose.bones	Bone correction	骨の補正	骨骼修正	zh?
+history.advancedPose.clearBones	Clear bone corrections	骨の補正を消去	清除骨骼修正	zh?
+history.advancedPose.jiggle	Jiggle values	揺れの値	抖动值	zh?
+history.advancedPose.clearJiggle	Clear jiggle values	揺れの値を消去	清除抖动值	zh?
+history.advancedPose.blend	Blend shapes	ブレンドシェイプ	混合形状	zh?
+history.advancedPose.clearBlend	Clear blend shapes	ブレンドシェイプを消去	清除混合形状	zh?
+#U64 (Phase 6.4 package U: the Materials tab of the character inspector, the sections of an item and of the map, the hair bone adjustments, the history labels of their edits)
+inspector.tab.materials	Materials	材質	材质	zh?
+inspector.item.section.materialEdit	Material edits	材質の編集	材质编辑	zh?
+inspector.scene.section.mapMaterials	Map material edits	マップの材質の編集	地图材质编辑	zh?
+inspector.materials.target	Target	対象	对象	zh?
+inspector.materials.character	Character	キャラ	角色	zh?
+inspector.materials.search	Search	検索	搜索	zh?
+inspector.materials.editedOnly	Edited only	編集したものだけ	仅已编辑	zh?
+inspector.materials.mode.materials	Materials	材質	材质	zh?
+inspector.materials.mode.renderers	Renderers	レンダラー	渲染器	zh?
+inspector.materials.searchHint	Type at least two characters.	2 文字以上入力してください。	请至少输入两个字符。	zh?
+inspector.materials.slots	{0} slots	{0} スロット	{0} 个槽位	zh?
+inspector.materials.shader	Shader	シェーダー	着色器	zh?
+inspector.materials.queue	Render queue	描画順	渲染队列	zh?
+inspector.materials.keywords	Keywords	キーワード	关键字	zh?
+inspector.materials.enabled	Show this renderer	このレンダラーを表示	显示此渲染器	zh?
+inspector.materials.tiling	Tiling	繰り返し	平铺	zh?
+inspector.materials.offset	Offset	ずれ	偏移	zh?
+inspector.materials.removeImage	Remove image	画像を外す	移除图像	zh?
+inspector.materials.importing	Reading the image…	画像を読んでいます…	正在读取图像…	zh?
+inspector.materials.original	Original: {0}	元の値: {0}	原值：{0}	zh?
+inspector.materials.notApplied	Not applied ({0})	効いていない項目（{0}）	未生效（{0}）	zh?
+inspector.materials.remove	Remove	削除	删除	zh?
+inspector.materials.resetAll	Reset all	すべて戻す	全部重置	zh?
+inspector.materials.why.notOnShader	Not on this shader	このシェーダーにありません	此着色器没有该项	zh?
+inspector.materials.why.shaderUnavailable	This shader is not available	このシェーダーは使えません	此着色器不可用	zh?
+inspector.materials.why.materialMissing	No such material on this object	この部位に該当の材質がありません	此对象没有该材质	zh?
+inspector.materials.why.objectMissing	No such part	該当の部位がありません	没有该部位	zh?
+inspector.materials.why.notImplemented	Not supported	対応していません	不支持	zh?
+inspector.materials.why.fallbackFixed	The general fallback fixes this value	汎用の代替がこの値を固定しています	通用替代固定了此值	zh?
+inspector.materials.why.driven	The map animates this value	マップがこの値を動かしています	地图正在驱动此值	zh?
+inspector.materials.why.badValue	Stored as text; not a number	文字列で保存されていて数値ではありません	以文本保存，不是数字	zh?
+inspector.materials.why.undecodable	The image cannot be read	画像を読めません	无法读取图像	zh?
+inspector.materials.mosaic	Mosaic parts and their materials cannot be edited.	モザイクの部材とその材質は編集できません。	无法编辑马赛克部件及其材质。	zh?
+inspector.materials.drawsBody	This part draws the body's material. Edit the body.	この部位は体の材質で描かれます。体を編集してください。	此部位使用身体的材质绘制，请编辑身体。	zh?
+inspector.materials.fallback	This material uses the general fallback; this value is fixed.	この材質は汎用の代替で描かれ、この値は固定です。	此材质使用通用替代，此值固定。	zh?
+inspector.materials.overColour	A material edit is drawn over this colour.	この色の上に材質の編集が描かれます。	此颜色上方绘制了材质编辑。	zh?
+inspector.materials.readOnly	Read-only	読み取り専用	只读	zh?
+inspector.materials.open	Edit materials	材質を編集	编辑材质	zh?
+inspector.charaEdit.hair.boneMods	Hair bone adjustments	髪の骨の調整	头发骨骼调整	zh?
+inspector.charaEdit.hair.boneMods.add	Add bone	骨を追加	添加骨骼	zh?
+inspector.charaEdit.hair.boneMods.scale	Scale	拡大	缩放	zh?
+inspector.charaEdit.hair.boneMods.length	Length	長さ	长度	zh?
+inspector.charaEdit.hair.boneMods.position	Position	位置	位置	zh?
+inspector.charaEdit.hair.boneMods.rotation	Rotation	回転	旋转	zh?
+inspector.charaEdit.hair.boneMods.note	Stored with the character. Scene-only adjustments are in Advanced pose.	キャラに保存されます。シーンだけの調整は高度なポーズにあります。	随角色保存。仅限场景的调整在高级姿势中。	zh?
+history.materials.edit	Material edit	材質の編集	材质编辑	zh?
+history.materials.reset	Reset material edit	材質の編集を戻す	重置材质编辑	zh?
+history.materials.clear	Clear material edits	材質の編集を消去	清除材质编辑	zh?
+history.materials.texture	Material texture	材質の画像	材质图像	zh?
+history.materials.shader	Material shader	材質のシェーダー	材质着色器	zh?
+history.materials.hairBone	Hair bone adjustment	髪の骨の調整	头发骨骼调整	zh?
+#U65 (Phase 6.5 package U: the Constraints panel and action, the section of the inspectors, the state of an entry, the refused drag, the history labels of its edits)
+action.constraints.panel	Constraints panel	拘束パネル	约束面板	zh?
+panel.constraints	Constraints	拘束	约束	zh?
+constraints.add	Add	追加	添加	zh?
+constraints.clear	Clear	すべて削除	全部清除	zh?
+constraints.source	Source	元	来源	zh?
+constraints.target	Target	先	目标	zh?
+constraints.kind.node	Node	ノード	节点	zh?
+constraints.kind.bone	Bone	骨	骨骼	zh?
+constraints.kind.ik	IK target	IK の標的	IK 目标	zh?
+constraints.comp.position	Position	位置	位置	zh?
+constraints.comp.rotation	Rotation	回転	旋转	zh?
+constraints.comp.scale	Scale	拡大	缩放	zh?
+constraints.comp.lookAt	Look at	注視	注视	zh?
+constraints.comp.parent	Parent	親子	父子	zh?
+constraints.comp.parentTip	Follows as a child would, without changing the tree. To carry an object, an attach point is simpler.	ツリーを変えずに子のように追従します。物を持たせるだけなら取り付け点のほうが簡単です。	不改变层级，像子物体一样跟随。若只是携带物体，用挂载点更简单。	zh?
+constraints.offset	Offset	ずれ	偏移	zh?
+constraints.takeOffset	Take offset	今のずれを使う	使用当前偏移	zh?
+constraints.clearOffset	Clear offset	ずれを消す	清除偏移	zh?
+constraints.weight	Weight	重み	权重	zh?
+constraints.label	Label	ラベル	标签	zh?
+constraints.pickInView	Pick in view	ビューで選ぶ	在视图中选取	zh?
+constraints.useSelection	Use selection	選択中の物を使う	使用当前选择	zh?
+constraints.openPanel	Open in panel	パネルで開く	在面板中打开	zh?
+constraints.none	No constraints on this node.	このノードに拘束はありません。	此节点没有约束。	zh?
+constraints.state.off	Off	切	关	zh?
+constraints.state.sourceMissing	Source missing: {0}	元が見つかりません: {0}	找不到来源：{0}	zh?
+constraints.state.targetMissing	Target missing: {0}	先が見つかりません: {0}	找不到目标：{0}	zh?
+constraints.state.cycle	Suspended: it closes a loop ({0})	循環になるため止めています（{0}）	已暂停：形成了循环（{0}）	zh?
+constraints.state.bad	Not usable: {0}	使えません: {0}	无法使用：{0}	zh?
+constraints.state.pending	Waiting for the character	キャラの組み立てを待っています	正在等待角色	zh?
+constraints.state.protected	Mosaic parts are not editable.	モザイクの部材は編集できません。	马赛克部件不可编辑。	zh?
+constraints.state.limit	Beyond the limit of {0}: kept, not applied.	上限 {0} を超えています。残していますが適用しません。	超过上限 {0}：已保留，不生效。	zh?
+constraints.lag	1 frame behind	1 フレーム遅れ	滞后 1 帧	zh?
+constraints.lagTip	The source moves only after this target is used, so it follows the previous frame. It is exact when the source rests.	元が動くのは先を使った後なので、1 つ前のフレームに追従します。元が止まれば一致します。	来源在目标被使用之后才移动，因此跟随上一帧。来源静止时完全一致。	zh?
+constraints.sameCharaTip	Reads this character's pose before its pose corrections and the stages after them.	補正とその後の段が入る前の、このキャラの姿勢を読みます。	读取此角色在姿势修正及其后续阶段之前的姿势。	zh?
+constraints.ikOff	IK is off for this limb.	この部位の IK は切です。	此部位的 IK 已关闭。	zh?
+constraints.notShown	Another stage writes this bone after constraints.	拘束の後に別の段がこの骨を書くので効きません。	此骨骼在约束之后被其他阶段写入。	zh?
+constraints.bandTip	Runs after the FK of this bone: it replaces it, or blends with it by weight.	この骨の FK の後に効きます。置き換えるか、重みで混ぜます。	在此骨骼的 FK 之后生效：替换，或按权重混合。	zh?
+constraints.moveUp	Move up	上へ	上移	zh?
+constraints.moveDown	Move down	下へ	下移	zh?
+constraints.remove	Remove	削除	删除	zh?
+constraints.noEntries	No constraints in this scene.	このシーンに拘束はありません。	此场景没有约束。	zh?
+constraints.selectHint	Select a constraint in the list to edit it.	一覧で拘束を選ぶと編集できます。	在列表中选择约束即可编辑。	zh?
+constraints.newHint	Choose a source and a target: the constraint is created at once, and the target stays where it is.	元と先を選ぶとすぐに拘束を作ります。先は今の場所のままです。	选择来源和目标后立即创建约束，目标保持在当前位置。	zh?
+constraints.pickBone	Choose a bone…	骨を選ぶ…	选择骨骼…	zh?
+constraints.components	Components	成分	分量	zh?
+constraints.primaryOnly	Lists the first selected node's constraints. Select one node to edit them.	最初に選んだノードの拘束を表示します。編集するには 1 つだけ選んでください。	显示最先选中节点的约束。要编辑，请只选择一个节点。	zh?
+constraints.cycleRefused	This would close a loop ({0}).	循環になるので追加できません（{0}）。	这会形成循环（{0}）。	zh?
+toast.constraintDriven	Driven by a constraint. Edit its offset or switch it off.	拘束で動いています。ずれを編集するか、切にしてください。	由约束驱动。请编辑其偏移或将其关闭。	zh?
+history.constraint.add	Add constraint	拘束の追加	添加约束	zh?
+history.constraint.edit	Constraint	拘束	约束	zh?
+history.constraint.remove	Remove constraint	拘束の削除	删除约束	zh?
+history.constraint.clear	Clear constraints	拘束をすべて削除	清除约束	zh?
+history.constraint.reorder	Reorder constraints	拘束の並べ替え	重新排序约束	zh?
+history.constraint.takeOffset	Take offset	ずれの取得	获取偏移	zh?

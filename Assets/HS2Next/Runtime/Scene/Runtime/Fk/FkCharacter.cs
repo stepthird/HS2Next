@@ -48,8 +48,6 @@ namespace HS2Next.Scenes.Runtime
             Transform hips = null;
             if (r.Context?.BodyBones != null) r.Context.BodyBones.TryGetValue("cf_J_Hips", out hips);
             Hips = new FkHipsStage(hips);
-            var ctx = r.Context;
-            Hips.ExternalWrite = w => ModifierWrite(ctx?.Bones, Hips.Hips, w);
             Gate = new FkNeckGate(look);
             Stage = new FkStage(table) { Owner = this };
             if (motion)
@@ -61,24 +59,6 @@ namespace HS2Next.Scenes.Runtime
         }
 
         public bool Applied(FkGroup g) => Stage.Applied[(int)g];
-
-        /// <summary>The value the card's bone modifiers write on <paramref name="t"/> from base <paramref name="w"/> (as
-        /// BoneModifierApplier combines them: base · length + position, else base + position), or null without one.</summary>
-        static Vector3? ModifierWrite(HS2Next.Chara.Ext.BoneModifierApplier m, Transform t, Vector3 w)
-        {
-            if (!m || !t) return null;
-            float len = 1f; var pos = Vector3.zero;
-            bool hasLen = false, hasPos = false;
-            foreach (var x in m.Modifiers)
-            {
-                if (x == null || x.Target != t) continue;
-                if (x.Length != 1) { len *= x.Length; hasLen = true; }
-                if (x.Position.x != 0 || x.Position.y != 0 || x.Position.z != 0) { pos += x.Position; hasPos = true; }
-            }
-            if (hasLen) return w * len + pos;
-            if (hasPos) return w + pos;
-            return null;
-        }
 
         /// <summary>The discovery input of a built character.</summary>
         internal static FkDiscovery DiscoveryOf(CharaRealization r)
@@ -260,7 +240,15 @@ namespace HS2Next.Scenes.Runtime
             if (Suspended) return;
             Stage.WriteApplied();
             if (Gate.Active) Gate.Hold();
+            ApplyHipsNow();
+        }
+
+        // the offset shown at once, outside a step: not the next input of a modifier's pass on the bone
+        void ApplyHipsNow()
+        {
             Hips.ApplyNow();
+            var m = Realization.Context?.Bones;
+            if (m) m.Forget(Hips.Hips);
         }
 
         // ------------------------------------------------------------ change handling
@@ -291,7 +279,7 @@ namespace HS2Next.Scenes.Runtime
             if (path == "chara.fk.hipsOffset" || path == "chara.fk.hipsPosition")
             {
                 UpdateHips(fk);
-                if (!Suspended) Hips.ApplyNow();
+                if (!Suspended) ApplyHipsNow();
                 return;
             }
             // chara.fk (replaced) or a shorter overlapping path

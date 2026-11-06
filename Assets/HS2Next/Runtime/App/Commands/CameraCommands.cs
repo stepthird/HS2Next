@@ -22,8 +22,9 @@ namespace HS2Next.App.Commands
     {
         public static void Register(ICommandRegistry r, AppCore app)
         {
-            const string camDoc = "{target, rot, dist, fov, worldPos, forward, current, activeCamera}";
-            CommandKit.Register(r, app, CommandKit.Spec("camera.get", "The view camera in HS2's shape (pivot, rotation, distance, fov) plus its world position and forward.", "camera")
+            const string camDoc = "{target, rot, dist, fov, worldPos, forward, current, activeCamera, overridden}";
+            CommandKit.Register(r, app, CommandKit.Spec("camera.get", "The view camera in HS2's shape (pivot, rotation, distance, fov) plus its world position and forward. " +
+                    "While a runtime override places the view, target, rot, dist and fov are the shown view's and overridden names its owner.", "camera")
                 .Return("camera", ArgTypes.Object, camDoc)
                 .WithFlags(CommandFlags.ReadOnly).WithTimeout(60), Get);
 
@@ -49,7 +50,7 @@ namespace HS2Next.App.Commands
             CommandKit.Register(r, app, CommandKit.Spec("camera.state", "HS2's full camera dump; with set, moves the view first (in the same frame).", "camera")
                 .Arg("set", ArgTypes.Object, "{pos: vec3 world, rot: [x,y,z,w] quaternion or [x,y,z] Euler, dist (default the current distance, 10 when < 1e-3), fov}")
                 .Return("note", ArgTypes.String, "with set", false).Return("requested", ArgTypes.Object, "with set: {position, rotation, target, dist}", false)
-                .Return("camera", ArgTypes.Object, "{name, position, rotation, euler, forward, up, fov, aspect, near, far, orthographic, pixelWidth, pixelHeight, screen, clearFlags, background, cullingMask, allowHDR, allowMSAA, renderingPath, frame, studio, current, activeCamera}")
+                .Return("camera", ArgTypes.Object, "{name, position, rotation, euler, forward, up, fov, aspect, near, far, orthographic, pixelWidth, pixelHeight, screen, clearFlags, background, cullingMask, allowHDR, allowMSAA, renderingPath, frame, studio, current, activeCamera, overridden}")
                 .WithFlags(CommandFlags.ReadOnly).WithTimeout(60), State);
 
             CommandKit.Register(r, app, new CommandSpec("capture", "Renders the view into <outputDir>/shots/<name>.png at the late point of frame F + waitFrames (default 0: this frame, after its motion steps).")
@@ -89,7 +90,32 @@ namespace HS2Next.App.Commands
         static object Get(CoreContext c)
         {
             Settle(c);
-            return new BridgeReply().With("camera", CommandKit.CameraState(c.App));
+            return new BridgeReply().With("camera", Shown(c, CommandKit.CameraState(c.App)));
+        }
+
+        /// <summary>The camera object of camera.set / camera.frame: the model's view with the member overridden (as camera.get's shape).</summary>
+        static BridgeReply Owner(CoreContext c, BridgeReply r)
+        {
+            r["overridden"] = c.Runtime?.OverrideApp?.WinningOwner(null, HS2Next.Scenes.Overrides.OverrideChannel.Camera);
+            return r;
+        }
+
+        /// <summary>
+        /// The view as shown: while a runtime override's camera slot wins, target, rot, dist and fov are its values; the member
+        /// overridden names the winning owner (null without one). current stays the model's.
+        /// </summary>
+        static BridgeReply Shown(CoreContext c, BridgeReply r)
+        {
+            var app = c.Runtime?.OverrideApp;
+            if (app != null && app.TryCamera(out var target, out var rot, out float dist, out float fov))
+            {
+                r["target"] = CommandKit.R4(target);
+                r["rot"] = CommandKit.R4(rot.eulerAngles);
+                r["dist"] = dist;
+                r["fov"] = fov;
+            }
+            r["overridden"] = app?.WinningOwner(null, HS2Next.Scenes.Overrides.OverrideChannel.Camera);
+            return r;
         }
 
         /// <summary>The stored view or the default view.</summary>
@@ -118,7 +144,7 @@ namespace HS2Next.App.Commands
             if (c.Args.TryGet<float>("dist", out var d)) dist = d;
             if (c.Args.TryGet<float>("fov", out var f)) fov = f;
             SetView(c, pivot, rot, dist, fov);
-            return new BridgeReply().With("camera", CommandKit.CameraState(c.App));
+            return new BridgeReply().With("camera", Owner(c, CommandKit.CameraState(c.App)));
         }
 
         static object Frame(CoreContext c)
@@ -138,7 +164,7 @@ namespace HS2Next.App.Commands
             float dist = c.Args.Get("dist", 25f), yaw = c.Args.Get("yaw", 180f), pitch = c.Args.Get("pitch", 10f);
             float fov = c.Args.Get("fov", Current(c).fov);
             SetView(c, target, new Vector3(pitch, yaw, 0f), dist, fov);
-            return new BridgeReply().With("camera", CommandKit.CameraState(c.App));
+            return new BridgeReply().With("camera", Owner(c, CommandKit.CameraState(c.App)));
         }
 
         static object State(CoreContext c)
@@ -208,6 +234,7 @@ namespace HS2Next.App.Commands
                 .With("basePosition", CommandKit.D3(Vector3.zero)).With("baseRotation", CommandKit.D4(Quaternion.identity));
             r["current"] = c.Session.Model.Settings.Camera.Current != null;
             r["activeCamera"] = view?.ActiveCameraId;
+            r["overridden"] = c.Runtime?.OverrideApp?.WinningOwner(null, HS2Next.Scenes.Overrides.OverrideChannel.Camera);   // Phase 6.2: the runtime override's owner
             // Phase 3.3: slots, the reset view and the ViewSetup-driven render settings
             var slots = c.Session.Model.Settings.Camera.Slots;
             int saved = 0;
@@ -262,16 +289,25 @@ namespace HS2Next.App.Commands
             frames.AtLate(wait, () =>
             {
                 if (d.IsCompleted || d.IsAbandoned) return;
+                // the capture events (Phase 6.1): Starting / Rendered around the render, Finished after the write or the failure,
+                // all in this frame; the frame number is the reply's
+                var events = HS2Next.Screenshots.CaptureEvents.Prepare(HS2Next.Api.Plugins.CaptureKind.Capture, HS2Next.Api.Plugins.CaptureOrigin.Command, req, full, frames.Frame);
                 try
                 {
                     var sw = Stopwatch.StartNew();
                     SceneImages.Ensure(rt);
-                    var res = ViewCapture.Render(rt, view?.Camera, req);
+                    var cam = view?.Camera;
+                    var res = HS2Next.Screenshots.CaptureService.RenderSync(rt ?? SceneImages.RuntimeOf(cam), cam, req, events);
                     File.WriteAllBytes(full, res.Png);
+                    HS2Next.Screenshots.CaptureEvents.RaiseFinished(events, true, full, res.Png.LongLength, null);
                     d.Complete(new BridgeReply().With("path", full).With("frame", frames.Frame).With("width", w).With("height", h).With("ms", sw.Elapsed.TotalMilliseconds)
                         .With("renderWidth", res.RenderWidth).With("renderHeight", res.RenderHeight));
                 }
-                catch (Exception e) { d.Fail(new BridgeError(BridgeCodes.Internal, "capture failed: " + e.GetType().Name + ": " + e.Message)); }
+                catch (Exception e)
+                {
+                    HS2Next.Screenshots.CaptureEvents.RaiseFinished(events, false, null, 0, e.GetType().Name + ": " + e.Message);
+                    d.Fail(new BridgeError(BridgeCodes.Internal, "capture failed: " + e.GetType().Name + ": " + e.Message));
+                }
             });
             return null;
         }

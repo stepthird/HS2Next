@@ -37,6 +37,8 @@ namespace HS2Next.UI.Panels
         /// <summary>Runs <paramref name="a"/> every frame until <see cref="Remove"/>.</summary>
         public static void Add(Action a) { if (a != null && Application.isPlaying) Get().actions.Add(a); }
         public static void Remove(Action a) { if (instance != null) instance.actions.Remove(a); }
+        /// <summary>The actions running every frame (tests: an element dropped from the panel leaves none behind).</summary>
+        public static int Count => instance != null ? instance.actions.Count : 0;
 
         void Update()
         {
@@ -55,10 +57,11 @@ namespace HS2Next.UI.Panels
         public const int SearchDebounceMs = 120;
 
         /// <summary>Runs <paramref name="tick"/> every frame while <paramref name="el"/> is attached to a panel (from construction
-        /// for elements built before attachment; removed on detach).</summary>
-        public static void EveryFrame(VisualElement el, Action tick)
+        /// for elements built before attachment; removed on detach). <paramref name="fromConstruction"/> false: only while attached,
+        /// for an element that may be built and dropped without ever reaching a panel, which the ticker would keep alive.</summary>
+        public static void EveryFrame(VisualElement el, Action tick, bool fromConstruction = true)
         {
-            PanelTicker.Add(tick);
+            if (fromConstruction || el.panel != null) PanelTicker.Add(tick);
             el.RegisterCallback<AttachToPanelEvent>(_ => { PanelTicker.Remove(tick); PanelTicker.Add(tick); });
             el.RegisterCallback<DetachFromPanelEvent>(_ => PanelTicker.Remove(tick));
         }

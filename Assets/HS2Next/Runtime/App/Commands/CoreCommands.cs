@@ -5,7 +5,10 @@
 // partial methods below, which W2 implements in its files; Phase 3.1's ItemCommands (package A) and
 // ItemMotionCommands (package B) directly, and Phase 3.2's MapCommands (package A). Names is the 2.4 contract, Phase31Names the 3.1 additions: the lists the
 // tests compare the registry with. RuntimeCreated runs once the app's runtime exists (boot stage 7, AppCore.ForTests), for the
-// runtime-side parts of the commands (W2: MotionOverrides.Attach).
+// runtime-side parts of the commands (W2: MotionOverrides.Attach; Phase 6.2: the Timeline's timed commands reach the app's
+// bridge). Phase 6.2 registers the groups "timeline" (TimelineCommands, OverrideCommands) and "record" (RecordCommands), Since 1.2.0.
+// Phase 6.3 registers the group "advanced pose" (AdvancedPoseCommands), Since 1.2.0. Phase 6.4 registers the group "materials"
+// (MaterialCommands), Since 1.2.0.
 using System.Collections.Generic;
 using HS2Next.Api.Bridge;
 
@@ -112,8 +115,28 @@ namespace HS2Next.App.Commands
         /// app.settings: the folders, the first-run guide and the settings file; gate None).</summary>
         public static readonly IReadOnlyList<string> Phase53Names = SetupCommands.Names;
 
+        /// <summary>Commands added in Phase 6.1 (group "plugin"), owner core, Since 1.1.0: PluginCommands.Phase61Names
+        /// (package H: plugin.disable, plugin.enable).</summary>
+        public static readonly IReadOnlyList<string> Phase61Names = HS2Next.App.Plugins.PluginCommands.Phase61Names;
+
+        /// <summary>Commands added in Phase 6.2, owner core, Since 1.2.0: TimelineCommands.Names (package P: timeline.*) and
+        /// OverrideCommands.Names (package O: overrides.list, experimental) in the group "timeline", RecordCommands.Names (package W:
+        /// record.start, record.stop, record.status) in the group "record". 20 commands.</summary>
+        public static readonly IReadOnlyList<string> Phase62Names = Lists(TimelineCommands.Names, OverrideCommands.Names, RecordCommands.Names);
+
+        /// <summary>Commands added in Phase 6.3 (group "advanced pose"), owner core, Since 1.2.0, experimental: AdvancedPoseCommands.Names
+        /// (pose.bones, pose.chains, pose.bust, pose.blendShapes, each with .set and .clear). 12 commands.</summary>
+        public static readonly IReadOnlyList<string> Phase63Names = AdvancedPoseCommands.Names;
+
+        /// <summary>Commands added in Phase 6.4 (group "materials"), owner core, Since 1.2.0, experimental: MaterialCommands.Names
+        /// (materials.shaders, chara.edit.materials.*, item.materials.*, map.materials*, chara.edit.boneMods*). 14 commands.</summary>
+        public static readonly IReadOnlyList<string> Phase64Names = MaterialCommands.Names;
+
+        /// <summary>The commands of Phase 6.5 (constraints), Since 1.2.0, all experimental.</summary>
+        public static readonly IReadOnlyList<string> Phase65Names = ConstraintCommands.Names;
+
         /// <summary>
-        /// The Core commands that keep HS2 Studio's automation vocabulary (79 names HS2's own bridge also answers): never renamed
+        /// The Core commands that keep HS2 Studio's automation vocabulary (89 names HS2's own bridge also answers): never renamed
         /// or aliased away, with HS2's argument names, defaults, reply members and number forms. BridgeCoreTest checks that each
         /// is registered under its own name; the help dump lists them and Reference/COMMANDS.md marks them. A new HS2Next-only
         /// command follows the naming convention of Reference/COMMANDS.md instead.
@@ -127,10 +150,11 @@ namespace HS2Next.App.Commands
             "delete", "effects.reset", "effects.set", "effects.state", "face.dump", "fk.capture", "fk.copy", "fk.enable",
             "fk.list", "fk.set", "ik.copy", "ik.enable", "ik.list", "ik.set", "item.add", "item.materials", "item.parent",
             "item.search", "item.set", "item.state", "light.add", "light.set", "light.state", "look.target", "map.load",
-            "map.renderers", "map.set", "map.state", "maps", "obj.transform", "pose.load", "route.add", "route.addPoint",
-            "route.deletePoint", "route.list", "route.play", "route.set", "route.setPoint", "route.state", "route.stop",
+            "map.renderers", "map.set", "map.state", "maps", "obj.transform", "pose.load", "record.start", "record.stop", "route.add",
+            "route.addPoint", "route.deletePoint", "route.list", "route.play", "route.set", "route.setPoint", "route.state", "route.stop",
             "scene", "scene.lights", "scene.load", "scene.new", "scene.save", "select", "shape.info", "shape.set",
-            "sound.list", "sound.set", "sound.state", "ui.state",
+            "sound.list", "sound.set", "sound.state", "timeline.build", "timeline.clear", "timeline.events", "timeline.pause",
+            "timeline.play", "timeline.seek", "timeline.status", "timeline.stop", "ui.state",
         };
 
         static string[] Lists(params IReadOnlyList<string>[] lists)
@@ -165,6 +189,11 @@ namespace HS2Next.App.Commands
                 foreach (var n in Phase51Names) yield return n;   // Phase 5.1 (plugin: plugin.list)
                 foreach (var n in Phase52Names) yield return n;   // Phase 5.2 (content: content.stats, content.quarantine; app: app.perf)
                 foreach (var n in Phase53Names) yield return n;   // Phase 5.3 (app: app.paths, app.setup, app.settings)
+                foreach (var n in Phase61Names) yield return n;   // Phase 6.1 (plugin: plugin.disable, plugin.enable; Since 1.1.0)
+                foreach (var n in Phase62Names) yield return n;   // Phase 6.2 (timeline: timeline.*, overrides.list; record: record.*; Since 1.2.0)
+                foreach (var n in Phase63Names) yield return n;   // Phase 6.3 (advanced pose: pose.bones*, pose.chains*, pose.bust*, pose.blendShapes*; Since 1.2.0)
+                foreach (var n in Phase64Names) yield return n;   // Phase 6.4 (materials: the arrays of characters, items and the map, hair bone modifiers; Since 1.2.0)
+                foreach (var n in Phase65Names) yield return n;   // Phase 6.5 (constraint: constraint.*; Since 1.2.0)
                 foreach (var n in HS2Next.UI.Bridge.UiCommands.Names) yield return n;   // Phase 3.5 package A: ui.* (unavailable without the UI)
             }
         }
@@ -207,7 +236,12 @@ namespace HS2Next.App.Commands
             Group("routes", () => RouteCommands.Register(r, app));   // Phase 3.6 package R (route.*)
             Group("chara edit", () => CharaEditCommands.Register(r, app));   // Phase 4.0 package E (chara.edit.*, shape.info / shape.set)
             Group("content", () => { ContentCommands.Register(r, app); QuarantineCommands.Register(r, app); });   // Phase 4.4 package E (content.redirect, content.zipmods); 5.2 content.stats, content.quarantine
-            Group("plugin", () => HS2Next.App.Plugins.PluginCommands.Register(r, app));   // Phase 5.1 package L (plugin.list)
+            Group("plugin", () => HS2Next.App.Plugins.PluginCommands.Register(r, app));   // Phase 5.1 package L (plugin.list); 6.1 package H (plugin.disable / enable)
+            Group("timeline", () => { TimelineCommands.Register(r, app); OverrideCommands.Register(r, app); });   // Phase 6.2 packages P (timeline.*) and O (overrides.list)
+            Group("record", () => RecordCommands.Register(r, app));   // Phase 6.2 package W (record.start, record.stop, record.status)
+            Group(AdvancedPoseCommands.GroupName, () => AdvancedPoseCommands.Register(r, app));   // Phase 6.3 package C (pose.bones*, pose.chains*, pose.bust*, pose.blendShapes*)
+            Group(MaterialCommands.GroupName, () => MaterialCommands.Register(r, app));   // Phase 6.4 package C (materials.shaders, chara.edit.materials.*, item.materials.*, map.materials*, chara.edit.boneMods*)
+            Group(ConstraintCommands.GroupName, () => ConstraintCommands.Register(r, app));   // Phase 6.5 package C (constraint.*)
         }
 
         /// <summary>"&lt;group&gt;: &lt;exception&gt;" of the groups whose last registration threw, and "&lt;group&gt;: &lt;command&gt;
@@ -220,6 +254,7 @@ namespace HS2Next.App.Commands
         {
             "scene", "map/item", "camera", "app", "chara", "fk/pose", "motion", "dumps", "items", "item motion", "maps",
             "lights/cameras/sound", "effects", "ui scene", "ui", "capture", "time", "routes", "chara edit", "content", "plugin",
+            "timeline", "record", AdvancedPoseCommands.GroupName, MaterialCommands.GroupName, ConstraintCommands.GroupName,
         };
 
         static void Group(string name, System.Action register)
@@ -235,7 +270,11 @@ namespace HS2Next.App.Commands
         }
 
         /// <summary>Called by AppCore once its runtime exists (and again for a new runtime).</summary>
-        public static void RuntimeCreated(AppCore app) => AttachRuntime(app);
+        public static void RuntimeCreated(AppCore app)
+        {
+            AttachRuntime(app);
+            TimelineCommands.RuntimeCreated(app);   // Phase 6.2: the Timeline's timed commands go to this app's bridge
+        }
 
         // Package W2: one implementation each, in the named file.
         /// <summary>CharaCommands.cs: chara.load, chara.save, anime.groups, anime.search, chara.anime, chara.speed, chara.animeOption, chara.face, chara.hands, look.target.</summary>

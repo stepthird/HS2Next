@@ -12,8 +12,8 @@
 // three load modes «服読込み» (clothes) / «装飾読込み» (accessories) / «全て読込み» (all) and Cancel; a mode button without a
 // chosen card keeps the dialog open with a note.
 // v1.2: the view state (sort, direction, search, «★» filter, the scroll and, for the
-// Costume tab, the chosen file) is kept per kind and sex for the app run, so a browser built again — the Costume tab after
-// «読込» rebuilds the inspector (owner item 6), a dialog opened again — shows the list as it was; favourites (a star on the cell, the «★» filter button); a
+// Costume tab, the chosen file) is kept per kind and sex for the app run, so a browser built again — the Costume tab of a
+// rebuilt inspector (owner item 6), a dialog opened again — shows the list as it was; favourites (a star on the cell, the «★» filter button); a
 // right-click menu on the cells (and the menu key / Shift+F10: favourite, details, Explorer, copy the path, delete to the
 // recycle bin — in a dialog the menu and its own dialogs stand above it); a deleted file leaves every browser in place.
 using System;

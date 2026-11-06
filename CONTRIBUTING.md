@@ -53,8 +53,8 @@ paths, user names or e-mail addresses to files; tests use synthetic paths, which
   Editor tests in `Assets/HS2Next/Editor`. [ARCHITECTURE.md](ARCHITECTURE.md) gives the map.
 - Code that touches Unity objects runs on the main thread.
 - Every user-visible string goes through the localisation table `Assets/HS2Next/Resources/UI/L10n/strings.tsv` (English,
-  Japanese, Simplified Chinese); no string is written into the code. A new key needs all three columns; a cell that is a
-  machine translation not yet read by a speaker of the language carries `zh?` or `ja?` in the note column.
+  Japanese, Simplified Chinese); no string is written into the code. A new key needs all three columns; a cell not yet
+  read by a speaker of the language carries `zh?` or `ja?` in the note column.
 - Bridge commands follow the naming convention in [Reference/COMMANDS.md](Reference/COMMANDS.md). After a command change,
   regenerate the reference (`BridgeHelpDump.Run`, then `python -I Tools/gen_commands_md.py`) and commit it with the change.
 - Settings keys are listed with a one-line explanation in `Config/settings.example.json`.

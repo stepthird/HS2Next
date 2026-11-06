@@ -8,6 +8,9 @@
 //   node  an active camera node overrides: every LateApply the camera copies the node holder's world position and
 //         rotation, and its `fov` when non-null; the model's `current` is not changed. When no node is active the view
 //         returns to `current`.
+//   slot  a winning `camera` slot of the runtime override layer (Phase 6.2) is above both: every LateApply the camera is
+//         placed at target + rotation·(0, 0, −distance) with that rotation and field of view; when no slot wins any more the
+//         view returns to the active camera node or `current`.
 // SceneCharaLight: a directional Light child of the view camera, local Euler (rot[0], rot[1], 0) (HS2's CameraLightCtrl
 // rotates `Cam Light` itself), folded like the Studio lights (Phase 3.3, colour =
 // rgb × intensity, intensity 1, the state values on BundleLightOriginal), shadows Soft/None with strength 1 (HS2's
@@ -46,7 +49,7 @@ namespace HS2Next.Scenes.Runtime
 
         SceneRuntime runtime;
         GameObject view;
-        bool created, adopted, viewDirty = true, activeDirty = true;
+        bool created, adopted, viewDirty = true, activeDirty = true, overrideShown;
         string activeId;
 
         /// <summary>The object that holds the created camera (the runtime's `View`).</summary>
@@ -120,6 +123,12 @@ namespace HS2Next.Scenes.Runtime
             Camera.transform.SetPositionAndRotation(pivot + rot * new Vector3(0f, 0f, -distance), rot);
             Camera.fieldOfView = fov;
         }
+
+        /// <summary>The camera slot's winner changed or went (the override layer): the next LateApply places the view again.</summary>
+        public void OverrideChanged() => viewDirty = true;
+
+        /// <summary>True while a camera slot of the override layer places the view.</summary>
+        public bool Overridden => overrideShown;
 
         /// <summary>Follows an active camera node: its holder's world pose, and its field of view when set.</summary>
         public void FollowNode(Transform holder, float? fov)
@@ -199,6 +208,18 @@ namespace HS2Next.Scenes.Runtime
         {
             if (runtime == null || !Camera) return;
             ApplySetup();
+            if (runtime.OverrideApp.TryCamera(out var target, out var rot, out float dist, out float fov))
+            {
+                Camera.transform.SetPositionAndRotation(target + rot * new Vector3(0f, 0f, -dist), rot);
+                Camera.fieldOfView = fov;
+                overrideShown = true;
+                return;
+            }
+            if (overrideShown)
+            {
+                overrideShown = false;
+                viewDirty = true;   // back to the active camera node or `current`
+            }
             if (activeId != null)
             {
                 var holder = runtime.HolderOf(activeId);
@@ -217,6 +238,7 @@ namespace HS2Next.Scenes.Runtime
         public void Clear()
         {
             activeId = null;
+            overrideShown = false;
             viewDirty = activeDirty = true;
         }
 

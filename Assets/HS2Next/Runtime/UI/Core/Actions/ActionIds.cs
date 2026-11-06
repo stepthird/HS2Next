@@ -77,6 +77,13 @@ namespace HS2Next.UI.Core
         // scene time (Phase 3.6, the global pause; Space in both presets, step unbound, R21)
         public const string TimePause = "time.pause", TimeStep = "time.step";
 
+        /// <summary>The Timeline (Phase 6.2): the panel (open / collapse), play or pause, stop (args {bake}), key the selected
+        /// tracks at the play head, the Export frames dialog. Unbound in both presets; Space stays time.pause.</summary>
+        public const string TimelinePanel = "timeline.panel", TimelinePlayPause = "timeline.playPause", TimelineStop = "timeline.stop",
+            TimelineKey = "timeline.key", TimelineExport = "timeline.export";
+        /// <summary>Constraints (Phase 6.5): the panel (open / collapse).</summary>
+        public const string ConstraintsPanel = "constraints.panel";
+
         // screenshots (Phase 3.6, F11 takes one, Shift+F11 opens the dialog, both presets)
         public const string CaptureScreenshot = "capture.screenshot", CaptureDialog = "capture.dialog";
 
@@ -252,6 +259,9 @@ namespace HS2Next.UI.Core
                 ActionIds.RoutePlayAll, ActionIds.RouteRestartAll, ActionIds.RouteStopAll,
             })
                 A(id, G);
+            foreach (var id in new[] { ActionIds.TimelinePanel, ActionIds.TimelinePlayPause, ActionIds.TimelineStop, ActionIds.TimelineKey, ActionIds.TimelineExport })
+                A(id, G);   // Phase 6.2: the Timeline
+            A(ActionIds.ConstraintsPanel, G);   // Phase 6.5
 
             A(ActionIds.HelpKeys, G);
             A(ActionIds.HelpAbout, G);

@@ -60,6 +60,11 @@ namespace HS2Next.UI.Panels
                     effects.Add(block);
                     continue;
                 }
+                if (s.Id == InspectorSchemas.MapMaterialsSection)
+                {
+                    scroll.Add(MaterialEditView.MapSection(ctx));   // Phase 6.4: built when first opened
+                    continue;
+                }
                 var fo = InspectorUi.Section(s.LabelKey, true, "section-" + s.Id);
                 if (s.Id == "cameraSlots") CameraSlots(fo, s);
                 else

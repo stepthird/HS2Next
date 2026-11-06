@@ -50,6 +50,8 @@ namespace HS2Next.Save
         /// <summary>Euler degrees.</summary>
         public Vec3 Rot = Vec3.Zero;
         public bool Options = true, Lights = true;
+        /// <summary>Material edits of the map, in the schema of a character's arrays; never null; written only when not empty, as the last member.</summary>
+        public List<MaterialOverride> MaterialOverrides = new List<MaterialOverride>();
 
         internal override void ReadMembers(DocReader r)
         {
@@ -58,6 +60,7 @@ namespace HS2Next.Save
             Rot = r.Euler("rot", Rot);
             Options = r.Bool("options", Options);
             Lights = r.Bool("lights", Lights);
+            MaterialOverrides = MaterialOverride.ReadList(r, "materialOverrides");
         }
 
         internal override void WriteMembers(CanonicalJsonWriter w)
@@ -67,6 +70,7 @@ namespace HS2Next.Save
             w.Euler("rot", Rot);
             w.Bool("options", Options);
             w.Bool("lights", Lights);
+            if (MaterialOverrides.Count > 0) MaterialOverride.WriteList(w, "materialOverrides", MaterialOverrides);
         }
     }
 

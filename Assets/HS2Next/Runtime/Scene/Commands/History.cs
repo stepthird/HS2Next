@@ -1,6 +1,7 @@
 // Undo/redo history of the bus: entries with their command,
 // label, merge key, seal flag and the selection before and after. Nodes held by entries are counted, so a
 // node is forgotten (NodeForgotten) only when it is out of the model and no remaining entry can bring it back.
+// An entry of a party outside the model (a plugin's own state) carries its owner and no selection.
 using System;
 using System.Collections.Generic;
 
@@ -14,11 +15,14 @@ namespace HS2Next.Scenes
         public string MergeKey;
         /// <summary>No later command merges into a sealed entry (undo, redo, save, a transaction commit or any other command seals it).</summary>
         public bool Sealed;
+        /// <summary>The selection before and after; null for an external entry (its undo and redo leave the selection as it is).</summary>
         public string[] SelectionBefore, SelectionAfter;
         public long Bytes;
         public TreeNode[] Held;
+        /// <summary>The party of an external entry (a plugin's GUID), else null.</summary>
+        public string Owner;
 
-        public HistoryEntryInfo Info => new HistoryEntryInfo(Label, Source, Bytes);
+        public HistoryEntryInfo Info => new HistoryEntryInfo(Label, Source, Bytes, Owner);
     }
 
     internal sealed class History
@@ -72,6 +76,31 @@ namespace HS2Next.Scenes
             Bytes -= e.Bytes;
             e.Bytes = e.Command.EstimatedBytes;
             Bytes += e.Bytes;
+        }
+
+        /// <summary>Removes the entries of <paramref name="owner"/> from both lists (the others keep their order); the count removed.</summary>
+        public int RemoveOwner(string owner, List<TreeNode> forgotten)
+        {
+            int n = 0;
+            foreach (var list in new[] { Undo, Redo })
+                for (int i = list.Count - 1; i >= 0; i--)
+                {
+                    var e = list[i];
+                    if (e.Owner == null || !string.Equals(e.Owner, owner, StringComparison.Ordinal)) continue;
+                    list.RemoveAt(i);
+                    Release(e, forgotten);
+                    n++;
+                }
+            return n;
+        }
+
+        /// <summary>The entries of <paramref name="owner"/> in both lists.</summary>
+        public int CountOwner(string owner)
+        {
+            int n = 0;
+            foreach (var e in Undo) if (e.Owner != null && string.Equals(e.Owner, owner, StringComparison.Ordinal)) n++;
+            foreach (var e in Redo) if (e.Owner != null && string.Equals(e.Owner, owner, StringComparison.Ordinal)) n++;
+            return n;
         }
 
         public void ClearAll(List<TreeNode> forgotten)

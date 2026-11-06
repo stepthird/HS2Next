@@ -624,19 +624,36 @@ namespace HS2Next
                         // 3.7 F3: HS2Next/Compatible/Water takes generic inputs filled from the original's properties (WaterInputs, set by
                         // Scenes.Runtime.MapShaderHooks at start-up); maps fill them again in their post-load step, items only here.
                         var src = WaterInputs != null && rn == WaterShader ? MaterialCopies.Copy(m) : null;
+                        var was = m.shader;
                         Swap(m, s); n++;
+                        NoteMapped(m, was);
                         if (src) { WaterInputs(m, src); DestroyCopy(src); }
                         if (rn == HS2Next.Chara.Mosaic.MosaicSet.ShaderName) HS2Next.Chara.Mosaic.MosaicSet.Track(r);   // per-camera cell, wide mosaic
                         continue;
                     }
                     if (m.shader.name.StartsWith("Universal Render Pipeline/") || m.shader.name.StartsWith("HS2Next/")) continue;
                     bool broken = m.shader.name == EngineErrorShader;
+                    var before = m.shader;
                     Fallback(m, lit); n++;
+                    NoteMapped(m, before);
                     if (broken) { brokenInBundle.Remove(m); brokenInBundle.Add(m, BrokenMark); }
                 }
             RenderingLayers.ApplyToRenderers(root);
             return n;
         }
+
+        sealed class Mapped { public Shader From, To; }
+        static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Material, Mapped> mapped = new System.Runtime.CompilerServices.ConditionalWeakTable<Material, Mapped>();
+
+        static void NoteMapped(Material m, Shader from)
+        {
+            mapped.Remove(m);
+            mapped.Add(m, new Mapped { From = from, To = m.shader });
+        }
+
+        /// <summary>The shader <see cref="ApplyUrp"/> replaced on <paramref name="m"/>, while the material still has what it got; else null. A
+        /// character's items are applied before the mapping, so this is the shader a build writes them on.</summary>
+        public static Shader MappedFrom(Material m) => m && mapped.TryGetValue(m, out var v) && v.From && m.shader == v.To ? v.From : null;
 
         /// <summary>The shader the engine gives a material whose own shader could not be loaded (and, in a player, the default
         /// material a renderer slot without a material is filled with).</summary>

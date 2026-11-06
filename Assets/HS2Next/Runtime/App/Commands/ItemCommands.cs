@@ -45,6 +45,7 @@ namespace HS2Next.App.Commands
                 .Arg("key", ArgTypes.Node, "the item node", required: true)
                 .Arg("props", ArgTypes.ArrayOf(ArgTypes.String), "extra property names to report")
                 .Arg("slotsOnly", ArgTypes.Bool, "only slots with a MaterialInfo flag", defaultValue: false)
+                .Arg("allProps", ArgTypes.Bool, "props holds every property the shader declares, in chara.edit.materials' forms", defaultValue: false)
                 .Return("renderers", ArgTypes.ArrayOf(ArgTypes.Object), "{path, type, enabled, hidden, active, slots: [{index, flags (letters 123abcEAG, \"\" unflagged MaterialInfo, null none), material, shaderOriginal, shader, fallback, queue, keywords (recorded originals, sorted), keywordsCurrent, props, textures, textureSize}]}")
                 .WithFlags(CommandFlags.ReadOnly).WithTimeout(60), Materials);
 
@@ -188,6 +189,7 @@ namespace HS2Next.App.Commands
             {
                 string full = StudioOps.ItemPath(name);
                 if (full == null) throw CommandKit.BadArgs("set." + name, "an item-section path", "\"" + name + "\" is not a field path");
+                if (StudioOps.IsItemMaterialPath(full)) throw CommandKit.BadArgs("set." + name, "an item-section path", StudioOps.ItemMaterialRefusal);
                 string raw = set.RawJson(name);
                 foreach (var n in nodes)
                 {
@@ -220,6 +222,7 @@ namespace HS2Next.App.Commands
             if (real == null || real.State != RealizationState.Built || real.InGraveyard || !real.Instance)
                 throw CommandKit.NotRealized("item " + n.Id + " is not built (" + (real?.State.ToString() ?? "NotRealized") + ")", "key", real?.State.ToString() ?? "NotRealized");
             bool slotsOnly = c.Args.Get("slotsOnly", false);
+            bool allProps = CommandKit.OptBool(c, "allProps") ?? false;
             var extra = c.Args.Has("props") ? c.Args.Get<string[]>("props") : Array.Empty<string>();
             var list = new List<object>();
             foreach (var e in real.Writer.Renderers)
@@ -232,16 +235,17 @@ namespace HS2Next.App.Commands
                     if (slotsOnly && string.IsNullOrEmpty(flags)) continue;
                     var s = e.Slots[i];
                     var m = s?.Material;
-                    var props = new BridgeReply();
+                    var props = allProps && m ? CharaEditCommands.PropsOf(m, null) : new BridgeReply();
                     var texs = new BridgeReply();
                     var sizes = new BridgeReply();
                     if (m)
                     {
-                        foreach (var p in ItemMaterialWriter.StudioProps)
-                        {
-                            var v = ItemMaterialWriter.PropValue(m, p, out bool declared);
-                            if (declared) props[p] = v;
-                        }
+                        if (!allProps)
+                            foreach (var p in ItemMaterialWriter.StudioProps)
+                            {
+                                var v = ItemMaterialWriter.PropValue(m, p, out bool declared);
+                                if (declared) props[p] = v;
+                            }
                         foreach (var p in extra)
                         {
                             if (string.IsNullOrEmpty(p) || props.ContainsKey(p)) continue;

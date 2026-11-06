@@ -1,0 +1,13 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.overrideprobe",
+  "name": "Override probe",
+  "version": "0.1.0",
+  "apiVersion": "1.2",
+  "assemblies": ["Stp3.Test.OverrideProbe.dll"],
+  "entryType": "Stp3.Test.OverrideProbe.OverrideProbePlugin",
+  "commandPrefixes": ["overrideprobe."],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the Api 1.2 runtime overrides: named slots acquired, set once or in every update, cleared, released, listed and timed."
+}

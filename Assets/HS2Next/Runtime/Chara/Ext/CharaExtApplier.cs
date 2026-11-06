@@ -2,7 +2,8 @@
 // vanilla assembly → textures/overlays → MaterialEditor → shapes →
 // ABMX (+pushUp) → DBE. CharaAssembler.Build calls Apply at four points:
 //   BodyMesh     right after the body prefab is spawned and rebound, before the body skin is composited: no module;
-//                the BodyMesh build hooks run (CharaBuildHooks; none in the official build);
+//                the BodyMesh build hooks run (CharaBuildHooks; none in the official build), then the skin layers plugins
+//                set on the scene character outside builds are joined (none in the official build);
 //   Accessories  no module: the accessory units load MoreAccessories slots ≥ 20 like slots 0..19, and a slot's
 //                stored show = false is folded into the scene's accessory visibility at import, never toggled here;
 //   Textures     after the whole base assembly, before the shapes: skin layers (card KSOX + the layers build hooks
@@ -43,7 +44,7 @@ namespace HS2Next.Chara.Ext
         public bool AccessoryControlsStudio = true;
         /// <summary>pushUp effect. Not implemented: the reference game does not run the plugin, the data is only stored.</summary>
         public bool PushUpEffect = false;
-        /// <summary>Add the BoneModifierApplier component (re-applies every LateUpdate); the one-shot apply happens either way.</summary>
+        /// <summary>Add the BoneModifierApplier component (the motion stage bones.modifiers applies it every step); the one-shot apply happens either way.</summary>
         public bool BoneModifierComponent = true;
     }
 
@@ -206,7 +207,11 @@ namespace HS2Next.Chara.Ext
             if (ctx == null) return;
             if (ext != null && options != null && options.Enabled) ApplyModules(ctx, ext, options, stage);
             // the generic build hooks of the stage (CharaBuildHooks; none in the official build)
-            if (stage == ExtStage.BodyMesh) CharaBuildHooks.Run(HookStage.BodyMesh, ctx, true, null);
+            if (stage == ExtStage.BodyMesh)
+            {
+                CharaBuildHooks.Run(HookStage.BodyMesh, ctx, true, null);
+                CharaBuildHooks.JoinRecord(ctx);
+            }
             else if (stage == ExtStage.Final) CharaBuildHooks.Run(HookStage.Final, ctx, ctx.Edit == null || ctx.Edit.InBuild, ctx.Edit?.Report);
         }
 

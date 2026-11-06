@@ -99,7 +99,9 @@ Plugins add commands of their own; `help` lists them with the plugin's GUID as o
 CONVENTION = """\
 - A name is `<group>.<verb or noun>` in camelCase (`chara.edit.hairBundle`, `scene.load`); the group is the subject: `scene`,
   `obj` (any node), `chara`, `chara.edit` (the Maker), `item`, `map`, `camera`, `light`, `route`, `fk`, `ik`, `pose`, `anime`,
-  `effects`, `sound`, `content`, `app`, `ui`, `plugin`, `bridge`, `log`.
+  `effects`, `sound`, `content`, `app`, `ui`, `plugin`, `bridge`, `log`, `timeline` (the scene's Timeline), `overrides` (the
+  runtime override layer), `record` (frame recording), `materials` (what material edits share), `constraint` (the scene's
+  constraints).
 - Reads are `state`, `get`, `list` or a noun; writes are `set` or a verb.
 - **HS2-parity names** (marked *HS2 parity* below) keep HS2 Studio's established automation vocabulary: they are never renamed
   and keep HS2's argument names, defaults, reply members and number forms.

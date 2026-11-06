@@ -100,9 +100,13 @@ namespace HS2Next.UI.Panels
             AddRow.RegisterCallback<ClickEvent>(_ => AddClicked?.Invoke());
             Add(AddRow);
             RegisterCallback<KeyDownEvent>(OnKey);
-            if (thumbs != null) thumbs.LoadedColumn += OnThumb;
-            RegisterCallback<DetachFromPanelEvent>(_ => ReleaseAll());
-            RegisterCallback<AttachToPanelEvent>(_ => { foreach (var r in rows.Values) RequestThumb(r); });
+            // the shared thumbnails are listened to only while the list is on a panel
+            RegisterCallback<DetachFromPanelEvent>(_ => { ReleaseAll(); if (thumbs != null) thumbs.LoadedColumn -= OnThumb; });
+            RegisterCallback<AttachToPanelEvent>(_ =>
+            {
+                if (thumbs != null) { thumbs.LoadedColumn -= OnThumb; thumbs.LoadedColumn += OnThumb; }
+                foreach (var r in rows.Values) RequestThumb(r);
+            });
             schedule.Execute(() => { if (panel != null && thumbs != null && thumbs.Pending > 0) thumbs.UpdateOncePerFrame(); }).Every(16);
         }
 

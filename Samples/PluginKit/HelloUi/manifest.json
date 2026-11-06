@@ -1,0 +1,13 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.sample.helloui",
+  "name": "Sample hello UI",
+  "version": "0.1.0",
+  "apiVersion": "1.1",
+  "assemblies": ["Stp3.SampleHelloUi.dll"],
+  "entryType": "Stp3.Samples.HelloUi.HelloUiPlugin",
+  "commandPrefixes": ["helloui."],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "The plugin kit's second sample: a panel and an item inspector section declared as forms and drawn by the app."
+}

@@ -9,6 +9,9 @@
 // A character is captured only when its motion advanced since its animation / look state was last applied from the
 // model (or captured): unadvanced values stay exactly as stored, so save → load → save is byte-identical without
 // stepping.
+// Runtime overrides (Phase 6.2): no captured value depends on a slot of the override layer: a character with a winning
+// chara.anime.ref, .speed or .time slot keeps its stored chara.anime.time, and one with any winning slot on an FK bone, a bone or an
+// IK target keeps its stored chara.look.neckFix and eyeRotations; its applied mark is set as for any captured character.
 using System;
 using System.Collections.Generic;
 using HS2Next.Save;
@@ -75,10 +78,14 @@ namespace HS2Next.Scenes.Runtime
             var st = c.Node.State as CharaNodeState;
             if (st == null) return;
             string id = c.NodeId;
-            if (c.Animation && c.Animation.IsLoaded && st.Anime.Ref != null)
+            var ov = c.Runtime.Overrides;
+            bool animeSlot = ov.HasNode(id) && (ov.WinnerOf(id, HS2Next.Scenes.Overrides.OverrideChannel.AnimeRef) != null ||
+                                                ov.WinnerOf(id, HS2Next.Scenes.Overrides.OverrideChannel.AnimeSpeed) != null ||
+                                                ov.WinnerOf(id, HS2Next.Scenes.Overrides.OverrideChannel.AnimeTime) != null);
+            if (c.Animation && c.Animation.IsLoaded && st.Anime.Ref != null && !animeSlot)
                 writes.Add((id, "chara.anime.time", c.Animation.NormalizedTime, null));
             var look = c.Look;
-            if (look != null)
+            if (look != null && !HasBoneSlot(ov, id))
             {
                 var bones = look.Neck?.Bones;
                 if (bones != null && bones.Length > 0)
@@ -101,6 +108,15 @@ namespace HS2Next.Scenes.Runtime
                 }
             }
             writes.Add((id, null, null, c.MarkApplied));
+        }
+
+        /// <summary>True when a slot on an FK bone, a bone or an IK target of the character wins (its look capture would depend on it).</summary>
+        static bool HasBoneSlot(HS2Next.Scenes.Overrides.OverrideLayer ov, string id)
+        {
+            if (!ov.HasNode(id)) return false;
+            foreach (var ch in ov.ChannelsOf(id))
+                if ((ch.Path.Channel == HS2Next.Scenes.Overrides.OverrideChannel.FkBone || ch.Path.IsBone || ch.Path.IsIkTarget) && ch.Winner != null) return true;
+            return false;
         }
 
         static void CollectItem(ItemRealization it, List<(string, string, object, Action)> writes)

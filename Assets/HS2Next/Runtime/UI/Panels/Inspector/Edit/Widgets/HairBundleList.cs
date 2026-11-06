@@ -400,6 +400,7 @@ namespace HS2Next.UI.Panels
         {
             readonly HairBundleList list;
             UiEdit edit;
+            bool dropped;   // the drag's edit was cancelled (Esc): the drag's late previews write nothing
             public int Index { get; }
             public bool Rotate { get; }
             public int Component { get; }
@@ -442,9 +443,10 @@ namespace HS2Next.UI.Panels
                 {
                     case EditPhase.Begin:
                         edit?.Cancel();
+                        dropped = false;
                         edit = list.ctx.BeginEdit(OpLabels.EditHair);
                         var mine = edit;
-                        mine.Ended += committed => { if (edit == mine) edit = null; if (!committed) list.Binding?.MarkDirty(); };
+                        mine.Ended += committed => { if (edit == mine) edit = null; if (!committed) { dropped = true; list.Binding?.MarkDirty(); } };
                         return;
                     case EditPhase.End:
                     {
@@ -455,6 +457,7 @@ namespace HS2Next.UI.Panels
                         return;
                     }
                     case EditPhase.Preview:
+                        if (dropped) return;
                         list.WriteComponent(Index, Rotate, Component, Math.Max(0, Math.Min(1, shown / k)), null, edit);
                         return;
                     case EditPhase.Typed:

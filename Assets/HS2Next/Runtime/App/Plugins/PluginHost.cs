@@ -8,7 +8,15 @@
 // changed since: enter play mode with a domain reload). Every call into plugin code runs inside the plugin's fault
 // wrapper; at the threshold the plugin becomes faulted: its updates, events and other registrations stop, its Unload is
 // tried once, and its commands stay and answer plugin_fault. Mono cannot unload assemblies, so an unload is logical: the
-// plugin's registrations are removed by owner and it is not loaded again in the process.
+// plugin's registrations are removed by owner. While the app runs a plugin can be disabled (its Unload, then the removal of
+// everything it registered: commands, ext handlers, events, frame actions, undo entries, engine registrations; no
+// Quitting) and enabled again (the load steps on the loaded images, a new instance and context, the open scene's ext
+// blocks of its namespaces read again, then SceneLoaded(Initial) and AppReady); a DLL that changed on disk loads only
+// after a restart. The capture events of the app (CaptureEvents) reach the loaded plugins as their IAppEvents events.
+// A plugin's runtime override slots (IPluginContext.Overrides) are released with its other registrations when it leaves
+// loaded (disable, fault, unload at quit); plugin.list shows them per plugin and plugin.disable counts the released.
+// The scene post stage: the host hands the attached runtime one call (SceneRuntime.PostStage) while a loaded plugin
+// implements IPluginScenePost and takes it back when the last one leaves, so with none the runtime keeps nothing for it.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,6 +30,7 @@ using HS2Next.Bridge;
 using HS2Next.Save;
 using HS2Next.Scenes;
 using HS2Next.Scenes.Runtime;
+using HS2Next.Screenshots;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -59,6 +68,18 @@ namespace HS2Next.App.Plugins
         public Action Unload;
         /// <summary>The report members of these parts for plugin.list (hooks, supplies, ui), or null.</summary>
         public Func<JObject> Report;
+        /// <summary>
+        /// Queues a rebuild (at the next apply) of every built scene character whose last build ran one of the plugin's build
+        /// hooks; returns how many were queued. Called by the runtime disable after the registrations are removed. Null = none.
+        /// </summary>
+        public Func<int> RebuildTouched;
+        /// <summary>
+        /// Queues a rebuild of every built scene character when the plugin has build hooks registered (0 and nothing queued
+        /// without hooks); returns how many. Called by the runtime enable after Load. Null = none.
+        /// </summary>
+        public Func<int> RebuildIfHooked;
+        /// <summary>The plugin's declarative forms (IPluginContext.Forms), or null (then the context's Forms is not available).</summary>
+        public HS2Next.Api.Ui.IPluginForms Forms;
     }
 
     /// <summary>One candidate plugin: its scan result and, once loaded, its instance, context and counters.</summary>
@@ -87,13 +108,22 @@ namespace HS2Next.App.Plugins
         public PluginEvents Events { get; internal set; }
         public ScopedCommandRegistry Commands { get; internal set; }
         public PluginTimer UpdateTime { get; } = new PluginTimer();
+        /// <summary>The time its ScenePost takes (a plugin with IPluginScenePost).</summary>
+        public PluginTimer ScenePostTime { get; } = new PluginTimer();
         /// <summary>Loading the assemblies, creating the entry type and Load, ms.</summary>
         public double LoadMs { get; internal set; }
         public bool IsLoaded => State == PluginStates.Loaded;
         internal IPluginUpdate Updater;
         internal IPluginSceneLoaded SceneLoadedHandler;
+        internal ScenePostCaller ScenePost;
         internal PluginEngineParts Engine;
         internal bool UnloadTried;
+        /// <summary>The candidate was on the disabled list at the scan and has never loaded (an enable runs the skipped checks).</summary>
+        internal bool NeverLoaded;
+        /// <summary>The last failed runtime enable: "&lt;code&gt;: &lt;reason&gt;", or null.</summary>
+        public string EnableError { get; internal set; }
+        /// <summary>The runtime override slots released by the last removal of its registrations.</summary>
+        public int OverridesReleased { get; internal set; }
 
         internal void Set(string state, string code, string reason)
         {
@@ -101,6 +131,25 @@ namespace HS2Next.App.Plugins
             Code = code;
             Reason = reason;
         }
+    }
+
+    /// <summary>The outcome of a runtime disable or enable (PluginHost.Disable / Enable).</summary>
+    public sealed class PluginToggle
+    {
+        public string Guid, State;
+        /// <summary>Disable: the GUIDs disabled, in that order (dependents first).</summary>
+        public readonly List<string> Changed = new List<string>();
+        /// <summary>Enable: the ext blocks read again.</summary>
+        public int ExtBlocks;
+        /// <summary>Characters queued for a rebuild.</summary>
+        public int Rebuilt;
+        /// <summary>Disable: the runtime override slots released (every plugin disabled).</summary>
+        public int Overrides;
+        public double Ms;
+        /// <summary>Null when it succeeded, else the bridge error to answer.</summary>
+        public BridgeError Error;
+        public readonly List<string> Warnings = new List<string>();
+        public bool Ok => Error == null;
     }
 
     public sealed class PluginHost
@@ -148,10 +197,13 @@ namespace HS2Next.App.Plugins
         readonly HashSet<string> hostGroups = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         readonly Dictionary<string, (string kind, string parent)> nodeCache = new Dictionary<string, (string, string)>(StringComparer.Ordinal);
         readonly HashSet<string> builtIds = new HashSet<string>(StringComparer.Ordinal);
+        readonly ScenePostStage scenePost = new ScenePostStage();
+        readonly Action<float> scenePostCall;
         AppCore attachedApp;
         SceneSession attachedSession;
         SceneRuntime attachedRuntime;
-        bool shutDown;
+        bool shutDown, captureHooked;
+        SceneLoadInfo lastSceneLoad;
 
         /// <param name="bridge">The bridge whose registry, frames, readiness and output plugins use (null: a private registry, no listener).</param>
         /// <param name="userData">HS2Next's UserData (plugin data folders live under Plugins/&lt;guid&gt;/).</param>
@@ -162,6 +214,7 @@ namespace HS2Next.App.Plugins
             UserData = userData;
             Bridge = bridge ?? new BridgeServer(new BridgeOptions { Port = 0, RequiredStages = new string[0], OptionalStages = new string[0], AppVersion = Application.version });
             OwnsBridge = bridge == null;
+            scenePostCall = RunScenePost;
         }
 
         public AppCore App { get; }
@@ -182,6 +235,9 @@ namespace HS2Next.App.Plugins
         public bool IsShutDown => shutDown;
 
         public PluginEntry Find(string guid) => entries.FirstOrDefault(e => string.Equals(e.Guid, guid, StringComparison.OrdinalIgnoreCase));
+
+        /// <summary>The scene session plugins see (the attached app's, else this host's app's), or null.</summary>
+        internal SceneSession Session => attachedSession ?? App?.Session;
 
         bool OnMainThread => Thread.CurrentThread.ManagedThreadId == mainThread;
 
@@ -215,7 +271,7 @@ namespace HS2Next.App.Plugins
                     Disabled = launch.Disabled,
                 });
                 infos.AddRange(Scan.Infos);
-                foreach (var c in Scan.Candidates) entries.Add(new PluginEntry(c));
+                foreach (var c in Scan.Candidates) entries.Add(new PluginEntry(c) { NeverLoaded = c.State == PluginStates.Disabled });
                 foreach (var i in Scan.Infos) Debug.Log("[app] " + i);
                 foreach (var e in entries.Where(x => !x.Candidate.IsPending))
                     Debug.Log("[app] plugin " + e.Guid + " " + e.State + ": " + e.Code + (e.Reason != null ? ": " + e.Reason : ""));
@@ -224,6 +280,7 @@ namespace HS2Next.App.Plugins
             }
             else Scan = new PluginScanResult { Root = launch.Root };
             if (App != null) Attach(App);
+            HookCaptures();
             var initial = new SceneLoadInfo(SceneLoadKind.Initial, null, 0, App?.Session?.Model?.Count ?? 0);
             DeliverSceneLoaded(initial);
             TotalMs = sw.Elapsed.TotalMilliseconds;
@@ -353,7 +410,9 @@ namespace HS2Next.App.Plugins
                 e.Guard.Run("strings", () => us.Ui.AddStrings(File.ReadAllText(strings)));
             try
             {
-                instance.Load(e.Context);
+                e.Guard.Enter();
+                try { instance.Load(e.Context); }
+                finally { e.Guard.Exit(); }
             }
             catch (Exception ex)
             {
@@ -365,7 +424,9 @@ namespace HS2Next.App.Plugins
             }
             e.Updater = instance as IPluginUpdate;
             e.SceneLoadedHandler = instance as IPluginSceneLoaded;
+            e.ScenePost = instance is IPluginScenePost post ? new ScenePostCaller(post, e.Guard, e.ScenePostTime) : null;
             e.Set(PluginStates.Loaded, null, null);
+            SyncScenePost();
             e.LoadMs = sw.Elapsed.TotalMilliseconds;
             Debug.Log("[app] plugin " + e.Guid + " " + m.Version + " loaded in " + e.LoadMs.ToString("F1") + " ms (" + string.Join(", ", e.Assemblies.Select(a => a.Name + " " + a.Call + (a.Reused ? " reused" : "") + " " + a.LoadMs.ToString("F1") + " ms")) +
                       "; " + e.Commands.Names.Count + " commands, " + e.Events.HandlerCount + " event handlers)");
@@ -491,6 +552,34 @@ namespace HS2Next.App.Plugins
             }
         }
 
+        /// <summary>
+        /// The scene post stage of one frame or one scene step (SceneRuntime.PostStage): every loaded plugin's ScenePost in load
+        /// order, timed and inside its fault wrapper. <paramref name="dt"/> is the scene delta of that frame or step, which the
+        /// clock has already advanced by, so the frame's SceneTime is the one Update saw.
+        /// </summary>
+        public void RunScenePost(float dt)
+        {
+            if (shutDown) return;
+            var rt = attachedRuntime;
+            bool play = Application.isPlaying;
+            scenePost.Run(new PluginFrame(play ? Time.frameCount : Bridge.Frames.Frame, play ? Time.unscaledDeltaTime : dt, dt, rt != null ? rt.Clock.Time - dt : 0, rt != null && rt.Paused));
+        }
+
+        /// <summary>The post stage's callers from the plugins now loaded, in load order, and the runtime's call after them.</summary>
+        void SyncScenePost()
+        {
+            scenePost.Set(entries.Where(e => e.IsLoaded && e.ScenePost != null).Select(e => e.ScenePost));
+            SetPostStage(scenePost.Any ? scenePostCall : null);
+        }
+
+        /// <summary>Hands the attached runtime its post stage; null takes it back.</summary>
+        void SetPostStage(Action<float> stage)
+        {
+            var rt = attachedRuntime;
+            if (rt == null) return;
+            rt.PostStage = stage;
+        }
+
         /// <summary>Delivers an event to every loaded plugin in load order.</summary>
         public void RaiseAll(PluginEventKind kind, object arg = null)
         {
@@ -504,6 +593,7 @@ namespace HS2Next.App.Plugins
 
         void DeliverSceneLoaded(SceneLoadInfo info)
         {
+            lastSceneLoad = info;
             foreach (var e in entries.ToArray())
             {
                 if (!e.IsLoaded) continue;
@@ -544,6 +634,7 @@ namespace HS2Next.App.Plugins
                 attachedRuntime.CharaBuilt += OnCharaBuilt;
                 attachedRuntime.PausedChanged += OnPaused;
                 attachedRuntime.Stepped += OnStepped;
+                SyncScenePost();
             }
         }
 
@@ -564,6 +655,7 @@ namespace HS2Next.App.Plugins
                 attachedRuntime.CharaBuilt -= OnCharaBuilt;
                 attachedRuntime.PausedChanged -= OnPaused;
                 attachedRuntime.Stepped -= OnStepped;
+                SetPostStage(null);
             }
             attachedSession = null;
             attachedRuntime = null;
@@ -708,6 +800,11 @@ namespace HS2Next.App.Plugins
             }
             catch (Exception ex) { Debug.LogWarning("[app] plugin " + e.Guid + ": removing its ext handlers threw " + ex.Message); }
             e.Events?.Clear();
+            // handlers the plugin added to the frame clock's events (its scheduled actions are dropped by its context's view)
+            e.Context?.FramesView?.Clear();
+            // the plugin's undo entries leave both lists at once (the others keep their order)
+            try { Session?.Commands.RemoveOwner(e.Guid); }
+            catch (Exception ex) { Debug.LogWarning("[app] plugin " + e.Guid + ": removing its undo entries threw " + ex.Message); }
             if (e.Engine?.Unload != null)
             {
                 try { e.Engine.Unload(); }
@@ -715,6 +812,12 @@ namespace HS2Next.App.Plugins
             }
             e.Updater = null;
             e.SceneLoadedHandler = null;
+            e.ScenePost?.Close();
+            e.ScenePost = null;
+            SyncScenePost();
+            // its runtime override slots: the model values show again in this frame
+            try { e.OverridesReleased = App?.Runtime != null && !App.Runtime.IsDisposed ? App.Runtime.Overrides.ReleaseOwner(e.Guid) : 0; }
+            catch (Exception ex) { e.OverridesReleased = 0; Debug.LogWarning("[app] plugin " + e.Guid + ": releasing its runtime overrides threw " + ex.Message); }
         }
 
         /// <summary>
@@ -737,7 +840,236 @@ namespace HS2Next.App.Plugins
                 Debug.Log("[app] plugin " + e.Guid + " unloaded");
             }
             Detach();
+            UnhookCaptures();
             if (OwnsBridge) Bridge.Dispose();
+        }
+
+        // ------------------------------------------------------------ capture events
+
+        void HookCaptures()
+        {
+            if (captureHooked) return;
+            captureHooked = true;
+            CaptureEvents.Starting += OnCaptureStarting;
+            CaptureEvents.Rendered += OnCaptureRendered;
+            CaptureEvents.Finished += OnCaptureFinished;
+        }
+
+        void UnhookCaptures()
+        {
+            if (!captureHooked) return;
+            captureHooked = false;
+            CaptureEvents.Starting -= OnCaptureStarting;
+            CaptureEvents.Rendered -= OnCaptureRendered;
+            CaptureEvents.Finished -= OnCaptureFinished;
+        }
+
+        void OnCaptureStarting(CaptureInfo i) => RaiseAll(PluginEventKind.CaptureStarting, i);
+        void OnCaptureRendered(CaptureInfo i) => RaiseAll(PluginEventKind.CaptureRendered, i);
+        void OnCaptureFinished(CaptureResultInfo r) => RaiseAll(PluginEventKind.CaptureFinished, r);
+
+        // ------------------------------------------------------------ runtime disable and enable
+
+        static bool Active(PluginEntry e) => e.State == PluginStates.Loaded || e.State == PluginStates.Faulted;
+
+        /// <summary>The loaded (or faulted) plugins that depend on <paramref name="e"/>, directly or through each other, in reverse load order.</summary>
+        List<PluginEntry> DependentsOf(PluginEntry e)
+        {
+            var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { e.Guid };
+            bool grew = true;
+            while (grew)
+            {
+                grew = false;
+                foreach (var x in entries)
+                {
+                    if (x == e || set.Contains(x.Guid) || !Active(x) || x.Manifest == null) continue;
+                    if (x.Manifest.Dependencies.Any(d => set.Contains(d.Guid)))
+                    {
+                        set.Add(x.Guid);
+                        grew = true;
+                    }
+                }
+            }
+            var l = new List<PluginEntry>();
+            for (int i = entries.Count - 1; i >= 0; i--)
+                if (entries[i] != e && set.Contains(entries[i].Guid)) l.Add(entries[i]);
+            return l;
+        }
+
+        static BridgeError Unsupported(string message, IDictionary<string, object> extra = null) =>
+            new BridgeError(BridgeCodes.Unsupported, message, extra == null ? null : new BridgeErrorDetail { Extra = extra });
+
+        static BridgeError Busy(PluginEntry e) =>
+            BridgeError.Busy("the plugin " + e.Guid + "'s code is running now (e.g. its own command asked this); try again later, e.g. from a scheduled frame action");
+
+        /// <summary>
+        /// Disables a loaded or faulted plugin while the app runs: its Unload (not for a faulted plugin, whose Unload was tried
+        /// when it faulted; no Quitting), then everything it registered is removed as at quit (commands, ext handlers, events,
+        /// frame clock handlers and scheduled actions, undo entries, hooks, providers, supplies, UI and forms, runtime skin
+        /// layers, strings), its context closes and its state becomes disabled; characters its build hooks touched are queued
+        /// for a rebuild. With <paramref name="withDependents"/> the loaded plugins that depend on it are disabled first, in
+        /// reverse load order; without it they refuse the disable. Busy while the plugin's (or a dependent's) code runs. Main
+        /// thread.
+        /// </summary>
+        public PluginToggle Disable(string guid, bool withDependents = false)
+        {
+            var sw = Stopwatch.StartNew();
+            var r = new PluginToggle { Guid = guid };
+            if (!OnMainThread) throw new InvalidOperationException("plugins are disabled on the main thread");
+            var e = Find(guid);
+            if (e == null) { r.Error = BridgeError.NotFound("no plugin " + guid + " in this run's plugin folder", "guid"); return r; }
+            r.Guid = e.Guid;
+            r.State = e.State;
+            if (shutDown || !Active(e))
+            {
+                r.Error = Unsupported("the plugin " + e.Guid + " is " + (shutDown ? "unloaded (the app is quitting)" : e.State) + "; only a loaded or faulted plugin can be disabled",
+                    new Dictionary<string, object> { ["state"] = shutDown ? PluginStates.Unloaded : e.State });
+                return r;
+            }
+            var deps = DependentsOf(e);
+            if (deps.Count > 0 && !withDependents)
+            {
+                var names = deps.Select(x => x.Guid).ToList();
+                r.Error = Unsupported("loaded plugins depend on " + e.Guid + ": " + string.Join(", ", names) + " (pass withDependents to disable them too)",
+                    new Dictionary<string, object> { ["state"] = e.State, ["dependents"] = names });
+                return r;
+            }
+            var all = new List<PluginEntry>(deps) { e };
+            var running = all.FirstOrDefault(x => (x.Guard?.Depth ?? 0) > 0);
+            if (running != null) { r.Error = Busy(running); return r; }
+            foreach (var x in all) r.Rebuilt += DisableOne(x, r);
+            r.State = e.State;
+            r.Ms = sw.Elapsed.TotalMilliseconds;
+            Debug.Log("[app] plugin " + e.Guid + " disabled at run time (" + r.Ms.ToString("F1") + " ms" +
+                      (r.Changed.Count > 1 ? "; with " + string.Join(", ", r.Changed.Take(r.Changed.Count - 1)) : "") + ")");
+            return r;
+        }
+
+        /// <summary>The disable steps for one plugin; the number of characters queued for a rebuild.</summary>
+        int DisableOne(PluginEntry e, PluginToggle r)
+        {
+            if (e.State == PluginStates.Loaded) TryUnload(e);
+            RemoveRegistrations(e, removeCommands: true);
+            e.Context?.Invalidate();
+            e.Set(PluginStates.Disabled, PluginCodes.Disabled, "disabled at run time");
+            r?.Changed.Add(e.Guid);
+            if (r != null) r.Overrides += e.OverridesReleased;
+            int n = 0;
+            try { n = e.Engine?.RebuildTouched?.Invoke() ?? 0; }
+            catch (Exception ex) { Debug.LogWarning("[app] plugin " + e.Guid + ": queuing the rebuilds of its characters threw " + ex.Message); }
+            return n;
+        }
+
+        /// <summary>
+        /// Enables a disabled plugin while the app runs (also one disabled at start, a faulted one after the rest of the
+        /// disable steps, and one whose Load threw): its dependencies must be loaded; a plugin that never loaded first runs the
+        /// scan's checks it skipped; then the load steps on the images already in the process (a DLL that changed on disk is
+        /// refused with plugin.staleAssembly and the plugin stays disabled: it loads after a restart), a new instance with a
+        /// new context, Load; then its ext handlers read the open scene's blocks of their namespaces again, it gets
+        /// SceneLoaded(Initial) with the open scene's path and node count and then AppReady, and when it registered build
+        /// hooks every built scene character is queued for a rebuild. The entry keeps its place in the order. Main thread.
+        /// </summary>
+        public PluginToggle Enable(string guid)
+        {
+            var sw = Stopwatch.StartNew();
+            var r = new PluginToggle { Guid = guid };
+            if (!OnMainThread) throw new InvalidOperationException("plugins are enabled on the main thread");
+            var e = Find(guid);
+            if (e == null) { r.Error = BridgeError.NotFound("no plugin " + guid + " in this run's plugin folder", "guid"); return r; }
+            r.Guid = e.Guid;
+            r.State = e.State;
+            bool accepted = e.State == PluginStates.Disabled || e.State == PluginStates.Faulted ||
+                            (e.State == PluginStates.Failed && e.Code == PluginCodes.LoadFailed);
+            if (shutDown || !accepted || e.Manifest == null)
+            {
+                r.Error = Unsupported("the plugin " + e.Guid + " is " + (shutDown ? "unloaded (the app is quitting)" : e.State + (e.Code != null ? " (" + e.Code + ")" : "")) +
+                    "; only a disabled, faulted or failed (plugin.loadFailed) plugin can be enabled", new Dictionary<string, object> { ["state"] = shutDown ? PluginStates.Unloaded : e.State });
+                return r;
+            }
+            if ((e.Guard?.Depth ?? 0) > 0) { r.Error = Busy(e); return r; }
+            if (e.State == PluginStates.Faulted) DisableOne(e, null);
+            string code = null, reason = null;
+            foreach (var d in e.Manifest.Dependencies)
+            {
+                var dep = Find(d.Guid);
+                if (dep == null || !dep.IsLoaded)
+                {
+                    code = PluginCodes.Dependency;
+                    reason = "the dependency " + d.Guid + " is " + (dep?.State ?? "absent") + (dep?.Code != null ? " (" + dep.Code + ")" : "");
+                    break;
+                }
+            }
+            if (code == null && e.NeverLoaded)
+            {
+                var held = entries.Where(x => x != e && Active(x) && x.Manifest != null)
+                    .SelectMany(x => x.Manifest.CommandPrefixes.Select(p => new KeyValuePair<string, string>(p, x.Guid))).ToList();
+                code = PluginScan.Revalidate(e.Candidate, new PluginScanOptions
+                {
+                    AppVersion = Application.version,
+                    HostAssemblies = HostAssemblyNames(),
+                    ReservedGroups = hostGroups.Where(g => g.IndexOf(' ') < 0 && g.IndexOf('/') < 0).ToList(),
+                }, held, out reason);
+            }
+            if (code == null)
+            {
+                InstallResolver();
+                e.UnloadTried = false;
+                e.Assemblies.Clear();
+                e.EntryType = null;
+                LoadOne(e);
+                if (!e.IsLoaded)
+                {
+                    code = e.Code ?? PluginCodes.LoadFailed;
+                    reason = code == PluginCodes.StaleAssembly ? "the DLL changed since it was loaded: restart HS2Next to load it (" + e.Reason + ")" : e.Reason;
+                    // a refusal leaves the plugin disabled; a Load that threw leaves it failed (plugin.loadFailed)
+                    if (e.State != PluginStates.Failed) e.Set(PluginStates.Disabled, PluginCodes.Disabled, e.NeverLoaded ? "on the disabled list (plugins.disabled)" : "disabled at run time");
+                }
+            }
+            if (code != null)
+            {
+                e.EnableError = code + ": " + reason;
+                r.State = e.State;
+                r.Error = new BridgeError(BridgeCodes.Unavailable, "the plugin " + e.Guid + " cannot be enabled: " + code + ": " + reason,
+                    new BridgeErrorDetail { Extra = new Dictionary<string, object> { ["code"] = code, ["reason"] = reason, ["state"] = e.State } });
+                r.Ms = sw.Elapsed.TotalMilliseconds;
+                Debug.Log("[app] plugin " + e.Guid + " not enabled: " + code + ": " + reason);
+                return r;
+            }
+            e.EnableError = null;
+            e.NeverLoaded = false;
+            r.ExtBlocks = ReadExtAgain(e);
+            var info = new SceneLoadInfo(SceneLoadKind.Initial, lastSceneLoad?.Path, lastSceneLoad?.Findings ?? 0, Session?.Model?.Count ?? 0);
+            if (e.IsLoaded && e.SceneLoadedHandler != null) e.Guard.Run("sceneLoaded", () => e.SceneLoadedHandler.SceneLoaded(info));
+            if (e.IsLoaded) e.Events.Raise(PluginEventKind.SceneLoaded, info);
+            if (e.IsLoaded) e.Events.Raise(PluginEventKind.AppReady);
+            try { r.Rebuilt = e.IsLoaded ? e.Engine?.RebuildIfHooked?.Invoke() ?? 0 : 0; }
+            catch (Exception ex) { Debug.LogWarning("[app] plugin " + e.Guid + ": queuing the rebuilds of the characters threw " + ex.Message); }
+            if (SemVer.TryParseMajorMinor(e.Manifest.ApiVersion, out int maj, out int min) && maj == 1 && min == 0)
+                r.Warnings.Add("built against Api 1.0, whose plugins expect one Load per process: check that it starts cleanly");
+            r.State = e.State;
+            r.Ms = sw.Elapsed.TotalMilliseconds;
+            Debug.Log("[app] plugin " + e.Guid + " enabled at run time (" + r.Ms.ToString("F1") + " ms; " + r.ExtBlocks + " ext blocks read again, " + r.Rebuilt + " characters to rebuild)");
+            return r;
+        }
+
+        /// <summary>The open scene's blocks of the plugin's namespaces, read again by its new handlers; the count read.</summary>
+        int ReadExtAgain(PluginEntry e)
+        {
+            var session = Session;
+            if (session == null) return 0;
+            var ns = ExtRegistry.Default.NamespacesOf(e.Guid);
+            if (ns.Count == 0) return 0;
+            var findings = new FindingList();
+            int n;
+            try { n = session.ReadExtAgain(ns.ToList(), ExtRegistry.Default, findings); }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("[app] plugin " + e.Guid + ": reading the scene's ext blocks again threw " + ex);
+                return 0;
+            }
+            foreach (var f in findings)
+                if (f.Severity != FindingSeverity.Info) Debug.LogWarning("[app] plugin " + e.Guid + " ext read: " + f.Code + " " + f.Path + ": " + f.Message);
+            return n;
         }
 
         // ------------------------------------------------------------ reports
@@ -747,6 +1079,21 @@ namespace HS2Next.App.Plugins
             entries.Select(e => new BridgePluginInfo { Guid = e.Guid, Version = e.Manifest?.Version, State = e.State }).ToList();
 
         /// <summary>The plugin.list reply.</summary>
+        /// <summary>A plugin's runtime override slots for plugin.list: {key, path, priority, hasValue, winning, effective, targetExists}.</summary>
+        JArray OverridesJson(string guid)
+        {
+            var a = new JArray();
+            var rt = App?.Runtime;
+            if (rt == null || rt.IsDisposed) return a;
+            foreach (var s in rt.Overrides.Slots(null, guid))
+                a.Add(new JObject
+                {
+                    ["key"] = s.NodeId, ["path"] = s.Path, ["priority"] = s.Priority, ["hasValue"] = s.HasValue,
+                    ["winning"] = s.IsWinning, ["effective"] = s.IsEffective, ["targetExists"] = s.TargetExists,
+                });
+            return a;
+        }
+
         public JObject ListJson(bool diagnostics = false)
         {
             var arr = new JArray();
@@ -768,6 +1115,8 @@ namespace HS2Next.App.Plugins
                 o["commands"] = new JArray((e.Commands?.Names ?? (IReadOnlyList<string>)Array.Empty<string>()).ToArray());
                 o["extNamespaces"] = new JArray(ExtRegistry.Default.NamespacesOf(e.Guid).ToArray());
                 o["events"] = e.Events?.HandlerCount ?? 0;
+                o["history"] = Session?.Commands.CountOwner(e.Guid) ?? 0;
+                o["overrides"] = OverridesJson(e.Guid);
                 JObject eng = null;
                 try { eng = e.Engine?.Report?.Invoke(); }
                 catch (Exception ex) { Debug.LogWarning("[app] plugin " + e.Guid + ": engine report threw " + ex.Message); }
@@ -782,7 +1131,10 @@ namespace HS2Next.App.Plugins
                     foreach (var kv in e.Guard.ByHook().OrderBy(k => k.Key, StringComparer.Ordinal)) faults[kv.Key] = kv.Value;
                 o["faults"] = faults;
                 if (e.Guard?.LastError != null) o["lastError"] = e.Guard.LastError;
+                if (e.EnableError != null) o["enableError"] = e.EnableError;
                 o["updateMs"] = new JObject { ["median"] = Math.Round(e.UpdateTime.Median, 4), ["max"] = Math.Round(e.UpdateTime.Max, 4), ["frames"] = e.UpdateTime.Count };
+                if (e.Instance is IPluginScenePost)
+                    o["scenePostMs"] = new JObject { ["median"] = Math.Round(e.ScenePostTime.Median, 4), ["max"] = Math.Round(e.ScenePostTime.Max, 4), ["frames"] = e.ScenePostTime.Count };
                 o["loadMs"] = Math.Round(e.LoadMs, 3);
                 if (m != null && m.Unknown.Count > 0) o["unknown"] = m.Unknown.DeepClone();
                 arr.Add(o);

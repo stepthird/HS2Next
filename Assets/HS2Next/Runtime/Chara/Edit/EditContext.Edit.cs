@@ -57,11 +57,13 @@ namespace HS2Next.Chara.Edit
             if (!InBuild) TextureGuard.TakePending();
             RemapRoots.Clear();
             if (!InBuild && ExtDirty) RegenerateExt();
+            else if (!InBuild && MeDirty) RegenerateMaterialEdits();
         }
 
         partial void EndFlush()
         {
             CurrentUnit = null;
+            MePending.Clear();
             if (!InBuild) SyncMissing();
             UpdateBadMipMissing();
         }
@@ -126,6 +128,7 @@ namespace HS2Next.Chara.Edit
         {
             if (InBuild) return;
             SwappedObjects.Add(o);
+            HS2Next.Chara.Ext.MaterialEditorApplier.ObjectSwapped(Ctx, (o.Type, o.Type == OT.Character ? 0 : o.Slot));
             Touched(o);
         }
 

@@ -87,6 +87,9 @@ namespace HS2Next.Motion.Fk
         public Vector3 Value;
         /// <summary>Quaternion.Euler(Value), cached when the value changes.</summary>
         public Quaternion Rotation = Quaternion.identity;
+        /// <summary>A runtime override of the scene (not saved): while set, the FK writes <see cref="Override"/> instead of the value.</summary>
+        public bool HasOverride;
+        public Quaternion Override = Quaternion.identity;
 
         /// <summary>Sets the value and its cached rotation.</summary>
         public void Set(Vector3 v)

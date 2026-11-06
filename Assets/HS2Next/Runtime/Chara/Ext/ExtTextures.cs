@@ -1,7 +1,8 @@
 // Decoding of the image files embedded in card plugin data (KSOX/KCOX PNGs, MaterialEditor PNG/JPEG;
 // 4) with a content-hash cache shared by all characters: identical bytes
 // are decoded once and reference-counted (Acquire / Release). Textures are uploaded and then made non-readable
-// (no CPU copy kept). Sizes can be read from the file header without decoding (TrySize).
+// (no CPU copy kept). Sizes can be read from the file header without decoding (TrySize). A header that claims more than
+// MaxDecodeSide pixels a side is refused before anything is allocated, wherever the image came from.
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -22,6 +23,22 @@ namespace HS2Next.Chara.Ext
 
         public static void ResetStats() { Decoded = CacheHits = Failed = 0; DecodedBytes = 0; PeakBytes = LiveBytes; }
 
+        /// <summary>The largest side a stored image decodes at, above every image on the install: a larger header is refused.</summary>
+        public const int MaxDecodeSide = 16384;
+
+        /// <summary>True when the image's header claims a side above <see cref="MaxDecodeSide"/>.</summary>
+        public static bool TooLarge(byte[] b)
+        {
+            if (b == null || b.Length < 24) return false;
+            if (b[0] == 0x89 && b[1] == 0x50 && b[2] == 0x4E && b[3] == 0x47)
+            {
+                uint pw = ((uint)b[16] << 24) | ((uint)b[17] << 16) | ((uint)b[18] << 8) | b[19];
+                uint ph = ((uint)b[20] << 24) | ((uint)b[21] << 16) | ((uint)b[22] << 8) | b[23];
+                return pw > MaxDecodeSide || ph > MaxDecodeSide;
+            }
+            return TrySize(b, out int w, out int h) && (w > MaxDecodeSide || h > MaxDecodeSide);
+        }
+
         /// <summary>Cache key: SHA-1 of the bytes plus the decode settings.</summary>
         public static string Key(byte[] bytes, bool linear, bool mips)
         {
@@ -35,6 +52,7 @@ namespace HS2Next.Chara.Ext
         {
             key = null;
             if (bytes == null || bytes.Length == 0) return null;
+            if (TooLarge(bytes)) { Failed++; return null; }
             key = Key(bytes, linear, mips);
             if (cache.TryGetValue(key, out var e) && e.Tex)
             {

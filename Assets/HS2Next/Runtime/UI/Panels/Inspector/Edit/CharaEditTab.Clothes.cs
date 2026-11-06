@@ -112,6 +112,7 @@ namespace HS2Next.UI.Panels
             {
                 var g = new VisualElement { name = "clothes-kind-group-" + InspectorSchemas.ClothesEditKinds[k] };
                 WithGateMemo(() => { foreach (var s in SectionsOf(ClothesNode)) if (InspectorSchemas.ClothesKindOf(s.Id) == k) AddLiveSection(clothesLive, g, s, k); });
+                g.Add(MaterialsButton("clothes:" + k, "clothes-materials-" + InspectorSchemas.ClothesEditKinds[k]));
                 clothesGroups[k] = g;
                 PageBuildMs[ClothesNode + ".group." + InspectorSchemas.ClothesEditKinds[k]] = sw.Elapsed.TotalMilliseconds;
             }

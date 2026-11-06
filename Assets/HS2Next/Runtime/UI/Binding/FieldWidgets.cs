@@ -108,7 +108,10 @@ namespace HS2Next.UI.Binding
             {
                 // an option row shows its option; a button of an option table (the screenshot dialog's Take) has no option
                 ShowOption(row);
-                ctx.Options.Changed += k => { if (k == row.Path) ShowOption(row); };
+                // listened to only while the row is on a panel: a row dropped with its inspector must not stay on the options' event
+                void OnOption(string k) { if (k == row.Path) ShowOption(row); }
+                row.RegisterCallback<AttachToPanelEvent>(_ => { ctx.Options.Changed -= OnOption; ctx.Options.Changed += OnOption; ShowOption(row); });
+                row.RegisterCallback<DetachFromPanelEvent>(_ => ctx.Options.Changed -= OnOption);
             }
             else row.Binding = new FieldBinding { Selector = selector };
             return row;
@@ -237,6 +240,8 @@ namespace HS2Next.UI.Binding
             var spec = row.Spec;
             var targets = row.Targets;
             if (spec.Target != FieldTarget.Option && targets.Count == 0) return OpResult.NothingToDo();
+            // Esc took the drag back: a late preview writes nothing
+            if (phase == EditPhase.Preview && row.Edit != null && !row.Edit.IsOpen) return OpResult.NothingToDo();
             // Begin / End of a drag: the transaction
             if (phase == EditPhase.Begin)
             {

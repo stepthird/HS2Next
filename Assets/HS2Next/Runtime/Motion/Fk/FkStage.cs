@@ -2,6 +2,8 @@
 //   FkStage      MotionPhase.Fk (400): for every bone of an applied group with a value (Skirt bones only when Used)
 //                localRotation = Euler(value), mirrored to the sync partner. Rotations only; deterministic, no history.
 //                FkOptions.MissingBonesZero: a bone without a value is written as identity.
+//                A bone with a runtime override (FkBone.HasOverride, the scene's override layer) is written with the override
+//                instead of its value, wherever the stage writes it; without one the stage writes exactly what it wrote before.
 //                Owned (Phase 3.4): the bones the IK solve owns this step; the per-step
 //                write and WriteIfApplied skip them (IK wins; WriteApplied, the IK stage's base pass, writes them all).
 //                Empty unless the IK stage sets it; the IK stage clears it when it stops.
@@ -9,8 +11,9 @@
 //                before the neck look runs, so no step ever runs the neck look in another pattern.
 //   FkHipsStage  MotionPhase.IkPrepare (150), registered before the gate: HS2_FKHeightAdjustUI's hips offset,
 //                cf_J_Hips.localPosition = base + (0, offset, 0) in the cf_N_height frame while active. base = this
-//                step's value from the earlier stages; when the bone still holds exactly the value written last step,
-//                the previous base is kept (no accumulation when nothing rewrites the bone). When the stage stops,
+//                step's value from the earlier stages, the card's bone modifiers included (they run at phase 120 and rewrite a
+//                modified hips position every step, so the two sum without feeding each other); when the bone still holds exactly
+//                the value written last step, the previous base is kept (no accumulation when nothing rewrites the bone). When the stage stops,
 //                the base is written back once if the bone still holds the stage's value.
 //                Position (Phase 3.4, `fk.hipsPosition`): when set, the written value is
 //                Position (+ (0, offset, 0)) instead of base + (0, offset, 0); base stays the latched input (written back
@@ -76,7 +79,8 @@ namespace HS2Next.Motion.Fk
         static void WriteBone(FkBone b)
         {
             if (!b.Used || !b.Bone) return;
-            if (b.HasValue) b.Write(b.Rotation);
+            if (b.HasOverride) b.Write(b.Override);
+            else if (b.HasValue) b.Write(b.Rotation);
             else if (FkOptions.MissingBonesZero) b.Write(Quaternion.identity);
         }
 
@@ -129,14 +133,6 @@ namespace HS2Next.Motion.Fk
         Vector3 basePos, written;
         bool hasWritten;
 
-        /// <summary>
-        /// What another latch-style writer of cf_J_Hips (the card's bone modifiers: base + position, base · length + position)
-        /// leaves on the bone when this stage wrote <c>written</c>; null when there is no such writer. A bone that holds
-        /// exactly that value keeps the previous base, so the two writers sum instead of feeding each other when nothing
-        /// else rewrites the bone (no motion).
-        /// </summary>
-        public Func<Vector3, Vector3?> ExternalWrite;
-
         public FkHipsStage(Transform hips) { Hips = hips; }
 
         /// <summary>The position the stage computed its last write from (diagnostics, F12).</summary>
@@ -148,7 +144,7 @@ namespace HS2Next.Motion.Fk
             if (!Hips) return;
             if (!Active || Suspended) { Release(); return; }
             var cur = Hips.localPosition;
-            if (!(hasWritten && (Same(cur, written) || SameWithDelta(cur)))) basePos = cur;
+            if (!(hasWritten && Same(cur, written))) basePos = cur;
             var p = Position ?? basePos;
             Hips.localPosition = new Vector3(p.x, p.y + Offset, p.z);
             written = Hips.localPosition;
@@ -193,12 +189,6 @@ namespace HS2Next.Motion.Fk
         }
 
         public void Reset() { }
-
-        bool SameWithDelta(Vector3 cur)
-        {
-            var w = ExternalWrite?.Invoke(written);
-            return w.HasValue && Same(cur, w.Value);
-        }
 
         static bool Same(Vector3 a, Vector3 b) => a.x == b.x && a.y == b.y && a.z == b.z;
     }

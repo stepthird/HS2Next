@@ -150,3 +150,9 @@ __pycache__/
 /Tests/Plugins/*/obj/
 !/Samples/**/*.csproj
 !/Tests/Plugins/**/*.csproj
+# the plugin kit (Phase 6.1, shipped in the zip as PluginKit/): the build output of its projects and its staging folder out/;
+# its solution file is tracked although *.sln is ignored above
+/Samples/PluginKit/*/bin/
+/Samples/PluginKit/*/obj/
+/Samples/PluginKit/out/
+!/Samples/PluginKit/PluginKit.sln

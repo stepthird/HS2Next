@@ -98,6 +98,7 @@ public static partial class UiListsV12Test
         yield return PlayModeHarness.WaitUntil(() => c.App.Runtime.FindChara(femaleChara)?.State == RealizationState.Built, 60, ok);
         yield return Frames(30);
         insp = Inspector(c);
+        insp?.Refresh(true);   // a load does not rebuild the inspector any more; what still does (another selection, a build) must find the list as it was
         var ct2 = CostumeTab(c);
         yield return PlayModeHarness.WaitUntil(() => ct2?.Browser != null && ct2.Browser.Ready, 30, ok);
         yield return Frames(20);

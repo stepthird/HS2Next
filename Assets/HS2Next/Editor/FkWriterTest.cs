@@ -964,14 +964,14 @@ public static class FkWriterTest
                 ia = ha.localPosition; ib = hb.localPosition;
             }
             Check("suspended inside StudioDefaultPoseScope", Bits(ia, ib), $"{F(ia)} vs {F(ib)}");
-            // a card ABMX position modifier on cf_J_Hips and the offset (D11; headless order: step, then the modifier pass)
+            // a card's position modifier on cf_J_Hips and the offset (D11, the real order: the modifiers' stage, then the offset)
             foreach (var id in new[] { a, b }) e.S.SetAnimation(id, Idle);
             e.Rt.ApplyNow();
             var ma = AddHipsModifier(e.C(a), ha); var mb = AddHipsModifier(e.C(b), hb);
             float maxErr = 0, drift = 0; Vector3 first = default;
             for (int i = 0; i < 10; i++)
             {
-                e.Step(); ma.Apply(); mb.Apply();
+                e.Step();
                 var d = ha.localPosition - Expect();
                 maxErr = Mathf.Max(maxErr, Mathf.Max(Mathf.Abs(d.x), Mathf.Max(Mathf.Abs(d.y), Mathf.Abs(d.z))));
             }
@@ -980,7 +980,7 @@ public static class FkWriterTest
             e.Rt.ApplyNow();
             for (int i = 0; i < 10; i++)
             {
-                e.Step(); ma.Apply(); mb.Apply();
+                e.Step();
                 if (i == 0) first = ha.localPosition;
             }
             drift = Mathf.Abs(ha.localPosition.y - first.y);
@@ -994,6 +994,7 @@ public static class FkWriterTest
     {
         var m = r.Context.Bones ? r.Context.Bones : (r.Context.Bones = r.Root.AddComponent<BoneModifierApplier>());
         m.Add(new BoneModifierApplier.Modifier { Target = hips, Bone = "cf_J_Hips", Source = "test", Position = new Vector3(0f, 0.3f, 0f) });
+        HS2Next.Motion.Modifiers.BoneModifierSetup.Sync(r.Context);
         return m;
     }
 

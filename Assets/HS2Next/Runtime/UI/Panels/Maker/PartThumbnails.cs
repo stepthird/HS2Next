@@ -96,6 +96,8 @@ namespace HS2Next.UI.Panels.Maker
         public event Action<int, ContentId, Texture2D> Loaded;
         /// <summary>A thumbnail is ready (texture) or failed (null) for (category, key, column) — every column.</summary>
         public event Action<int, ContentId, string, Texture2D> LoadedColumn;
+        /// <summary>The handlers of <see cref="LoadedColumn"/> (tests: a list dropped from the panel leaves none behind).</summary>
+        public int LoadedColumnListeners => LoadedColumn?.GetInvocationList().Length ?? 0;
 
         /// <summary>Diagnostics: log every asynchronous thumbnail load (source / texture) before it starts and every bundle unload (<c>-thumbLogLoads on</c>).</summary>
         public static bool LogLoads = ArgIs("-thumbLogLoads", "on") || HS2Next.Content.ContentCatalog.LogBundles;

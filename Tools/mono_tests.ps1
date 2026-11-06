@@ -9,7 +9,9 @@
 
   -Suite scene  three assemblies, as Unity splits them: Api.dll (Assets\HS2Next\Api\**, the HS2Next.Api asmdef),
                 Core.dll (Runtime\Save\** without Unity\, Runtime\Scene\{Model,Commands,Events,Document,Routes,Clock}\** and,
-                since Phase 5.R, Runtime\Scene\Runtime\Effects\{FogMath,SunShaftMath}.cs when present; the
+                since Phase 5.R, Runtime\Scene\Runtime\Effects\{FogMath,SunShaftMath}.cs when present, since Phase 6.2
+                Runtime\Scene\{Timeline,Overrides}\**, since Phase 6.3 Runtime\Scene\AdvancedPose\**, since Phase 6.4 Runtime\Scene\Materials\** and since Phase 6.5 Runtime\Scene\Constraints\** when present (the ui suite's
+                Core.dll likewise); the
                 Unity-free part of Assembly-CSharp: a successful build proves that it needs no UnityEngine) and
                 SceneTests.exe (Editor\SaveFormat\TestRunner.cs, Editor\SaveFormat\DocTests_Fuzz.cs, Editor\SceneModel\**,
                 Tools\mono_tests\TestMain.cs; like Assembly-CSharp-Editor it sees only the public surface of Core).
@@ -166,6 +168,10 @@ if ($Suite -eq 'scene') {
         (Join-Path $scene 'Routes'), (Join-Path $scene 'Clock'))
     # Phase 5.R: the Unity-free effect arithmetic of the scene runtime (a file not written yet joins when it exists)
     $coreSrc += @('FogMath.cs', 'SunShaftMath.cs') | ForEach-Object { Join-Path $scene "Runtime\Effects\$_" } | Where-Object { Test-Path -LiteralPath $_ }
+    # Phase 6.2: the Unity-free Timeline engine and the override layer's core (a folder not written yet joins when it exists)
+    $coreSrc += Get-Sources @((Join-Path $scene 'Timeline'), (Join-Path $scene 'Overrides'))
+    # Phase 6.3: the Unity-free part of advanced pose (addresses, edits); Phase 6.4: of material edits (keys, edits)
+    $coreSrc += Get-Sources @((Join-Path $scene 'AdvancedPose'), (Join-Path $scene 'Materials'), (Join-Path $scene 'Constraints'))
     Invoke-Csc $coreDll 'library' @($nj, $apiDll) $coreSrc
     $testSrc = Get-Sources @((Join-Path $Assets 'Editor\SaveFormat\TestRunner.cs'), (Join-Path $Assets 'Editor\SaveFormat\DocTests_Fuzz.cs'),
         $(if ($TestsDir) { $TestsDir } else { Join-Path $Assets 'Editor\SceneModel' }), $testMain)
@@ -208,10 +214,18 @@ if ($Suite -eq 'scene') {
         (Join-Path $scene 'Routes'), (Join-Path $scene 'Clock'))
     # Phase 5.R: the Unity-free effect arithmetic of the scene runtime (a file not written yet joins when it exists)
     $coreSrc += @('FogMath.cs', 'SunShaftMath.cs') | ForEach-Object { Join-Path $scene "Runtime\Effects\$_" } | Where-Object { Test-Path -LiteralPath $_ }
+    # Phase 6.2: the Unity-free Timeline engine and the override layer's core (a folder not written yet joins when it exists)
+    $coreSrc += Get-Sources @((Join-Path $scene 'Timeline'), (Join-Path $scene 'Overrides'))
+    # Phase 6.3: the Unity-free part of advanced pose (addresses, edits); Phase 6.4: of material edits (keys, edits)
+    $coreSrc += Get-Sources @((Join-Path $scene 'AdvancedPose'), (Join-Path $scene 'Materials'), (Join-Path $scene 'Constraints'))
     Invoke-Csc $coreDll 'library' @($nj, $apiDll) $coreSrc
     $testSrc = Get-Sources @((Join-Path $Assets 'Editor\SaveFormat\TestRunner.cs'),
         $(if ($TestsDir) { $TestsDir } else { Join-Path $Assets 'Editor\UiCore' }), $testMain)
-    Invoke-Csc $exe 'exe' @($nj, $apiDll, $coreDll, $uiDll) $testSrc
+    # Phase 6.1: the plugin forms' Unity-free part (Runtime\UI\Plugins\Core, with Api and UiCore) when it exists
+    $formsCore = Join-Path $Assets 'Runtime\UI\Plugins\Core'
+    $uiRefs = @($nj, $apiDll, $coreDll, $uiDll)
+    if (Test-Path -LiteralPath $formsCore) { $formsDll = Join-Path $OutDir 'HS2Next.UiPlugins.dll'; Invoke-Csc $formsDll 'library' @($nj, $apiDll, $uiDll) (Get-Sources @($formsCore)); $uiRefs += $formsDll }
+    Invoke-Csc $exe 'exe' $uiRefs $testSrc
     $runArgs = @('--ns', 'HS2Next.UI.Core.Tests', '--fixtures', (Join-Path $Assets 'Resources\UI'))
 } elseif ($Suite -eq 'maker') {
     $apiDll = Join-Path $OutDir 'HS2Next.Api.dll'

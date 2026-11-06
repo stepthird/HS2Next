@@ -6,7 +6,9 @@
 // with the first in GUID order; missing, refused or too old dependencies refuse the dependent, repeatedly; dependency
 // cycles refuse every member). The order is Kahn's topological order over the dependencies plus the loadAfter /
 // loadBefore hints whose both ends load (a hint that would make a cycle is dropped and reported), ties broken by GUID
-// (ordinal, ignoring case). Nothing in the folder is created, changed or deleted.
+// (ordinal, ignoring case). Nothing in the folder is created, changed or deleted. A candidate on the disabled list skips
+// the per-candidate checks after the folder name; enabling it at run time runs them then (Revalidate), with the
+// prefixes of the plugins loaded at that moment in place of the other candidates'.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -170,48 +172,14 @@ namespace HS2Next.App.Plugins
                     c.Reason = "on the disabled list (plugins.disabled)";
                     continue;
                 }
-                if (!SemVer.ApiCompatible(m.ApiVersion, o.HostApiMajor, o.HostApiMinor))
-                {
-                    c.Refuse(PluginCodes.ApiVersion, "built against Api " + m.ApiVersion + "; the host implements " + o.HostApiMajor + "." + o.HostApiMinor +
-                             (o.HostApiMajor == 0 ? " (0.x: the minor must match exactly)" : " (the major must match, the host's minor at least the plugin's)"));
-                    continue;
-                }
-                if (m.MinAppVersion != null && app != null && SemVer.TryParse(m.MinAppVersion, out var need) && app.CompareTo(need) < 0)
-                {
-                    c.Refuse(PluginCodes.AppVersion, "needs app " + m.MinAppVersion + " or later; this app is " + o.AppVersion);
-                    continue;
-                }
-                string missing = m.Assemblies.FirstOrDefault(a => FindFile(c.Dir, a) == null);
-                if (missing != null)
-                {
-                    c.Refuse(PluginCodes.MissingAssembly, "the listed assembly " + missing + " is not in the plugin folder");
-                    continue;
-                }
-                string clash = AssemblyNames(c).FirstOrDefault(n => hostAsm.Contains(n));
-                if (clash != null)
-                {
-                    c.Refuse(PluginCodes.AssemblyCollision, "the assembly " + clash + " has the name of an assembly the app already has (remove the plugin's copy)");
-                    continue;
-                }
-                string reserved = m.CommandPrefixes.FirstOrDefault(p => groups.Contains(p.Substring(0, p.IndexOf('.'))));
-                if (reserved != null)
-                {
-                    c.Refuse(PluginCodes.PrefixTaken, "the command prefix " + reserved + " is a group of the app");
-                    continue;
-                }
+                string code = CheckOne(c, o, app, hostAsm, groups, out string reason);
+                if (code != null) c.Refuse(code, reason);
             }
             // prefixes between plugins: the first claimant in GUID order keeps a prefix (overlapping prefixes count as one)
             var claimed = new List<KeyValuePair<string, string>>();
             foreach (var c in list.Where(x => x.IsPending).OrderBy(x => x.Guid, Ci))
             {
-                string taken = null, by = null;
-                foreach (var p in c.Manifest.CommandPrefixes)
-                    foreach (var kv in claimed)
-                        if (taken == null && (p.StartsWith(kv.Key, StringComparison.Ordinal) || kv.Key.StartsWith(p, StringComparison.Ordinal)))
-                        {
-                            taken = p;
-                            by = kv.Value;
-                        }
+                string taken = ClaimedPrefix(c.Manifest, claimed, out string by);
                 if (taken != null)
                 {
                     c.Refuse(PluginCodes.PrefixTaken, "the command prefix " + taken + " is claimed by " + by);
@@ -246,6 +214,94 @@ namespace HS2Next.App.Plugins
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// The per-candidate checks after the folder name and the disabled list: the Api and app versions, the listed
+        /// assemblies present, no assembly name the host has, no command prefix of a host group. The refusal code (reason
+        /// out), or null.
+        /// </summary>
+        static string CheckOne(PluginCandidate c, PluginScanOptions o, SemVer app, HashSet<string> hostAsm, HashSet<string> groups, out string reason)
+        {
+            var m = c.Manifest;
+            reason = null;
+            if (!SemVer.ApiCompatible(m.ApiVersion, o.HostApiMajor, o.HostApiMinor))
+            {
+                reason = "built against Api " + m.ApiVersion + "; the host implements " + o.HostApiMajor + "." + o.HostApiMinor +
+                         (o.HostApiMajor == 0 ? " (0.x: the minor must match exactly)" : " (the major must match, the host's minor at least the plugin's)");
+                return PluginCodes.ApiVersion;
+            }
+            if (m.MinAppVersion != null && app != null && SemVer.TryParse(m.MinAppVersion, out var need) && app.CompareTo(need) < 0)
+            {
+                reason = "needs app " + m.MinAppVersion + " or later; this app is " + o.AppVersion;
+                return PluginCodes.AppVersion;
+            }
+            string missing = m.Assemblies.FirstOrDefault(a => FindFile(c.Dir, a) == null);
+            if (missing != null)
+            {
+                reason = "the listed assembly " + missing + " is not in the plugin folder";
+                return PluginCodes.MissingAssembly;
+            }
+            string clash = AssemblyNames(c).FirstOrDefault(n => hostAsm.Contains(n));
+            if (clash != null)
+            {
+                reason = "the assembly " + clash + " has the name of an assembly the app already has (remove the plugin's copy)";
+                return PluginCodes.AssemblyCollision;
+            }
+            string reserved = m.CommandPrefixes.FirstOrDefault(p => groups.Contains(p.Substring(0, p.IndexOf('.'))));
+            if (reserved != null)
+            {
+                reason = "the command prefix " + reserved + " is a group of the app";
+                return PluginCodes.PrefixTaken;
+            }
+            return null;
+        }
+
+        /// <summary>The first prefix of <paramref name="m"/> that overlaps a claimed one (either starts with the other), or null; <paramref name="by"/> = its claimant.</summary>
+        static string ClaimedPrefix(PluginManifest m, IEnumerable<KeyValuePair<string, string>> claimed, out string by)
+        {
+            by = null;
+            foreach (var p in m.CommandPrefixes)
+                foreach (var kv in claimed)
+                    if (p.StartsWith(kv.Key, StringComparison.Ordinal) || kv.Key.StartsWith(p, StringComparison.Ordinal))
+                    {
+                        by = kv.Value;
+                        return p;
+                    }
+            return null;
+        }
+
+        /// <summary>
+        /// The checks a candidate on the disabled list skipped at the scan, run when it is enabled at run time: the Api and
+        /// app versions, the listed assemblies present, no assembly name the host has, no command prefix of a host group,
+        /// and no prefix that overlaps one of <paramref name="loadedPrefixes"/> (prefix → the GUID of the loaded plugin that
+        /// holds it; the plugin's own GUID is ignored). Returns the refusal code (<paramref name="reason"/> its text), or null
+        /// when the candidate may load. The candidate itself is not changed.
+        /// </summary>
+        public static string Revalidate(PluginCandidate c, PluginScanOptions o, IEnumerable<KeyValuePair<string, string>> loadedPrefixes, out string reason)
+        {
+            reason = null;
+            if (c?.Manifest == null)
+            {
+                reason = c?.Reason ?? "no usable manifest";
+                return c?.Code ?? PluginCodes.BadManifest;
+            }
+            o ??= new PluginScanOptions();
+            var hostAsm = new HashSet<string>(o.HostAssemblies ?? Array.Empty<string>(), Ci);
+            var groups = new HashSet<string>(o.ReservedGroups ?? Array.Empty<string>(), Ci) { "bridge", "plugin" };
+            SemVer app = null;
+            if (o.AppVersion != null) SemVer.TryParse(o.AppVersion, out app);
+            string code = CheckOne(c, o, app, hostAsm, groups, out reason);
+            if (code != null) return code;
+            var others = (loadedPrefixes ?? Array.Empty<KeyValuePair<string, string>>())
+                .Where(kv => kv.Key != null && !string.Equals(kv.Value, c.Manifest.Guid, StringComparison.OrdinalIgnoreCase)).ToList();
+            string taken = ClaimedPrefix(c.Manifest, others, out string by);
+            if (taken != null)
+            {
+                reason = "the command prefix " + taken + " is claimed by " + by;
+                return PluginCodes.PrefixTaken;
+            }
+            return null;
         }
 
         /// <summary>The simple names of a candidate's listed assemblies and of the DLLs in its lib folder.</summary>

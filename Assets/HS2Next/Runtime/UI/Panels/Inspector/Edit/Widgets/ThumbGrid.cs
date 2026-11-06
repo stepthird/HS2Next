@@ -20,6 +20,8 @@
 // appended to every cell's tooltip. Keys reach the grid before the list view inside it (which took the arrow keys).
 // v1.2: a right click on a cell selects it and, on release, asks for its context menu (ContextRequested, with the pointer's
 // panel position); the menu key or Shift+F10 asks for the focus cell's menu (below the cell). Grids without a handler ignore both.
+// A grid listens to its source only while it is on a panel, and a source listens to its shared loader only while something
+// listens to it, so a grid dropped with its page is not kept alive by a loader that outlives it.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -51,15 +53,26 @@ namespace HS2Next.UI.Panels
         readonly ThumbnailLoader loader;
         readonly Func<T, string> path;
         readonly Func<T, bool> hasImage;
-        public event Action<string, Texture2D> Loaded;
+        Action<string, Texture2D> loaded;
+
+        /// <summary>The loader is listened to only while this event has a listener.</summary>
+        public event Action<string, Texture2D> Loaded
+        {
+            add { bool first = loaded == null; loaded += value; if (first && loaded != null) loader.Loaded += OnLoaderLoaded; }
+            remove { bool had = loaded != null; loaded -= value; if (had && loaded == null) loader.Loaded -= OnLoaderLoaded; }
+        }
 
         public FileThumbSource(ThumbnailLoader loader, Func<T, string> imagePath, Func<T, bool> hasImage = null)
         {
             this.loader = loader ?? throw new ArgumentNullException(nameof(loader));
             path = imagePath;
             this.hasImage = hasImage;
-            loader.Loaded += (p, t) => Loaded?.Invoke(p, t);
         }
+
+        void OnLoaderLoaded(string p, Texture2D t) => loaded?.Invoke(p, t);
+
+        /// <summary>The loader this source reads from (tests).</summary>
+        public ThumbnailLoader Loader => loader;
 
         public string KeyOf(T item) => hasImage != null && !hasImage(item) ? null : path(item);
         public Texture2D Request(T item, object owner) => loader.Request(path(item), owner);
@@ -192,10 +205,20 @@ namespace HS2Next.UI.Panels
             // keyboard focus anywhere in the grid lights the focus cell's frame
             RegisterCallback<FocusInEvent>(_ => AddToClassList(FocusedClass));
             RegisterCallback<FocusOutEvent>(e => { if (!(e.relatedTarget is VisualElement to) || (to != this && !Contains(to))) RemoveFromClassList(FocusedClass); });
-            if (source != null) source.Loaded += OnLoaded;
-            RegisterCallback<DetachFromPanelEvent>(_ => { foreach (var c in AllCells()) Release(c); L10n.Default.LanguageChanged -= OnLanguage; });
+            RegisterCallback<DetachFromPanelEvent>(_ =>
+            {
+                foreach (var c in AllCells()) Release(c);
+                L10n.Default.LanguageChanged -= OnLanguage;
+                if (source != null) source.Loaded -= OnLoaded;
+            });
             // re-shown (a cached page, a tab shown again): the cells own their images again before they are drawn (W-1)
-            RegisterCallback<AttachToPanelEvent>(_ => { L10n.Default.LanguageChanged -= OnLanguage; L10n.Default.LanguageChanged += OnLanguage; if (cellsOf.Count > 0) list.RefreshItems(); });
+            RegisterCallback<AttachToPanelEvent>(_ =>
+            {
+                L10n.Default.LanguageChanged -= OnLanguage;
+                L10n.Default.LanguageChanged += OnLanguage;
+                if (source != null) { source.Loaded -= OnLoaded; source.Loaded += OnLoaded; }
+                if (cellsOf.Count > 0) list.RefreshItems();
+            });
             ApplyHeight();
         }
 

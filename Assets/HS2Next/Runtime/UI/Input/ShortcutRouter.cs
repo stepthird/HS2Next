@@ -3,13 +3,15 @@
 // legacy-Input semantics through KeyNames.FromUiToolkit for the JIS OEM keys, spike S8), exact modifiers, repeat, the
 // focused element kind (text field / other control / none) and its panel's scope, the pointer over the viewport, the
 // viewport's focus, IME composition (Input.compositionString) and an open modal dialog — and runs the action from the
-// UI registry. Before the resolver: Esc closes an open popup menu, then cancels an open drag edit. Held actions (camera
+// UI registry. Before the resolver: Esc closes an open popup menu, then ends a pointer drag of a handle or a row and takes back
+// what it did (CancelDragEdit, the one path for every handle and row). Held actions (camera
 // keys) are polled every frame through IInputSource while their scope is active (ResolveHeld: Shift ×5, Ctrl ×0.2).
 // The JIS ¥ / ろ keys (no legacy KeyCode) are tracked from KeyDown / KeyUp. Recent resolutions are kept for ui.state.
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using HS2Next.UI.Core;
+using HS2Next.UI.Widgets;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -182,7 +184,9 @@ namespace HS2Next.UI.Input
             downByEvent.Remove(KeyNames.FromUiToolkit(e.keyCode.ToString(), ctx.Keys.Layout));
         }
 
-        /// <summary>Esc while a text field has focus (no dialog, no IME composition): blur before the field takes the key.</summary>
+        /// <summary>Esc while a text field has focus (no dialog, no IME composition): blur before the field takes the key. Esc during
+        /// a pointer drag: the drag ends first; a label drag holds the focus in its field, and a popup's own Esc would remove a
+        /// slider whose capture's end commits its edit.</summary>
         void OnKeyDownTrickle(KeyDownEvent e)
         {
             if (e.keyCode != KeyCode.Escape || e.modifiers != EventModifiers.None || ImeComposing) return;
@@ -200,11 +204,21 @@ namespace HS2Next.UI.Input
                 }
                 return;
             }
-            if (f == null || !IsText(f)) return;
-            for (var p = f; p != null; p = p.hierarchy.parent) if (p.ClassListContains(OwnEscapeClass)) return;
-            Note("Esc: text field blurred");
-            f.Blur();
-            ctx.Viewport?.Element?.Focus();
+            bool text = f != null && IsText(f);
+            for (var p = f; text && p != null; p = p.hierarchy.parent) if (p.ClassListContains(OwnEscapeClass)) text = false;
+            bool drag = DragHeld;
+            if (!text && !drag) return;
+            if (drag)
+            {
+                CancelDragEdit();
+                downByEvent.Add("Escape");   // this key never reaches the bubble handler; held, its repeats are repeats, not a new press
+            }
+            if (text)
+            {
+                Note("Esc: text field blurred");
+                f.Blur();
+                ctx.Viewport?.Element?.Focus();
+            }
             e.StopPropagation();
             ctx.Shell?.Root?.panel?.focusController?.IgnoreEvent(e);
         }
@@ -222,6 +236,52 @@ namespace HS2Next.UI.Input
             }
         }
 
+        /// <summary>True while an open edit or a handle's drag goes with a pointer held by an element (a wheel run has no pointer).</summary>
+        bool DragHeld
+        {
+            get
+            {
+                if (!((ctx.ActiveEdit != null && ctx.ActiveEdit.IsOpen) || (ctx.Viewport?.Gizmo != null && ctx.Viewport.Gizmo.Dragging))) return false;
+                var panel = ctx.Shell?.Root?.panel;
+                if (panel == null) return false;
+                for (int id = 0; id < PointerId.maxPointers; id++) if (panel.GetCapturingElement(id) != null) return true;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Esc during a pointer drag of any handle or row: the handle's drag or else the open edit is cancelled (everything goes back, the
+        /// history has no new entry), and the pointer is let go, so that its later moves and its release reach no writer. The widget
+        /// holding the pointer ends its drag now: the capture's own end only arrives with the pointer's next event. A drag with no edit
+        /// and no handle (the camera, a plugin's row, which take Esc themselves) is left alone. True when it cancelled something.
+        /// </summary>
+        public bool CancelDragEdit()
+        {
+            if (ctx.Viewport != null && ctx.Viewport.CancelDrag()) Note("Esc: drag cancelled");
+            else if (ctx.ActiveEdit != null && ctx.ActiveEdit.IsOpen) { ctx.ActiveEdit.Cancel(); Note("Esc: edit cancelled"); }
+            else return false;
+            LetGo(ctx.Shell?.Root?.panel);
+            return true;
+        }
+
+        /// <summary>Lets go of every pointer an element of the panel holds; a number row holding one ends its drag now, unless it is a
+        /// plugin kit's row, whose own Esc says cancel before its drag ends.</summary>
+        public static void LetGo(IPanel panel)
+        {
+            if (panel == null) return;
+            for (int id = 0; id < PointerId.maxPointers; id++)
+            {
+                if (!(panel.GetCapturingElement(id) is VisualElement holder)) continue;
+                panel.ReleasePointer(id);
+                for (var e = holder; e != null; e = e.hierarchy.parent)
+                {
+                    if (e.ClassListContains(HS2Next.UI.Plugins.PluginWidgetKit.WidgetClass)) break;   // it takes Esc itself, after this
+                    if (e is VectorField vf) { vf.EndDrag(); break; }
+                    if (e is NumberSlider ns) { ns.End(); break; }
+                }
+            }
+        }
+
         /// <summary>
         /// Resolves and runs one key (the KeyDown handler; ui.input key events). Returns true when the event is consumed.
         /// </summary>
@@ -230,8 +290,7 @@ namespace HS2Next.UI.Input
             if (key == "Escape" && mods == KeyMods.None && !repeat)
             {
                 if (ctx.Shell?.Menus != null && ctx.Shell.Menus.IsOpen) { ctx.Shell.Menus.CloseAll(); Note("Esc: menu closed"); return true; }
-                if (ctx.ActiveEdit != null && ctx.ActiveEdit.IsOpen) { ctx.ActiveEdit.Cancel(); Note("Esc: edit cancelled"); return true; }
-                if (ctx.Viewport != null && ctx.Viewport.CancelDrag()) { Note("Esc: drag cancelled"); return true; }
+                if (CancelDragEdit()) return true;
             }
             var resolver = ctx.Keys.Resolver;
             if (resolver == null) return false;

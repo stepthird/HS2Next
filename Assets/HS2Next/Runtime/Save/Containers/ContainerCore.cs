@@ -557,11 +557,38 @@ namespace HS2Next.Save
         }
 
         /// <summary>Raises <see cref="WriteFormatVersion"/> to what a scene node needs: format 3 when a character's
-        /// state.nippleThroughClothes is false (after 1.1.0).</summary>
+        /// state.nippleThroughClothes is false (after 1.1.0), format 4 when its advanced-pose block or an item's material array
+        /// is not empty (after 1.2.0).</summary>
         public void Covers(SceneNode node)
         {
-            if (node?.State is CharaNodeState c && c.State != null && !c.State.NippleThroughClothes)
+            if (node?.State is ItemNodeState item && item.MaterialOverrides.Count > 0)
+                WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.MaterialEditVersion);
+            if (!(node?.State is CharaNodeState c)) return;
+            if (c.State != null && !c.State.NippleThroughClothes)
                 WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.NippleThroughClothesVersion);
+            if (c.AdvancedPose != null && !c.AdvancedPose.IsEmpty)
+                WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.AdvancedPoseVersion);
+        }
+
+        /// <summary>Raises <see cref="WriteFormatVersion"/> to what a scene's Timeline needs: format 4 when the scene has one
+        /// (after 1.2.0; an empty Timeline included).</summary>
+        public void Covers(TimelineDocument timeline)
+        {
+            if (timeline != null) WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.TimelineVersion);
+        }
+
+        /// <summary>Raises <see cref="WriteFormatVersion"/> to what a scene's constraints need: format 4 when the list has an entry
+        /// (after 1.2.0).</summary>
+        public void Covers(ConstraintList constraints)
+        {
+            if (constraints != null && constraints.Count > 0) WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.ConstraintsVersion);
+        }
+
+        /// <summary>Raises <see cref="WriteFormatVersion"/> to what the map needs: format 4 when its material array is not empty
+        /// (after 1.2.0).</summary>
+        public void Covers(MapSettings map)
+        {
+            if (map != null && map.MaterialOverrides.Count > 0) WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.MaterialEditVersion);
         }
 
         void AddExtEntry(string ns, string scope, string root, int version, bool required, JsonLeftovers unknown)

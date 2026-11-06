@@ -189,6 +189,8 @@ namespace HS2Next.UI.Gizmos
             {
                 var parent = trf.parent;
                 var local = parent ? parent.InverseTransformPoint(worldPos.Value) : worldPos.Value;
+                // the handle stands on the corrected transform; the rate is the pose under the correction
+                local = AdvancedPoseDriver.WithoutPosition(ctx.Runtime?.FindChara(t.NodeId), trf, local);
                 var axes = MovedAxes(h);
                 float[] r = { hairStartMove.X, hairStartMove.Y, hairStartMove.Z };
                 for (int a = 0; a < 3; a++)
@@ -226,6 +228,7 @@ namespace HS2Next.UI.Gizmos
         public List<Dictionary<string, object>> HairHandleStates()
         {
             var l = AccessoryHandleStates();   // Phase 4.5 package W: the accessory set handles (never shown with the hair bundles)
+            BoneHandleStates(l);   // Phase 6.3 package U: the pick's spheres and a bone's handle
             if (ctx.Runtime == null || !ctx.Options.Bool(OptionDefs.ViewGizmos)) return l;
             foreach (var (addr, i, trf) in HairMarkers())
             {

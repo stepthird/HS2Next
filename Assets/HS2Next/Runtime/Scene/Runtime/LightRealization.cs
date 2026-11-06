@@ -12,6 +12,8 @@
 //   helpers  `showTarget`: LightHelpers (directional arrow, point circles, spot cone) on the view-only helper layer.
 //   main     StudioLights (the `studio` MainLight source) refreshes after build, delete, rebuild and value changes.
 // A missing row keeps the holder only (`light.missing`; vanilla drops such lights). The node's `visible` has no effect.
+// Runtime overrides (Phase 6.2): a winning `light.color` slot of the override layer is the colour of the value write (folded
+// with the intensity as the model's); a slot's change writes the values at once.
 using System.Collections.Generic;
 using HS2Next.Content;
 using HS2Next.Content.Studio;
@@ -96,12 +98,14 @@ namespace HS2Next.Scenes.Runtime
             var st = St;
             if (!Light || st == null) return;
             var o = BundleLights.OriginalOf(Light);
+            var w = Runtime.Overrides.WinnerOf(NodeId, HS2Next.Scenes.Overrides.OverrideChannel.LightColor);
+            var col = w != null ? new Color4((float)w[0], (float)w[1], (float)w[2], (float)w[3]) : st.Color;
             if (o)
             {
-                o.Color = new Color(st.Color.R, st.Color.G, st.Color.B, st.Color.A);
+                o.Color = new Color(col.R, col.G, col.B, col.A);
                 o.Intensity = st.Intensity;
             }
-            Light.color = BundleLights.Folded(new Color(st.Color.R, st.Color.G, st.Color.B, 1f), st.Intensity);
+            Light.color = BundleLights.Folded(new Color(col.R, col.G, col.B, 1f), st.Intensity);
             Light.intensity = 1f;
             Light.range = st.Range;
             Light.spotAngle = st.SpotAngle;
@@ -109,6 +113,12 @@ namespace HS2Next.Scenes.Runtime
             Light.enabled = st.Enabled;
             Helpers?.Apply(st);
             StudioLights.Changed(Runtime);
+        }
+
+        /// <summary>The colour slot of the override layer changed or went: the values are written again at once.</summary>
+        internal void ApplyColorOverride()
+        {
+            if (State == RealizationState.Built) ApplyValues();
         }
 
         protected internal override void DestroyContent()

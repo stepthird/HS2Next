@@ -136,9 +136,12 @@ namespace HS2Next.Scenes.Runtime
                 return CommandResult.NoOp(null);
             }
             var values = new Dictionary<string, Vec3>(StringComparer.Ordinal);
-            foreach (var g in groups)
-                foreach (var b in table.Of(g))
-                    if (b.Bone) values[b.Key] = Capture(b);
+            AdvancedPoseDriver.Bare(r, () =>
+            {
+                foreach (var g in groups)
+                    foreach (var b in table.Of(g))
+                        if (b.Bone) values[b.Key] = Capture(b);
+            });
             return SetBones(id, values, new ExecuteOptions { Label = o.Label ?? "FK from pose", Source = o.Source, Record = o.Record, MergeKey = o.MergeKey });
         }
 
@@ -205,13 +208,16 @@ namespace HS2Next.Scenes.Runtime
                 rt.ReportOnce(FindingSeverity.Info, "fk.captureUnavailable", id, "character not built: nothing captured");
                 return values;
             }
-            foreach (var g in groups)
-                foreach (var b in table.Of(g))
-                    if (b.Bone)
-                    {
-                        var e = b.Bone.localEulerAngles;
-                        values[b.Key] = new Vec3(e.x, e.y, e.z);
-                    }
+            AdvancedPoseDriver.Bare(rt.FindChara(id), () =>
+            {
+                foreach (var g in groups)
+                    foreach (var b in table.Of(g))
+                        if (b.Bone)
+                        {
+                            var e = b.Bone.localEulerAngles;
+                            values[b.Key] = new Vec3(e.x, e.y, e.z);
+                        }
+            });
             return values;
         }
 
@@ -231,13 +237,16 @@ namespace HS2Next.Scenes.Runtime
                 rt.ReportOnce(FindingSeverity.Info, "fk.captureUnavailable", id, "character not built: FK values of the newly applied groups were not captured");
                 return add;
             }
-            foreach (var g in groups)
-                foreach (var b in table.Of(g))
-                {
-                    if (!b.Bone || !b.Used) continue;
-                    if (bones != null && (bones.ContainsKey(b.Key) || (b.PartnerKey != null && bones.ContainsKey(b.PartnerKey)))) continue;
-                    add[b.Key] = Capture(b);
-                }
+            AdvancedPoseDriver.Bare(r, () =>
+            {
+                foreach (var g in groups)
+                    foreach (var b in table.Of(g))
+                    {
+                        if (!b.Bone || !b.Used) continue;
+                        if (bones != null && (bones.ContainsKey(b.Key) || (b.PartnerKey != null && bones.ContainsKey(b.PartnerKey)))) continue;
+                        add[b.Key] = Capture(b);
+                    }
+            });
             return add;
         }
 

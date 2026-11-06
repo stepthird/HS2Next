@@ -5,7 +5,12 @@
 // cancellation, elasticity / stiffness cone, colliders, keep-length window, move limit), the vanilla skip update
 // or the IllusionFixes hold on frames without a step and the write-back with the aim lever and the
 // crush scale.
+//
+// Override (advanced pose, null unless the character's scene block holds values for this chain): gravity and force read in front of
+// the live values, the soft members written over the live arrays when set and at the start of each frame, so they win over the card's
+// values, which keep going into the pattern tables. Without one nothing here changes.
 using System.Collections.Generic;
+using HS2Next.Motion.AdvancedPose;
 using UnityEngine;
 
 namespace HS2Next.Motion.DynamicBones
@@ -67,6 +72,12 @@ namespace HS2Next.Motion.DynamicBones
         public static bool CarryWithoutTime = true;
 
         public Vector3 Gravity;
+        /// <summary>The scene values (null: none). Set through <see cref="SetOverride"/>.</summary>
+        public BustOverride Override { get; private set; }
+        /// <summary>The gravity a step uses: the scene value, else <see cref="Gravity"/>.</summary>
+        public Vector3 EffectiveGravity => Override?.Gravity ?? Gravity;
+        /// <summary>The force a step uses: the scene value, else the component's.</summary>
+        public Vector3 EffectiveForce => Override?.Force ?? (Source ? Source.Force : Vector3.zero);
         public int PtnNo { get; private set; }
         public bool Active { get; private set; } = true;
         public int ParticleCount => n;
@@ -181,6 +192,47 @@ namespace HS2Next.Motion.DynamicBones
             }
             if (allRefs) SetPattern(0, true);
             InitTransforms();
+        }
+
+        // ------------------------------------------------------------ scene values
+        /// <summary>Sets the scene values (null: none). A soft member that goes away gets the current pattern's value, card values
+        /// included, bit for bit; no particle and no bone is touched.</summary>
+        public void SetOverride(BustOverride o)
+        {
+            bool hadSoft = Override != null && Override.HasSoft;
+            Override = o;
+            if (hadSoft)
+                for (int i = 0; i < n; i++)
+                {
+                    BaseSoft(i, out float d, out float e, out float s, out float it);
+                    damping[i] = d; elasticity[i] = e; stiffness[i] = s; inert[i] = it;
+                }
+            WriteOverride();
+        }
+
+        void WriteOverride()
+        {
+            var o = Override;
+            if (o == null || !o.HasSoft) return;
+            for (int i = 0; i < n; i++)
+            {
+                if (o.Damping.HasValue) damping[i] = o.Damping.Value;
+                if (o.Elasticity.HasValue) elasticity[i] = o.Elasticity.Value;
+                if (o.Stiffness.HasValue) stiffness[i] = o.Stiffness.Value;
+                if (o.Inert.HasValue) inert[i] = o.Inert.Value;
+            }
+        }
+
+        /// <summary>A particle's soft values without the scene values: the current pattern's table (the live arrays when it has none).</summary>
+        public void BaseSoft(int i, out float damp, out float elastic, out float stiff, out float inertValue)
+        {
+            var row = PtnNo >= 0 && PtnNo < presets.Length ? presets[PtnNo] : null;
+            if (row != null && i < row.Length)
+            {
+                damp = row[i].Damping; elastic = row[i].Elasticity; stiff = row[i].Stiffness; inertValue = row[i].Inert;
+                return;
+            }
+            damp = damping[i]; elastic = elasticity[i]; stiff = stiffness[i]; inertValue = inert[i];
         }
 
         // ------------------------------------------------------------ operations
@@ -372,6 +424,7 @@ namespace HS2Next.Motion.DynamicBones
         {
             StepsLastFrame = 0;
             if (weight <= 0f || n < 2) return;
+            WriteOverride();
             InitTransforms();
             if (!root) return;
             if (dt <= 0f && held && CarryWithoutTime) CarryHeld();
@@ -399,7 +452,7 @@ namespace HS2Next.Motion.DynamicBones
 
         void Integrate()
         {
-            Vector3 f = (Gravity + Source.Force) * objScale;
+            Vector3 f = ((Override?.Gravity ?? Gravity) + (Override?.Force ?? Source.Force)) * objScale;
             float reflect = Source.ReflectSpeed;
             p[0] = x[0];
             x[0] = hasT[0] ? tr[0].position : x[0];

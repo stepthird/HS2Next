@@ -372,13 +372,12 @@ namespace HS2Next.UI.Setup
             {
                 string c = code;
                 var b = new Button(() => SetLanguage(c)) { name = "setup.language." + c };
-                b.text = L10n.Get("lang." + c);   // the Chinese label says "machine translated"
+                b.text = L10n.Get("lang." + c);
                 b.EnableInClassList("hs-setup-choice--on", L10n.Language == c);
                 b.AddToClassList("hs-setup-choice");
                 row.Add(b);
             }
             body.Add(row);
-            if (L10n.Language == "zh-Hans") Hint("setup.welcome.machineNote");
         }
 
         void SetLanguage(string code)

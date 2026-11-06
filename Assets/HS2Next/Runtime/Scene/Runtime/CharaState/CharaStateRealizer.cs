@@ -312,8 +312,8 @@ namespace HS2Next.Scenes.Runtime
             if (r.BodyDrawChanged) baseGloss = float.NaN;
             if (r.FaceDrawChanged || r.HeadSwapped) baseFaceGloss = float.NaN;
             if (r.BodyDrawChanged || r.FaceDrawChanged || r.HeadSwapped) ApplyGloss(s.Gloss);
-            if (clothes || hair || r.HeadSwapped || r.BodyDrawChanged) ApplyWet(s.Wet);
-            if (clothes || r.HeadSwapped || r.BodyDrawChanged) ApplyLiquid(s.Liquid);
+            if (clothes || hair || r.HeadSwapped || r.BodyDrawChanged || r.MaterialItemsRan) ApplyWet(s.Wet);
+            if (clothes || r.HeadSwapped || r.BodyDrawChanged || r.MaterialItemsRan) ApplyLiquid(s.Liquid);
             if (sil) ApplySilhouette(s.Silhouette);
         }
 

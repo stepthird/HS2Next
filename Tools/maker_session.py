@@ -1396,7 +1396,7 @@ class Session:
             return None
         # the list expanded to its 8 rows first (as a user browsing it does), folded again after the scroll
         pane = self.inspector_bound()
-        expanded = self.click_child("partlist-expand", lb, beside=80.0, pane=pane)
+        expanded = self.click_child("partlist-expand", lb, pane=pane)
         expand_note = self.click_note
         if expanded:
             lb, gb = self.find_list(member)
@@ -1410,7 +1410,7 @@ class Session:
         if c is None:
             self.event("list.scroll", key, ok=False, note="list outside the panel (grid %s, root %s)" % (gb, self.root))
             if expanded:
-                self.click_child("partlist-expand", lb, beside=80.0, pane=pane)
+                self.click_child("partlist-expand", lb, pane=pane)
             return gb
         before = self.cells_in(gb)
         self.phase = "scroll"
@@ -1428,7 +1428,7 @@ class Session:
                    % (r.get("sent"), expanded, "" if expanded else " (%s)" % expand_note, len(before), len(after), moved,
                       "" if gb2 == gb else ", the list moved in the panel"))
         if expanded:
-            self.click_child("partlist-expand", lb2 or lb, beside=80.0, pane=pane)
+            self.click_child("partlist-expand", lb2 or lb, pane=pane)
         return gb
 
     def bring_into_view(self, member, spec, lb, gb):
@@ -1471,9 +1471,9 @@ class Session:
                 return r["worldBound"]
         return self.root
 
-    def click_child(self, name, bound, beside=0.0, pane=None):
-        """Clicks the visible element of that name on a bound's rows (inside it, or up to `beside` px right of it) and inside
-        the pane (default the root) through ui.input pointer down / up; True when one was clicked."""
+    def click_child(self, name, bound, pane=None):
+        """Clicks the visible element of that name inside a bound and inside the pane (default the root) through ui.input
+        pointer down / up; True when one was clicked."""
         self.click_note = "no bound"
         if not bound:
             return False
@@ -1485,9 +1485,8 @@ class Session:
             seen.append("%s%s" % ("v" if e.get("visible") else "h", [round(x) for x in b] if b else None))
             if not (e.get("visible") and b and b[2] > 2 and b[3] > 2):
                 continue
-            wide = [bound[0], bound[1], bound[2] + beside, bound[3]]
-            if self._inside(b, wide):
-                # the part of the element the pane shows (the pane may clip the tool row's end): its centre is clicked
+            if self._inside(b, bound):
+                # the part of the element the pane shows (a list scrolled to the pane's edge): its centre is clicked
                 shown = [max(b[0], pane[0]), max(b[1], pane[1])]
                 shown += [min(b[0] + b[2], pane[0] + pane[2]) - shown[0], min(b[1] + b[3], pane[1] + pane[3]) - shown[1]]
                 c = self._clip_center(shown, self.root) if shown[2] >= 8 and shown[3] >= 8 else None
