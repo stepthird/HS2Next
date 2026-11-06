@@ -7,6 +7,18 @@ zipmod，并以 HS2Next 自己的文件格式保存作品。
 
 English: [README.md](README.md) · 日本語: [README_ja.md](README_ja.md)
 
+## 演示视频和截图
+
+1.3.1 版的功能演示（2 分 53 秒，带英文和日文字幕）：[在 YouTube 上观看 HS2Next 1.3.1 Demo](https://www.youtube.com/watch?v=XGbSyt7UOKE)
+
+| 场景：地图、两个角色和一个物品 | 角色编辑：服装页面，列表带收藏 |
+| --- | --- |
+| ![教堂地图中的两个角色和一束花](Reference/images/01_studio.png) | ![角色旁边打开的服装编辑页面](Reference/images/02_maker_favourites.png) |
+| **约束：花束跟随她的手，他的手跟随花束** | **时间轴：随场景保存的相机关键帧** |
+| ![带有两条约束的约束面板](Reference/images/03_constraints.png) | ![带有相机轨道和三个关键帧的时间轴面板](Reference/images/04_timeline.png) |
+
+这些是 HS2Next 的截图，画面中显示的是从 Honey Select 2 安装目录读取的内容。这些内容本身不包含在本仓库中。
+
 ## HS2Next 不是什么
 
 - 它不是 Honey Select 2 的 mod 或插件，而是一个独立的程序；BepInEx 插件不能在其中运行。

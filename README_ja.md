@@ -8,6 +8,19 @@ Studio の作業と、ゲーム本体のキャラクターメイクの作業を�
 
 English: [README.md](README.md)　简体中文: [README_zh-Hans.md](README_zh-Hans.md)
 
+## デモ動画と画面
+
+1.3.1 の機能を順に見せる動画です（2 分 53 秒、英語と日本語の字幕付き）: [YouTube で HS2Next 1.3.1 Demo を見る](https://www.youtube.com/watch?v=XGbSyt7UOKE)
+
+| シーン: マップ、キャラクター 2 人、アイテム | キャラクターメイク: 服のページと、一覧のお気に入り |
+| --- | --- |
+| ![教会のマップにいる 2 人のキャラクターとブーケ](Reference/images/01_studio.png) | ![キャラクターの横に開いた服の編集ページ](Reference/images/02_maker_favourites.png) |
+| **拘束: ブーケが彼女の手を追い、彼の手がブーケを追う** | **タイムライン: シーンに保存されるカメラのキー** |
+| ![拘束が 2 本ある拘束のパネル](Reference/images/03_constraints.png) | ![カメラのトラックとキー 3 つがあるタイムラインのパネル](Reference/images/04_timeline.png) |
+
+どれも HS2Next の画面で、Honey Select 2 のインストール先から読み込んだ内容が映っています。その内容そのものは、この
+リポジトリには含まれていません。
+
 ## HS2Next ではないもの
 
 - Honey Select 2 の mod やプラグインではありません。別のプログラムで、BepInEx のプラグインは動きません。

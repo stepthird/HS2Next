@@ -8,6 +8,19 @@ its work in its own file formats.
 
 日本語: [README_ja.md](README_ja.md) · 简体中文: [README_zh-Hans.md](README_zh-Hans.md)
 
+## Demo video and screenshots
+
+A tour of version 1.3.1 (2:53, with English and Japanese captions): [HS2Next 1.3.1 Demo on YouTube](https://www.youtube.com/watch?v=XGbSyt7UOKE)
+
+| A scene: a map, two characters and an item | The maker: the clothes page, with favourites in the list |
+| --- | --- |
+| ![Two characters and a bouquet in a church map](Reference/images/01_studio.png) | ![The clothes page of the maker beside a character](Reference/images/02_maker_favourites.png) |
+| **Constraints: a bouquet follows her hand, his hand follows the bouquet** | **Timeline: camera keys saved with the scene** |
+| ![The constraints panel with two constraints](Reference/images/03_constraints.png) | ![The timeline panel with a camera track and three keys](Reference/images/04_timeline.png) |
+
+These are screenshots of HS2Next showing content read from a Honey Select 2 install. That content itself is not part of
+this repository.
+
 ## What it is not
 
 - Not a mod or a plugin of Honey Select 2. It is a separate program; BepInEx plugins do not run in it.

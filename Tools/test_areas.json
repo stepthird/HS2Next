@@ -3,6 +3,7 @@
   "sharedAdds": ["chara-render", "cards-full"],
   "paths": [
     { "glob": "**/*.md", "ignore": true, "note": "READMEs and notes anywhere" },
+    { "glob": "Reference/images/**", "ignore": true, "note": "the screenshots of the READMEs" },
     { "glob": ".vscode/**", "areas": [] },
     { "glob": ".git*", "areas": [] },
     { "glob": "*.csproj", "areas": [] },
