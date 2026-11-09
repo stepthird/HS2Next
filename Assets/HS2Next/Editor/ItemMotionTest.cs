@@ -306,17 +306,17 @@ namespace HS2Next.Scenes.Runtime.Tests
                     bool keys = st.Fk.Bones.Count == names.Length && names.All(n => st.Fk.Bones.ContainsKey(n));
                     Check($"{no}: fk.bones has exactly the {names.Length} found bones, fk.enabled false", keys && !st.Fk.Enabled,
                           "stored [" + string.Join(", ", st.Fk.Bones.Keys) + "], found [" + string.Join(", ", names) + "]");
-                    float worst = 0f;
+                    double worst = 0;
                     for (int i = 0; i < names.Length; i++)
                     {
                         if (!st.Fk.Bones.TryGetValue(names[i], out var v)) continue;
-                        worst = Mathf.Max(worst, Quaternion.Angle(Quaternion.Euler(v.X, v.Y, v.Z), m.Fk.Base[i]));
+                        worst = Math.Max(worst, RotationCompare.Deg(Quaternion.Euler(v.X, v.Y, v.Z), m.Fk.Base[i]));
                     }
-                    Check($"{no}: stored values = the prefab local rotation (stage base) within 1e-3°", worst <= 1e-3f, "max " + F(worst) + "°");
+                    Check($"{no}: stored values = the prefab local rotation (stage base) within 1e-3°", worst <= 1e-3f, "max " + F((float)worst) + "°");
                     // package C's expectation (HS2's depth-first search, Unity eulerAngles of the prefab rotation)
                     if (expectRows.TryGetValue(("illusion.hs2#" + no).ToLowerInvariant(), out var row) && row["fk"] is JArray fk)
                     {
-                        float w2 = 0f; int n = 0; var miss = new List<string>();
+                        double w2 = 0; int n = 0; var miss = new List<string>();
                         foreach (JObject b in fk)
                         {
                             if (b["found"]?.Value<bool>() != true) continue;
@@ -324,11 +324,11 @@ namespace HS2Next.Scenes.Runtime.Tests
                             var e = (JArray)b["euler"];
                             if (!st.Fk.Bones.TryGetValue(name, out var v)) { miss.Add(name); continue; }
                             var qe = Quaternion.Euler((float)(double)e[0], (float)(double)e[1], (float)(double)e[2]);
-                            w2 = Mathf.Max(w2, Quaternion.Angle(qe, Quaternion.Euler(v.X, v.Y, v.Z)));
+                            w2 = Math.Max(w2, RotationCompare.Deg(qe, Quaternion.Euler(v.X, v.Y, v.Z)));
                             n++;
                         }
                         Check($"{no}: stored values = the expectation file's fk euler ({n} bones) within 1e-3°", miss.Count == 0 && n > 0 && w2 <= 1e-3f,
-                              "max " + F(w2) + "°" + (miss.Count > 0 ? ", missing " + string.Join(", ", miss) : ""));
+                              "max " + F((float)w2) + "°" + (miss.Count > 0 ? ", missing " + string.Join(", ", miss) : ""));
                     }
                     else Warn($"{no}: no expectation row (package C's file absent?)");
                 }
@@ -407,7 +407,7 @@ namespace HS2Next.Scenes.Runtime.Tests
                     s.Set(a, "item.fk.bones[" + FieldPath.Quote(fk.Names[i]) + "]", UnityObjects.V(vals[i]), false);
                 }
                 s.Set(a, "item.fk.enabled", true);
-                float worst = 0f, moved = 0f;
+                float worst = 0f; double moved = 0;
                 var prevB = fk.Bones.Select((t, i) => mb.Fk.Bones[i].localRotation).ToArray();
                 for (int k = 0; k < 20; k++)
                 {
@@ -415,13 +415,13 @@ namespace HS2Next.Scenes.Runtime.Tests
                     for (int i = 0; i < fk.Count; i++)
                     {
                         worst = Mathf.Max(worst, QErr(fk.Bones[i].localRotation, Quaternion.Euler(vals[i])));
-                        moved = Mathf.Max(moved, Quaternion.Angle(prevB[i], mb.Fk.Bones[i].localRotation));
+                        moved = Math.Max(moved, RotationCompare.Deg(prevB[i], mb.Fk.Bones[i].localRotation));
                         prevB[i] = mb.Fk.Bones[i].localRotation;
                     }
                 }
                 Check("FK on: the FK values win over the animation at every one of 20 steps (≤ 1e-6)", worst <= 1e-6f, "max " + worst.ToString("E2"));
-                if (moved <= 1e-4f) Warn("the twin's FK bones did not move in 20 steps (max " + F(moved) + "°): the animation does not drive them");
-                else Info("the twin's FK bones moved up to " + F(moved) + "° per step (the animation drives them)");
+                if (moved <= 1e-4f) Warn("the twin's FK bones did not move in 20 steps (max " + F((float)moved) + "°): the animation does not drive them");
+                else Info("the twin's FK bones moved up to " + F((float)moved) + "° per step (the animation drives them)");
                 Check("both instances advanced the same animation time", Mathf.Abs(ma.Animation.NormalizedTime - mb.Animation.NormalizedTime) <= 1e-6f,
                       $"A {ma.Animation.NormalizedTime} B {mb.Animation.NormalizedTime}");
                 s.Set(a, "item.fk.enabled", false);

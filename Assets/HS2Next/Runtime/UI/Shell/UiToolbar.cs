@@ -209,7 +209,7 @@ namespace HS2Next.UI
         {
             Item(ActionIds.ViewGizmos), Item(ActionIds.ViewPlanes), Item(ActionIds.ViewCentre), Item(ActionIds.ViewPivotMarker),
             Item(ActionIds.ViewGimmickIcons), Item(ActionIds.ViewLightHelpers), Item(ActionIds.ViewCameraIcons), Item(ActionIds.ViewKinematicHandles),
-            Item(ActionIds.ViewPhysics), MenuItem.Sep(), Item(ActionIds.ViewPanels), Item(ActionIds.TimelinePanel), Item(ActionIds.ConstraintsPanel), Item(ActionIds.ViewFps), Item(ActionIds.UiResetLayout),
+            Item(ActionIds.ViewPhysics), MenuItem.Sep(), Item(ActionIds.ViewPanels), Item(ActionIds.TimelinePanel), Item(ActionIds.ConstraintsPanel), Item(ActionIds.WetPanel), Item(ActionIds.RagdollPanel), Item(ActionIds.BakePanel), Item(ActionIds.CutPanel), Item(ActionIds.ScriptsPanel), Item(ActionIds.ViewFps), Item(ActionIds.UiResetLayout),
         };
 
         List<MenuItem> LanguageMenu()
@@ -258,7 +258,7 @@ namespace HS2Next.UI
     {
         readonly UiContext ctx;
         public VisualElement Element { get; }
-        public readonly Label Selection, Finding, File, Fps;
+        public readonly Label Selection, Finding, Hint, File, Fps;
         float next;
         float fpsAccum;
         int fpsFrames;
@@ -273,6 +273,8 @@ namespace HS2Next.UI
             Finding = Item("status-finding");
             Finding.AddToClassList("hs-statusbar__finding");
             Finding.RegisterCallback<PointerDownEvent>(_ => ShowFindings());
+            Hint = Item("status-tool-hint");   // Phase 6.6: what the running viewport tool asks for
+            Hint.style.display = DisplayStyle.None;
             var sp = new VisualElement();
             sp.AddToClassList("hs-statusbar__spacer");
             Element.Add(sp);
@@ -309,6 +311,9 @@ namespace HS2Next.UI
             var bus = ctx.Session.Commands;
             string name = ctx.CurrentFile != null ? System.IO.Path.GetFileName(ctx.CurrentFile) : ctx.L10n.Get("status.untitled");
             File.text = (bus.IsDirty ? "● " : "") + name;
+            string hint = ctx.Tools.HintText;
+            Hint.text = hint ?? "";
+            Hint.style.display = hint != null ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         static string Trim(string s, int n) => s == null ? "" : s.Length <= n ? s : s.Substring(0, n) + "…";

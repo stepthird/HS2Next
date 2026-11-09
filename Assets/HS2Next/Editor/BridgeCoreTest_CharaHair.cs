@@ -102,7 +102,7 @@ public static partial class BridgeCoreTest
         var rot = Quaternion.Euler(C33Lerp(C33V(lim?["rotMin"]), C33V(lim?["rotMax"]), C33V(eff?["rotate"])));
         var lp = C33V(b?["local"]?["position"]);
         var lq = C33Q(b?["local"]?["rotation"]);
-        float dp = (lp - pos).magnitude, da = Quaternion.Angle(lq, rot);
+        float dp = (lp - pos).magnitude; double da = RotationCompare.Deg(lq, rot);
         detail = "position " + C33S(lp) + " vs " + C33S(pos) + " (Δ " + dp + "), angle Δ " + da + "°";
         return dp <= 1e-5f && da <= 1e-3f;
     }

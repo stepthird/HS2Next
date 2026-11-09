@@ -1,0 +1,14 @@
+/* The panels Chara to Item and Cutter and their sections (Phase 6.8): the bars of buttons, the lists of parts and of the store, the value rows. */
+.hs-bake { flex-grow: 1; flex-direction: column; background-color: var(--hs-bg-1); }
+.hs-bake__scroll { flex-grow: 1; }
+.hs-bake__bar { flex-direction: row; align-items: center; flex-wrap: wrap; flex-shrink: 0; padding: 2px 4px; }
+.hs-bake__list { flex-direction: column; flex-shrink: 0; padding: 0 4px; }
+.hs-bake__line { flex-direction: row; align-items: center; flex-wrap: wrap; min-height: 26px; padding: 0 2px; border-bottom-width: 1px; border-color: var(--hs-bg-0); }
+.hs-bake__line--deleted { opacity: 0.6; }
+.hs-bake__text { flex-grow: 1; flex-shrink: 1; min-width: 32px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; -unity-text-align: middle-left; }
+.hs-bake__status { color: var(--hs-text-dim); white-space: normal; margin: 2px 4px; }
+.hs-bake__caption { -unity-font-style: bold; margin: 4px 4px 0 4px; }
+.hs-bake__grow { flex-grow: 1; flex-shrink: 1; min-width: 0; }
+.hs-bake__switch { flex-shrink: 0; margin-right: 8px; }
+.hs-bake__primary { -unity-font-style: bold; min-width: 80px; }
+.hs-bake__on { background-color: var(--hs-accent-dim); }

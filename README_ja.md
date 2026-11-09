@@ -1,9 +1,11 @@
-# HS2Next 1.3.1
+# HS2Next 1.4.0
 
 HS2Next は、Honey Select 2 の内容を使うシーンとキャラクターのエディターです。Unity 6 で新しく作りました。HS2 の
 Studio の作業と、ゲーム本体のキャラクターメイクの作業を一つのウィンドウで行います。キャラクター、アイテム、マップ、
 ライト、カメラ、アニメーション、FK と IK、表情、画面効果に加えて、顔、体、髪、服、アクセサリーの編集のページがあり
-ます。お手持ちの Honey Select 2 のゲームデータ、キャラカード、コーデカード、ポーズファイル、zipmod を、置いてある
+ます。ほかに、タイムライン、拘束、材質の編集、高度なポーズ、濡れと染み、ラグドール、キャラクターを Studio のアイテムに
+焼き込む「キャラをアイテムに」、キャラクターとアイテムを切り分けるカッター、繰り返し使えるショットを保つ「シーンの台本」
+があります。お手持ちの Honey Select 2 のゲームデータ、キャラカード、コーデカード、ポーズファイル、zipmod を、置いてある
 場所のまま読みます。作ったものは HS2Next 自身のファイル形式で保存します。
 
 English: [README.md](README.md)　简体中文: [README_zh-Hans.md](README_zh-Hans.md)
@@ -45,7 +47,7 @@ English: [README.md](README.md)　简体中文: [README_zh-Hans.md](README_zh-Ha
 
 ## 配布物の使い方
 
-配布の zip（`HS2Next-1.3.1-win64.zip`。隣に SHA-256 のファイルがあります）がプログラムです。好きな場所に展開して
+配布の zip（`HS2Next-1.4.0-win64.zip`。隣に SHA-256 のファイルがあります）がプログラムです。好きな場所に展開して
 `HS2Next.exe` を起動します。インストーラーはありません。コード署名をしていないので、Windows SmartScreen が一度だけ
 確認を求めることがあります（「詳細情報」を押してから「実行」）。初回の案内が、表示言語、Honey Select 2 のフォルダー、
 追加の mod のフォルダー、キャッシュのフォルダーを順に尋ね、内容の索引を作ります（mod の数とディスクによって数秒から
@@ -97,7 +99,7 @@ English: [README.md](README.md)　简体中文: [README_zh-Hans.md](README_zh-Ha
 | --- | --- |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | HS2Next の作り。内容の供給源と ID、保存形式、描画、運動、UI、ブリッジ、プラグイン、起動、データの置き場、試験 |
 | [Reference/COMMANDS.md](Reference/COMMANDS.md) | 自動操作のブリッジ（127.0.0.1:17322 の HTTP/JSON）の全命令と、スクリプトからの操作の仕方 |
-| [Reference/PLUGINS.md](Reference/PLUGINS.md) | 1.0 の API でプラグインを書く方法。見本は [Samples/Sequencer](Samples/Sequencer/README.md) |
+| [Reference/PLUGINS.md](Reference/PLUGINS.md) | 1.3 の API でプラグインを書く方法。プラグインキットの三つのサンプルは [Samples/PluginKit](Samples/PluginKit)、一通りそろった例は [Samples/Sequencer](Samples/Sequencer/README.md) |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | ビルド、試験、貢献の決まり |
 | [CLEANROOM.md](CLEANROOM.md) | ゲームのコードを写さずにコードを書いた方法 |
 | [THIRD_PARTY.md](THIRD_PARTY.md) | 第三者のソフトウェア、フォント、実行時の部品と、相互運用のために残した名前 |

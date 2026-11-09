@@ -311,6 +311,8 @@ namespace HS2Next.UI.Panels
             addButton = Btn("timeline-add", "+", "timeline.addTrack", AddMenu);
             menuButton = Btn("timeline-menu", "⋯", null, MainMenu);
             foreach (var e in new VisualElement[] { loopToggle, autoplayToggle, keyButton, easeButtons, easeMore, addButton, menuButton }) row2.Add(e);
+            // the scene script the Timeline was loaded from (Phase 6.9): «Script: <name>», «edited», «Save edits into the script»
+            h.Insert(0, new TimelineScriptLine(ctx));
             return h;
         }
 

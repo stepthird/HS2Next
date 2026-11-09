@@ -90,6 +90,12 @@ namespace HS2Next.Scenes
         /// <summary>The scene's constraints (scene.json member <c>constraints</c>); null = the scene has none, never an empty list. Replaced
         /// only by <see cref="ConstraintEditCommand"/>, a list is not changed in place; readers do not change it.</summary>
         public ConstraintList Constraints { get; internal set; }
+        /// <summary>The scene's ragdoll block (scene.json member <c>ragdoll</c>); null = the scene has none, never an empty block. Replaced only by
+        /// <see cref="RagdollWorldEditCommand"/>, a block is not changed in place; readers do not change it.</summary>
+        public SceneRagdollWorld Ragdoll { get; internal set; }
+        /// <summary>The scene's scripts (scene.json member <c>scripts</c>); null = the scene has none, never an empty list. Replaced only by
+        /// <see cref="ScriptEditCommand"/>, a list is not changed in place; readers do not change it.</summary>
+        public SceneScriptList Scripts { get; internal set; }
         /// <summary>Unknown top-level members of the read scene.json (kept, written back).</summary>
         public JsonLeftovers RootUnknown { get; internal set; }
         /// <summary>Scene title (manifest.title).</summary>
@@ -176,6 +182,8 @@ namespace HS2Next.Scenes
             SceneExt = new ExtInline();
             Timeline = null;
             Constraints = null;
+            Ragdoll = null;
+            Scripts = null;
             RootUnknown = null;
             Title = "";
             File = file ?? new SceneContainer();

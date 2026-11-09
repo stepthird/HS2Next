@@ -127,7 +127,7 @@ public static partial class TimelineTest
             var parity = new HashSet<string>(CoreCommands.ParityNames, StringComparer.Ordinal);
             var ten = new[] { "timeline.build", "timeline.events", "timeline.play", "timeline.pause", "timeline.stop", "timeline.seek", "timeline.clear", "timeline.status", "record.start", "record.stop" };
             Check("ParityNames holds the 10 HS2 names of timeline.* and record.*", ten.All(parity.Contains), string.Join(", ", ten.Where(n => !parity.Contains(n))));
-            Check("ParityNames: 89 names", CoreCommands.ParityNames.Count == 89, "" + CoreCommands.ParityNames.Count);
+            Check("ParityNames: 111 names", CoreCommands.ParityNames.Count == 111, "" + CoreCommands.ParityNames.Count);
             Check("Phase62Names: 20 commands", CoreCommands.Phase62Names.Count == 20, "" + CoreCommands.Phase62Names.Count);
             var badHelp = new List<string>();
             foreach (var n in TimelineCommands.Names)
@@ -625,14 +625,14 @@ public static partial class TimelineTest
             var labels1 = UndoLabels(h);
             Check("bake: one history entry «Bake Timeline pose»", labels1.Count == labels0.Count + 1 && labels1[0] == "Bake Timeline pose", string.Join(", ", labels1.Take(3)));
             h.Frames(2);
-            Check("bake: the item's holder shows the baked pose (1e-5, 0.01 deg)", (holder.localPosition - pos).magnitude <= 1e-5f && Quaternion.Angle(holder.localRotation, rot) <= 0.01f,
+            Check("bake: the item's holder shows the baked pose (1e-5, 0.01 deg)", (holder.localPosition - pos).magnitude <= 1e-5f && RotationCompare.Deg(holder.localRotation, rot) <= 0.01f,
                 V3(holder.localPosition) + " vs " + V3(pos) + ", " + Quaternion.Angle(holder.localRotation, rot) + " deg");
             double worst = 0;
             string worstName = null;
             foreach (var (chara, bone, q) in bones)
             {
                 var tr = Bone(h, chara, bone);
-                double a = tr ? Quaternion.Angle(tr.localRotation, q) : 999;
+                double a = tr ? RotationCompare.Deg(tr.localRotation, q) : 999;
                 if (a > worst) { worst = a; worstName = bone; }
             }
             Check("bake: the FK bones show the baked rotations (0.01 deg)", worst <= 0.01, worst + " deg at " + worstName);

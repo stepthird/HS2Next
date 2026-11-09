@@ -1,0 +1,12 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.wetprobe",
+  "name": "Wet probe",
+  "version": "0.1.0",
+  "apiVersion": "1.3",
+  "assemblies": ["Stp3.Test.WetProbe.dll"],
+  "commandPrefixes": ["wetprobe."],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the row WetCheck.player: on the player's main thread, the times of a stain's work that no command reports, and renders kept in memory."
+}

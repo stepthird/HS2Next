@@ -233,21 +233,21 @@ public static partial class SceneRuntimeTest
             yield return null;
             var R = Quaternion.Euler(0, 90, 0);
             var T = new Vector3(0, -1, 0);
-            float posErr = 0f, rotErr = 0f;
+            float posErr = 0f; double rotErr = 0;
             for (int i = 0; i < roots.Length; i++)
             {
                 posErr = Mathf.Max(posErr, (roots[i].transform.position - (R * p0[i] + T)).magnitude);
-                rotErr = Mathf.Max(rotErr, Quaternion.Angle(roots[i].transform.rotation, R * q0[i]));
+                rotErr = Math.Max(rotErr, RotationCompare.Deg(roots[i].transform.rotation, R * q0[i]));
             }
             Check("P2: every root at R·p0 + T ± 1e-4 (rotation R·r0)", committed.Ok && posErr <= 1e-4f && rotErr <= 0.01f, $"{committed}, max position error {posErr:E2}, rotation {rotErr:E2} deg");
             if (map.StaticBatchedRenderers > 0) Line($"P2 note (D2): {map.StaticBatchedRenderers} static-batched renderers; finding map.staticBatchMoved {session.Findings.Has("map.staticBatchMoved")}");
             var undo = session.Commands.Undo();
             yield return null;
-            posErr = rotErr = 0f;
+            posErr = 0f; rotErr = 0;
             for (int i = 0; i < roots.Length; i++)
             {
                 posErr = Mathf.Max(posErr, (roots[i].transform.position - p0[i]).magnitude);
-                rotErr = Mathf.Max(rotErr, Quaternion.Angle(roots[i].transform.rotation, q0[i]));
+                rotErr = Math.Max(rotErr, RotationCompare.Deg(roots[i].transform.rotation, q0[i]));
             }
             Check("P2: undo → identity pose ± 1e-4", undo.Ok && posErr <= 1e-4f && rotErr <= 0.01f, $"{undo}, max position error {posErr:E2}, rotation {rotErr:E2} deg");
 

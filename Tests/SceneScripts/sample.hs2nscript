@@ -1,0 +1,1170 @@
+{
+  "format": "hs2next.script",
+  "version": 1,
+  "id": "5a3c9e71d2b84f06a1e7c4b29d6f8053",
+  "name": "Sample",
+  "description": "A neutral scene script: two characters (roles a and b) and an item held by a (role p). It uses every command form the converted scenes use, a track of every type, a move, a follow, a depth-of-field command, stains made in the preparation and ragdolls built and released. The last set-up step names accessory slots 17 and 18, which the test characters do not wear: it fails on purpose.",
+  "map": null,
+  "roles": [
+    {
+      "role": "a",
+      "kind": "chara",
+      "sex": "female"
+    },
+    {
+      "role": "b",
+      "kind": "chara",
+      "sex": "male"
+    },
+    {
+      "role": "p",
+      "kind": "item",
+      "ref": "illusion.hs2#399",
+      "parent": {
+        "role": "a",
+        "point": "N_Hand_R"
+      },
+      "pos": [0.0, 0.0, 0.0],
+      "rot": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0]
+    }
+  ],
+  "setup": [
+    {
+      "cmd": "obj.transform",
+      "key": "$a",
+      "pos": [0, 0, 0],
+      "rot": [0, 0, 0]
+    },
+    {
+      "cmd": "obj.transform",
+      "key": "$b",
+      "pos": [0, 0, 20],
+      "rot": [0, 180, 0]
+    },
+    {
+      "cmd": "fk.enable",
+      "key": "$a",
+      "on": false
+    },
+    {
+      "cmd": "fk.enable",
+      "key": "$b",
+      "on": false
+    },
+    {
+      "cmd": "ik.enable",
+      "key": "$a",
+      "on": false
+    },
+    {
+      "cmd": "ik.enable",
+      "key": "$b",
+      "on": false
+    },
+    {
+      "cmd": "chara.hands",
+      "key": "$a",
+      "left": 0,
+      "right": 0
+    },
+    {
+      "cmd": "chara.anime",
+      "key": "$a",
+      "group": 19,
+      "category": 0,
+      "no": 0,
+      "speed": 1,
+      "loop": true
+    },
+    {
+      "cmd": "chara.animeOption",
+      "key": "$a",
+      "visible": false
+    },
+    {
+      "cmd": "chara.face",
+      "key": "$a",
+      "blink": true
+    },
+    {
+      "cmd": "chara.accessories",
+      "key": "$a",
+      "show": {
+        "17": true,
+        "18": true
+      },
+      "note": "fails on purpose: slots the test characters do not wear"
+    }
+  ],
+  "prepare": [
+    {
+      "cmd": "obj.transform",
+      "key": "$a",
+      "pos": [0, 0, 0],
+      "rot": [0, 0, 0]
+    },
+    {
+      "cmd": "obj.transform",
+      "key": "$b",
+      "pos": [0, 0, 20],
+      "rot": [0, 180, 0]
+    },
+    {
+      "cmd": "chara.anime",
+      "key": "$a",
+      "group": 19,
+      "category": 0,
+      "no": 0,
+      "time": 0,
+      "speed": 0
+    },
+    {
+      "cmd": "chara.anime",
+      "key": "$b",
+      "group": 19,
+      "category": 0,
+      "no": 0,
+      "time": 0,
+      "speed": 0
+    },
+    {
+      "wait": 0.5
+    },
+    {
+      "cmd": "wet.set",
+      "key": "$b",
+      "values": {
+        "maxRadius": 1.8,
+        "spreadTime": 3.0,
+        "dripTail": 5.0,
+        "showMarker": false
+      }
+    },
+    {
+      "cmd": "wet.attach",
+      "key": "$b",
+      "from": "$p",
+      "target": {
+        "key": "$b",
+        "bone": "cf_J_Spine03",
+        "offset": [0, 0.8, 0]
+      },
+      "preset": "water"
+    },
+    {
+      "cmd": "wet.set",
+      "key": "$a",
+      "values": {
+        "showMarker": false
+      }
+    },
+    {
+      "cmd": "wet.attach",
+      "key": "$a",
+      "preset": "water"
+    },
+    {
+      "cmd": "wet.set",
+      "values": {
+        "dripRate": 45,
+        "puddleGrowth": 3.0,
+        "puddleScale": 1.8
+      }
+    },
+    {
+      "cmd": "wet.stain",
+      "name": "spread",
+      "preset": "water",
+      "radius": 2.2,
+      "spread": 6,
+      "tail": 8
+    },
+    {
+      "cmd": "wet.stain",
+      "name": "ray",
+      "preset": "water",
+      "from": [0, 10, 6],
+      "target": [0, 10, 0],
+      "radius": 1.4,
+      "spread": 2.5,
+      "tail": 9,
+      "skinDrips": true
+    },
+    {
+      "cmd": "wet.use",
+      "name": "ray",
+      "start": false
+    }
+  ],
+  "timeline": {
+    "duration": 8.0,
+    "loop": true,
+    "autoplay": false,
+    "tracks": [
+      {
+        "id": "c8411c2d2e3c4006be9689dac74e5a95",
+        "type": "camera",
+        "key": null,
+        "bone": null,
+        "slot": null,
+        "enabled": true,
+        "label": null,
+        "keys": [
+          {
+            "t": 0.0,
+            "ease": "linear",
+            "v": {
+              "target": [0.0, 10.0, 10.0],
+              "rot": [8.0, 180.0, 0.0],
+              "dist": 40.0,
+              "fov": 30.0
+            }
+          },
+          {
+            "t": 4.0,
+            "ease": "linear",
+            "v": {
+              "target": [4.0, 9.0, 4.0],
+              "rot": [10.0, 210.0, 0.0],
+              "dist": 30.0,
+              "fov": 30.0
+            }
+          },
+          {
+            "t": 7.98,
+            "ease": "inout",
+            "v": {
+              "target": [4.0, 9.0, 4.0],
+              "rot": [12.0, 220.0, 0.0],
+              "dist": 30.0,
+              "fov": 30.0
+            }
+          }
+        ]
+      },
+      {
+        "id": "a303df9c3e0349579e9d084096379a13",
+        "type": "dof",
+        "key": null,
+        "bone": null,
+        "slot": null,
+        "enabled": true,
+        "label": null,
+        "keys": [
+          {
+            "t": 0.0,
+            "ease": "step",
+            "v": {
+              "on": true,
+              "focus": {
+                "node": "$a",
+                "bone": null,
+                "offset": null
+              },
+              "size": 0.157894745,
+              "aperture": 0.634615362,
+              "blur": 3.0
+            }
+          },
+          {
+            "t": 3.0,
+            "ease": "step",
+            "v": {
+              "on": true,
+              "focus": {
+                "node": "$b",
+                "bone": "cf_J_Head",
+                "offset": [0.0, 0.5, 0.0]
+              },
+              "size": 0.157894745,
+              "aperture": 0.634615362,
+              "blur": 3.0
+            }
+          },
+          {
+            "t": 6.0,
+            "ease": "step",
+            "v": {
+              "on": true,
+              "focus": {
+                "point": [0.0, 10.0, 10.0]
+              },
+              "size": 0.157894745,
+              "aperture": 0.634615362,
+              "blur": 3.0
+            }
+          },
+          {
+            "t": 7.0,
+            "ease": "step",
+            "v": {
+              "on": true,
+              "focus": {
+                "dist": 30.0
+              },
+              "size": 0.157894745,
+              "aperture": 0.634615362,
+              "blur": 3.0
+            }
+          }
+        ]
+      },
+      {
+        "id": "47c290633f7a4ce99684dd57a65aba01",
+        "type": "pos",
+        "key": "$p",
+        "bone": null,
+        "slot": null,
+        "enabled": true,
+        "label": null,
+        "keys": [
+          {
+            "t": 0.0,
+            "ease": "linear",
+            "v": [0.0, 0.0, 0.0]
+          },
+          {
+            "t": 2.0,
+            "ease": "linear",
+            "v": [0.0, 0.2, 0.0]
+          }
+        ]
+      },
+      {
+        "id": "c2bdd3b496eb4ab196530d64bd269af1",
+        "type": "rot",
+        "key": "$p",
+        "bone": null,
+        "slot": null,
+        "enabled": true,
+        "label": null,
+        "keys": [
+          {
+            "t": 0.0,
+            "ease": "inout",
+            "v": [0.0, 0.0, 0.0]
+          },
+          {
+            "t": 2.0,
+            "ease": "inout",
+            "v": [0.0, 30.0, 0.0]
+          }
+        ]
+      },
+      {
+        "id": "d64ea2e5343843c6a6fe251f971fd33c",
+        "type": "rot",
+        "key": "$b",
+        "bone": "cf_J_Neck",
+        "slot": null,
+        "enabled": true,
+        "label": null,
+        "keys": [
+          {
+            "t": 0.0,
+            "ease": "inout",
+            "v": [0.0, 0.0, 0.0]
+          },
+          {
+            "t": 4.0,
+            "ease": "inout",
+            "v": [10.0, 20.0, 0.0]
+          },
+          {
+            "t": 6.0,
+            "ease": "inout",
+            "v": [0.0, 0.0, 0.0]
+          }
+        ]
+      },
+      {
+        "id": "e4025726f1d64664a1c78510d8308643",
+        "type": "scale",
+        "key": "$p",
+        "bone": null,
+        "slot": null,
+        "enabled": true,
+        "label": null,
+        "keys": [
+          {
+            "t": 0.0,
+            "ease": "inout",
+            "v": [1.0, 1.0, 1.0]
+          },
+          {
+            "t": 2.0,
+            "ease": "inout",
+            "v": [1.2, 1.2, 1.2]
+          }
+        ]
+      },
+      {
+        "id": "c154337f9755472697bf533bab091d19",
+        "type": "anime",
+        "key": "$b",
+        "bone": null,
+        "slot": null,
+        "enabled": true,
+        "label": null,
+        "keys": [
+          {
+            "t": 0.0,
+            "ease": "step",
+            "v": {
+              "source": "illusion.hs2",
+              "group": 11,
+              "category": 5,
+              "no": 0
+            }
+          },
+          {
+            "t": 3.5,
+            "ease": "step",
+            "v": {
+              "source": "illusion.hs2",
+              "group": 19,
+              "category": 0,
+              "no": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "08faccc263874ebfabfcbb341d63ea19",
+        "type": "animeSpeed",
+        "key": "$b",
+        "bone": null,
+        "slot": null,
+        "enabled": true,
+        "label": null,
+        "keys": [
+          {
+            "t": 0.0,
+            "ease": "step",
+            "v": 1.0
+          },
+          {
+            "t": 3.5,
+            "ease": "step",
+            "v": 1.0
+          }
+        ]
+      },
+      {
+        "id": "9167a0ec010a409e917bc9034f28b8b7",
+        "type": "animeTime",
+        "key": "$a",
+        "bone": null,
+        "slot": null,
+        "enabled": true,
+        "label": null,
+        "keys": [
+          {
+            "t": 0.0,
+            "ease": "inout",
+            "v": 0.1
+          }
+        ]
+      },
+      {
+        "id": "9ff6b6a1ef0644ed9985ad732d505505",
+        "type": "eyes",
+        "key": "$b",
+        "bone": null,
+        "slot": null,
+        "enabled": true,
+        "label": null,
+        "keys": [
+          {
+            "t": 0.0,
+            "ease": "step",
+            "v": 0
+          },
+          {
+            "t": 2.0,
+            "ease": "step",
+            "v": 1
+          }
+        ]
+      },
+      {
+        "id": "b02a6534928b495bbc2dfe9698cbac26",
+        "type": "mouth",
+        "key": "$b",
+        "bone": null,
+        "slot": null,
+        "enabled": true,
+        "label": null,
+        "keys": [
+          {
+            "t": 0.0,
+            "ease": "step",
+            "v": 0
+          },
+          {
+            "t": 2.0,
+            "ease": "step",
+            "v": 1
+          }
+        ]
+      },
+      {
+        "id": "286ba383a3c7487dac4b1072cec5e236",
+        "type": "eyesOpen",
+        "key": "$b",
+        "bone": null,
+        "slot": null,
+        "enabled": true,
+        "label": null,
+        "keys": [
+          {
+            "t": 0.0,
+            "ease": "inout",
+            "v": 1.0
+          },
+          {
+            "t": 2.5,
+            "ease": "inout",
+            "v": 0.7
+          }
+        ]
+      },
+      {
+        "id": "642dc197fad04f9b93e09e7cd7ac0036",
+        "type": "mouthOpen",
+        "key": "$b",
+        "bone": null,
+        "slot": null,
+        "enabled": true,
+        "label": null,
+        "keys": [
+          {
+            "t": 0.0,
+            "ease": "inout",
+            "v": 0.0
+          },
+          {
+            "t": 2.5,
+            "ease": "inout",
+            "v": 0.2
+          }
+        ]
+      },
+      {
+        "id": "883263ed4220484395c2440d7960a514",
+        "type": "color",
+        "key": "$p",
+        "bone": null,
+        "slot": 0,
+        "enabled": true,
+        "label": null,
+        "keys": [
+          {
+            "t": 0.0,
+            "ease": "inout",
+            "v": [1.0, 1.0, 1.0, 1.0]
+          },
+          {
+            "t": 3.0,
+            "ease": "inout",
+            "v": [0.8, 0.8, 0.8, 1.0]
+          }
+        ]
+      }
+    ],
+    "events": [
+      {
+        "id": "805cc7efd9074c48b86ee073fac572a7",
+        "t": 0.0,
+        "do": {
+          "cmd": "ragdoll.release"
+        },
+        "enabled": true,
+        "note": "a fresh physics world at each pass"
+      },
+      {
+        "id": "a688b2d5a4894c528a3396016408389f",
+        "t": 0.01,
+        "do": {
+          "cmd": "wet.dry",
+          "key": "$a"
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "97194ce7f3fc4d1c9f626085f234d702",
+        "t": 0.02,
+        "do": {
+          "cmd": "wet.dry",
+          "key": "$b"
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "4ec92f503c534a3ea25b13ef58687126",
+        "t": 0.03,
+        "do": {
+          "cmd": "chara.face",
+          "key": "$a",
+          "blink": true,
+          "eyebrow": 1,
+          "eyes": 1,
+          "mouth": 1,
+          "eyesOpen": 0.9,
+          "mouthOpen": 0,
+          "tears": 0
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "b4dc183a5c7642a793a99abd5f4901ea",
+        "t": 0.03,
+        "do": {
+          "cmd": "chara.face",
+          "key": "$b",
+          "blink": true,
+          "eyebrow": 0,
+          "eyes": 0,
+          "mouth": 0,
+          "eyesOpen": 1
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "b1c23ee42d7f4e83804c09be2b4800c1",
+        "t": 0.04,
+        "do": {
+          "cmd": "chara.anime",
+          "key": "$a",
+          "group": 19,
+          "category": 0,
+          "no": 0,
+          "time": 0,
+          "speed": 1,
+          "loop": true
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "9be963be5258423e9d030bd7ae70d0c9",
+        "t": 0.05,
+        "do": {
+          "cmd": "fk.enable",
+          "key": "$b",
+          "on": false
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "45d1ae4f03dd41b48ffc71d6b21ffd47",
+        "t": 0.05,
+        "do": {
+          "cmd": "obj.transform",
+          "key": "$b",
+          "pos": [0, 0, 20],
+          "rot": [0, 180, 0]
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "2b3511b9ed164977ace5e83a74c9e0ff",
+        "t": 0.06,
+        "do": {
+          "cmd": "obj.transform",
+          "key": "$b",
+          "rot": [0, 170, 0]
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "8a2a180996254881aac085eefecafb6c",
+        "t": 0.5,
+        "do": {
+          "cmd": "obj.moveTo",
+          "key": "$b",
+          "target": [0, 0, 12],
+          "stop": 0,
+          "time": 1,
+          "stanceSpeed": 7.85
+        },
+        "enabled": true,
+        "note": "b walks to a point"
+      },
+      {
+        "id": "0d3c362fb23343c88742ef1ebe0b44b8",
+        "t": 0.6,
+        "do": {
+          "cmd": "wet.start",
+          "key": "$a"
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "5b1e6b6bde1a4e99a8e72f963a4b8236",
+        "t": 1.0,
+        "do": {
+          "cmd": "chara.speed",
+          "key": "$a",
+          "speed": 0.5
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "e103202d0d6940499b56b62a7210e787",
+        "t": 1.2,
+        "do": {
+          "cmd": "chara.face",
+          "key": "$a",
+          "blink": true,
+          "eyebrow": 2,
+          "eyes": 2,
+          "mouth": 2,
+          "eyesOpen": 0.8,
+          "mouthOpen": 0.2
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "24766ea9693e4d2b863d37af2d946d8a",
+        "t": 1.5,
+        "do": {
+          "cmd": "camera.follow",
+          "target": {
+            "key": "$b",
+            "bone": "cf_J_Head"
+          },
+          "rot": [20, 180, 0],
+          "dist": 20,
+          "fov": 30,
+          "seconds": 1
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "522caf136e7b409daafb92df1793fdf9",
+        "t": 1.6,
+        "do": {
+          "cmd": "obj.moveTo",
+          "key": "$b",
+          "target": {
+            "key": "$a",
+            "bone": "cf_J_Spine02",
+            "offset": [8, 0, 0]
+          },
+          "stop": 0,
+          "time": 1,
+          "stanceSpeed": 7.85
+        },
+        "enabled": true,
+        "note": "b walks beside a"
+      },
+      {
+        "id": "07179ab43fb64cf0af9712297b7e74fb",
+        "t": 2.0,
+        "do": {
+          "cmd": "dof",
+          "on": true,
+          "focus": "$b",
+          "blend": 0.5,
+          "ease": "inout",
+          "sharp": 0.2,
+          "full": 4
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "cfc4ab53c73342bab3cf0980441529fe",
+        "t": 2.7,
+        "do": {
+          "cmd": "obj.moveTo",
+          "key": "$b",
+          "target": {
+            "key": "$a",
+            "bone": "cf_J_Spine02"
+          },
+          "stop": 10,
+          "time": 0.3,
+          "stanceSpeed": 7.85
+        },
+        "enabled": true,
+        "note": "b turns towards a"
+      },
+      {
+        "id": "72d8632dce294af0af835524f1dd7456",
+        "t": 2.9,
+        "do": {
+          "cmd": "chara.face",
+          "key": "$b",
+          "blink": true,
+          "eyebrow": 1,
+          "eyes": 1,
+          "mouth": 1,
+          "eyesOpen": 0.8,
+          "tears": 0
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "156abbcf7edf43789a8f98bc4f97442a",
+        "t": 3.0,
+        "do": {
+          "cmd": "fk.capture",
+          "key": "$b",
+          "stopAnime": true
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "da5e68927a394848bc8124b450874d48",
+        "t": 3.05,
+        "do": {
+          "cmd": "fk.enable",
+          "key": "$b",
+          "on": false,
+          "groups": [
+            "Body"
+          ]
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "c7a5f2db921049b3a3aa80d22b9f9917",
+        "t": 3.1,
+        "do": {
+          "cmd": "pose.load",
+          "key": "$a",
+          "path": "STANDING/Floor/Pose 1.dat"
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "4d818b68710e43a9bad7ba1f00345f1a",
+        "t": 3.2,
+        "do": {
+          "cmd": "fk.enable",
+          "key": "$a",
+          "on": true,
+          "groups": [
+            "RightArm",
+            "LeftArm",
+            "RightHand",
+            "LeftHand"
+          ]
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "2f81a0f384ff4399887ec98a8bc49177",
+        "t": 3.25,
+        "do": {
+          "cmd": "fk.set",
+          "key": "$a",
+          "bones": {
+            "cf_J_Shoulder_L": [0, 0, 0],
+            "cf_J_Shoulder_R": [0, 0, 0],
+            "cf_J_ArmUp00_L": [0, 0, 0],
+            "cf_J_ArmUp00_R": [0, 0, 0],
+            "cf_J_ArmLow01_L": [0, 0, 0],
+            "cf_J_ArmLow01_R": [0, 0, 0],
+            "cf_J_Hand_L": [0, 0, 0],
+            "cf_J_Hand_R": [0, 0, 0],
+            "cf_J_Hand_Thumb01_L": [0, 0, 0],
+            "cf_J_Hand_Thumb01_R": [0, 0, 0],
+            "cf_J_Hand_Thumb02_L": [0, 0, 0],
+            "cf_J_Hand_Thumb02_R": [0, 0, 0],
+            "cf_J_Hand_Thumb03_L": [0, 0, 0],
+            "cf_J_Hand_Thumb03_R": [0, 0, 0],
+            "cf_J_Hand_Index01_L": [0, 0, 0],
+            "cf_J_Hand_Index01_R": [0, 0, 0],
+            "cf_J_Hand_Index02_L": [0, 0, 0],
+            "cf_J_Hand_Index02_R": [0, 0, 0],
+            "cf_J_Hand_Index03_L": [0, 0, 0],
+            "cf_J_Hand_Index03_R": [0, 0, 0],
+            "cf_J_Hand_Middle01_L": [0, 0, 0],
+            "cf_J_Hand_Middle01_R": [0, 0, 0],
+            "cf_J_Hand_Middle02_L": [0, 0, 0],
+            "cf_J_Hand_Middle02_R": [0, 0, 0],
+            "cf_J_Hand_Middle03_L": [0, 0, 0],
+            "cf_J_Hand_Middle03_R": [0, 0, 0],
+            "cf_J_Hand_Ring01_L": [0, 0, 0],
+            "cf_J_Hand_Ring01_R": [0, 0, 0],
+            "cf_J_Hand_Ring02_L": [0, 0, 0],
+            "cf_J_Hand_Ring02_R": [0, 0, 0],
+            "cf_J_Hand_Ring03_L": [0, 0, 0],
+            "cf_J_Hand_Ring03_R": [0, 0, 0],
+            "cf_J_Hand_Little01_L": [0, 0, 0],
+            "cf_J_Hand_Little01_R": [0, 0, 0],
+            "cf_J_Hand_Little02_L": [0, 0, 0],
+            "cf_J_Hand_Little02_R": [0, 0, 0],
+            "cf_J_Hand_Little03_L": [0, 0, 0],
+            "cf_J_Hand_Little03_R": [0, 0, 0]
+          }
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "6d2203552fc54a6781b701a402686949",
+        "t": 3.5,
+        "do": {
+          "cmd": "fk.enable",
+          "key": "$b",
+          "on": true,
+          "groups": [
+            "RightArm",
+            "RightHand"
+          ]
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "ce03f85eb5be469eaffaf1c7a6c0c52f",
+        "t": 3.6,
+        "do": {
+          "cmd": "fk.set",
+          "key": "$b",
+          "bones": {
+            "cf_J_Shoulder_L": [0, 0, 0],
+            "cf_J_Shoulder_R": [0, 0, 0],
+            "cf_J_ArmUp00_L": [0, 0, 0],
+            "cf_J_ArmUp00_R": [0, 0, 0],
+            "cf_J_ArmLow01_L": [0, 0, 0],
+            "cf_J_ArmLow01_R": [0, 0, 0],
+            "cf_J_Hand_L": [0, 0, 0],
+            "cf_J_Hand_R": [0, 0, 0],
+            "cf_J_Hand_Thumb01_L": [0, 0, 0],
+            "cf_J_Hand_Thumb01_R": [0, 0, 0],
+            "cf_J_Hand_Thumb02_L": [0, 0, 0],
+            "cf_J_Hand_Thumb02_R": [0, 0, 0],
+            "cf_J_Hand_Thumb03_L": [0, 0, 0],
+            "cf_J_Hand_Thumb03_R": [0, 0, 0],
+            "cf_J_Hand_Index01_L": [0, 0, 0],
+            "cf_J_Hand_Index01_R": [0, 0, 0],
+            "cf_J_Hand_Index02_L": [0, 0, 0],
+            "cf_J_Hand_Index02_R": [0, 0, 0],
+            "cf_J_Hand_Index03_L": [0, 0, 0],
+            "cf_J_Hand_Index03_R": [0, 0, 0],
+            "cf_J_Hand_Middle01_L": [0, 0, 0],
+            "cf_J_Hand_Middle01_R": [0, 0, 0],
+            "cf_J_Hand_Middle02_L": [0, 0, 0],
+            "cf_J_Hand_Middle02_R": [0, 0, 0],
+            "cf_J_Hand_Middle03_L": [0, 0, 0],
+            "cf_J_Hand_Middle03_R": [0, 0, 0],
+            "cf_J_Hand_Ring01_L": [0, 0, 0],
+            "cf_J_Hand_Ring01_R": [0, 0, 0],
+            "cf_J_Hand_Ring02_L": [0, 0, 0],
+            "cf_J_Hand_Ring02_R": [0, 0, 0],
+            "cf_J_Hand_Ring03_L": [0, 0, 0],
+            "cf_J_Hand_Ring03_R": [0, 0, 0],
+            "cf_J_Hand_Little01_L": [0, 0, 0],
+            "cf_J_Hand_Little01_R": [0, 0, 0],
+            "cf_J_Hand_Little02_L": [0, 0, 0],
+            "cf_J_Hand_Little02_R": [0, 0, 0],
+            "cf_J_Hand_Little03_L": [0, 0, 0],
+            "cf_J_Hand_Little03_R": [0, 0, 0],
+            "cf_J_Neck": [0, 0, 0],
+            "cf_J_Head": [0, 0, 0]
+          }
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "ea7c59e99bd64b648f6d55ebb8192bd9",
+        "t": 4.0,
+        "do": {
+          "cmd": "ragdoll.build",
+          "key": "$b",
+          "room": [-40, 40, -40, 60]
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "a8e49158fa9a4c6a9ddd9a1505560caa",
+        "t": 4.02,
+        "do": {
+          "cmd": "ragdoll.tie",
+          "key": "$b",
+          "a": "hand_L",
+          "b": "hand_R"
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "23829d3b9e464ae6856e13cd8776f7a7",
+        "t": 4.1,
+        "do": {
+          "cmd": "fx.shoot",
+          "from": "$p",
+          "target": {
+            "key": "$b",
+            "bone": "cf_J_Spine03"
+          },
+          "spread": 0
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "81ba95479679421a80377b503e19a27c",
+        "t": 4.2,
+        "do": {
+          "cmd": "fx.shoot",
+          "from": "$p",
+          "target": {
+            "key": "$b",
+            "bone": "cf_J_Spine03"
+          },
+          "spread": 0,
+          "kill": true
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "8dce95173d75444693778aa978c04a57",
+        "t": 4.3,
+        "do": {
+          "cmd": "fx.shoot",
+          "from": {
+            "key": "$a",
+            "accessory": 0
+          },
+          "target": [8, 11, 0],
+          "kill": true,
+          "momentum": 40
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "64e54969b2ff4f81a0ca6de96f5ce7f2",
+        "t": 4.35,
+        "do": {
+          "cmd": "ragdoll.push",
+          "key": "$b",
+          "part": "chest",
+          "local": [0, 0, -100]
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "bd4f352d58674fefbbece1357bfe05bc",
+        "t": 4.5,
+        "do": {
+          "cmd": "ragdoll.settle",
+          "key": "$b",
+          "seconds": 2,
+          "gain": 16,
+          "damp": 3
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "773ac774ee6e45a69abd9980e127ea2c",
+        "t": 4.6,
+        "do": {
+          "cmd": "chara.face",
+          "key": "$a",
+          "blink": true,
+          "eyebrow": 1,
+          "eyes": 1,
+          "mouth": 1,
+          "eyesLook": 1,
+          "eyesOpen": 0.9,
+          "mouthOpen": 0.1,
+          "tears": 0
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "a2cdcae244654c6b91a1354ae68d86cc",
+        "t": 5.0,
+        "do": {
+          "cmd": "camera.follow",
+          "target": {
+            "key": "$b",
+            "bone": "cf_J_Kosi02"
+          },
+          "rot": [30, 200, 0],
+          "rotTo": [50, 120, 0],
+          "dist": 25,
+          "distTo": 35,
+          "fov": 30,
+          "seconds": 2.5
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "48d5c2894b99407ab2950c51d0a15413",
+        "t": 5.2,
+        "do": {
+          "cmd": "ragdoll.pusher",
+          "key": "$a",
+          "a": "cf_J_LegLow01_R",
+          "b": "cf_J_Foot01_R",
+          "radius": 0.5
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "2980f3402ba6482f9bb2171cbab07cbf",
+        "t": 5.5,
+        "do": {
+          "cmd": "ragdoll.build",
+          "key": "$a"
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "a610cc37e8a7405d977154fc77c53dda",
+        "t": 6.0,
+        "do": {
+          "cmd": "dof",
+          "release": true
+        },
+        "enabled": true,
+        "note": null
+      },
+      {
+        "id": "2ad4f71ede384994968ce90336096d2e",
+        "t": 6.5,
+        "do": {
+          "cmd": "chara.speed",
+          "key": "$a",
+          "speed": 1
+        },
+        "enabled": true,
+        "note": null
+      }
+    ]
+  }
+}

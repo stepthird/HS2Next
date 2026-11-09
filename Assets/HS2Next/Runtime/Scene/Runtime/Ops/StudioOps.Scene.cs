@@ -209,15 +209,16 @@ namespace HS2Next.Scenes.Runtime
             int Order(SceneNode n) => n.Order;
             tops.Sort((a, b) => Order(a).CompareTo(Order(b)));
             foreach (var l in byParent.Values) l.Sort((a, b) => Order(a).CompareTo(Order(b)));
-            var imported = file.Scene.Constraints != null ? new Dictionary<string, string>(StringComparer.Ordinal) : null;
+            var imported = new Dictionary<string, string>(StringComparer.Ordinal);
             NodeSpec Spec(SceneNode d)
             {
                 var doc = DocClone.Clone(d);
                 doc.Id = Session.NewId();
                 doc.Parent = null;
-                if (imported != null) imported[d.Id] = doc.Id;
+                imported[d.Id] = doc.Id;
                 if (doc.State is RouteNodeState route) foreach (var pt in route.Points) pt.Id = Session.NewId();
                 if (doc.State is CameraNodeState cam) cam.Active = false;
+                if (doc.State is CharaNodeState chara) { HS2Next.Scenes.Wet.WetCopy.Prepare(chara.Wet); chara.Ragdoll.PrepareCopy(); }
                 var spec = new NodeSpec { Doc = doc, Point = d.Parent?.Point };
                 var images = new HashSet<string>(StringComparer.Ordinal);
                 ResStore.ScanReferences(CanonicalJsonWriter.ToBytes(SceneDocument.EntryName, d.WriteTo), images);
@@ -253,6 +254,7 @@ namespace HS2Next.Scenes.Runtime
                 }
             }
             catch (Exception e) { return OpResult.BadArgs("path", null, "cannot import: " + e.GetType().Name + ": " + e.Message); }
+            RemapRagdollFollows(specs, imported);
             if (specs.Count == 0)
             {
                 var empty = OpResult.NothingToDo();
@@ -277,6 +279,14 @@ namespace HS2Next.Scenes.Runtime
                     var edit = tx.Execute(ConstraintEditCommand.ReplaceList(carried, Labels.ImportScene));
                     if (edit.Status == CommandStatus.Error) return OpResult.From(edit, "path");
                 }
+                var world = SceneRagdollWorld.Carried(Model.Ragdoll, file.Scene.Ragdoll, imported, out _);
+                if (file.Scene.Ragdoll != null && world != null)
+                {
+                    var edit = tx.Execute(new RagdollWorldEditCommand(world, Labels.ImportScene));
+                    if (edit.Status == CommandStatus.Error) return OpResult.From(edit, "path");
+                }
+                var scripts = ImportedScripts(file.Scene.Scripts, imported, out _);
+                if (scripts != null) { var edit = tx.Execute(ScriptEditCommand.ReplaceScripts(scripts, Labels.ImportScene)); if (edit.Status == CommandStatus.Error) return OpResult.From(edit, "path"); }
                 var newIds = new List<string>();
                 foreach (var s in specs) newIds.Add(s.Doc.Id);
                 r.NewIds = newIds;
@@ -291,6 +301,16 @@ namespace HS2Next.Scenes.Runtime
             }
             r.Value = lr.Findings;
             return r;
+        }
+
+        // the pins of imported characters follow what came along under its new id, or become plain pins
+        static void RemapRagdollFollows(IEnumerable<NodeSpec> specs, IReadOnlyDictionary<string, string> map)
+        {
+            foreach (var s in specs)
+            {
+                if (s.Doc?.State is CharaNodeState c) c.Ragdoll.RemapFollows(map);
+                if (s.Children != null) RemapRagdollFollows(s.Children, map);
+            }
         }
     }
 }

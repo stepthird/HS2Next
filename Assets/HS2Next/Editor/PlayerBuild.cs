@@ -741,6 +741,15 @@ public static class PlayerBuild
                 catch (Exception) { continue; }   // no such pass type or keyword set in this shader
                 if (svc.Add(v)) n++;
             }
+        // a shader drawn only by pass index (blits, CommandBuffer draws) has passes without a LightMode tag: they are of type Normal, which URP never draws by itself
+        if (n == 0)
+            foreach (var kw in combos)
+            {
+                ShaderVariantCollection.ShaderVariant v;
+                try { v = new ShaderVariantCollection.ShaderVariant(s, PassType.Normal, kw); }
+                catch (Exception) { continue; }
+                if (svc.Add(v)) n++;
+            }
         return n;
     }
 

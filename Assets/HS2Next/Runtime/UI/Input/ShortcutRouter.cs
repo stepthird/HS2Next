@@ -4,7 +4,8 @@
 // focused element kind (text field / other control / none) and its panel's scope, the pointer over the viewport, the
 // viewport's focus, IME composition (Input.compositionString) and an open modal dialog — and runs the action from the
 // UI registry. Before the resolver: Esc closes an open popup menu, then ends a pointer drag of a handle or a row and takes back
-// what it did (CancelDragEdit, the one path for every handle and row). Held actions (camera
+// what it did (CancelDragEdit, the one path for every handle and row), then ends a viewport tool. While a tool runs it hears a key before the
+// resolver, except Esc, repeats and keys that go to a text field or a dialog; its default mode stops the rest (ToolKey). Held actions (camera
 // keys) are polled every frame through IInputSource while their scope is active (ResolveHeld: Shift ×5, Ctrl ×0.2).
 // The JIS ¥ / ろ keys (no legacy KeyCode) are tracked from KeyDown / KeyUp. Recent resolutions are kept for ui.state.
 using System;
@@ -181,7 +182,9 @@ namespace HS2Next.UI.Input
         void OnKeyUp(KeyUpEvent e)
         {
             if (e.keyCode == KeyCode.None) return;
-            downByEvent.Remove(KeyNames.FromUiToolkit(e.keyCode.ToString(), ctx.Keys.Layout));
+            string key = KeyNames.FromUiToolkit(e.keyCode.ToString(), ctx.Keys.Layout);
+            downByEvent.Remove(key);
+            ctx.Tools.KeyUp(key);
         }
 
         /// <summary>Esc while a text field has focus (no dialog, no IME composition): blur before the field takes the key. Esc during
@@ -291,7 +294,9 @@ namespace HS2Next.UI.Input
             {
                 if (ctx.Shell?.Menus != null && ctx.Shell.Menus.IsOpen) { ctx.Shell.Menus.CloseAll(); Note("Esc: menu closed"); return true; }
                 if (CancelDragEdit()) return true;
+                if (ctx.Tools.Running && !TextOrDialog(target) && ctx.Tools.Cancel()) { Note("Esc: tool ended"); return true; }
             }
+            if (ctx.Tools.Running && ToolKey(key, mods, repeat, target, out bool took)) return took;
             var resolver = ctx.Keys.Resolver;
             if (resolver == null) return false;
             var f = Focused;
@@ -315,6 +320,32 @@ namespace HS2Next.UI.Input
             return true;
         }
 
+        /// <summary>True when a key goes to a text field, an IME composition or an open dialog, whose rules stay.</summary>
+        bool TextOrDialog(VisualElement target)
+        {
+            var f = Focused ?? target;
+            return (f != null && IsText(f)) || ImeComposing || (ctx.Dialogs != null && ctx.Dialogs.IsModalOpen);
+        }
+
+        /// <summary>A key while a tool runs: true when it stops here, <paramref name="took"/> whether it is consumed. The default mode leaves an unclaimed key to the
+        /// panels, without a shortcut.</summary>
+        bool ToolKey(string key, KeyMods mods, bool repeat, VisualElement target, out bool took)
+        {
+            took = false;
+            if (TextOrDialog(target)) return false;
+            var tools = ctx.Tools;
+            if (key != "Escape" && (repeat ? tools.Holds(key) : tools.Key(key, mods)))
+            {
+                took = true;
+                pending = default;
+                Note("Tool [" + new KeyStroke(mods, key) + "]");
+                return true;
+            }
+            if (!tools.Blocks) return false;
+            pending = default;
+            return true;
+        }
+
         void Note(string s)
         {
             Log.Add(s);
@@ -331,7 +362,12 @@ namespace HS2Next.UI.Input
             foreach (var kv in pollable) if (Source.GetKey(kv.Value)) keysDown.Add(kv.Key);
             if (downByEvent.Contains(KeyNames.JisBackslash)) keysDown.Add(KeyNames.JisBackslash);
             // keys released while the window had no focus never send KeyUp: forget event-tracked keys Input says are up
-            if (!Source.AnyKey) downByEvent.Clear();
+            if (!Source.AnyKey) { downByEvent.Clear(); ctx.Tools.ForgetKeys(); }
+            if (ctx.Tools.Running)   // Phase 6.6: the default mode stops held keys, a key the tool took stays its own
+            {
+                if (ctx.Tools.Blocks) return;
+                ctx.Tools.LeaveHeld(keysDown);
+            }
             if (keysDown.Count == 0) return;
             var f = Focused;
             bool over = ctx.Viewport != null && ctx.Viewport.PointerOver;

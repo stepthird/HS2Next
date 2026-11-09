@@ -114,7 +114,7 @@ public static partial class ItemTest
                     // decomposition) pick other but equivalent triples and lose a few hundredths of a degree
                     var qe = Quaternion.Euler((float)(double)ea[0], (float)(double)ea[1], (float)(double)ea[2]);
                     var qa = Quaternion.Euler((float)(double)aa[0], (float)(double)aa[1], (float)(double)aa[2]);
-                    float ang = Quaternion.Angle(qe, qa);
+                    double ang = RotationCompare.Deg(qe, qa);
                     if (ang > EulerToleranceDeg)
                     {
                         // at x = 90 / 270 (gimbal lock) only y ± z is defined: the expectation's own decomposition can pick
@@ -425,7 +425,7 @@ public static partial class ItemTest
             Check("… and restores it", g.Icon.forceRenderingOff == was);
             s.Runtime.LateApply();
             var cam = s.Runtime.GetPart<SceneViewCamera>()?.Camera;
-            Check("the icon faces the view camera after LateApply", cam && Quaternion.Angle(g.Icon.transform.rotation, cam.transform.rotation) < 1e-3f);
+            Check("the icon faces the view camera after LateApply", cam && RotationCompare.Deg(g.Icon.transform.rotation, cam.transform.rotation) < 1e-3f);
             var sea = s.Item(ids[557]);
             var seaRs = sea?.Component?.renderersSea?.Where(r => r).ToList() ?? new List<Renderer>();
             Check("557: sea renderers lose USINGWATERVOLUME on their copies", seaRs.Count > 0 && seaRs.All(r => r.sharedMaterials.Where(m => m).All(m => !m.IsKeywordEnabled("USINGWATERVOLUME"))), seaRs.Count + " sea renderers");

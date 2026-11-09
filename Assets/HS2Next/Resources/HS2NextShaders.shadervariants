@@ -1283,3 +1283,43 @@ ShaderVariantCollection:
       variants:
       - keywords: 
         passType: 13
+  - first: {fileID: 4800000, guid: 778bfb72d0812784799f9cb3d9cbcc6a, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 4800000, guid: ddf47934f026016499b22e63e8b5f4fc, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 4800000, guid: dcd40777165197147aa20942cbe25705, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+      - keywords: _DITHERSWITCH_ON
+        passType: 13
+      - keywords: _EMISSIONCOLORTEXBASE_ON
+        passType: 13
+      - keywords: _WETFILM_CALPHA
+        passType: 13
+      - keywords: _WETFILM_ITEM
+        passType: 13
+      - keywords: _WETFILM_TRUEALPHA
+        passType: 13
+  - first: {fileID: 4800000, guid: 5b1f29da60ba12e4191b46fc1d5f77ff, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 66a899eeb0c59d94aaa9e9618fd1b95f, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 4d291fd9131a4a6c9022e0ceec16ecdc, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 0

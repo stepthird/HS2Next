@@ -64,6 +64,9 @@ namespace HS2Next.UI.Panels
                 if (id == "character") AddCharacterInfo(c);
                 if (id == MaterialEditView.TabId) c.Add(new MaterialEditView(ctx, new CharaMaterialTarget(ctx, primary), MaterialEditView.Place.Character));   // Phase 6.4: reads nothing until shown
                 if (id == "kinematics") c.Add(new ConstraintSection(ctx, primary));   // Phase 6.5: reads nothing until opened
+                if (id == "state") c.Add(new BakeSection(ctx, primary));   // Phase 6.8: reads nothing until opened
+                if (id == "state") c.Add(new RagdollSection(ctx, primary));   // Phase 6.7: reads nothing until opened
+                if (id == "state") c.Add(new WetSection(ctx, primary));   // Phase 6.6: reads nothing until opened
                 tabBodies[id] = c;
             }
             CharaCostumeTab.AddTo(ctx, primary, strip, tabButtons, tabBodies, ShowTab);   // Phase 4.4 package W: the Costume tab (outfit card load)

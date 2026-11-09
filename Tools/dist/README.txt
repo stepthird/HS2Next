@@ -43,6 +43,10 @@ Where your files go
   %USERPROFILE%\AppData\LocalLow\stp3\HS2Next (with Config, UserData and Cache inside).
 - Portable mode: create an empty file named portable.txt next to HS2Next.exe and start it again. The three folders
   are then made next to HS2Next.exe, so that folder must be writable.
+- UserData\bakes is the store of the bakes you keep with Chara to Item. It is made with the first one; a saved scene
+  holds its own copy of its bakes.
+- UserData\scripts is the store of the scene scripts you keep. It is made with the first one; a saved scene holds its
+  own copy of its scripts.
 - If an earlier HS2Next kept a UserData folder next to its exe, the guide offers to copy it once. The old folder is
   not changed. File > Options > Folders can copy from any earlier folder later.
 - The settings file is Config\settings.local.json. settings.example.json in this package lists every setting with a
@@ -62,8 +66,8 @@ HS2Next loads plugins from the Plugins folder next to HS2Next.exe: each plugin i
 manifest.json and DLLs. A plugin runs with the same rights as HS2Next itself; install only plugins whose source you trust.
 File > Options > Automation lists the installed plugins; turning one off or on takes effect at once (a plugin whose DLL was
 replaced loads after a restart). The PluginKit folder is for writing plugins: PLUGINS.md (also in Japanese and Simplified
-Chinese), the command reference, two small sample projects and the API documentation. Building them needs the .NET SDK 8
-or later.
+Chinese), the command reference, three small sample projects (Hello, HelloUi and Shapes) and the API documentation.
+Building them needs the .NET SDK 8 or later.
 
 
 Update check

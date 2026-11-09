@@ -4,7 +4,7 @@
 
 .DESCRIPTION
   A plugin project is a folder with a *.csproj and a manifest.json (Samples\Sequencer, Samples\PluginKit\Hello,
-  Samples\PluginKit\HelloUi, Tests\Plugins\<name>). The build is `dotnet build -c Release` with the MSBuild properties the
+  Samples\PluginKit\HelloUi, Samples\PluginKit\Shapes, Tests\Plugins\<name>). The build is `dotnet build -c Release` with the MSBuild properties the
   projects read:
     HS2NextApi      a folder holding HS2Next.Api.dll (default Library\ScriptAssemblies; the build refuses when that copy is
                     older than a file under Assets\HS2Next\Api: compile in Unity first, or pass -ApiDir)
@@ -28,7 +28,7 @@
   *.old-* files it finds unlocked in the plugin's folders are deleted one by one.
 
 .PARAMETER Build
-  A project folder, or 'all' (Samples\Sequencer, the kit's Samples\PluginKit\Hello and HelloUi, and every
+  A project folder, or 'all' (Samples\Sequencer, the kit's Samples\PluginKit\Hello, HelloUi and Shapes, and every
   Tests\Plugins\<name> folder with a project and a manifest).
 .PARAMETER Stage
   The plugin folder: 'editor' (<project>\Plugins), 'player' (Builds\App\Plugins) or a path. Stages what -Build names (or
@@ -37,7 +37,8 @@
   GUIDs (comma-separated) to stage.
 .PARAMETER Verify
   A built DLL: prints its assembly references; with -Expect (or for the samples, whose sets are fixed: the Sequencer
-  netstandard, HS2Next.Api, Newtonsoft.Json; the kit's Hello and HelloUi netstandard, HS2Next.Api) checks that they are
+  netstandard, HS2Next.Api, Newtonsoft.Json; the kit's Hello and HelloUi netstandard, HS2Next.Api; Shapes those two and
+  HS2Next.Api.Unity, UnityEngine.CoreModule) checks that they are
   exactly the expected names (exit 1 otherwise).
 .PARAMETER Report
   With -Stage: a file that receives the staged files' full paths, one per line (callers remove exactly those afterwards).
@@ -71,6 +72,7 @@ $ScriptAssemblies = Join-Path $Project 'Library\ScriptAssemblies'
 $HostNames = @('HS2Next.Api', 'HS2Next.Api.Unity', 'HS2Next.Bridge', 'Newtonsoft.Json', 'Assembly-CSharp', 'Assembly-CSharp-firstpass', 'netstandard')
 $SampleRefs = @('netstandard', 'HS2Next.Api', 'Newtonsoft.Json')
 $KitRefs = @('netstandard', 'HS2Next.Api')   # the plugin kit's engine-free samples
+$KitUnityRefs = @('netstandard', 'HS2Next.Api', 'HS2Next.Api.Unity', 'UnityEngine.CoreModule')   # the kit's Shapes (Phase 6.8): it builds objects
 
 function Fail([string]$msg) { Write-Host "[plugins] $msg"; exit 1 }
 
@@ -92,7 +94,8 @@ if ($Verify) {
     $refs | ForEach-Object { Write-Host "  $_" }
     $want = if ($Expect.Count -gt 0) { @($Expect | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ }) }
             elseif ([IO.Path]::GetFileName($dll) -eq 'Stp3.SampleSequencer.dll') { $SampleRefs }
-            elseif (@('Stp3.SampleHello.dll', 'Stp3.SampleHelloUi.dll') -contains [IO.Path]::GetFileName($dll)) { $KitRefs } else { @() }
+            elseif (@('Stp3.SampleHello.dll', 'Stp3.SampleHelloUi.dll') -contains [IO.Path]::GetFileName($dll)) { $KitRefs }
+            elseif ([IO.Path]::GetFileName($dll) -eq 'Stp3.SampleShapes.dll') { $KitUnityRefs } else { @() }
     if ($want.Count -gt 0) {
         $got = @($refs | ForEach-Object { ($_ -split ' ')[0] } | Sort-Object -Unique)
         $diff = Compare-Object ($want | Sort-Object -Unique) $got
@@ -110,6 +113,7 @@ function Get-Projects([string]$spec) {
         $dirs += Join-Path $Project 'Samples\Sequencer'
         $dirs += Join-Path $Project 'Samples\PluginKit\Hello'
         $dirs += Join-Path $Project 'Samples\PluginKit\HelloUi'
+        $dirs += Join-Path $Project 'Samples\PluginKit\Shapes'
         $tp = Join-Path $Project 'Tests\Plugins'
         if (Test-Path $tp) { $dirs += Get-ChildItem $tp -Directory | Sort-Object Name | ForEach-Object { $_.FullName } }
     } else {

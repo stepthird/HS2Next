@@ -134,6 +134,43 @@ namespace HS2Next.Scenes.Runtime
             public const string ConstraintClear = "Clear constraints";
             public const string ConstraintReorder = "Reorder constraints";
             public const string ConstraintTakeOffset = "Take offset";
+            // Phase 6.6 package C: stains (StudioOps.Wet)
+            public const string WetAdd = "Add stain";
+            public const string WetRemove = "Remove stain";
+            public const string WetEdit = "Stain";
+            public const string WetKeep = "Keep layer";
+            public const string WetStart = "Start stain";
+            public const string WetDry = "Dry stain";
+            public const string WetClearPuddles = "Clear puddles";
+            public const string WetFloor = "Floor";
+            public const string WetOrigin = "Move origin";
+            // Phase 6.7 package C: ragdolls (StudioOps.Ragdoll)
+            public const string RagdollBuild = "Ragdoll";
+            public const string RagdollRelease = "Release ragdoll";
+            public const string RagdollPin = "Pin";
+            public const string RagdollUnpin = "Unpin";
+            public const string RagdollTie = "Tie";
+            public const string RagdollHold = "Hold";
+            public const string RagdollSettings = "Ragdoll settings";
+            public const string RagdollPusher = "Pusher";
+            public const string RagdollObstacle = "Obstacle";
+            public const string RagdollBake = "Bake pose to FK";
+            public const string RagdollFollower = "Follower";
+            // Phase 6.8 package C: bakes and cuts (StudioOps.Bake); Move marker is the Cutter tool's
+            public const string BakeMake = "Bake to item";
+            public const string BakeRename = "Rename bake";
+            public const string CutMake = "Cut";
+            public const string CutEdit = "Edit cut";
+            public const string CutMoveMarker = "Move marker";
+            // Phase 6.9 package C: scene scripts (StudioOps.Script, the script player; the strings of ScriptEditCommand)
+            public const string ScriptAdd = "Add script";
+            public const string ScriptEdit = "Edit script";
+            public const string ScriptRemove = "Remove script";
+            public const string ScriptCast = "Cast roles";
+            public const string ScriptLoad = "Load script";
+            public const string ScriptPrepare = "Prepare script";
+            public const string ScriptCapture = "Save edits into script";
+            public const string ScriptBorrow = "Borrow";
 
             /// <summary>Every label above, for the schema check and UiOpsTest.</summary>
             public static readonly string[] All =
@@ -155,6 +192,10 @@ namespace HS2Next.Scenes.Runtime
                 BoneCorrection, ClearBoneCorrections, JiggleValues, ClearJiggleValues, BlendShapes, ClearBlendShapes,
                 MaterialEdit, MaterialReset, MaterialClear, MaterialTexture, MaterialShader, HairBoneAdjust,
                 ConstraintAdd, Constraint, ConstraintRemove, ConstraintClear, ConstraintReorder, ConstraintTakeOffset,
+                WetAdd, WetRemove, WetEdit, WetKeep, WetStart, WetDry, WetClearPuddles, WetFloor, WetOrigin,
+                RagdollBuild, RagdollRelease, RagdollPin, RagdollUnpin, RagdollTie, RagdollHold, RagdollSettings, RagdollPusher, RagdollObstacle, RagdollBake, RagdollFollower,
+                BakeMake, BakeRename, CutMake, CutEdit, CutMoveMarker,
+                ScriptAdd, ScriptEdit, ScriptRemove, ScriptCast, ScriptLoad, ScriptPrepare, ScriptCapture, ScriptBorrow,
             };
 
             /// <summary>The label of a Maker edit by its area (MakerEdits.AreaOf / AppearancePaths.Area).</summary>

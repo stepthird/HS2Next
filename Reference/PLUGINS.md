@@ -3,8 +3,8 @@
 A plugin is a .NET assembly that HS2Next loads at start-up. It can add bridge commands, keep its own data in scenes,
 characters and coordinates, react to scene events and captures, run code every frame, add entries to the undo history,
 show panels and inspector sections drawn with the app's own widgets, lay values over the scene for display, supply shaders
-and, through the engine-side assembly, hook into character builds (skin layers, body-part replacement), override materials
-and add UI of its own. This guide covers the 1.2 plugin API. It is the same text in [Japanese](PLUGINS_ja.md) and
+and, through the engine-side assembly, hook into character builds (skin layers, body-part replacement), override materials,
+add UI of its own and add rows to the Studio item list. This guide covers the 1.3 plugin API. It is the same text in [Japanese](PLUGINS_ja.md) and
 [Simplified Chinese](PLUGINS_zh-Hans.md); [COMMANDS.md](COMMANDS.md) next to it lists every command of the app.
 
 **Plugins are full-trust code.** A plugin runs inside the app with the app's rights; there is no sandbox. Install only
@@ -19,16 +19,18 @@ The distribution zip holds the folder `PluginKit/` next to `HS2Next.exe`:
 | `PLUGINS.md`, `PLUGINS_ja.md`, `PLUGINS_zh-Hans.md` | this guide |
 | `COMMANDS.md` | the command reference (every command a plugin can call with `Request` or `Call`) |
 | `HS2NextPlugin.props` | the build settings the projects share: one property, `HS2NextDir`, finds every reference |
-| `PluginKit.sln` | the two samples; one `dotnet build` in this folder builds both |
+| `PluginKit.sln` | the three samples; one `dotnet build` in this folder builds them all |
 | `NuGet.config` | clears every package source: the kit needs no package and no network |
 | `Hello/` | an engine-free sample: one command, a call helper, an event handler |
 | `HelloUi/` | an engine-free sample: a panel and an item inspector section declared as forms, with its own strings |
+| `Shapes/` | an engine-side sample: a group of the Studio item list whose five rows it builds in code |
 | `doc/` | the XML documentation of `HS2Next.Api` and `HS2Next.Api.Unity` (also next to the DLLs in `HS2Next_Data/Managed/`, where IDEs find it) |
 
 Building the samples needs the .NET SDK 8 or later (`dotnet --list-sdks` shows it):
 
-1. Open a terminal in the `PluginKit` folder and run `dotnet build`. Both samples build against the app's own API
-   assemblies, and each one is copied into `out/<guid>/` (`out/stp3.sample.hello/`, `out/stp3.sample.helloui/`).
+1. Open a terminal in the `PluginKit` folder and run `dotnet build`. The samples build against the app's own API
+   assemblies, and each one is copied into `out/<guid>/` (`out/stp3.sample.hello/`, `out/stp3.sample.helloui/`,
+   `out/stp3.sample.shapes/`).
 2. Copy those folders into the `Plugins` folder next to `HS2Next.exe` (create it the first time), so that you have
    `Plugins/stp3.sample.hello/manifest.json` and so on.
 3. Start HS2Next. File > Options > Automation lists the plugins and their state; the bridge's `plugin.list` shows the
@@ -47,7 +49,7 @@ its other properties: `HS2NextUseUnity=true` adds the engine-side references (`H
 | Assembly | References | What it gives |
 | --- | --- | --- |
 | `HS2Next.Api` | no engine types | `IPlugin` and the lifecycle interfaces, the plugin context, the call helpers, events, undo entries, runtime overrides, forms (`HS2Next.Api.Ui`), the bridge command contract (`HS2Next.Api.Bridge`), the ext-block contract (`HS2Next.Api.Save`), content ids, motion phases |
-| `HS2Next.Api.Unity` | UnityEngine | the realized objects of scene nodes and characters, build hooks with skin layers and body-part replacement, rebuild requests, material overrides, additional mosaic members, the UI registration and the host's widgets (experimental) |
+| `HS2Next.Api.Unity` | UnityEngine | the realized objects of scene nodes and characters, build hooks with skin layers and body-part replacement, rebuild requests, material overrides, additional mosaic members, the UI registration and the host's widgets, the viewport tools, the map query, the character stages and the item rows (experimental) |
 
 A plugin that needs no engine types references only `HS2Next.Api` (and `Newtonsoft.Json` if it wants a JSON library: the
 app provides version 13 to every plugin). Both assemblies are in `HS2Next_Data/Managed/` of the app. Do not ship them
@@ -218,6 +220,7 @@ ctx.Request(req).ThrowIfError();
   `Dictionary<string, object>`), `GetJson(member)`, `As<T>()` (the whole reply into a class), `ThrowIfError()` (a
   `BridgeException` with the code, the message and the detail).
 - A command error never throws: read `Ok`. `Request` and `Call` give the same reply text for the same envelope.
+- With the bridge disabled (`bridge.enabled` false, `-noBridge`), `Request`, `Call` and their queued forms reach the app's commands as with it enabled.
 
 The inline forms (`Request`, `Call`) refuse `batch`, commands that may defer their reply, asynchronous commands and
 `waitFrames` (use the queued forms). A command that changes the scene answers `busy` while someone else holds a scene
@@ -324,7 +327,7 @@ larger example of this.
 
 A form is a panel or an inspector section that the plugin declares as data and the app draws with its own widgets: the
 same sliders, colour pickers, choices and pickers as the app's inspector. Values come from the plugin's read command and go
-back through its write command. Everything in `HS2Next.Api.Ui` and `ctx.Forms` is `[Experimental]`. The HelloUi sample of
+back through its write command. Everything in `HS2Next.Api.Ui` and `ctx.Forms` (`IPluginForms`) is `[Experimental]`. The HelloUi sample of
 the kit is a complete example.
 
 ```csharp
@@ -417,14 +420,17 @@ read.
 
 ## Widgets for engine-side UI (experimental)
 
-`ctx.Unity().Ui` registers panels, inspector sections and actions built from UI Toolkit elements (`IPluginUi`). Its
-`Widgets` (`IUiWidgets`, null without the UI) gives such a plugin the app's own widgets, wired to the plugin's callbacks
-(every callback runs inside the plugin's guard, and none after the plugin unloaded): `Number` (a slider with drag phases),
-`Vector`, `Toggle`, `Choice`, `Color`, `Ref`, `File`, `Text`, `Button`, `AttachPoint`, each returning an `IUiWidget`
-(`Element`, `SetValue(value, mixed)` shows a value without calling back, `Enabled` to read and set); `Toast(text, level)`
-(plain text); `Dialog` (its callback gets the button's index, -1 when it was closed another way), `Confirm` and `Prompt`
-(null when cancelled); `Menu(items, anchor)` with `UiMenuItem(labelKey, run)` entries (`Enabled` true by default). The forms
-above are drawn with the same widgets. Element names: `plugin-widget-<labelKey>` with the same part suffixes, a dialog
+`ctx.Unity().Ui` registers panels, inspector sections and actions built from UI Toolkit elements (`IPluginUi`); a section's
+factory gets an `IUiSectionContext` (the inspected `NodeId` and its `Kind`). Its `Widgets` (`IUiWidgets`, null without the
+UI) gives such a plugin the app's own widgets, wired to the plugin's callbacks (every callback runs inside the plugin's
+guard, and none after the plugin unloaded): `Number` (a slider with drag phases), `Vector`, `Toggle`, `Choice`, `Color`,
+`Ref`, `File`, `Text`, `Button`, `AttachPoint`, each returning an `IUiWidget` (`Element`, `SetValue(value, mixed)` shows a
+value without calling back, `Enabled` to read and set); the callbacks of `Number`, `Vector` and `Color` get the value with
+its `EditPhase`: `Preview` while a drag or the colour picker moves, `Commit` for a finished edit, `Cancel` when Esc ends a
+drag or the picker is reverted; `Toast(text, level)` (plain text; `ToastLevel` `Info`, `Success`, `Warning` or `Error`);
+`Dialog` (its callback gets the button's index, -1 when it was closed another way), `Confirm` and `Prompt` (null when
+cancelled); `Menu(items, anchor)` with `UiMenuItem(labelKey, run)` entries (`Enabled` true by default). The forms above are
+drawn with the same widgets. Element names: `plugin-widget-<labelKey>` with the same part suffixes, a dialog
 `dialog-plugin-<guid>` with buttons `dialog-button-<index>`, a menu `plugin-menu-<guid>` with items
 `menu-item-plugin-<guid>-<index>`.
 
@@ -494,7 +500,7 @@ The command `myp.lift` changes nothing that is saved, so it is not flagged `Comm
   back. An unknown path, a path the node's kind does not have (`chara.*` on an item), a node path without a node id and a
   scene-wide path with one throw `ArgumentException`.
 
-| Path | Nodes | Value (`Kind`) and what shows |
+| Path | Nodes | Value (`Kind`, an `OverrideValueKind`) and what shows |
 | --- | --- | --- |
 | `transform.pos`, `transform.rot` | characters, items, lights, folders, routes, cameras | `Vector3`; `Rotation` (the local rotation) |
 | `transform.scale` | characters, items | `Vector3`, meant as the model's scale |
@@ -643,6 +649,11 @@ engine:
   post stage").
 - `Ui` (`[Experimental]`): panels in a region of the Studio shell, inspector sections for a node kind, actions reachable
   through `ui.action` and shortcuts, with labels from the plugin's own strings, and the app's widgets (`Ui.Widgets`).
+- `Tools` (`[Experimental]`): tools of the viewport, which take its pointer, wheel and keys, and surface picks (below); null
+  when the UI does not run.
+- `Map` (`[Experimental]`): the loaded map's roots and the height of its surface under a point (below).
+- `Stages` (`[Experimental]`): motion stages on scene characters, kept across rebuilds (below).
+- `ItemRows` (`[Experimental]`): groups of the Studio item list whose rows the plugin makes (below).
 
 ### Skin layers and body-part replacement (experimental)
 
@@ -672,7 +683,7 @@ ctx.Unity().BuildHooks.Register("tattoo", BuildStage.BodyMesh, args =>
   of them from a renderer the plugin built or loaded. The app binds each bone by name to the character's body bones, else to
   a bone of that name the part already uses (implant missing ones first with `ImplantBone`), and copies the materials per
   character; on the body renderer the first slot stays the body's skin material and `Materials[0]` is not used there, the
-  other entries fill the other slots. The result is `Replaced`, `NotFound` (no part of that name) or `Mismatch` (a bone the
+  other entries fill the other slots. The result (`BodyPartResult`) is `Replaced`, `NotFound` (no part of that name) or `Mismatch` (a bone the
   app cannot bind, a bone count that differs when no names are given, or bones for a part without skinning; nothing
   changed). Replacing the body renderer marks the body as replaced, so FK providers add their rows. A replaced part stays
   until the character's next build.
@@ -692,6 +703,174 @@ shader supply refuses the mosaic shaders. In every build, the renderers of the a
 rules. A body part a plugin supplies through `ReplaceBodyPart` is drawn as supplied; it is a mosaic member when the plugin
 adds it with `AddMosaic`.
 
+### Viewport tools (experimental)
+
+A tool takes the viewport's pointer, wheel and keys for as long as it runs: to pick a point on a character, to drag something,
+to draw a line over a surface. Derive from `ViewportTool`, override the calls the tool needs and start it with `Tools.Begin`.
+`Tools` is null when the UI does not run, so read it when the tool starts.
+
+```csharp
+sealed class PickPoint : ViewportTool
+{
+    readonly IViewportTools tools;
+    readonly Action<ToolPick> done;
+
+    public PickPoint(IViewportTools tools, Action<ToolPick> done) { this.tools = tools; this.done = done; }
+
+    public override bool PointerDown(in ToolPointer p)
+    {
+        if (p.Button != 0 || !p.Hit.Hit) return false;
+        done(p.Hit);
+        tools.End(this);
+        return true;
+    }
+}
+
+var tools = ctx.Unity().Tools;
+tools?.Begin(new PickPoint(tools, hit => ctx.Log.Info(hit.Part + " " + hit.Point)),
+    new ToolOptions { Filter = new ToolPickFilter { CharactersOnly = true }, Hint = "plugin.my.plugin.pick" });
+```
+
+- **While a tool runs.** The camera with its held keys, the shortcuts, the gizmos, the selection and the viewport's menu rest.
+  Nothing of theirs is changed, so all of them are back as they were when the tool ends. Panels, menus and dialogs keep their
+  input, and undo stays in the menu. With `ToolOptions.PassThrough` what the tool does not claim goes on as without a tool: a
+  press for which `PointerDown` answers false drags the camera or selects, and a key or a wheel turn it leaves runs as usual.
+  One tool runs at a time; `Begin` ends the one before (`Replaced`). `Begin` answers false when the host refuses, for example
+  while a dialog is open.
+- **The calls.** `Started` comes first and `Ended(reason)` last. `PointerDown` answering true claims the press: the pointer
+  stays with the tool until `PointerUp`, or `PointerCancel` when the press ends without a release (Esc, the window lost focus).
+  `PointerMove` comes during a claimed press and as hover with no button held, never during a press the tool left alone.
+  `Wheel` (notches, positive away from the user) and `Key` (the key map's names: `Space`, `T`, `F1`; no repeats, no Esc) answer
+  true when they took the input. `Draw(IToolDraw)` runs once per frame of the view: lines, crosses and texts in world space,
+  shown in the view and never in a capture or a recording. A change the tool makes to the scene goes through a command or an
+  undo entry as anywhere else.
+- **The pointer.** `ToolPointer` holds `Panel` (the position in the panel), `Ray` (world space), `Button` (0 left, 1 right,
+  2 middle; -1 on a move), `Buttons` (those held, as bits 1, 2, 4), `Mods` (`ToolMods`: `Ctrl`, `Shift`, `Alt`) and `Hit`. `Hit` is the pick
+  under the pointer by `ToolOptions.Filter`. It runs on the first read and takes a few milliseconds on a character, so a tool
+  that does its own query on `Ray` pays nothing for it. Read it during the call it comes with.
+- **Picks.** `Tools.Pick(ray, filter)` answers the same at any time, tool or not. A `ToolPick` is never null: `Hit` is false on a
+  miss. It names the node (`NodeId`), the place (`Point`, `Normal`, `Distance`), the part (`Renderer`, `Part`, `Slot`), the
+  triangle (`Triangle`, `Uv`) and the bone with the largest weight there (`Bone`, `BoneLocal`, `BoneAddress`). `Precise` is false
+  on a mesh that cannot be read or a part with no UV: the point and the distance hold and the triangle's members do not.
+  `ToolPickFilter` keeps to one node (`NodeId`) or to characters (`CharactersOnly`); `MapSurface` adds the map's surface when no
+  node is hit (`OnMap`). Hidden renderers are not hit.
+- **The end.** `ToolEnd` says why: `Finished` (`End`), `Cancelled` (Esc with no press held, or the tool threw), `Replaced`,
+  `SceneChanged` (a new scene or a load, or the node named by `Filter.NodeId` was deleted), `UiClosed`. Esc during a press gives
+  `PointerCancel` and the tool stays. A press still held when the tool ends gets no other call.
+- **Faults.** An exception from a tool's call counts as a fault of the plugin (`plugin.list` names it `tool <call>`) and ends the
+  tool. When the plugin is disabled, faults or unloads, its running tool ends with `UiClosed`, after the plugin's `Unload`.
+
+### The map query (experimental)
+
+`ctx.Unity().Map` (`IMapQuery`, never null) tells whether a map is loaded and how high its surface lies:
+
+```csharp
+var map = ctx.Unity().Map;
+if (map.Surface(point, out var hit)) Place(hit.Height, hit.Normal);
+```
+
+- `Loaded`, `Roots`: whether a map is loaded, and all of its root objects (a map can have several; empty when none is loaded).
+- `Surface(point, out hit, above, below)`: the highest surface under the point's x and z, between `point.y + above` and
+  `point.y - below` (defaults 0 and 60). False when there is none or no map is loaded. A surface whose normal has a y below 0.3
+  is a wall and does not count. Pass the point you stand at: a point under a roof finds the floor, a point above it the roof.
+- `Surfaces(points, hits, above, below)`: the same for several points with one wait. It returns how many have an answer;
+  `hits[i].Source` is null at a point with none. `hits` must be at least as long as `points`.
+- `MapSurfaceHit`: `Height`, `Normal` (unit length, pointing up), `Source` (`gpu`, `mesh`, `terrain` or `collider`: how it was
+  found).
+
+The answer does not depend on colliders or readable meshes, except without a graphics device, where it comes from those two.
+Alpha-cut and transparent surfaces count (water, glass, leaves); characters and items are not the map. A call waits for its
+answer, about a millisecond and longer for the first of a map: fine for a click or a few points, not for many points on every
+frame. Main thread only. The command `ground.probe` asks the same query.
+
+### Character stages (experimental)
+
+`ctx.Unity().Stages` (`ICharaStages`, never null) adds a motion stage to a scene character: a class of the plugin that runs in the
+character's motion step, at a place among the app's own stages. A rebuild makes a new body, so the plugin hands over a factory, not a
+stage:
+
+```csharp
+sealed class HeadWatch : IMotionStage
+{
+    readonly Transform head;
+
+    public HeadWatch(GameObject root) { head = Array.Find(root.GetComponentsInChildren<Transform>(), t => t.name == "cf_J_Head"); }
+
+    public Vector3 Position { get; private set; }
+    public MotionPhase Phase => MotionPhase.Final;
+    public string Name => "head";
+    public bool Enabled { get; set; } = true;
+    public void Step(in MotionFrame frame) { if (head) Position = head.position; }
+    public void Reset() { }
+}
+
+IDisposable stage = ctx.Unity().Stages.Add(nodeId, root => new HeadWatch(root));
+```
+
+- **The factory.** It runs at once when the character is built, and again after every rebuild, with the new body's root.
+  `chara.change`, `RequestRebuild` and an edit that needs a new body rebuild; a change of clothes, hair or accessories does not,
+  and the stage stays. A character that is not built yet, as in `SceneLoaded`, gets its stage when it is. The old stage object goes
+  with the old body, so what must outlive a rebuild lives in what the factory closes over. A stage that was off stays off. A factory
+  that returns null puts no stage on this body.
+- **The phase.** `Phase` and `Name` are read once, after the factory. The phase lies between -90 and 940: the app's stages that put
+  the bones back lie below and those that end a frame above. `MotionPhase` names the main phases and any number between them will
+  do: a stage at 420 runs after FK and before the corrections. A phase outside is refused and counted as a fault of the plugin.
+  `chara.motion` lists a character's stages in step order; a plugin's is named `<guid>/<Name>` with the GUID as `owner`, and the
+  command's `stages` argument switches it.
+- **Writing bones.** A stage that writes a bone takes the write off itself, in a stage of its own at an early phase: nothing else
+  puts the bone back while the animation does not run.
+- **In a frame.** A stage runs inside the character's step, also while constraints make the scene step its characters in an order
+  of their own. `MotionFrame.Dt` is 0 while the scene is paused. When the host runs the stages only to read a pose and puts the bones
+  back, a plugin's stage does not run.
+- **The end.** `Dispose` on the result takes the stage off; a second call does nothing. From inside the stage's own `Step` the stage
+  rests at once and leaves the list by the end of the frame. A deleted character keeps its stage, which rests, for an undo; the
+  stage goes when the node can never come back. A new scene or a load ends every stage and none is saved: add them again in
+  `SceneLoaded`.
+- **Faults.** An exception from a stage counts as a fault of the plugin (`plugin.list` names it `stage <guid>/<Name>`) and the stage
+  stays. One from the factory counts as `stage factory`, and the character has no stage until its next build. When the plugin is
+  disabled, faults or unloads, all of its stages go. `Add` throws `ArgumentException` for a node that is no character. Main thread
+  only.
+
+### Item rows (experimental)
+
+`ctx.Unity().ItemRows` (`IItemRows`, never null) adds groups to the Studio item list whose rows the plugin makes: the rows are listed
+with the other items and in `item.search`, and whenever an item of such a row is built the app asks the plugin for its object.
+
+```csharp
+IItemRowGroup group = ctx.Unity().ItemRows.AddGroup(820001, "Shapes", request => MakeShape(request.Id));
+group.SetCategory(0, "Shapes");
+group.SetRows(new[]
+{
+    new ItemRow { Category = 0, Id = 1, Name = "Cube" },
+    new ItemRow { Category = 0, Id = 4, Name = "Torus", FkBones = new[] { "ring0", "ring1" } },
+});
+```
+
+- **The group.** Group numbers are one space with the groups of the item lists. A number the lists, the app or another plugin use
+  is refused with `ArgumentException` (`rows.groupTaken`): take a number of your own. The group starts empty: `SetCategory` names a
+  category, `SetRows` gives every row at once (ids unique in the group). A category is listed while it holds rows, and the groups
+  sort after the groups of the lists.
+- **The rows.** A row's key is `<plugin GUID>#<id>`. An item of a row saves as any item: `ref` is that key, with the group and the
+  category. `item.add` takes `{"ref": "<guid>#<id>"}` or `{"group", "category", "guid", "no"}`, as for an item of a mod.
+- **The object.** `make` runs on the main thread inside an item's build (the item is added, loaded, duplicated or built again), gets
+  an `ItemRowRequest` (the row's `Guid`, `Group`, `Category` and `Id`, and the `NodeId` of the item) and returns a new object for
+  each call, or null. The app takes the object over: it places it under the item at local identity, copies
+  every material slot and maps its shaders as for an item of the lists, finds the row's `FkBones` by name in it (item FK moves
+  them) and destroys it when the item goes. A renderer named as a mosaic member or with a
+  mosaic material is a member; `AddMosaic` adds others. `make` adds no scene node and changes nothing in the scene (warning
+  `item.generatorWrote`).
+- **Changes.** `SetRows` builds the scene's items again at the next frame where their row is new, or where its name, category or FK
+  bones changed: an item that loaded as the fallback item before its row existed becomes the row's object then. `Refresh(id)` builds
+  the items of one row again. A plugin that adds its group in `Load` reaches the scene loaded at start-up in this way.
+- **Without the plugin** (not installed, disabled, faulted), an item of its rows loads as the fallback item with `item.missing` and
+  keeps its saved data as it was: the scene saved again is unchanged, and with the plugin back it is the row's object again.
+- **The end.** `Dispose` removes the group and its rows; so do the plugin's unload, disable and fault. Items already built keep
+  their objects until they are built again; then they load as the fallback item.
+- **Faults.** `make` throwing or returning null loads the fallback item with the warning `item.generatorFailed` and counts as a fault
+  of the plugin (`plugin.list` names it `item rows <group>`). Main thread only.
+
+The kit's sample `Shapes/` adds five rows built in code, a torus among them whose eight bones item FK bends.
+
 ## Shaders
 
 `ctx.Shaders.Supply(original, replacement)` maps a shader name to a replacement that the host can find by name (for example
@@ -707,26 +886,32 @@ the original.
 ## Versions
 
 The API follows semantic versioning; `ApiVersion` (and the informational version of both assemblies) gives it, and the
-assembly version is `MAJOR.0.0.0`, so a plugin binds across minor and patch releases. This guide describes 1.2.
+assembly version is `MAJOR.0.0.0`, so a plugin binds across minor and patch releases. This guide describes 1.3.
 
 - A plugin declares the `MAJOR.MINOR` it was built against in `apiVersion`. It loads when the host has the same major and
-  a minor at least as high: a `1.0` plugin loads on every 1.x host, a `1.2` plugin needs a 1.2 or later host. A plugin that
-  uses a member added in 1.1 declares `"1.1"`, one that uses a member added in 1.2 `"1.2"`.
+  a minor at least as high: a `1.0` plugin loads on every 1.x host, a `1.3` plugin needs a 1.3 or later host. A plugin that
+  uses a member added in 1.1 declares `"1.1"`, one that uses a member added in 1.2 `"1.2"`, one that uses a member added in
+  1.3 `"1.3"`.
 - Within a major version nothing public is removed or changed. Interfaces the host implements (the context, the services,
   the events, the replies) may gain members in a minor version; plugins only call them. Interfaces plugins implement
   (`IPlugin`, `IPluginUpdate`, `IPluginSceneLoaded`, `IPluginScenePost`, `IExtBlockHandler`, `IKkexConsumer`, `IBatchHook`,
-  `IMotionStage`) never change: a new capability comes as a new optional interface or a delegate.
-- Types and members marked `[Experimental]` are outside the promise and may change in any minor version. In 1.2 these are
+  `IMotionStage`) never change: a new capability comes as a new optional interface or a delegate. A class plugins derive from
+  (`ViewportTool`) may gain virtual methods, never an abstract one.
+- Types and members marked `[Experimental]` are outside the promise and may change in any minor version. In 1.3 these are
   the forms (`HS2Next.Api.Ui`, `ctx.Forms`), the widgets, the undo entries (`ctx.History`), the runtime overrides
   (`ctx.Overrides`), the scene post stage (`IPluginScenePost`, `BoneWritten`), skin layers, body-part replacement and
-  rebuild requests, and the engine-side UI registration. The call
-  helpers, the capture events with their kinds and the commands `plugin.disable` / `plugin.enable` are stable.
+  rebuild requests, the engine-side UI registration, the viewport tools (`Tools`, `ViewportTool` and the types around it), the
+  map query (`Map`, `IMapQuery`, `MapSurfaceHit`), the character stages (`Stages`, `ICharaStages`) and the item rows
+  (`ItemRows`, `IItemRows`, `IItemRowGroup`, `ItemRow`, `ItemRowRequest`). The call helpers, the capture events with their kinds and the commands `plugin.disable` / `plugin.enable` are stable.
 - 1.1 added: `Request` / `RequestAsync` with `CommandRequest` and `ICommandReply`, `IsActive`, the capture events, undo
   entries, forms and widgets, skin layers, body-part replacement, rebuild requests, disabling and enabling at run time, and
   the XML documentation of every public member.
 - 1.2 added: the runtime overrides (`ctx.Overrides`, `IRuntimeOverrides`, `IOverrideSlot`, `OverrideValueKind`,
   `OverrideInfo`) with the paths of bones and IK targets, the scene post stage (`IPluginScenePost`, `BoneWritten`) and the
   capture kind `Record` for the frames of a recording.
+- 1.3 added: the viewport tools (`Tools`, `IViewportTools`, `ViewportTool`, `ToolPointer`, `ToolPick`), the map query
+  (`Map`, `IMapQuery`, `MapSurfaceHit`), the character stages (`Stages`, `ICharaStages`) and the item rows (`ItemRows`,
+  `IItemRows`, `IItemRowGroup`, `ItemRow`, `ItemRowRequest`).
 
 ## Testing a plugin
 

@@ -4,6 +4,8 @@
 //   chara.anime.time        CharaAnimation.NormalizedTime (raw)
 //   chara.look.neckFix      CharaLook.SaveNeck, keyed by the neck bone names
 //   chara.look.eyeRotations CharaLook.SaveEyes
+//   chara.wet.*             the clock of each stain and the puddles (WetPart), when they moved since the block was applied
+//   chara.ragdoll.*         the last pose at rest and a limp a shot left (RagdollPart), when they changed since they were applied
 //   item.anime.time         layer-0 normalized time of the item's animation (ItemAnimationStage of its ItemMotion,
 //                           13), when it advanced since the stored time was applied or captured
 // A character is captured only when its motion advanced since its animation / look state was last applied from the
@@ -54,7 +56,12 @@ namespace HS2Next.Scenes.Runtime
             {
                 var r = runtime.Find(n.Id);
                 if (r == null || r.Node != n || !r.HasHolder || r.State != RealizationState.Built) continue;
-                if (r is CharaRealization c) CollectChara(c, writes);
+                if (r is CharaRealization c)
+                {
+                    CollectChara(c, writes);
+                    runtime.GetPart<WetPart>()?.Collect(c, writes);
+                    runtime.GetPart<RagdollPart>()?.Collect(c, writes);
+                }
                 else if (r is ItemRealization it) CollectItem(it, writes);
             }
             if (writes.Count == 0) return;

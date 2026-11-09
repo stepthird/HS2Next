@@ -317,7 +317,7 @@ public static partial class UiPanelsTest
     static string R2Pose(Transform t) => t ? $"({t.position.x:0.###}, {t.position.y:0.###}, {t.position.z:0.###}) / ({t.eulerAngles.x:0.##}, {t.eulerAngles.y:0.##}, {t.eulerAngles.z:0.##})" : "none";
 
     static bool R2Same(Transform a, Transform b) =>
-        a && b && Vector3.Distance(a.position, b.position) < 1e-3f && Quaternion.Angle(a.rotation, b.rotation) < 0.01f;
+        a && b && Vector3.Distance(a.position, b.position) < 1e-3f && RotationCompare.Deg(a.rotation, b.rotation) < 0.01f;
 
     static string R2Active(Ctx c) => c.App.Runtime.GetPart<SceneViewCamera>()?.ActiveCameraId;
 
@@ -452,7 +452,7 @@ public static partial class UiPanelsTest
             ui.Ops.SetActiveCamera(p.id, User);
             lookSw.Add(t0.Elapsed.TotalMilliseconds);
             yield return PlayModeHarness.WaitFrames(2);
-            if (Vector3.Distance(cam.position, p.pos) > 1e-3f || Quaternion.Angle(cam.rotation, p.rot) > 0.01f || Mathf.Abs(view.Camera.fieldOfView - p.fov) > 1e-3f) wrong++;
+            if (Vector3.Distance(cam.position, p.pos) > 1e-3f || RotationCompare.Deg(cam.rotation, p.rot) > 0.01f || Mathf.Abs(view.Camera.fieldOfView - p.fov) > 1e-3f) wrong++;
         }
         ui.Ops.SetActiveCamera(null, User);
         yield return PlayModeHarness.WaitFrames(2);

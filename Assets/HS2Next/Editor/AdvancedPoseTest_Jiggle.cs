@@ -330,7 +330,7 @@ public static partial class AdvancedPoseTest
                 var bones0 = Enumerable.Range(0, c.ParticleCount).Select(i => c.ParticleTransform(i) ? c.ParticleTransform(i).localRotation : Quaternion.identity).ToArray();
                 SetChains(f.H, f.A, (row.Address, v));
                 Check($"{name}: the edit touches no particle and no bone",
-                    Enumerable.Range(0, c.ParticleCount).All(i => c.Position(i) == before[i] && c.PrevPosition(i) == p0[i] && (!c.ParticleTransform(i) || c.ParticleTransform(i).localRotation == bones0[i])));
+                    Enumerable.Range(0, c.ParticleCount).All(i => c.Position(i) == before[i] && c.PrevPosition(i) == p0[i] && (!c.ParticleTransform(i) || RotationCompare.Deg(c.ParticleTransform(i).localRotation, bones0[i]) == 0)));
                 f.Step(1);
                 double worst = double.NegativeInfinity, worstDiff = 0, worstMotion = 0;
                 for (int i = 0; i < c.ParticleCount; i++)

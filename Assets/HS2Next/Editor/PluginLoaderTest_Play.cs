@@ -12,6 +12,7 @@
 //   gameObjects must not grow, and a cycle below cycle 0's count is allowed only where the upkeep's UnloadUnusedAssets started);
 //   session 2 runs T3B (the images are reused without a domain reload). Phase 6.1: after PL13 every static KU<n>, KE<n>, KD<n>,
 //   KB<n>(PlayCtx) of PluginLoaderTest_Forms.cs (forms, widgets, capture events, the Options toggle, the device body checks).
+//   Phase 6.6: then WI<n>(PlayCtx) of PluginLoaderTest_Tools.cs (a plugin's viewport tool).
 // Args: -pluginsDir <dir> (default Spike/out/plugins/play; staged with Tools/plugins.ps1 when a plugin is missing or with
 // -stage), -port N, -report <file>, -only T3A,PL13,SQ5,... (Run). Report: first line "SUMMARY: N PASS, M FAIL"; exit 0 / 1.
 //   & Tools\unity_batch.ps1 -Method PluginLoaderTest.Run -NoQuit -TimeoutMin 20 [-MethodArgs @('-only','PL14')]
@@ -43,7 +44,7 @@ public static partial class PluginLoaderTest
     const string K = "HS2Next.PluginLoaderTest.";
     /// <summary>The plugins the play row stages (the sample, the probes).</summary>
     public static readonly string[] PlayPlugins = { "stp3.sample.sequencer", "stp3.test.probe", "stp3.test.probecore", "stp3.test.probeui", "stp3.test.dependent",
-        "stp3.test.formprobe", "stp3.test.historyprobe", "stp3.test.bodyprobe" };
+        "stp3.test.formprobe", "stp3.test.historyprobe", "stp3.test.bodyprobe", "stp3.test.toolprobe" };
     /// <summary>The play row touches this plugin's DLL between the sessions: the second session refuses it as stale.</summary>
     const string StaleGuid = "stp3.test.dependent";
     static bool hooked;
@@ -441,9 +442,9 @@ public static partial class PluginLoaderTest
             parts.Add(("PL13", UiChecks));
             // Phase 6.1: the forms, widgets, capture events, the Options toggle and the device body checks (PluginLoaderTest_Forms.cs)
             parts.AddRange(typeof(PluginLoaderTest).GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-                .Select(m => (m, mm: Regex.Match(m.Name, @"^(KU|KE|KD|KB)(\d+)$")))
+                .Select(m => (m, mm: Regex.Match(m.Name, @"^(KU|KE|KD|KB|WI)(\d+)$")))
                 .Where(x => x.mm.Success && x.m.GetParameters().Length == 1 && x.m.GetParameters()[0].ParameterType == typeof(PlayCtx))
-                .OrderBy(x => Array.IndexOf(new[] { "KU", "KE", "KD", "KB" }, x.mm.Groups[1].Value)).ThenBy(x => int.Parse(x.mm.Groups[2].Value))
+                .OrderBy(x => Array.IndexOf(new[] { "KU", "KE", "KD", "KB", "WI" }, x.mm.Groups[1].Value)).ThenBy(x => int.Parse(x.mm.Groups[2].Value))
                 .Select(x => (x.m.Name, (Action<PlayCtx>)(cc => x.m.Invoke(null, new object[] { cc })))));
             parts.AddRange(typeof(PluginLoaderTest).GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
                 .Select(m => (m, mm: Regex.Match(m.Name, @"^SQ(\d+)$")))

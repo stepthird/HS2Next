@@ -4,7 +4,8 @@
 //               guide in Studio and has no entry of its own), values from the model (rounded, or exact doubles)
 //   fk.set      model values by bone name (model key, partner key or transform name), stored under the primary key
 //               (FkOps.SetBones: one entry "FK bones")
-//   fk.enable   FK on / off, or groups by name (FkOps.SetEnabled / SetGroup with the missing-value capture), one entry "FK"
+//   fk.enable   FK on / off, or groups by name (FkOps.SetEnabled / SetGroup with the missing-value capture), one entry "FK"; the limb
+//               names RightArm, LeftArm, RightLeg and LeftLeg switch the Body group, with a warning
 //   fk.capture  the current pose of Body, Neck and the hands → fk.bones, groups body + neck and FK on, speed 0 (one entry
 //               "FK from pose"; FkOps.CurrentValues)
 //   ik.enable   IK on / off, or IK groups by name (IkOps.SetEnabled / SetGroups with the missing-target capture and the
@@ -45,6 +46,8 @@ namespace HS2Next.App.Commands
     public static class FkPoseCommands
     {
         static readonly string[] GroupNames = { "Hair", "Neck", "Breast", "Body", "RightHand", "LeftHand", "Skirt" };
+        /// <summary>The limb names of the automation vocabulary that fk.enable takes as the Body group (with a warning).</summary>
+        public static readonly string[] LimbNames = { "RightArm", "LeftArm", "RightLeg", "LeftLeg" };
         static readonly string[] IkGroupNames = { "body", "rightLeg", "leftLeg", "rightArm", "leftArm" };
 
         public static void Register(ICommandRegistry r, AppCore app)
@@ -71,7 +74,7 @@ namespace HS2Next.App.Commands
             CommandKit.Register(r, app, CommandKit.Spec("fk.enable", "Switches FK, or FK groups, on or off; bones that become applied without a value keep the pose you see (one history entry). IK is not touched.", "fk/pose")
                     .Arg("key", ArgTypes.Node, "a character, or a built item (no groups; its dynamic bones are off while FK is on)", true)
                     .Arg("on", ArgTypes.Bool, "the new state", false, true)
-                    .Arg("groups", ArgTypes.ArrayOf(ArgTypes.String), "groups to switch instead of FK itself: Hair, Neck, Breast, Body, RightHand, LeftHand, Skirt (ignoring case); characters only")
+                    .Arg("groups", ArgTypes.ArrayOf(ArgTypes.String), "groups to switch instead of FK itself: Hair, Neck, Breast, Body, RightHand, LeftHand, Skirt (ignoring case); RightArm, LeftArm, RightLeg and LeftLeg switch the Body group, with a warning; characters only")
                     .Return("fkEnabled", ArgTypes.Bool).Return("ikEnabled", ArgTypes.Bool).Return("activeFK", ArgTypes.ArrayOf(ArgTypes.Bool))
                     .WithFlags(CommandFlags.Mutates),
                 FkEnable);
@@ -337,6 +340,15 @@ namespace HS2Next.App.Commands
                 foreach (var s in names)
                 {
                     int i = Array.FindIndex(GroupNames, g => string.Equals(g, s?.Trim(), StringComparison.OrdinalIgnoreCase));
+                    if (i < 0)
+                    {
+                        int limb = Array.FindIndex(LimbNames, g => string.Equals(g, s?.Trim(), StringComparison.OrdinalIgnoreCase));
+                        if (limb >= 0)
+                        {
+                            c.Warn(LimbNames[limb] + " switches the Body group in HS2Next");
+                            i = (int)FkGroup.Body;
+                        }
+                    }
                     if (i < 0) throw new BridgeException(BridgeCodes.BadArgs, "unknown FK group \"" + s + "\"",
                         new BridgeErrorDetail { Arg = "groups", Expected = "FK group names", Candidates = GroupNames });
                     groups.Add((FkGroup)i);

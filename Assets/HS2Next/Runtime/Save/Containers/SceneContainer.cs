@@ -67,6 +67,8 @@ namespace HS2Next.Save
                 Scene = SceneDocument.Read(s.Reader(SceneDocument.EntryName)),
                 Title = s.Manifest.Title ?? "",
             };
+            for (int i = 0; i < c.Scene.Nodes.Count; i++)
+                if (c.Scene.Nodes[i].State is CharaNodeState cs) cs.Wet.ReportMissingMaps(s.Res, s.Findings, SceneDocument.EntryName, "nodes[" + i + "].chara." + CharaWet.MemberName);
             c.SceneExt = s.BuildScope(ExtScope.Scene, "scene", "", "", c.Scene.Ext, null);
             foreach (var n in c.Scene.Nodes)
                 c.NodeExt[n.Id] = s.BuildScope(ExtScope.Node, "node", "", NodeRoot(n.Id), n.Ext, null);
@@ -115,6 +117,8 @@ namespace HS2Next.Save
             foreach (var n in Scene.Nodes) s.Covers(n);
             s.Covers(Scene.Timeline);
             s.Covers(Scene.Constraints);
+            s.Covers(Scene.Ragdoll);
+            s.Covers(Scene.Scripts);
             s.Covers(Scene.Scene.Map);
             s.AddDoc(SceneDocument.EntryName, Scene.Write);
             foreach (var n in Scene.Nodes)

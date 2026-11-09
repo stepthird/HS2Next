@@ -609,7 +609,7 @@ public static class MakerAccessoriesTest
                 var rp = AccessoryReport.SlotOf(ctx, s, false, false);
                 var par = go ? go.transform.parent : null;
                 bool inRig = par && (par.IsChildOf(ctx.Anim.transform) || par.IsChildOf(ctx.HeadBone.transform)) && !ctx.Accessories.Any(a => a != null && a.Slot != s && a.Object && par.IsChildOf(a.Object.transform));
-                bool trs = go && go.transform.localPosition == pl && go.transform.localRotation == pr && go.transform.localScale == ps;
+                bool trs = go && go.transform.localPosition == pl && RotationCompare.Deg(go.transform.localRotation, pr) == 0 && go.transform.localScale == ps;
                 if (!go || !par || par.name != key || rp.AnchorName != key || !inRig || !trs) bad.Add($"{key}: parent {(par ? par.name : "none")} report {rp.AnchorName} rig {inRig} trs {trs}");
             }
             Check($"XT4 352#0 on each of the {keys.Count} keys: the slot object under the key's transform of the skeleton, the prefab-local TRS kept, the report's anchor = the key",
@@ -665,7 +665,7 @@ public static class MakerAccessoriesTest
                 var q = Quaternion.Euler(EditContext.U(sets[c].Item2));
                 var sc = EditContext.U(sets[c].Item3); if (sc == Vector3.zero) sc = Vector3.one;
                 if (t.localPosition != p) bad.Add($"set {c + 1} position {t.localPosition}");
-                if (Quaternion.Angle(t.localRotation, q) > 1e-3f && Quaternion.Angle(t.localRotation, new Quaternion(-q.x, -q.y, -q.z, -q.w)) > 1e-3f) bad.Add($"set {c + 1} rotation {t.localEulerAngles}");
+                if (RotationCompare.Deg(t.localRotation, q) > 1e-3f && RotationCompare.Deg(t.localRotation, new Quaternion(-q.x, -q.y, -q.z, -q.w)) > 1e-3f) bad.Add($"set {c + 1} rotation {t.localEulerAngles}");
                 if (t.localScale != sc) bad.Add($"set {c + 1} scale {t.localScale}");
             }
             Check("XT5 351#35: both sets' local TRS = stored × 0.1 / Euler / scale ((0,0,0) → one), values outside the UI limits applied as stored", bad.Count == 0, string.Join(" | ", bad));
@@ -1200,7 +1200,7 @@ public static class MakerAccessoriesTest
                 n.Apply();
                 var om = EntryAt(n, occ);
                 var tr = CmpOf(n.Real.Context, occ)?.trfMove01;
-                Check("XT9 «調整①を左右反転» to the occupied slot: rotation.y 30 → 210, realized", rm.Ok && om != null && Math.Abs(om.Moves[0].Rotation.Y - 210) < 1e-4 && tr && Quaternion.Angle(tr.localRotation, Quaternion.Euler(0, 210, 0)) < 1e-3, rm.Message);
+                Check("XT9 «調整①を左右反転» to the occupied slot: rotation.y 30 → 210, realized", rm.Ok && om != null && Math.Abs(om.Moves[0].Rotation.Y - 210) < 1e-4 && tr && RotationCompare.Deg(tr.localRotation, Quaternion.Euler(0, 210, 0)) < 1e-3, rm.Message);
                 // mirrored parent
                 int mp = SlotsOf(n).LowestFree();
                 var rmp = n.Ops.CopyAccessory(n.Id, e.Id, mp, null, AccessoryCopyParts.Slot, true, MirrorAxis.None, User);
@@ -1942,7 +1942,7 @@ public static class MakerAccessoriesTest
         const double Pos = 1e-4, Deg = 0.01;
         bool heel = ctx.Motion?.Get<HS2Next.Motion.Heels.HeelsFoot>() is var f && f != null && f.State.Active != null && f.Joints.Contains(m.T);
         bool posOk = m.HasP ? DV(np, op) <= Pos || DV(np, m.L != 1f ? op * m.L + m.P : op + m.P) <= Pos : op == np;
-        double aOld = Quaternion.Angle(nr, or), aMod = Quaternion.Angle(nr, or * Quaternion.Euler(m.R));
+        double aOld = RotationCompare.Deg(nr, or), aMod = RotationCompare.Deg(nr, or * Quaternion.Euler(m.R));
         bool rotOk = m.HasR ? aOld <= Deg || aMod <= Deg : aOld <= Deg;
         bool sclOk = m.HasS ? DV(ns, os) <= Pos || DV(ns, Vector3.Scale(os, m.S)) <= Pos : os == ns;
         // the mouth width bone: the modifier owns its scale now, so x gets the modifier where it held the width

@@ -710,6 +710,9 @@ public static partial class MosaicTest
                 if (Want("MR7")) Guard("MR7 members under clothes", () => Mr7(h));
                 if (Want("MO6")) Guard("MO6 the skin on any candidate", () => Mo6(h));
                 if (OnlyNamed("MO6all")) Guard("MO6all the skin on every candidate", () => Mo6All(h));
+                WetGroups(h);
+                RagdollGroups(h);
+                BakeGroups(h);
             }
             finally { Cleanup(); h.Dispose(); }
         }

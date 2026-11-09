@@ -1,5 +1,6 @@
 // The list browsers (right sidebar by default) (U23): items (25k rows: group / category
-// facets + MultiColumnListView name, category, source, id; the accessories offered as items follow the item rows;
+// facets + MultiColumnListView name, category, source, id; the accessories offered as items follow the item rows, the rows of
+// the generated item groups follow them, read again whenever those groups change; the app's own group shows the UI's strings;
 // normalised AND search over name, category, group, source and guid#id; text colour = colour-slot count as vanilla),
 // animations (group / category facets, applied to every selected character, U25), maps ("None" row first; the loaded
 // map marked; selecting it again is a no-op) and lights (9 rows).
@@ -64,6 +65,9 @@ namespace HS2Next.UI.Panels
         public Func<T, StudioRecord> Record;
         /// <summary>The row's name in its menu's details (null = the first column's text).</summary>
         public Func<T, string> Name;
+        /// <summary>A number that changes when <see cref="Rows"/> would give other rows (null: rows change only on Reload); read every
+        /// frame while the browser is shown.</summary>
+        public Func<int> RowsRevision;
     }
 
     /// <summary>The layout of a list browser's body: Stacked = the facet lists above the list (a tall region); Column = the
@@ -94,6 +98,7 @@ namespace HS2Next.UI.Panels
         Task<Dictionary<T, long>> datesTask;
         List<SortColumnDescription> savedSorting;
         const string RecentSort = "\u0002recent";
+        int rowsRevision;
 
         /// <summary>Milliseconds of the last filter + RefreshItems (U-M2 in Unity).</summary>
         public double LastFilterMs { get; private set; }
@@ -449,6 +454,7 @@ namespace HS2Next.UI.Panels
         /// item 3).</summary>
         public void Reload()
         {
+            if (spec.RowsRevision != null) rowsRevision = spec.RowsRevision();
             var rows = spec.Rows() ?? Array.Empty<T>();
             string query = index?.Query, sortName = index?.SortName;
             bool descending = index?.Descending ?? false;
@@ -554,6 +560,7 @@ namespace HS2Next.UI.Panels
 
         void Tick()
         {
+            if (spec.RowsRevision != null && spec.RowsRevision() != rowsRevision) Reload();
             if (datesTask == null || !datesTask.IsCompleted) return;
             var task = datesTask;
             datesTask = null;
@@ -664,18 +671,26 @@ namespace HS2Next.UI.Panels
     {
         public static string Source(StudioRecord r) => r.IsVanilla ? L10n.Get("browser.vanilla") : r.Zipmod?.Name ?? r.Guid;
 
+        /// <summary>The item browser's rows: the list rows, the accessories offered as items, then the rows of the generated groups.</summary>
+        public static List<StudioItem> ItemRows(StudioDb db) =>
+            db == null ? new List<StudioItem>() : db.Items.Enumerate().Concat(db.AccessoryItems).Concat(db.Generated.Rows()).ToList();
+
         public static ListBrowserSpec<StudioItem> Items(UiContext ctx)
         {
             var db = ctx.App.Db;
-            // the accessories offered as items have a localized group label (the lists' own name is data)
+            // the accessories offered as items and the app's own group have localized labels (the lists' own names are data)
             string GroupName(int g) => g == StudioDb.AccessoryGroup ? L10n.Get("browser.group.accessories")
+                : AppRowLabels.Is(db, g) ? AppRowLabels.Group()
                 : db != null && db.TryGetItemGroup(g, out var sg) ? sg.Name : g.ToString();
-            string CatName(int g, int c) => db != null && db.TryGetItemCategory(g, c, out var sc) ? sc.Name : c.ToString();
+            string CatName(int g, int c) => AppRowLabels.Is(db, g) ? AppRowLabels.Category(c)
+                : db != null && db.TryGetItemCategory(g, c, out var sc) ? sc.Name : c.ToString();
+            string RowName(StudioItem r) => AppRowLabels.Is(db, r.Group) ? AppRowLabels.Row(r) : r.Name;
             var s = new ListBrowserSpec<StudioItem>
             {
                 Id = "items",
-                Rows = () => db == null ? new List<StudioItem>() : db.Items.Enumerate().Concat(db.AccessoryItems).ToList(),
-                SearchText = r => r.Name + " " + CatName(r.Group, r.Category) + " " + GroupName(r.Group) + " " + Source(r),
+                Rows = () => ItemRows(db),
+                RowsRevision = () => db?.Generated.Revision ?? 0,
+                SearchText = r => RowName(r) + " " + CatName(r.Group, r.Category) + " " + GroupName(r.Group) + " " + Source(r),
                 ContentRef = r => r.Key.ToString(),
                 GroupKey = r => r.Group.ToString(System.Globalization.CultureInfo.InvariantCulture),
                 CategoryKey = r => r.Category.ToString(System.Globalization.CultureInfo.InvariantCulture),
@@ -688,15 +703,41 @@ namespace HS2Next.UI.Panels
                 Activate = r => AddItem(ctx, r, null, null),
                 Drag = r => new AddPayload(r.Name, OpLabels.AddItem, (p, pt) => AddItem(ctx, r, p, pt)),
                 Record = r => r,
-                Name = r => r.Name,
+                Name = RowName,
             };
-            s.Columns.Add(("name", "browser.col.name", 260, r => (r.Color != null && r.Color.FlagCount > 0 ? "● " : "") + r.Name));
+            s.Columns.Add(("name", "browser.col.name", 260, r => (r.Color != null && r.Color.FlagCount > 0 ? "● " : "") + RowName(r)));
             s.Columns.Add(("category", "browser.col.category", 160, r => CatName(r.Group, r.Category)));
             s.Columns.Add(("source", "browser.col.source", 160, Source));
             s.Columns.Add(("id", "browser.col.id", 120, r => r.Key.ToString()));
             s.Sorts["name"] = (a, b) => ListSorts.CompareJa(a.Name, b.Name);
             s.Sorts["source"] = (a, b) => ListSorts.CompareOrdinalIgnoreCase(Source(a), Source(b));
             return s;
+        }
+
+        /// <summary>The labels of the app's own generated group (its name, its two categories, the four markers) from the UI's strings,
+        /// else the rows' own names.</summary>
+        public static class AppRowLabels
+        {
+            /// <summary>True for the app's own group (when the app holds the number).</summary>
+            public static bool Is(StudioDb db, int group) => group == AppItemRows.Group && db != null && db.Generated.Group(group)?.Owner == AppItemRows.Owner;
+
+            public static string Group() => L10n.TryGet("panel.bake", out var t) ? t : AppItemRows.GroupName;
+
+            public static string Category(int c) =>
+                c == AppItemRows.BakesCategory ? (L10n.TryGet("bake.rows.bakes", out var a) ? a : AppItemRows.BakesName)
+                : c == AppItemRows.MarkersCategory ? (L10n.TryGet("bake.rows.markers", out var b) ? b : AppItemRows.MarkersName)
+                : c.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+            static readonly string[] MarkerKeys = { "cut.marker.plane", "cut.marker.box", "cut.marker.tear", "cut.marker.hole" };
+
+            public static string Row(StudioItem r)
+            {
+                if (r == null) return null;
+                int k = r.Key.Id - 1;
+                if (r.Category == AppItemRows.MarkersCategory && string.Equals(r.Guid, AppItemRows.CutGuid, StringComparison.OrdinalIgnoreCase) && k >= 0 && k < MarkerKeys.Length
+                    && L10n.TryGet(MarkerKeys[k], out var t)) return t;
+                return r.Name;
+            }
         }
 
         public static OpResult AddItem(UiContext ctx, StudioItem r, string parent, string point)

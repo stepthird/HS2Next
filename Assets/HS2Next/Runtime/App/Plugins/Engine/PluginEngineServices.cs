@@ -1,9 +1,12 @@
 // The engine-side services of one plugin (the host side of HS2Next.Api.Unity, and the shader supply of HS2Next.Api): the
 // realized objects of scene nodes and characters, build hooks (with skin layers and body-part replacement at BodyMesh),
-// typed material overrides, the additive mosaic, shader supplies, skin layers and rebuild requests outside builds, and the
-// experimental UI registration. Everything a plugin registers here is owned by its GUID: build hooks and FK node providers
-// under "<guid>/<id>" (so the build statistics and the build log name the plugin), skin layers under "<guid>/<id>", supplies
-// on the shader map's owner stack, UI entries under "<guid>/<id>"; Unload removes all of it (mosaic members a plugin added
+// typed material overrides, the additive mosaic, shader supplies, skin layers and rebuild requests outside builds, the
+// experimental UI registration, the viewport tools (PluginViewportTools: the plugin's tool behind its fault wrapper, ended
+// when the plugin leaves), the map query, the character stages (PluginCharaStages: the plugin's stage behind its fault wrapper, taken
+// off when the plugin leaves) and the item rows (PluginItemRows: the plugin's item groups, removed when the plugin leaves).
+// Everything a plugin registers here is owned by its GUID: build hooks and FK node providers under "<guid>/<id>" (so the
+// build statistics and the build log name the plugin), skin layers under "<guid>/<id>", supplies on the shader map's owner
+// stack, UI entries under "<guid>/<id>", item groups by its GUID; Unload removes all of it (mosaic members a plugin added
 // stay; the layers it set outside builds are dropped and the skin re-composited; a body part it supplied stays until the
 // character's next build).
 // Skin layers: at BodyMesh a hook sets or removes its layers on the character being built (PNG / JPEG bytes checked by
@@ -52,6 +55,10 @@ namespace HS2Next.App.Plugins.Engine
         readonly HookRegistry hooks;
         readonly OverrideAdapter materials;
         PluginUiServices ui;
+        PluginViewportTools tools;
+        IMapQuery map;
+        PluginCharaStages stages;
+        PluginItemRows itemRows;
         readonly HashSet<Renderer> loggedRefusals = new HashSet<Renderer>();
         int mosaicProtected;
         bool unloaded;
@@ -111,6 +118,9 @@ namespace HS2Next.App.Plugins.Engine
         public void Unload()
         {
             if (unloaded) return;
+            tools?.Close();
+            stages?.Close();
+            itemRows?.Close();
             unloaded = true;
             DropRuntimeLayers();
             CharaBuildHooks.UnregisterOwner(Guid);
@@ -358,6 +368,55 @@ namespace HS2Next.App.Plugins.Engine
                 return ui;
             }
         }
+
+        public IViewportTools Tools
+        {
+            get
+            {
+                CheckLoaded();
+                var host = HostTools();
+                if (host == null) return null;
+                if (tools == null || tools.Host != host)
+                {
+                    tools?.Close();
+                    tools = new PluginViewportTools(guard, host);
+                }
+                return tools;
+            }
+        }
+
+        /// <summary>The host's viewport tools, or null when the UI does not run.</summary>
+        IViewportTools HostTools() => uiContext()?.Tools;
+
+        public IMapQuery Map
+        {
+            get
+            {
+                CheckLoaded();
+                return map ?? (map = MapSurface.Of(runtime));
+            }
+        }
+
+        public ICharaStages Stages
+        {
+            get
+            {
+                CheckLoaded();
+                return stages ?? (stages = new PluginCharaStages(guard, runtime));
+            }
+        }
+
+        public IItemRows ItemRows
+        {
+            get
+            {
+                CheckLoaded();
+                return itemRows ?? (itemRows = new PluginItemRows(guard, runtime));
+            }
+        }
+
+        /// <summary>The plugin's item groups in the Studio list.</summary>
+        public int ItemRowGroups => itemRows?.Count ?? 0;
 
         // ------------------------------------------------------------ IShaderSupply
 

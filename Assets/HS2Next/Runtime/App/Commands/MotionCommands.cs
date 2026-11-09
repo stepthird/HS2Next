@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using HS2Next.Api.Bridge;
+using HS2Next.App.Plugins.Engine;
 using HS2Next.Motion;
 using HS2Next.Save;
 using HS2Next.Scenes.Runtime;
@@ -38,7 +39,7 @@ namespace HS2Next.App.Commands
                     .Return("paused", ArgTypes.Bool).Return("timeScale", ArgTypes.Float).Return("autoStep", ArgTypes.Bool)
                     .Return("time", ArgTypes.Float, "CharaMotion.Time (scaled seconds stepped)").Return("stepCount", ArgTypes.Int)
                     .Return("errors", ArgTypes.Int).Return("maxStep", ArgTypes.Float).Return("physics", ArgTypes.Bool).Return("look", ArgTypes.Bool)
-                    .Return("stages", ArgTypes.ArrayOf(ArgTypes.Object), "[{name, phase, enabled, owner: fk | motion | bridge}] in step order")
+                    .Return("stages", ArgTypes.ArrayOf(ArgTypes.Object), "[{name, phase, enabled, owner: fk | motion | bridge | a plugin's guid}] in step order")
                     .Return("correction", ArgTypes.Object, "{master, flags}").Return("frame", ArgTypes.Int, "the bridge frame of this reply")
                     .Example("{\"cmd\":\"chara.motion\",\"key\":\"<id>\",\"autoStep\":false,\"physics\":false,\"step\":{\"dt\":0.016666668,\"n\":60}}")
                     .WithFlags(CommandFlags.Mutates),
@@ -185,7 +186,7 @@ namespace HS2Next.App.Commands
             {
                 if (s == null) continue;
                 if (s.Name == MotionOverrides.CorrectStage && s.Enabled) correct = true;
-                list.Add(new BridgeReply { ["name"] = s.Name, ["phase"] = (int)s.Phase, ["enabled"] = s.Enabled, ["owner"] = Owner(s.Name) });
+                list.Add(new BridgeReply { ["name"] = s.Name, ["phase"] = (int)s.Phase, ["enabled"] = s.Enabled, ["owner"] = s is PluginStageAdapter p ? p.Owner : Owner(s.Name) });
             }
             var flags = (r.Node?.State as CharaNodeState)?.Correction ?? new bool[8];
             var fl = new List<object>();

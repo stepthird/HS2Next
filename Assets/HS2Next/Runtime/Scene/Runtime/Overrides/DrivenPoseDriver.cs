@@ -116,6 +116,16 @@ namespace HS2Next.Scenes.Runtime
             if (e.Written == DrivenChannels.None) c.Set.Remove(e);
         }
 
+        /// <summary>An entry of <paramref name="t"/> in another set of this character, made as <see cref="Bind"/> makes one, with the same rule. Null when the mosaic rule names the bone.</summary>
+        internal static DrivenBone BindInto(CharaRealization r, DrivenBones set, string address, Transform t)
+        {
+            if (!t || AdvancedPoseGuard.Bone(r, t)) return null;
+            var e = new DrivenBone(address, t);
+            FindWriters(r, e, t);
+            set.Add(e);
+            return e;
+        }
+
         static void FindWriters(CharaRealization r, DrivenBone e, Transform t)
         {
             bool chain = AdvancedPoseResolver.ChainBones(r).Contains(t);
@@ -194,8 +204,8 @@ namespace HS2Next.Scenes.Runtime
         public static void Bare(CharaRealization r, Action read)
         {
             var c = Of(r);
-            if (c != null) c.Set.Bare(read);
-            else read();
+            if (c != null) c.Set.Bare(() => RagdollDriver.Bare(r, read));
+            else RagdollDriver.Bare(r, read);
         }
 
         /// <summary>The bones back to what the pose left; the caller takes the corrections off first. The next step applies again.</summary>

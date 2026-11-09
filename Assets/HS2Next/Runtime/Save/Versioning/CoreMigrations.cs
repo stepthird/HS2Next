@@ -2,9 +2,10 @@
 // JObjects of one file from formatVersion n to n + 1 before the documents are bound; migrations
 // must be idempotent for members they add (they never overwrite an existing member). The
 // registry holds exactly one migration per From version up to the supported revision S; a gap is a
-// startup error. The registry of this build has S = 4 with the empty, silent migrations 1 → 2 (revision 2 only adds an
-// optional member, the clothes parts' inline ext), 2 → 3 (after 1.1.0: a character node's state.nippleThroughClothes) and
-// 3 → 4 (after 1.2.0: the scene's timeline): v1, v2 and v3 files load exactly as before, with no finding.
+// startup error. The registry of this build has S = 5 with the empty, silent migrations 1 → 2 (revision 2 only adds an
+// optional member, the clothes parts' inline ext), 2 → 3 (after 1.1.0: a character node's state.nippleThroughClothes),
+// 3 → 4 (after 1.2.0: the scene's timeline) and 4 → 5 (after 1.3.x: a character node's wet): files of the revisions 1 to 4 load
+// exactly as before, with no finding.
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
@@ -44,8 +45,8 @@ namespace HS2Next.Save
     public sealed class CoreMigrationRegistry
     {
         /// <summary>The registry of this build: supported revision <see cref="SaveFormats.SupportedVersion"/> with the empty,
-        /// silent migrations 1 → 2, 2 → 3 and 3 → 4.</summary>
-        public static readonly CoreMigrationRegistry Default = new CoreMigrationRegistry(SaveFormats.SupportedVersion, Empty(1), Empty(2), Empty(3));
+        /// silent migrations 1 → 2, 2 → 3, 3 → 4 and 4 → 5.</summary>
+        public static readonly CoreMigrationRegistry Default = new CoreMigrationRegistry(SaveFormats.SupportedVersion, Empty(1), Empty(2), Empty(3), Empty(4));
 
         /// <summary>A migration From → From + 1 that changes nothing and reports nothing (a revision that only adds optional
         /// members); the registry adds no <c>migrate.core</c> info for it.</summary>

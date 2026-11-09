@@ -218,7 +218,7 @@ public static partial class RouteTest
                         q = Quaternion.Slerp(q, Target(s, q), (float)(1.0 - Math.Pow(0.855, 60.0 * Dt)));
                         expect = q;
                     }
-                    maxRot = Math.Max(maxRot, Quaternion.Angle(real.ChildRoot.localRotation, expect));
+                    maxRot = Math.Max(maxRot, RotationCompare.Deg(real.ChildRoot.localRotation, expect));
                 }
                 Info($"[{orient}] {frames} frames, total {path.TotalDuration:F4} s; max |pos − evaluator| {maxPos:E2}, max rotation error {maxRot:F4}°, max |τ − Σdt| {maxTau:E2}");
                 Check($"[{orient}] child-root local position = RoutePath.Evaluate(τ) within 1e-5 while playing", maxPos <= 1e-5, maxPos.ToString("E2"));
@@ -231,7 +231,7 @@ public static partial class RouteTest
                     $"state {app.Ops.RouteState(id)}, frames {frames}, root {F(real.ChildRoot.localPosition)} end {F(V(end.Position))}");
                 var rotEnded = real.ChildRoot.localRotation;
                 Ticks(app, 10);
-                Check($"[{orient}] an ended route stands still (pose unchanged over 10 frames)", real.ChildRoot.localRotation == rotEnded && (real.ChildRoot.localPosition - V(end.Position)).magnitude < 1e-5);
+                Check($"[{orient}] an ended route stands still (pose unchanged over 10 frames)", RotationCompare.Deg(real.ChildRoot.localRotation, rotEnded) == 0 && (real.ChildRoot.localPosition - V(end.Position)).magnitude < 1e-5);
                 if (orient == "xy")
                 {
                     RouteSettings.OrientSmoothing = false;
@@ -239,13 +239,13 @@ public static partial class RouteTest
                     Ticks(app, 20);
                     var s = path.Evaluate(real.Time);
                     var look = Quaternion.Inverse(R) * Quaternion.LookRotation(R * (V(s.LookTarget) - V(s.Position)), Vector3.up);
-                    float a = Quaternion.Angle(real.ChildRoot.localRotation, look);
+                    double a = RotationCompare.Deg(real.ChildRoot.localRotation, look);
                     Check("[xy] routes.orientSmoothing off: the exact look rotation", a <= 0.01f, a.ToString("F4") + "°");
                     RouteSettings.OrientSmoothing = true;
                 }
                 var stop = app.Ops.StopRoutes(new[] { id }, User);
                 Check($"[{orient}] Stop: the child root back at the start point's pose", stop.Ok && app.Ops.RouteState(id) == RoutePlayState.Stopped &&
-                    real.ChildRoot.localPosition == Vector3.zero && Quaternion.Angle(real.ChildRoot.localRotation, startLocal) < 1e-3f);
+                    real.ChildRoot.localPosition == Vector3.zero && RotationCompare.Deg(real.ChildRoot.localRotation, startLocal) < 1e-3f);
             }
             finally { app.Dispose(); }
         }
@@ -276,7 +276,7 @@ public static partial class RouteTest
                     var h = app.Runtime.HolderOf(nid);
                     if (!h || h.parent != real.ChildRoot) { under = false; continue; }
                     maxP = Math.Max(maxP, (h.position - real.ChildRoot.TransformPoint(lp)).magnitude);
-                    maxR = Math.Max(maxR, Quaternion.Angle(h.rotation, real.ChildRoot.rotation * lr));
+                    maxR = Math.Max(maxR, RotationCompare.Deg(h.rotation, real.ChildRoot.rotation * lr));
                 }
             }
             Check("riders (an item and a folder) hang under the child root", under);
@@ -779,7 +779,7 @@ public static partial class RouteTest
             var w0 = app.Runtime.HolderOf(it).position;
             Ticks(app, 30);
             Check("paused: 30 Ticks leave τ, the child root (bit-equal) and the rider unchanged",
-                real.Time == t0 && real.ChildRoot.localPosition == p0 && real.ChildRoot.localRotation == q0 && app.Runtime.HolderOf(it).position == w0);
+                real.Time == t0 && real.ChildRoot.localPosition == p0 && RotationCompare.Deg(real.ChildRoot.localRotation, q0) == 0 && app.Runtime.HolderOf(it).position == w0);
             app.Runtime.Step(30, Dt);
             double expect = t0;
             for (int i = 0; i < 30; i++) expect += Dt;
@@ -794,7 +794,7 @@ public static partial class RouteTest
                 b.Ops.PlayRoutes(new[] { id2 }, false, User);
                 Ticks(b, 50);
                 var r2 = b.Ops.RouteReal(id2);
-                Check("pause → step 30 → resume = 50 frames (child root bit-equal)", r2.Time == real.Time && r2.ChildRoot.localPosition == real.ChildRoot.localPosition && r2.ChildRoot.localRotation == real.ChildRoot.localRotation,
+                Check("pause → step 30 → resume = 50 frames (child root bit-equal)", r2.Time == real.Time && r2.ChildRoot.localPosition == real.ChildRoot.localPosition && RotationCompare.Deg(r2.ChildRoot.localRotation, real.ChildRoot.localRotation) == 0,
                     $"τ {r2.Time:R} / {real.Time:R}");
             }
             finally { b.Dispose(); }

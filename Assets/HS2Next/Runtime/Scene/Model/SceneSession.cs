@@ -661,6 +661,7 @@ namespace HS2Next.Scenes
             if (copied != null) copied[n.Id] = doc.Id;
             if (doc.State is RouteNodeState r) foreach (var p in r.Points) p.Id = NewId();
             if (doc.State is CameraNodeState cam) cam.Active = false;
+            if (doc.State is CharaNodeState chara) { HS2Next.Scenes.Wet.WetCopy.Prepare(chara.Wet); chara.Ragdoll.PrepareCopy(); }
             var spec = new NodeSpec { Doc = doc, Appearance = n.Appearance?.Clone(), FileExt = n.FileExt?.Clone() };
             var kids = n.Children;
             if (kids.Count > 0)

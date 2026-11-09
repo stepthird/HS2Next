@@ -264,7 +264,7 @@ public static class LookTest
         var rawEye = Raw(r.Ctx.HeadBone.transform, "EyeLookController", "ptnNo");
         Check($"{label} eyes: serialized controller ptnNo 1", Equals(rawEye, 1), $"ptnNo {rawEye}");
         Check($"{label} eyes: Init references from the prefab rest pose: look (0,0,1), up (0,1,0), orig identity",
-            e.ReferencesFromPrefab == 2 && e.Eyes.All(x => (x.RefLook - Vector3.forward).magnitude < 1e-5f && (x.RefUp - Vector3.up).magnitude < 1e-5f && Quaternion.Angle(x.Orig, Quaternion.identity) < 1e-3f),
+            e.ReferencesFromPrefab == 2 && e.Eyes.All(x => (x.RefLook - Vector3.forward).magnitude < 1e-5f && (x.RefUp - Vector3.up).magnitude < 1e-5f && RotationCompare.Deg(x.Orig, Quaternion.identity) < 1e-3f),
             string.Join(", ", e.Eyes.Select(x => $"{x.RefLook:F4}/{x.RefUp:F4}/{x.Orig.eulerAngles:F3}")) + $", from prefab {e.ReferencesFromPrefab}");
 
         // ---- targets and defaults
@@ -311,8 +311,8 @@ public static class LookTest
             var E = r.Eyes; float err = 0, rerr = 0;
             bool ok = Near(E.AngleH(0), x.lh, Tol, ref err) & Near(E.AngleV(0), x.lv, Tol, ref err) & Near(E.AngleH(1), x.rh, Tol, ref err) & Near(E.AngleV(1), x.rv, Tol, ref err);
             bool rates = Near(E.AngleHRate(0), x.rhl, 0.002f, ref rerr) & Near(E.AngleHRate(1), x.rhr, 0.002f, ref rerr) & Near(E.AngleVRate, x.rvr, 0.002f, ref rerr);
-            float eul = 0;
-            for (int i = 0; i < 2; i++) eul = Mathf.Max(eul, Quaternion.Angle(E.Eyes[i].Transform.localRotation, Quaternion.Euler(E.AngleV(i), E.AngleH(i), 0)));
+            double eul = 0;
+            for (int i = 0; i < 2; i++) eul = Math.Max(eul, RotationCompare.Deg(E.Eyes[i].Transform.localRotation, Quaternion.Euler(E.AngleV(i), E.AngleH(i), 0)));
             worstExample = Mathf.Max(worstExample, err);
             Check($"{x.id} ptn {x.ptn} target R+{x.off:F1}", ok && rates && eul < 0.01f,
                 $"L {V2(E.AngleH(0), E.AngleV(0))} R {V2(E.AngleH(1), E.AngleV(1))} (spec L {V2(x.lh, x.lv)} R {V2(x.rh, x.rv)}), rates {E.AngleHRate(0):F4}/{E.AngleHRate(1):F4}/{E.AngleVRate:F4}; " +
@@ -342,8 +342,8 @@ public static class LookTest
             bool ok = Near(N.NowAngle.x, nv, Tol, ref err) & Near(N.NowAngle.y, nh, Tol, ref err)
                       & Near(N.Bones[0].AngleH, neckH, Tol, ref err) & Near(N.Bones[0].AngleV, neckV, Tol, ref err)
                       & Near(N.Bones[1].AngleH, headH, Tol, ref err) & Near(N.Bones[1].AngleV, headV, Tol, ref err);
-            float eul = 0;
-            foreach (var b in N.Bones) eul = Mathf.Max(eul, Quaternion.Angle(b.NeckBone.localRotation, Quaternion.Euler(b.AngleV, b.AngleH, 0)));
+            double eul = 0;
+            foreach (var b in N.Bones) eul = Math.Max(eul, RotationCompare.Deg(b.NeckBone.localRotation, Quaternion.Euler(b.AngleV, b.AngleH, 0)));
             bool br = N.States[N.ClampPtn(ptn)].IsLimitBreak;
             worstExample = Mathf.Max(worstExample, err);
             Check($"{id} ptn {ptn} target {pos:F2}", ok && eul < 0.01f && br == broken,
@@ -362,7 +362,7 @@ public static class LookTest
         var n7 = N.Bones.Select(b => b.NeckBone.localRotation).ToArray();
         r.Look.SetNeckPattern(4);
         for (int f = 0; f < 120; f++) r.Motion.Step(Dt);
-        float n8 = N.Bones.Select((b, i) => Quaternion.Angle(b.NeckBone.localRotation, n7[i])).Max();
+        double n8 = N.Bones.Select((b, i) => RotationCompare.Deg(b.NeckBone.localRotation, n7[i])).Max();
         Check("N8 ptn 4 (FIX) holds N7 for 2 s", n8 < 0.01f, $"max deviation {n8:F5} deg");
         r.Look.SetNeckPattern(3);
         for (int f = 0; f < 15; f++) r.Motion.Step(Dt);
@@ -371,7 +371,7 @@ public static class LookTest
         worstExample = Mathf.Max(worstExample, e9);
         Check("N9 ptn 3 (ANIMATION) after FIX, 0.25 s: output euler Y 22.5", e9 <= Tol, $"neck {y0:F3}, head {y1:F3}, timer {N.ChangeTypeTimer:F4} s; err {e9:F4}");
         for (int f = 0; f < 105; f++) r.Motion.Step(Dt);
-        float n9b = N.Bones.Max(b => Quaternion.Angle(b.NeckBone.localRotation, b.Rest));
+        double n9b = N.Bones.Max(b => RotationCompare.Deg(b.NeckBone.localRotation, b.Rest));
         Check("N9 at 2 s equals the (rest) animation pose", n9b < 0.01f, $"max deviation {n9b:F5} deg");
 
         // N1 transition trace from FORWARD
@@ -420,7 +420,7 @@ public static class LookTest
         for (int f = 0; f < 30; f++) r.Motion.Step(Dt);
         float aMid = Quaternion.Angle(N.Bones[1].NeckBone.localRotation, Quaternion.identity);
         for (int f = 0; f < 30; f++) r.Motion.Step(Dt);
-        float aEnd = Quaternion.Angle(N.Bones[1].NeckBone.localRotation, Quaternion.identity);
+        double aEnd = RotationCompare.Deg(N.Bones[1].NeckBone.localRotation, Quaternion.identity);
         Check("type blend TARGET -> FORWARD: 0.5 s = 25% of the start pose (w = 0.75), 1 s = done", Mathf.Abs(aMid - 0.25f * a1) < 0.01f && aEnd < 0.01f,
             $"start {a1:F3} deg, 0.5 s {aMid:F3} (expected {0.25f * a1:F3}), 1 s {aEnd:F4}");
 
@@ -505,8 +505,8 @@ public static class LookTest
         // ResetAll
         Fresh(r, 1, 1); r.Target.position = n1; Settle(r);
         r.Motion.ResetAll();
-        float restDev = N.Bones.Max(b => Quaternion.Angle(b.NeckBone.localRotation, b.Rest));
-        float eyeDev = E.Eyes.Max(x => Quaternion.Angle(x.Transform.localRotation, x.Orig));
+        double restDev = N.Bones.Max(b => RotationCompare.Deg(b.NeckBone.localRotation, b.Rest));
+        double eyeDev = E.Eyes.Max(x => RotationCompare.Deg(x.Transform.localRotation, x.Orig));
         bool cleared = !E.HasOutput && E.AngleH(0) == 0 && N.Bones.All(b => b.AngleH == 0 && b.AngleV == 0) && N.NowAngle == Vector2.zero && N.CurrentType == 0;
         r.Motion.Step(Dt);
         float h1 = N.Bones[1].AngleH;
@@ -548,7 +548,7 @@ public static class LookTest
         Check("eye ptn 3 (NO_LOOK) freezes the last computed pose", E.Eyes.Select(x => x.Transform.localRotation).Zip(frozen, LookMath.Same).All(x => x));
         // NO_LOOK as the very first pattern: the rest pose, not a zero quaternion
         Fresh(r, 0, 3); r.Motion.Step(Dt);
-        Check("eye ptn 3 as the first pattern keeps the rest rotation", E.Eyes.All(x => Quaternion.Angle(x.Transform.localRotation, x.Orig) < 1e-3f && LookMath.Finite(x.Transform.localRotation)));
+        Check("eye ptn 3 as the first pattern keeps the rest rotation", E.Eyes.All(x => RotationCompare.Deg(x.Transform.localRotation, x.Orig) < 1e-3f && LookMath.Finite(x.Transform.localRotation)));
 
         // Studio look target (eye pattern 4)
         Fresh(r, 0, 0);
@@ -616,7 +616,7 @@ public static class LookTest
         look.LoadNeck(4, nq); look.LoadEyes(eq);
         look.SetEyePattern(3);
         for (int f = 0; f < 60; f++) r.Motion.Step(Dt);
-        float pd = N.Bones.Select((b, i) => Quaternion.Angle(b.NeckBone.localRotation, nq[i])).Concat(E.Eyes.Select((x, i) => Quaternion.Angle(x.Transform.localRotation, eq[i]))).Max();
+        double pd = N.Bones.Select((b, i) => RotationCompare.Deg(b.NeckBone.localRotation, nq[i])).Concat(E.Eyes.Select((x, i) => RotationCompare.Deg(x.Transform.localRotation, eq[i]))).Max();
         Check("scene state: neck FIX + eye NO_LOOK restore the saved pose", pd < 0.01f, $"saved ptn {sp}, max deviation after 1 s {pd:F5} deg");
     }
 
@@ -649,7 +649,7 @@ public static class LookTest
             var R = r.Eyes.RootNode.position;
             r.Target.position = R + r.Eyes.RootNode.forward * 10f;
             r.Motion.Step(Dt);
-            float neckMove = r.Neck.Bones.Max(b => Quaternion.Angle(b.NeckBone.localRotation, b.Rest));
+            double neckMove = r.Neck.Bones.Max(b => RotationCompare.Deg(b.NeckBone.localRotation, b.Rest));
             float eyeMove = r.Eyes.Eyes.Max(x => Quaternion.Angle(x.Transform.localRotation, x.Orig));
             Check($"{sex} card: first frame with the defaults (ANIMATION neck unchanged, FORWARD eyes small)", neckMove < 1e-3f && eyeMove < 1f, $"neck {neckMove:F5} deg, eyes {eyeMove:F4} deg");
 

@@ -409,9 +409,11 @@ public static partial class UiPanelsTest
         c.Check(items != null, "item browser built");
         if (items != null)
         {
-            // the item rows, then the accessories offered as items (group 647158; 5.2)
-            int all = c.App.Db.Items.VisibleCount + c.App.Db.AccessoryItems.Count;
-            c.Check(items.Index.Rows.Count == all, "item rows = visible items + the accessories offered as items (" + items.Index.Rows.Count + ")");
+            // the item rows, then the accessories offered as items (group 647158; 5.2), then the generated rows (6.8: the app's group 731406 with its
+            // four markers and the store's bakes, and the groups plugins add)
+            int generated = c.App.Db.Generated.RowCount;
+            int all = c.App.Db.Items.VisibleCount + c.App.Db.AccessoryItems.Count + generated;
+            c.Check(items.Index.Rows.Count == all, "item rows = visible items + the accessories offered as items + the generated rows (" + items.Index.Rows.Count + ", generated " + generated + ")");
             var qs = new[] { "a", "椅子", "box", "テーブル", "light", "illusion", "ka", "chair table", "#399", "zzzz-none" };
             var t = new List<double>();
             for (int rep = 0; rep < 3; rep++)

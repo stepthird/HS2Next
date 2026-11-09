@@ -12,13 +12,26 @@
 //   Authoring: while paused or ended, a model edit of a channel a track drives clears that channel's value (the edit shows)
 //   until the play head moves or the track's keys change.
 //   Perf: the wall time of every tick while playing (the last 4,096), for timeline.status {perf}.
+//   Animation restart (Phase 6.9): at the first tick after a play from 0 (a play from stopped or ended, a play with from 0, the
+//   recorder's restart; a resume at time 0 counts as one) every anime channel whose row its character already plays loads that row
+//   again at time 0 (the winning time slot's time when one wins), as a switch to another row loads; later switches load only when
+//   the row differs. A seek to 0 restarts nothing.
+//   The same restart resets the dynamic chains (dynamic bones and the bust chains) of every cast character of the loaded scene script
+//   (the Timeline's script marker) and of every character whose anime channel the restart loads, in that tick's motion step: before the
+//   pose sources every active chain's bones go back to their start pose (stage "timeline.chains.restore", phase -1), so the pose sources
+//   write over it; after the pose is written and before the chains run (stage "timeline.chains", phase 740) the chains drop their
+//   history and start from the posed bones. Both stages are taken off again after they ran. A seek, a pause, a resume after time 0 and
+//   a loop pass reset nothing.
 // The frame recorder reaches the playback as IRecordedTimeline; the UI and the commands edit through TimelineService (Service).
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using HS2Next.Motion;
+using HS2Next.Motion.DynamicBones;
 using HS2Next.Save;
+using HS2Next.Scenes.Overrides;
 using HS2Next.Scenes.Timeline;
 using Newtonsoft.Json.Linq;
 using Debug = UnityEngine.Debug;
@@ -101,6 +114,8 @@ namespace HS2Next.Scenes.Runtime
         TimelineDocument compiledFrom;
         bool docDirty = true;
         TimelineService service;
+        TimelinePlayState tickState;   // the state and the time at the end of the last tick (the animation restart)
+        double tickTime;
 
         public TimelinePlayback()
         {
@@ -128,6 +143,15 @@ namespace HS2Next.Scenes.Runtime
         public long EventErrors { get; private set; }
         /// <summary>The last failure of a timed command, or null.</summary>
         public TimelineEventError LastEventError { get; private set; }
+        /// <summary>Animations loaded again at time 0 by the restart of a play from 0 since the scene was opened.</summary>
+        public long AnimationRestarts { get; private set; }
+        /// <summary>Characters whose dynamic chains the restart of a play from 0 reset since the scene was opened.</summary>
+        public long ChainResets { get; private set; }
+        /// <summary>The characters (node ids) whose dynamic chains the last restart reset, in the order they were reset.</summary>
+        public IReadOnlyList<string> LastChainResets => lastChainResets;
+
+        readonly List<ChainResetStage> chainStages = new List<ChainResetStage>();
+        readonly List<string> lastChainResets = new List<string>();
 
         // ------------------------------------------------------------ ISceneRuntimePart
 
@@ -148,6 +172,7 @@ namespace HS2Next.Scenes.Runtime
             ev.Cleared -= OnSceneCleared;
             ev.Loaded -= OnSceneLoaded;
             try { player.Reset(null); } catch (Exception e) { Fault("Dispose", e); }
+            DropChainStages(false);
             DetachSink();
         }
 
@@ -166,7 +191,8 @@ namespace HS2Next.Scenes.Runtime
             CollectReplies();
         }
 
-        public void LateApply() { }
+        /// <summary>After the frame's motion: the chain resets that ran come off their characters' motion (never under a walk of its stages).</summary>
+        public void LateApply() => DropChainStages(true);
 
         /// <summary>The realization was cleared (a rebuild of every node, or before a new or loaded scene): the values are set again.</summary>
         public void Clear() => player.MarkDirty();
@@ -178,8 +204,12 @@ namespace HS2Next.Scenes.Runtime
             try { player.Reset(null); } catch (Exception e) { Fault("Cleared", e); }
             compiledFrom = null;
             docDirty = true;
-            EventsFired = EventErrors = 0;
+            EventsFired = EventErrors = AnimationRestarts = ChainResets = 0;
+            DropChainStages(false);
+            lastChainResets.Clear();
             LastEventError = null;
+            tickState = TimelinePlayState.None;
+            tickTime = 0;
             loggedEvents.Clear();
             while (replies.TryDequeue(out _)) { }
             perf.Reset();
@@ -218,9 +248,174 @@ namespace HS2Next.Scenes.Runtime
             long t0 = Stopwatch.GetTimestamp();
             Sync();
             bool playing = player.State == TimelinePlayState.Playing;
+            // a play from 0 since the last tick: playing at 0 with the values not set since (a seek sets them at once), and the last tick
+            // did not end playing at 0 already
+            bool fromZero = playing && player.Time == 0 && player.Dirty && !(tickState == TimelinePlayState.Playing && tickTime == 0);
             if (!(dt >= 0f) || float.IsInfinity(dt)) dt = 0f;
             player.Tick(dt);
+            if (fromZero)
+            {
+                RestartAnimations();
+                ResetChainsAtRestart();
+            }
+            tickState = player.State;
+            tickTime = player.Time;
             if (playing) perf.Add((Stopwatch.GetTimestamp() - t0) * 1e6 / Stopwatch.Frequency);
+        }
+
+        /// <summary>
+        /// The animation restart of a play from 0: every anime channel whose winning slot shows the row its character plays already loads
+        /// that row again at time 0 (the winning time slot's time when one wins), as the layer loads a row that differs.
+        /// </summary>
+        void RestartAnimations()
+        {
+            var layer = Layer;
+            var db = rt?.Services?.Db;
+            if (layer == null || db == null) return;
+            foreach (var ch in bound)
+            {
+                if (ch.Type != TimelineTrackType.Anime || !(ch.Tag is Held h) || !h.Has || h.Slot == null || h.Slot.IsReleased) continue;
+                if (!ReferenceEquals(layer.WinnerOf(ch.NodeId, OverrideChannel.AnimeRef), h.Slot)) continue;
+                var c = rt.FindChara(ch.NodeId);
+                if (c == null || c.State != RealizationState.Built || !rt.IsInModel(c) || !c.Animation || !c.Animation.IsLoaded) continue;
+                var a = h.Anime;
+                var row = a.Source != null ? (db.TryGetAnime(a.Source, a.Group, a.Category, a.No, out var r) ? r : null) : db.FindAnime(a.Group, a.Category, a.No);
+                if (row == null || c.Animation.Current != row) continue;   // another row loads at time 0 through the layer
+                var tw = layer.WinnerOf(ch.NodeId, OverrideChannel.AnimeTime);
+                try
+                {
+                    c.Animation.Load(row, tw != null ? (float)tw[0] : 0f);
+                    c.WantSettle();
+                    AnimationRestarts++;
+                }
+                catch (Exception e) { Fault("Restart", e); }
+            }
+        }
+
+        /// <summary>
+        /// The restart's reset of the dynamic chains: every cast character of the loaded scene script (the Timeline's script marker) and every
+        /// character whose anime channel the restart loads gets two one-shot stages for this tick's motion step: before the pose sources its
+        /// active chains' bones go back to their start pose; after the pose is written and before the chains run its dynamic bones and bust
+        /// chains drop their history, so they start from the posed bones.
+        /// </summary>
+        void ResetChainsAtRestart()
+        {
+            lastChainResets.Clear();
+            if (rt == null) return;
+            var ids = new List<string>();
+            var marker = rt.Model.Timeline?.Script;
+            var script = marker != null ? rt.Model.Scripts?.Find(marker.Id) : null;
+            if (script != null)
+                foreach (var role in script.Roles)
+                {
+                    if (role == null || !role.IsChara) continue;
+                    string n = script.CastOf(role.Role);
+                    if (n != null && !ids.Contains(n)) ids.Add(n);
+                }
+            var layer = Layer;
+            if (layer != null)
+                foreach (var ch in bound)
+                {
+                    if (ch.Type != TimelineTrackType.Anime || !(ch.Tag is Held h) || !h.Has || h.Slot == null || h.Slot.IsReleased) continue;
+                    if (!ReferenceEquals(layer.WinnerOf(ch.NodeId, OverrideChannel.AnimeRef), h.Slot)) continue;
+                    if (!ids.Contains(ch.NodeId)) ids.Add(ch.NodeId);
+                }
+            foreach (string id in ids)
+            {
+                var c = rt.FindChara(id);
+                if (c == null || c.State != RealizationState.Built || !rt.IsInModel(c) || c.InGraveyard) continue;
+                var m = c.Motion;
+                if (!m || (m.Get<DynamicBoneStage>() == null && m.Get<BustStage>() == null)) continue;
+                Arm(id, m, true);
+                Arm(id, m, false);
+            }
+        }
+
+        void Arm(string id, CharaMotion m, bool restore)
+        {
+            ChainResetStage s = null;
+            foreach (var x in chainStages)
+                if (ReferenceEquals(x.Motion, m) && x.Restore == restore) { s = x; break; }
+            if (s == null)
+            {
+                s = new ChainResetStage(this, id, m, restore);
+                try { m.Add(s); }
+                catch (Exception e) { Fault("ChainReset", e); return; }
+                chainStages.Add(s);
+            }
+            s.Armed = true;
+        }
+
+        void ChainsReset(string nodeId)
+        {
+            ChainResets++;
+            lastChainResets.Add(nodeId);
+        }
+
+        /// <summary>Takes the chain resets off their motion: those that ran (<paramref name="ranOnly"/>) or all; a motion that is gone just drops its own.</summary>
+        void DropChainStages(bool ranOnly)
+        {
+            for (int i = chainStages.Count - 1; i >= 0; i--)
+            {
+                var s = chainStages[i];
+                bool alive = s.Motion;
+                if (ranOnly && alive && !s.Ran) continue;
+                if (alive)
+                {
+                    try { s.Motion.Remove(s); }
+                    catch (Exception e) { Fault("ChainReset", e); }
+                }
+                chainStages.RemoveAt(i);
+            }
+        }
+
+        /// <summary>
+        /// One of a character's two chain-reset stages of a restart, each run in the first step after it was armed, then nothing until the playback
+        /// takes it off after the frame's motion. The restore stage (phase -1: after the restore stages, before the pose sources) puts every active
+        /// chain's bones back to their start pose, so the pose sources write over it and no bone keeps a chain's last write. The reset stage
+        /// (phase 740: after the joint correction, before the bust chains) drops the dynamic bones' and the bust chains' history: particles at
+        /// the posed bones, no velocity.
+        /// </summary>
+        sealed class ChainResetStage : IMotionStage
+        {
+            public const string RestoreName = "timeline.chains.restore", ResetName = "timeline.chains";
+
+            readonly TimelinePlayback owner;
+            public readonly string NodeId;
+            public readonly CharaMotion Motion;
+            public readonly bool Restore;
+            public bool Armed, Ran;
+
+            public ChainResetStage(TimelinePlayback owner, string nodeId, CharaMotion motion, bool restore)
+            {
+                this.owner = owner;
+                NodeId = nodeId;
+                Motion = motion;
+                Restore = restore;
+            }
+
+            public MotionPhase Phase => Restore ? (MotionPhase)(-1) : (MotionPhase)740;
+            public string Name => Restore ? RestoreName : ResetName;
+            public bool Enabled { get; set; } = true;
+
+            public void Step(in MotionFrame frame)
+            {
+                if (!Armed) return;
+                Armed = false;
+                Ran = true;
+                if (Restore)
+                {
+                    foreach (var st in Motion.GetAll<DynamicBoneStage>())
+                        foreach (var c in st.Chains)
+                            if (c.Active) c.RestorePose();
+                    return;
+                }
+                foreach (var st in Motion.GetAll<DynamicBoneStage>()) st.Reset();
+                foreach (var b in Motion.GetAll<BustStage>()) b.Reset();
+                owner.ChainsReset(NodeId);
+            }
+
+            public void Reset() { }
         }
 
         // ------------------------------------------------------------ timed commands

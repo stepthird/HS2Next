@@ -555,13 +555,13 @@ public static partial class MapTest
         var pos = new Vector3(1, 2, 3); var rot = new Vector3(0, 90, 0);
         MapRealization.PoseRoots(roots, p0, r0, pos, rot);
         var q = Quaternion.Euler(rot);
-        Check("root 0 = (T, R) as HS2 (its serialized pose discarded)", (a.transform.position - pos).magnitude < 1e-4f && Quaternion.Angle(a.transform.rotation, q) < 1e-3f,
+        Check("root 0 = (T, R) as HS2 (its serialized pose discarded)", (a.transform.position - pos).magnitude < 1e-4f && RotationCompare.Deg(a.transform.rotation, q) < 1e-3f,
               $"A {a.transform.position} {a.transform.eulerAngles}");
-        Check("root 1 at R·p0 + T with R·r0 (M1: the other roots follow the map)", (b.transform.position - (q * p0[1] + pos)).magnitude < 1e-4f && Quaternion.Angle(b.transform.rotation, q * r0[1]) < 1e-3f,
+        Check("root 1 at R·p0 + T with R·r0 (M1: the other roots follow the map)", (b.transform.position - (q * p0[1] + pos)).magnitude < 1e-4f && RotationCompare.Deg(b.transform.rotation, q * r0[1]) < 1e-3f,
               $"B {b.transform.position}");
         MapRealization.PoseRoots(roots, p0, r0, Vector3.zero, Vector3.zero);
         Check("default pose: root 0 at the origin, unrotated (HS2), root 1 at its scene-file pose",
-              a.transform.position.magnitude < 1e-5f && Quaternion.Angle(a.transform.rotation, Quaternion.identity) < 1e-3f && (b.transform.position - p0[1]).magnitude < 1e-5f && Quaternion.Angle(b.transform.rotation, r0[1]) < 1e-3f);
+              a.transform.position.magnitude < 1e-5f && RotationCompare.Deg(a.transform.rotation, Quaternion.identity) < 1e-3f && (b.transform.position - p0[1]).magnitude < 1e-5f && RotationCompare.Deg(b.transform.rotation, r0[1]) < 1e-3f);
         Check("map.staticBatchMoved is info (was warning)", MapFindings.Level("map.staticBatchMoved") == FindingSeverity.Info);
     }
 

@@ -352,6 +352,7 @@ namespace HS2Next.Scenes.Runtime
         {
             AdvancedPoseDriver.RestoreNow(this);   // the Animator re-enabled with the holder binds the pose without the corrections
             DrivenPoseDriver.RestoreNow(this);     // and without driven values
+            RagdollDriver.RestoreNow(this);        // and without a body
             if (Context != null && Context.Bones) Context.Bones.ToBase();   // and without the card's modifiers
             if (Animation) Animation.ExpectBindRead();
             if (State != RealizationState.Built || !Motion || !PhysicsResetOnReparent || !RestPoseBeforeRevive) return;

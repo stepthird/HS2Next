@@ -99,7 +99,7 @@ namespace HS2Next.UI.Gizmos
     /// <summary>Unit meshes of the handles (built once).</summary>
     public static class GizmoMeshes
     {
-        static Mesh shaft, cone, cube, quad, ring, disc, octa, sphere, frustum;
+        static Mesh shaft, cone, cube, quad, ring, disc, octa, sphere, frustum, line;
 
         /// <summary>A thin cylinder along +Y from 0 to 1, radius 1 (scale x / z for the thickness).</summary>
         public static Mesh Shaft => shaft ??= Cylinder(12);
@@ -116,6 +116,8 @@ namespace HS2Next.UI.Gizmos
         public static Mesh Sphere => sphere ??= MakeSphere(12, 8);
         /// <summary>A wire camera glyph (lines): frustum pointing +Z.</summary>
         public static Mesh Frustum => frustum ??= MakeFrustum();
+        /// <summary>A line from 0 to +Z (scale z for the length).</summary>
+        public static Mesh Line => line ??= Lines(null, new[] { Vector3.zero, Vector3.forward });
 
         static Mesh Named(string n, Mesh m) { m.name = "gizmo " + n; m.hideFlags = HideFlags.DontSave; return m; }
 

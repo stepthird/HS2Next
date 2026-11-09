@@ -10,15 +10,17 @@
   -Suite scene  three assemblies, as Unity splits them: Api.dll (Assets\HS2Next\Api\**, the HS2Next.Api asmdef),
                 Core.dll (Runtime\Save\** without Unity\, Runtime\Scene\{Model,Commands,Events,Document,Routes,Clock}\** and,
                 since Phase 5.R, Runtime\Scene\Runtime\Effects\{FogMath,SunShaftMath}.cs when present, since Phase 6.2
-                Runtime\Scene\{Timeline,Overrides}\**, since Phase 6.3 Runtime\Scene\AdvancedPose\**, since Phase 6.4 Runtime\Scene\Materials\** and since Phase 6.5 Runtime\Scene\Constraints\** when present (the ui suite's
+                Runtime\Scene\{Timeline,Overrides}\**, since Phase 6.3 Runtime\Scene\AdvancedPose\**, since Phase 6.4 Runtime\Scene\Materials\**, since Phase 6.5 Runtime\Scene\Constraints\**, since Phase 6.6 Runtime\Scene\Wet\**, since Phase 6.7 Runtime\Scene\Ragdoll\**, since Phase 6.8 Runtime\Scene\Bake\{BakeFormat,BakeStore}.cs and since Phase 6.9
+                Runtime\Scene\Scripts\{ScriptFormat,ScriptStore,ScriptSubst,ScriptCompiler,ScriptRoles}.cs when present (the ui suite's
                 Core.dll likewise); the
                 Unity-free part of Assembly-CSharp: a successful build proves that it needs no UnityEngine) and
                 SceneTests.exe (Editor\SaveFormat\TestRunner.cs, Editor\SaveFormat\DocTests_Fuzz.cs, Editor\SceneModel\**,
                 Tools\mono_tests\TestMain.cs; like Assembly-CSharp-Editor it sees only the public surface of Core).
                 Runs the groups of namespace HS2Next.Scenes.Tests with fixtures from Tests\.
-  -Suite save   the Phase 2.1 harness from the repository files: Runtime\Save\** (without Unity\), Api\** and
-                Editor\SaveFormat\** in one SaveTests.exe; runs the groups of HS2Next.Save.Tests with fixtures from
-                Tests\SaveFormat\.
+  -Suite save   the Phase 2.1 harness from the repository files: Runtime\Save\** (without Unity\), Api\**,
+                Editor\SaveFormat\** and, since Phase 6.8, Runtime\Scene\Bake\{BakeFormat,BakeStore}.cs and, since Phase 6.9,
+                Runtime\Scene\Scripts\ScriptStore.cs when present in one SaveTests.exe; runs the groups of HS2Next.Save.Tests with
+                fixtures from Tests\SaveFormat\.
   -Suite pose   HS2 pose files: HS2Next.Pose.dll (Runtime\Import\Pose\**
                 alone with System references only: a successful build proves it needs neither UnityEngine nor other
                 project code), SaveCore.dll (Runtime\Save\** without Unity\ + Api\**, for the shared TestRunner) and
@@ -155,6 +157,12 @@ $save = Join-Path $Assets 'Runtime\Save'
 $saveUnity = (Join-Path $save 'Unity') + '\*'
 $api = Join-Path $Assets 'Api'
 $testMain = Join-Path $PSScriptRoot 'mono_tests\TestMain.cs'
+# Phase 6.8: the Unity-free files of Runtime\Scene\Bake (a file not written yet joins when it exists)
+$bakeSrc = @(@('BakeFormat.cs', 'BakeStore.cs') | ForEach-Object { Join-Path $Assets "Runtime\Scene\Bake\$_" } | Where-Object { Test-Path -LiteralPath $_ })
+# Phase 6.9: the Unity-free files of Runtime\Scene\Scripts, by name (the folder also holds the player, which needs the runtime): the store alone
+# for the save suite (it needs only the save layer); with the format (it needs the Timeline engine), substitution, compile and roles for Core.dll
+$scriptStoreSrc = @(@('ScriptStore.cs') | ForEach-Object { Join-Path $Assets "Runtime\Scene\Scripts\$_" } | Where-Object { Test-Path -LiteralPath $_ })
+$scriptSrc = @(@('ScriptFormat.cs', 'ScriptStore.cs', 'ScriptSubst.cs', 'ScriptCompiler.cs', 'ScriptRoles.cs') | ForEach-Object { Join-Path $Assets "Runtime\Scene\Scripts\$_" } | Where-Object { Test-Path -LiteralPath $_ })
 $t0 = Get-Date
 
 if ($Suite -eq 'scene') {
@@ -170,8 +178,12 @@ if ($Suite -eq 'scene') {
     $coreSrc += @('FogMath.cs', 'SunShaftMath.cs') | ForEach-Object { Join-Path $scene "Runtime\Effects\$_" } | Where-Object { Test-Path -LiteralPath $_ }
     # Phase 6.2: the Unity-free Timeline engine and the override layer's core (a folder not written yet joins when it exists)
     $coreSrc += Get-Sources @((Join-Path $scene 'Timeline'), (Join-Path $scene 'Overrides'))
-    # Phase 6.3: the Unity-free part of advanced pose (addresses, edits); Phase 6.4: of material edits (keys, edits)
-    $coreSrc += Get-Sources @((Join-Path $scene 'AdvancedPose'), (Join-Path $scene 'Materials'), (Join-Path $scene 'Constraints'))
+    # Phase 6.3: the Unity-free part of advanced pose (addresses, edits); Phase 6.4: of material edits (keys, edits); Phase 6.6: of stains (arithmetic)
+    $coreSrc += Get-Sources @((Join-Path $scene 'AdvancedPose'), (Join-Path $scene 'Materials'), (Join-Path $scene 'Constraints'), (Join-Path $scene 'Wet'), (Join-Path $scene 'Ragdoll'))
+    # Phase 6.8: the Unity-free files of bakes, by name (the folder also holds Unity files): the blob format and the store
+    $coreSrc += $bakeSrc
+    # Phase 6.9: the Unity-free files of scene scripts, by name
+    $coreSrc += $scriptSrc
     Invoke-Csc $coreDll 'library' @($nj, $apiDll) $coreSrc
     $testSrc = Get-Sources @((Join-Path $Assets 'Editor\SaveFormat\TestRunner.cs'), (Join-Path $Assets 'Editor\SaveFormat\DocTests_Fuzz.cs'),
         $(if ($TestsDir) { $TestsDir } else { Join-Path $Assets 'Editor\SceneModel' }), $testMain)
@@ -216,8 +228,12 @@ if ($Suite -eq 'scene') {
     $coreSrc += @('FogMath.cs', 'SunShaftMath.cs') | ForEach-Object { Join-Path $scene "Runtime\Effects\$_" } | Where-Object { Test-Path -LiteralPath $_ }
     # Phase 6.2: the Unity-free Timeline engine and the override layer's core (a folder not written yet joins when it exists)
     $coreSrc += Get-Sources @((Join-Path $scene 'Timeline'), (Join-Path $scene 'Overrides'))
-    # Phase 6.3: the Unity-free part of advanced pose (addresses, edits); Phase 6.4: of material edits (keys, edits)
-    $coreSrc += Get-Sources @((Join-Path $scene 'AdvancedPose'), (Join-Path $scene 'Materials'), (Join-Path $scene 'Constraints'))
+    # Phase 6.3: the Unity-free part of advanced pose (addresses, edits); Phase 6.4: of material edits (keys, edits); Phase 6.6: of stains (arithmetic)
+    $coreSrc += Get-Sources @((Join-Path $scene 'AdvancedPose'), (Join-Path $scene 'Materials'), (Join-Path $scene 'Constraints'), (Join-Path $scene 'Wet'), (Join-Path $scene 'Ragdoll'))
+    # Phase 6.8: the Unity-free files of bakes, by name (the folder also holds Unity files): the blob format and the store
+    $coreSrc += $bakeSrc
+    # Phase 6.9: the Unity-free files of scene scripts, by name
+    $coreSrc += $scriptSrc
     Invoke-Csc $coreDll 'library' @($nj, $apiDll) $coreSrc
     $testSrc = Get-Sources @((Join-Path $Assets 'Editor\SaveFormat\TestRunner.cs'),
         $(if ($TestsDir) { $TestsDir } else { Join-Path $Assets 'Editor\UiCore' }), $testMain)
@@ -281,7 +297,7 @@ if ($Suite -eq 'scene') {
     $runArgs = @('--fixtures', $Project)
 } else {
     $exe = Join-Path $OutDir 'SaveTests.exe'
-    $src = (Get-Sources @($save) @($saveUnity)) + (Get-Sources @($api, (Join-Path $Assets 'Editor\SaveFormat'), $testMain))
+    $src = (Get-Sources @($save) @($saveUnity)) + (Get-Sources @($api, (Join-Path $Assets 'Editor\SaveFormat'), $testMain)) + $bakeSrc + $scriptStoreSrc
     Invoke-Csc $exe 'exe' @($nj) $src
     $runArgs = @('--ns', 'HS2Next.Save.Tests', '--fixtures', (Join-Path $Project 'Tests\SaveFormat'))
 }

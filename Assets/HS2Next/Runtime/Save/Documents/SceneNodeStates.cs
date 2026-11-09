@@ -55,6 +55,12 @@ namespace HS2Next.Save
         /// <summary>Scene-only bone corrections, jiggle values and blend weights; never null, empty by default. The last member of
         /// the section, written only when not empty (format revision 4).</summary>
         public CharaAdvancedPose AdvancedPose = new CharaAdvancedPose();
+        /// <summary>Stains, their maps and the puddles on the floor; never null, empty by default. After <see cref="AdvancedPose"/>, written
+        /// only when not empty (format revision 5).</summary>
+        public CharaWet Wet = new CharaWet();
+        /// <summary>The character as a physics body: settings, pins, ties, holds and the last settled pose; never null, empty by default. The
+        /// last member of the section, written only when not empty (format revision 5).</summary>
+        public CharaRagdoll Ragdoll = new CharaRagdoll();
 
         internal override void ReadMembers(DocReader r)
         {
@@ -68,6 +74,8 @@ namespace HS2Next.Save
             State.ReadFrom(r.Obj("state"));
             Voice.ReadFrom(r.Obj("voice"));
             AdvancedPose.ReadFrom(r.Obj(CharaAdvancedPose.MemberName));
+            Wet.ReadFrom(r.Obj(CharaWet.MemberName));
+            Ragdoll.ReadFrom(r.Obj(CharaRagdoll.MemberName));
         }
 
         internal override void WriteMembers(CanonicalJsonWriter w)
@@ -83,6 +91,9 @@ namespace HS2Next.Save
             Voice.WriteTo(w, "voice");
             // an optional member of revision 4: written only when it holds something, so every other scene stays byte-equal
             if (!AdvancedPose.IsEmpty) AdvancedPose.WriteTo(w, CharaAdvancedPose.MemberName);
+            // likewise an optional member of revision 5
+            if (!Wet.IsEmpty) Wet.WriteTo(w, CharaWet.MemberName);
+            if (!Ragdoll.IsEmpty) Ragdoll.WriteTo(w, CharaRagdoll.MemberName);
         }
     }
 
@@ -506,7 +517,7 @@ namespace HS2Next.Save
 
     // ---------------- item ----------------
 
-    /// <summary>Section `item`.</summary>
+    /// <summary>Section `item`. Revision 4 adds `materialOverrides`, revision 5 `bake` and `cut` (a bake item and a piece), each written only when it holds something.</summary>
     public sealed class ItemNodeState : NodeState
     {
         public const int ColorCount = 4;
@@ -530,8 +541,12 @@ namespace HS2Next.Save
         public bool DynamicBones = true;
         /// <summary>One per ItemComponent.optionInfos entry.</summary>
         public List<bool> Options = new List<bool>();
-        /// <summary>Material edits of the item, in the schema of a character's arrays; never null; written only when not empty, as the last member.</summary>
+        /// <summary>Material edits of the item, in the schema of a character's arrays; never null; written only when not empty, after <see cref="Options"/>.</summary>
         public List<MaterialOverride> MaterialOverrides = new List<MaterialOverride>();
+        /// <summary>The bake the item is drawn from (SceneBake.cs); null = none. After <see cref="MaterialOverrides"/>, written only when set (format revision 5).</summary>
+        public ItemBake Bake;
+        /// <summary>The procedure that made the item a piece (SceneBake.cs); null = none. The last member of the section, written only when set (format revision 5).</summary>
+        public ItemCut Cut;
 
         internal override void ReadMembers(DocReader r)
         {
@@ -548,6 +563,8 @@ namespace HS2Next.Save
             DynamicBones = r.Bool("dynamicBones", DynamicBones);
             Options = new List<bool>(r.BoolArray("options", Options.ToArray()));
             MaterialOverrides = MaterialOverride.ReadList(r, "materialOverrides");
+            Bake = BakeBlocks.ReadOptional<ItemBake>(r, ItemBake.MemberName);
+            Cut = BakeBlocks.ReadOptional<ItemCut>(r, ItemCut.MemberName);
         }
 
         internal override void WriteMembers(CanonicalJsonWriter w)
@@ -565,6 +582,9 @@ namespace HS2Next.Save
             w.Bool("dynamicBones", DynamicBones);
             Bools(w, "options", Options);
             if (MaterialOverrides.Count > 0) MaterialOverride.WriteList(w, "materialOverrides", MaterialOverrides);
+            // optional members of revision 5: written only when set, so every other scene stays byte-equal
+            if (Bake != null) Bake.WriteTo(w, ItemBake.MemberName);
+            if (Cut != null) Cut.WriteTo(w, ItemCut.MemberName);
         }
     }
 

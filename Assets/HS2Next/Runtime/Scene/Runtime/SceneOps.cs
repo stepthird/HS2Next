@@ -114,6 +114,15 @@ namespace HS2Next.Scenes.Runtime
         public CommandResult AddItem(StudioItem row, string parentId = null, string point = null, int index = -1, ExecuteOptions o = default)
         {
             if (row == null) return CommandResult.Error(CommandCodes.NotFound, "no item row");
+            // a row of a generated group has no prefab: the defaults of an item without one, completed by its source
+            var made = ItemInstanceSource.NewItem(runtime, row, out string refusal);
+            if (refusal != null) return CommandResult.Error(CommandCodes.NotFound, refusal);
+            if (made != null)
+            {
+                var rg = Session.AddItem(made, parentId, point, index, o);
+                runtime.ApplyNow();
+                return rg;
+            }
             GameObject prefab;
             // the defaults read keeps no bundle (the node's build that follows owns what it uses)
             var cat = runtime.Services.Catalog;

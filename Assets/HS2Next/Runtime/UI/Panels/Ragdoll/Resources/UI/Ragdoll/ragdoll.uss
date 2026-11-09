@@ -1,0 +1,12 @@
+/* The Ragdoll panel and section (Phase 6.7): the buttons, the list of pins, ties and holds, the value rows. */
+.hs-ragdoll { flex-grow: 1; flex-direction: column; background-color: var(--hs-bg-1); }
+.hs-ragdoll__bar { flex-direction: row; align-items: center; flex-wrap: wrap; flex-shrink: 0; padding: 2px 4px; }
+.hs-ragdoll__scroll { flex-grow: 1; }
+.hs-ragdoll__name { -unity-font-style: bold; white-space: normal; margin: 2px 4px; }
+.hs-ragdoll__line { flex-direction: row; align-items: center; flex-wrap: wrap; min-height: 26px; padding: 0 2px; border-bottom-width: 1px; border-color: var(--hs-bg-0); }
+.hs-ragdoll__text { flex-grow: 1; flex-shrink: 1; min-width: 32px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; -unity-text-align: middle-left; }
+.hs-ragdoll__btn { flex-shrink: 0; width: 20px; height: 20px; margin: 0 1px; padding: 0; }
+.hs-ragdoll__part { flex-grow: 1; flex-shrink: 1; min-width: 96px; }
+.hs-ragdoll__status { color: var(--hs-text-dim); white-space: normal; margin: 2px 4px; }
+.hs-ragdoll__row { flex-shrink: 0; }
+.hs-ragdoll__grow { flex-grow: 1; flex-shrink: 1; min-width: 0; }

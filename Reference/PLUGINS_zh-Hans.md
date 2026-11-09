@@ -2,8 +2,9 @@
 
 插件是 HS2Next 在启动时加载的 .NET 程序集。它可以添加桥接命令，在场景、角色和服装中保存自己的数据，响应场景事件和
 截图，每帧运行代码，向撤销历史添加条目，显示由程序自身的控件绘制的面板和检查器分节，把仅用于显示的值叠加在场景上，提供
-着色器；通过引擎侧的程序集，还可以挂接角色的构建过程（皮肤图层、身体部件替换）、覆盖材质以及添加自己的界面。本文档介绍
-插件 API 1.2。内容相同的[英文版](PLUGINS.md)和[日文版](PLUGINS_ja.md)也已提供；旁边的 [COMMANDS.md](COMMANDS.md)
+着色器；通过引擎侧的程序集，还可以挂接角色的构建过程（皮肤图层、身体部件替换）、覆盖材质、添加自己的界面，以及向 Studio 的
+物品列表添加行。本文档介绍
+插件 API 1.3。内容相同的[英文版](PLUGINS.md)和[日文版](PLUGINS_ja.md)也已提供；旁边的 [COMMANDS.md](COMMANDS.md)
 列出了程序的所有命令。
 
 **插件是完全受信任的代码。** 插件在程序内部以与程序相同的权限运行，没有沙箱。请只安装来源可信的插件。
@@ -17,16 +18,17 @@
 | `PLUGINS.md`、`PLUGINS_ja.md`、`PLUGINS_zh-Hans.md` | 本文档 |
 | `COMMANDS.md` | 命令参考（插件可以通过 `Request` 或 `Call` 调用的所有命令） |
 | `HS2NextPlugin.props` | 各项目共用的构建设置：只需一个属性 `HS2NextDir`，即可找到所有引用 |
-| `PluginKit.sln` | 两个示例；在此文件夹中运行一次 `dotnet build` 即可构建两者 |
+| `PluginKit.sln` | 三个示例；在此文件夹中运行一次 `dotnet build` 即可全部构建 |
 | `NuGet.config` | 清除所有包源：工具包不需要任何包，也不需要网络 |
 | `Hello/` | 不使用引擎的示例：一个命令、一个调用辅助、一个事件处理程序 |
 | `HelloUi/` | 不使用引擎的示例：以表单声明的面板和物品检查器分节，以及它自己的字符串 |
+| `Shapes/` | 引擎侧的示例：Studio 物品列表中的一个分组，其五个行在代码中生成 |
 | `doc/` | `HS2Next.Api` 和 `HS2Next.Api.Unity` 的 XML 文档（`HS2Next_Data/Managed/` 中的 DLL 旁边也有一份，供 IDE 使用） |
 
 构建示例需要 .NET SDK 8 或更高版本（可用 `dotnet --list-sdks` 查看）：
 
-1. 在 `PluginKit` 文件夹中打开终端，运行 `dotnet build`。两个示例会针对程序自身的 API 程序集进行构建，并分别复制到
-   `out/<guid>/`（`out/stp3.sample.hello/`、`out/stp3.sample.helloui/`）。
+1. 在 `PluginKit` 文件夹中打开终端，运行 `dotnet build`。各示例会针对程序自身的 API 程序集进行构建，并分别复制到
+   `out/<guid>/`（`out/stp3.sample.hello/`、`out/stp3.sample.helloui/`、`out/stp3.sample.shapes/`）。
 2. 将这些文件夹复制到 `HS2Next.exe` 旁边的 `Plugins` 文件夹（第一次需要新建），使之成为
    `Plugins/stp3.sample.hello/manifest.json` 这样的结构。
 3. 启动 HS2Next。“文件 > 选项”的自动化部分会列出插件及其状态；桥接命令 `plugin.list` 显示详细信息。
@@ -44,7 +46,7 @@ props 文件中还说明了其他属性：`HS2NextUseUnity=true` 添加引擎侧
 | 程序集 | 引用 | 提供的内容 |
 | --- | --- | --- |
 | `HS2Next.Api` | 不含引擎类型 | `IPlugin` 和生命周期接口、插件上下文、调用辅助、事件、撤销条目、运行时覆盖、表单（`HS2Next.Api.Ui`）、桥接命令约定（`HS2Next.Api.Bridge`）、扩展块约定（`HS2Next.Api.Save`）、内容 ID、动作阶段 |
-| `HS2Next.Api.Unity` | UnityEngine | 场景节点和角色的实体、包含皮肤图层和身体部件替换的构建挂钩、重新构建请求、材质覆盖、额外的马赛克成员、界面注册和程序的控件（实验性） |
+| `HS2Next.Api.Unity` | UnityEngine | 场景节点和角色的实体、包含皮肤图层和身体部件替换的构建挂钩、重新构建请求、材质覆盖、额外的马赛克成员、界面注册和程序的控件、视口工具、地图查询、角色动作阶段和物品行（实验性） |
 
 不需要引擎类型的插件只引用 `HS2Next.Api`（如需 JSON 库，还可引用 `Newtonsoft.Json`：程序为每个插件提供 13 版）。两个
 程序集都位于程序的 `HS2Next_Data/Managed/` 中。请不要随插件一起分发它们；程序会加载自己的版本。
@@ -202,6 +204,7 @@ ctx.Request(req).ThrowIfError();
   null、`List<object>` 或 `Dictionary<string, object>`）、`GetJson(member)`、`As<T>()`（把整个回复转换为类）、
   `ThrowIfError()`（带有代码、消息和详情的 `BridgeException`）。
 - 命令错误从不抛出异常：请检查 `Ok`。对于同一信封，`Request` 和 `Call` 返回相同的回复文本。
+- 禁用桥接（`bridge.enabled` 为 false、`-noBridge`）时，`Request`、`Call` 及其排队形式与启用时一样能调用应用的命令。
 
 立即运行的形式（`Request`、`Call`）拒绝 `batch`、可能延迟回复的命令、异步命令和 `waitFrames`（请使用排队形式）。在其他方
 持有场景事务时（拖动中、正在运行的批处理）、在分发场景事件或截图事件时，以及在撤销或重做过程中，更改场景的命令会返回
@@ -293,7 +296,7 @@ public sealed class HelloPlugin : IPlugin
 ## 表单（实验性）
 
 表单是插件以数据声明、由程序用自身控件绘制的面板或检查器分节：与程序的检查器使用相同的滑块、颜色选择器、选项和选择器。
-值来自插件的读取命令，并通过其写入命令写回。`HS2Next.Api.Ui` 和 `ctx.Forms` 的全部内容都是 `[Experimental]`。工具包中的
+值来自插件的读取命令，并通过其写入命令写回。`HS2Next.Api.Ui` 和 `ctx.Forms`（`IPluginForms`）的全部内容都是 `[Experimental]`。工具包中的
 HelloUi 示例是一个完整的例子。
 
 ```csharp
@@ -371,11 +374,12 @@ File、Text 和 AttachPoint 为字符串或 null；PartList 为部件的 `"guid#
 
 ## 引擎侧界面的控件（实验性）
 
-`ctx.Unity().Ui` 注册由 UI Toolkit 元素构成的面板、检查器分节和操作（`IPluginUi`）。它的 `Widgets`（`IUiWidgets`；没有界面时
-为 null）让这类插件也能使用程序自身的控件，并连接到插件的回调（每个回调都在插件的保护中调用，插件卸载后不再调用）：
+`ctx.Unity().Ui` 注册由 UI Toolkit 元素构成的面板、检查器分节和操作（`IPluginUi`）；构建分节的函数得到一个 `IUiSectionContext`
+（检查器显示的节点的 `NodeId` 及其 `Kind`）。它的 `Widgets`（`IUiWidgets`；没有界面时为 null）让这类插件也能使用程序自身的控件，并连接到插件的回调（每个回调都在插件的保护中调用，插件卸载后不再调用）：
 `Number`（带拖动阶段的滑块）、`Vector`、`Toggle`、`Choice`、`Color`、`Ref`、`File`、`Text`、`Button`、`AttachPoint`，每个
-都返回一个 `IUiWidget`（`Element`；`SetValue(value, mixed)` 显示一个值而不触发回调；可读写的 `Enabled`）；此外还有
-`Toast(text, level)`（普通文本）、`Dialog`（回调得到所按按钮的序号，以其他方式关闭时为 -1）、`Confirm` 和 `Prompt`（取消时
+都返回一个 `IUiWidget`（`Element`；`SetValue(value, mixed)` 显示一个值而不触发回调；可读写的 `Enabled`）；`Number`、`Vector` 和 `Color` 的回调得到值及其
+`EditPhase`：拖动或颜色选择器移动时为 `Preview`，编辑完成时为 `Commit`，用 Esc 结束拖动或还原颜色选择器时为 `Cancel`；
+此外还有 `Toast(text, level)`（普通文本；`ToastLevel` 为 `Info`、`Success`、`Warning` 或 `Error`）、`Dialog`（回调得到所按按钮的序号，以其他方式关闭时为 -1）、`Confirm` 和 `Prompt`（取消时
 为 null），以及使用 `UiMenuItem(labelKey, run)` 条目（`Enabled` 默认为 true）的 `Menu(items, anchor)`。上文的表单也使用相同
 的控件绘制。元素名称：`plugin-widget-<labelKey>` 加上相同的部分后缀，对话框为 `dialog-plugin-<guid>`，其按钮为
 `dialog-button-<序号>`，菜单为 `plugin-menu-<guid>`，其条目为 `menu-item-plugin-<guid>-<序号>`。
@@ -439,7 +443,7 @@ public void Update(in PluginFrame frame)                // before the scene appl
   恢复的已删除节点）时，`Acquire` 返回 null。未知的路径、节点类型没有的路径（物品上的 `chara.*`）、没有节点 ID 的节点路径
   以及带有节点 ID 的场景范围路径会抛出 `ArgumentException`。
 
-| 路径 | 节点 | 值（`Kind`）及显示方式 |
+| 路径 | 节点 | 值（`Kind`，一个 `OverrideValueKind`）及显示方式 |
 | --- | --- | --- |
 | `transform.pos`、`transform.rot` | 角色、物品、灯光、文件夹、路线、相机 | `Vector3`；`Rotation`（局部旋转） |
 | `transform.scale` | 角色、物品 | `Vector3`，与模型的缩放含义相同 |
@@ -567,6 +571,10 @@ public sealed class Plugin : IPlugin, IPluginScenePost
 - `BoneWritten(nodeId, bone)`（`[Experimental]`）：报告在角色的动作阶段之后写入的骨骼（见“场景后置阶段”）。
 - `Ui`（`[Experimental]`）：Studio 界面某个区域中的面板、某类节点的检查器分节、可通过 `ui.action` 和快捷键使用的操作，
   标签来自插件自己的字符串，并可使用程序的控件（`Ui.Widgets`）。
+- `Tools`（`[Experimental]`）：接管视口指针、滚轮和按键的工具，以及表面拾取（见下文）；界面未运行时为 null。
+- `Map`（`[Experimental]`）：已加载地图的根对象，以及点下方表面的高度（见下文）。
+- `Stages`（`[Experimental]`）：场景角色上的动作阶段，在重新构建后保留（见下文）。
+- `ItemRows`（`[Experimental]`）：由插件生成行的 Studio 物品列表分组（见下文）。
 
 ### 皮肤图层和身体部件替换（实验性）
 
@@ -592,7 +600,7 @@ ctx.Unity().BuildHooks.Register("tattoo", BuildStage.BodyMesh, args =>
   中的法线资源，GUID 为 null 或空时指向游戏数据中的资源，资源包或资源为空时抛出 `ArgumentException`；`BodyNormals.None`
   不进行混合；null 保持当前来源）。`BodyPart.From(renderer)` 从插件构建或加载的渲染器中一并获取这些内容。程序按名称把每根
   骨骼绑定到角色的身体骨骼上，没有时绑定到部件已在使用的同名骨骼（缺少的骨骼请先用 `ImplantBone` 植入），并按角色复制材质；
-  在身体渲染器上，第一个槽保持为身体的皮肤材质，此处不使用 `Materials[0]`，其余元素填入其余各槽。结果为 `Replaced`、
+  在身体渲染器上，第一个槽保持为身体的皮肤材质，此处不使用 `Materials[0]`，其余元素填入其余各槽。结果（`BodyPartResult`）为 `Replaced`、
   `NotFound`（没有该名称的部件）或 `Mismatch`（存在程序无法绑定的骨骼、未给出名称时骨骼数不同，或为没有蒙皮的部件给出了
   骨骼；不做任何更改）。替换身体渲染器后，身体被视为已替换，FK 提供者会添加它们的行。已替换的部件保留到该角色下一次构建为止。
 - **构建之外。** `ctx.Unity().SkinLayers(nodeId)`（`ISkinLayers`：`Set`、`Remove`、`Ids`；节点不是已构建的角色时为 null）
@@ -608,6 +616,154 @@ ctx.Unity().BuildHooks.Register("tattoo", BuildStage.BodyMesh, args =>
 只会添加成员；着色器供应拒绝马赛克着色器。在每次构建中，程序自身内容的渲染器都遵循马赛克集合的规则。插件通过
 `ReplaceBodyPart` 提供的身体部件按所提供的样子绘制；当插件用 `AddMosaic` 添加它时，它才是马赛克成员。
 
+### 视口工具（实验性）
+
+工具在运行期间接管视口的指针、滚轮和按键：用于在角色上拾取一点、拖动某物、在表面上画线。从 `ViewportTool` 派生，重写工具
+需要的调用，然后用 `Tools.Begin` 启动。界面未运行时 `Tools` 为 null，因此请在启动工具时读取它。
+
+```csharp
+sealed class PickPoint : ViewportTool
+{
+    readonly IViewportTools tools;
+    readonly Action<ToolPick> done;
+
+    public PickPoint(IViewportTools tools, Action<ToolPick> done) { this.tools = tools; this.done = done; }
+
+    public override bool PointerDown(in ToolPointer p)
+    {
+        if (p.Button != 0 || !p.Hit.Hit) return false;
+        done(p.Hit);
+        tools.End(this);
+        return true;
+    }
+}
+
+var tools = ctx.Unity().Tools;
+tools?.Begin(new PickPoint(tools, hit => ctx.Log.Info(hit.Part + " " + hit.Point)),
+    new ToolOptions { Filter = new ToolPickFilter { CharactersOnly = true }, Hint = "plugin.my.plugin.pick" });
+```
+
+- **工具运行期间。** 相机及其按住的键、快捷键、控制柄、选择和视口菜单都会暂停。它们的状态不会被更改，因此工具结束后全部恢复
+  原样。面板、菜单和对话框继续接收输入，撤销可从菜单使用。设置 `ToolOptions.PassThrough` 后，工具未接管的输入与没有工具时
+  相同：`PointerDown` 返回 false 的按下会拖动相机或进行选择，未接管的按键和滚轮照常工作。同一时间只运行一个工具，`Begin` 会
+  结束前一个工具（`Replaced`）。宿主拒绝时（例如对话框打开时）`Begin` 返回 false。
+- **调用。** 最先是 `Started`，最后是 `Ended(reason)`。`PointerDown` 返回 true 即接管这次按下：指针留在工具上，直到 `PointerUp`，
+  或者按下未经释放就结束时（Esc、窗口失去焦点）的 `PointerCancel`。`PointerMove` 在工具接管的按下期间和未按任何按钮的悬停时到来，
+  在工具未接管的按下期间不会到来。`Wheel`（格数，向远离用户方向为正）和 `Key`（键位表的名称：`Space`、`T`、`F1`；没有重复，没有
+  Esc）在接管输入时返回 true。`Draw(IToolDraw)` 在视图的每一帧运行一次：以世界坐标绘制线、十字和文字，只显示在视图中，绝不进入
+  截图或录制。工具对场景的更改和其他地方一样，通过命令或撤销条目进行。
+- **指针。** `ToolPointer` 包含 `Panel`（面板中的位置）、`Ray`（世界坐标）、`Button`（0 左、1 右、2 中；移动时为 -1）、`Buttons`
+  （按住的按钮，位 1、2、4）、`Mods`（`ToolMods`：`Ctrl`、`Shift`、`Alt`）和 `Hit`。`Hit` 是按 `ToolOptions.Filter` 得到的指针下的拾取结果。
+  它在首次读取时运行，在角色上需要几毫秒，因此用 `Ray` 自行查询的工具无需为此付出时间。请在它所属的调用中读取。
+- **拾取。** `Tools.Pick(ray, filter)` 无论有无工具，随时给出同样的回答。`ToolPick` 不会为 null：未命中时 `Hit` 为 false。它给出
+  节点（`NodeId`）、位置（`Point`、`Normal`、`Distance`）、部件（`Renderer`、`Part`、`Slot`）、三角形（`Triangle`、`Uv`）以及该处
+  权重最大的骨骼（`Bone`、`BoneLocal`、`BoneAddress`）。在无法读取的网格和没有 UV 的部件上 `Precise` 为 false：点和距离有效，三角形
+  的成员无效。`ToolPickFilter` 可限定为一个节点（`NodeId`）或角色（`CharactersOnly`）；`MapSurface` 在未命中节点时加上地图表面
+  （`OnMap`）。隐藏的渲染器不会被命中。
+- **结束。** `ToolEnd` 说明原因：`Finished`（`End`）、`Cancelled`（没有按下时的 Esc，或工具抛出异常）、`Replaced`、`SceneChanged`
+  （新场景或加载，或 `Filter.NodeId` 指定的节点被删除）、`UiClosed`。按下期间的 Esc 产生 `PointerCancel`，工具继续运行。工具结束时
+  仍按住的按下不会再收到其他调用。
+- **故障。** 工具调用抛出的异常计为插件的一次故障（`plugin.list` 中名为 `tool <调用>`），工具随之结束。插件被停用、发生故障或
+  卸载时，其运行中的工具在插件的 `Unload` 之后以 `UiClosed` 结束。
+
+### 地图查询（实验性）
+
+`ctx.Unity().Map`（`IMapQuery`，不会为 null）回答地图是否已加载及其表面的高度：
+
+```csharp
+var map = ctx.Unity().Map;
+if (map.Surface(point, out var hit)) Place(hit.Height, hit.Normal);
+```
+
+- `Loaded`、`Roots`：地图是否已加载，以及它的全部根对象（一张地图可能有多个根；未加载时为空）。
+- `Surface(point, out hit, above, below)`：点的 x、z 之下，`point.y + above` 与 `point.y - below` 之间最高的表面（默认 0 和 60）。
+  没有表面或未加载地图时返回 false。法线 y 小于 0.3 的表面视为墙，不计入。请传入所站的点：屋顶下的点找到地板，屋顶上方的点找到
+  屋顶。
+- `Surfaces(points, hits, above, below)`：对多个点做同样的事，只等待一次。返回有回答的点数；没有回答的点 `hits[i].Source` 为
+  null。`hits` 的长度不得短于 `points`。
+- `MapSurfaceHit`：`Height`、`Normal`（单位长度，朝上）、`Source`（找到的方式：`gpu`、`mesh`、`terrain` 或 `collider`）。
+
+回答不依赖碰撞体或可读取的网格，只有在没有图形设备时才来自这两者。Alpha 裁剪和透明的表面也计入（水、玻璃、树叶）；角色和物品
+不属于地图。调用会等待回答，约一毫秒，地图的第一次更久：适合点击或少量的点，不适合每帧查询大量的点。仅限主线程。命令
+`ground.probe` 进行同样的查询。
+
+### 角色动作阶段（实验性）
+
+`ctx.Unity().Stages`（`ICharaStages`，不会为 null）为场景角色添加一个动作阶段：这是插件的一个类，在角色每次动作更新时运行，
+位置在程序自己的阶段之间。重新构建会生成新的身体，因此插件交给宿主的不是阶段本身，而是创建阶段的工厂函数：
+
+```csharp
+sealed class HeadWatch : IMotionStage
+{
+    readonly Transform head;
+
+    public HeadWatch(GameObject root) { head = Array.Find(root.GetComponentsInChildren<Transform>(), t => t.name == "cf_J_Head"); }
+
+    public Vector3 Position { get; private set; }
+    public MotionPhase Phase => MotionPhase.Final;
+    public string Name => "head";
+    public bool Enabled { get; set; } = true;
+    public void Step(in MotionFrame frame) { if (head) Position = head.position; }
+    public void Reset() { }
+}
+
+IDisposable stage = ctx.Unity().Stages.Add(nodeId, root => new HeadWatch(root));
+```
+
+- **工厂函数。** 角色已构建时立即运行，此后每次重新构建时以新身体的根对象再次运行。`chara.change`、`RequestRebuild` 和需要新身体
+  的编辑会重新构建；更换服装、头发或饰品不会，阶段保持不变。尚未构建的角色（例如在 `SceneLoaded` 时）在构建完成后获得阶段。
+  旧的阶段对象随旧身体一起消失，因此需要跨越重新构建保留的内容应放在工厂函数捕获的变量中。已关闭的阶段保持关闭。工厂函数返回
+  null 时，这个身体上没有阶段。
+- **相位。** `Phase` 和 `Name` 在工厂函数之后只读取一次。相位在 -90 到 940 之间：低于这个范围的是程序恢复骨骼的阶段，高于这个范围
+  的是结束一帧的阶段。`MotionPhase` 为主要相位命名，其间的任何数字都可用：例如 420 的阶段在 FK 之后、修正之前运行。范围之外的
+  相位会被拒绝，并计为插件的一次故障。`chara.motion` 按执行顺序列出角色的阶段；插件阶段的名称为 `<guid>/<Name>`，`owner` 为
+  GUID，可用该命令的 `stages` 参数切换。
+- **写入骨骼。** 写入骨骼的阶段要自己撤销写入，方法是在较早的相位放一个自己的阶段：动画不运行时，没有其他东西会把骨骼恢复原状。
+- **帧内。** 阶段在角色的动作更新中运行，约束使场景按自己的顺序更新角色时也一样。场景暂停时 `MotionFrame.Dt` 为 0。宿主只为读取
+  姿势而运行各阶段并随后恢复骨骼时，插件的阶段不运行。
+- **结束。** 对返回值调用 `Dispose` 移除阶段；再次调用不起作用。在阶段自己的 `Step` 中调用时，阶段立即停止，并在该帧结束前离开
+  列表。被删除的角色保留其阶段（处于停止状态）以备撤销；节点确定不会再回来时阶段才消失。新建场景或加载场景会结束所有阶段，
+  阶段不会保存：请在 `SceneLoaded` 中重新添加。
+- **故障。** 阶段抛出的异常计为插件的一次故障（`plugin.list` 中的名称为 `stage <guid>/<Name>`），阶段保留。工厂函数抛出的异常计为
+  `stage factory`，在下次构建之前该角色没有阶段。插件被停用、发生故障或卸载时，其所有阶段都会移除。节点不是角色时，`Add` 抛出
+  `ArgumentException`。仅限主线程。
+
+### 物品行（实验性）
+
+`ctx.Unity().ItemRows`（`IItemRows`，不会为 null）向 Studio 的物品列表添加由插件自己生成行的分组：这些行与其他物品一起出现在
+列表和 `item.search` 中；每当构建这种行的物品时，程序都会向插件请求它的对象。
+
+```csharp
+IItemRowGroup group = ctx.Unity().ItemRows.AddGroup(820001, "Shapes", request => MakeShape(request.Id));
+group.SetCategory(0, "Shapes");
+group.SetRows(new[]
+{
+    new ItemRow { Category = 0, Id = 1, Name = "Cube" },
+    new ItemRow { Category = 0, Id = 4, Name = "Torus", FkBones = new[] { "ring0", "ring1" } },
+});
+```
+
+- **分组。** 分组编号与物品列表的分组共用同一个编号空间。列表、程序或其他插件已使用的编号会以 `ArgumentException`
+  （`rows.groupTaken`）拒绝：请选用自己的编号。分组开始时为空：`SetCategory` 为类别命名，`SetRows` 一次给出所有行（ID 在
+  分组内唯一）。类别只在含有行时列出，这些分组排在列表的分组之后。
+- **行。** 行的键为 `<插件 GUID>#<ID>`。行的物品与其他物品一样保存：`ref` 为该键，并带有分组和类别。`item.add` 与 mod 的
+  物品一样接受 `{"ref": "<guid>#<id>"}` 或 `{"group", "category", "guid", "no"}`。
+- **对象。** `make` 在物品构建时（添加、加载、复制或重新构建）于主线程中调用，得到一个 `ItemRowRequest`（行的 `Guid`、`Group`、
+  `Category` 和 `Id`，以及物品的 `NodeId`），每次调用返回一个新对象或 null。程序接管该对象：
+  把它放在物品之下的本地原点，像列表中的物品一样复制每个材质槽并替换着色器，按名称在其中查找行的 `FkBones`（物品 FK 会移动
+  它们），并在物品消失时销毁它。名称为马赛克成员名称的渲染器和带有马赛克材质的渲染器是成员；
+  其他渲染器用 `AddMosaic` 添加。`make` 不添加场景节点，也不更改场景（警告 `item.generatorWrote`）。
+- **变化。** `SetRows` 会在下一帧重新构建行为新行、或行的名称、类别、FK 骨骼有变化的物品：在行存在之前以替代物品加载的物品，
+  此时会变成行的对象。`Refresh(id)` 重新构建一行的物品。在 `Load` 中添加分组的插件，就是这样影响到启动时已加载的场景的。
+- **没有插件时**（未安装、已停用、发生故障），其行的物品会以替代物品加载并带有 `item.missing`，保存的数据保持原样：再次保存
+  的场景不变；插件回来后，它又会成为行的对象。
+- **结束。** `Dispose` 移除分组及其行；插件卸载、停用或发生故障时也一样。已构建的物品保留其对象，直到重新构建时才以替代物品
+  加载。
+- **故障。** `make` 抛出异常或返回 null 时，会以替代物品加载并给出警告 `item.generatorFailed`，并计为插件的一次故障
+  （`plugin.list` 中的名称为 `item rows <分组>`）。仅限主线程。
+
+工具包的示例 `Shapes/` 添加五个在代码中生成的行，其中的圆环有八根骨骼，可以用物品 FK 弯曲。
+
 ## 着色器
 
 `ctx.Shaders.Supply(original, replacement)` 为之后加载的材质，把着色器名称映射到宿主可以按名称找到的替换着色器（例如插件
@@ -621,22 +777,28 @@ HS2Next 自身对 mod 和资源包着色器的替换是其兼容着色器，命�
 ## 版本
 
 API 遵循语义化版本；`ApiVersion`（以及两个程序集的信息版本）给出版本号，程序集版本为 `MAJOR.0.0.0`，因此插件可以跨次版本和
-修订版本绑定。本文档介绍 1.2。
+修订版本绑定。本文档介绍 1.3。
 
 - 插件在 `apiVersion` 中声明构建时所用的 `MAJOR.MINOR`。当宿主的主版本相同且次版本不低于它时，插件会被加载：`1.0` 的
-  插件可在任何 1.x 宿主上加载，`1.2` 的插件需要 1.2 或更高版本的宿主。使用 1.1 新增成员的插件请声明 `"1.1"`，使用 1.2
-  新增成员的插件请声明 `"1.2"`。
+  插件可在任何 1.x 宿主上加载，`1.3` 的插件需要 1.3 或更高版本的宿主。使用 1.1 新增成员的插件请声明 `"1.1"`，使用 1.2
+  新增成员的插件请声明 `"1.2"`，使用 1.3 新增成员的插件请声明 `"1.3"`。
 - 在同一主版本内，不会删除或更改任何公开内容。由宿主实现的接口（上下文、服务、事件、回复）可能在次版本中增加成员；插件
   只调用它们。由插件实现的接口（`IPlugin`、`IPluginUpdate`、`IPluginSceneLoaded`、`IPluginScenePost`、`IExtBlockHandler`、
-  `IKkexConsumer`、`IBatchHook`、`IMotionStage`）从不改变：新功能以新的可选接口或委托的形式提供。
-- 标记为 `[Experimental]` 的类型和成员不在承诺范围内，可能在任何次版本中改变。在 1.2 中，这包括表单（`HS2Next.Api.Ui`、
+  `IKkexConsumer`、`IBatchHook`、`IMotionStage`）从不改变：新功能以新的可选接口或委托的形式提供。插件派生的类（`ViewportTool`）
+  可能增加虚方法，但绝不增加抽象方法。
+- 标记为 `[Experimental]` 的类型和成员不在承诺范围内，可能在任何次版本中改变。在 1.3 中，这包括表单（`HS2Next.Api.Ui`、
   `ctx.Forms`）、控件、撤销条目（`ctx.History`）、运行时覆盖（`ctx.Overrides`）、场景后置阶段（`IPluginScenePost`、
-  `BoneWritten`）、皮肤图层、身体部件替换和重新构建请求，以及引擎侧的界面注册。调用辅助、截图事件及其种类以及命令
+  `BoneWritten`）、皮肤图层、身体部件替换和重新构建请求、引擎侧的界面注册、视口工具（`Tools`、`ViewportTool` 及其相关类型）、
+  地图查询（`Map`、`IMapQuery`、`MapSurfaceHit`）、角色动作阶段（`Stages`、`ICharaStages`）以及物品行（`ItemRows`、
+  `IItemRows`、`IItemRowGroup`、`ItemRow`、`ItemRowRequest`）。调用辅助、截图事件及其种类以及命令
   `plugin.disable` / `plugin.enable` 是稳定的。
 - 1.1 新增：使用 `CommandRequest` 和 `ICommandReply` 的 `Request` / `RequestAsync`、`IsActive`、截图事件、撤销条目、表单和
   控件、皮肤图层、身体部件替换、重新构建请求、运行时的停用和启用，以及所有公开成员的 XML 文档。
 - 1.2 新增：运行时覆盖（`ctx.Overrides`、`IRuntimeOverrides`、`IOverrideSlot`、`OverrideValueKind`、`OverrideInfo`）及其
   骨骼和 IK 目标的路径，场景后置阶段（`IPluginScenePost`、`BoneWritten`），以及表示序列帧导出中各帧的截图种类 `Record`。
+- 1.3 新增：视口工具（`Tools`、`IViewportTools`、`ViewportTool`、`ToolPointer`、`ToolPick`）、地图查询（`Map`、`IMapQuery`、
+  `MapSurfaceHit`）、角色动作阶段（`Stages`、`ICharaStages`）和物品行（`ItemRows`、`IItemRows`、`IItemRowGroup`、`ItemRow`、
+  `ItemRowRequest`）。
 
 ## 测试插件
 

@@ -1465,7 +1465,7 @@ public static class MakerClothesTest
             var r = roots.FirstOrDefault(t => t && t.name == name);
             var src = prefab ? EditContext.Find(prefab.transform, name) : null;
             return r && src && parent && r.parent == parent && !r.IsChildOf(head.transform)
-                   && r.localPosition == src.localPosition && r.localRotation == src.localRotation && r.localScale == src.localScale;
+                   && r.localPosition == src.localPosition && RotationCompare.Deg(r.localRotation, src.localRotation) == 0 && r.localScale == src.localScale;
         }
         Check("WT17 210:" + SarahHead + ": cf_J_CustomBones under the head skeleton's cf_J_FaceBase, cf_J_CustomMouth under its cf_J_MouthMove, with the prefab's local transforms",
               head && roots.Count == 2 && Placed("cf_J_CustomBones", faceBase) && Placed("cf_J_CustomMouth", mouthMove),
@@ -1551,7 +1551,7 @@ public static class MakerClothesTest
         var copy = Child(part, "cf_J_Root");
         var kosi = Child(copy, "cf_J_Kosi01_s");
         var extra = Child(kosi, "wt17_extra");
-        extra.localPosition = new Vector3(0.1f, 0.2f, 0.3f); extra.localRotation = Quaternion.Euler(10, 20, 30); extra.localScale = new Vector3(1, 2, 1);
+        extra.localPosition = new Vector3(0.1f, 0.2f, 0.3f); extra.localRotation = Quaternion.Euler(10, 20, 30); extra.localScale = new Vector3(1, 2, 1); var extraRot = extra.localRotation;   // as stored (the setter can round the last bits)
         var tip = Child(extra, "wt17_tip");
         var named = Child(extra, "cf_J_Kosi02");
         var lost = Child(Child(copy, "wt17_nowhere"), "wt17_lost");
@@ -1582,7 +1582,7 @@ public static class MakerClothesTest
             ctx.HeadBones.TryGetValue("cf_J_FaceBase", out var skelBase);
             var bones = smr.bones;
             Check("WT17 rules: a listed bone moves under the skeleton bone named like its parent with its local transform, its children with it",
-                  extra && extra.parent == skelKosi && extra.localPosition == new Vector3(0.1f, 0.2f, 0.3f) && extra.localRotation == Quaternion.Euler(10, 20, 30)
+                  extra && extra.parent == skelKosi && extra.localPosition == new Vector3(0.1f, 0.2f, 0.3f) && RotationCompare.Deg(extra.localRotation, extraRot) == 0
                   && extra.localScale == new Vector3(1, 2, 1) && tip && tip.parent == extra && named && named.parent == extra
                   && x.AdditionalBonesOf(part.gameObject)?.Count == 1, $"extra under {(extra && extra.parent ? extra.parent.name : "-")}");
             Check("WT17 rules: the renderer keeps the moved bones, takes the skeleton's for a skeleton name (also inside a moved bone), keeps a missing bone outside the copy; a bone whose parent name is nowhere stays in the part and goes with the copy; a null stays null",
@@ -1650,7 +1650,7 @@ public static class MakerClothesTest
                     if (j.Fixed) start = Quaternion.Inverse(joints[i].parent.rotation) * Quaternion.Euler(joints[i].parent.eulerAngles);
                     var e = start * Quaternion.AngleAxis(C(j.Roll.x, j.RollMin.x, j.RollMax.x), Vector3.right) * Quaternion.AngleAxis(C(j.Roll.y, j.RollMin.y, j.RollMax.y), Vector3.up)
                             * Quaternion.AngleAxis(C(j.Roll.z, j.RollMin.z, j.RollMax.z), Vector3.forward);
-                    float ang = Quaternion.Angle(e, joints[i].localRotation);
+                    double ang = RotationCompare.Deg(e, joints[i].localRotation);
                     bool pos = (joints[i].localPosition - (bp[i] + j.Move)).sqrMagnitude < 1e-10f, scl = joints[i].localScale == j.Scale;
                     if (ang > 0.01f || !pos || !scl) { ok = false; sb.Append($"{HeelJoints[i]}: {ang:F4}° pos {pos} scale {scl}; "); }
                 }
@@ -1661,7 +1661,7 @@ public static class MakerClothesTest
             var after1 = joints.Select(j => j.localRotation).ToArray();
             for (int k = 0; k < 3; k++) ctx.Motion.Step(1f / 60f);
             Check("WT16 three more still steps: the joints and the lift unchanged (no accumulation)",
-                  joints.Select(j => j.localRotation).Zip(after1, (a, b) => Quaternion.Angle(a, b)).All(a => a < 1e-3f) && lift.Height.localPosition.y == heel.Root.y);
+                  joints.Select(j => j.localRotation).Zip(after1, (a, b) => RotationCompare.Deg(a, b)).All(a => a < 1e-3f) && lift.Height.localPosition.y == heel.Root.y);
             // a bone modifier on the left foot joint: the two latch-style writers do not feed each other on a still pose
             var mod = new HS2Next.Chara.Ext.BoneModifierApplier.Modifier { Target = joints[1], Bone = HeelJoints[1], Source = "wt16", Rotation = new Vector3(10, 0, 0) };
             bool own = !ctx.Bones;   // a card without bone modifiers has no component: one for the check, removed after it
@@ -1672,7 +1672,7 @@ public static class MakerClothesTest
             var seen = new List<Quaternion>();
             for (int k = 0; k < 4; k++) { ctx.Motion.Step(1f / 60f); seen.Add(joints[1].localRotation); }
             Check("WT16 with a bone modifier on cf_J_Foot02_L: the steps do not accumulate",
-                  seen.Skip(1).All(q => Quaternion.Angle(q, seen[0]) < 1e-3f), string.Join(", ", seen.Select(q => q.eulerAngles.ToString("F2"))));
+                  seen.Skip(1).All(q => RotationCompare.Deg(q, seen[0]) < 1e-3f), string.Join(", ", seen.Select(q => q.eulerAngles.ToString("F2"))));
             ctx.Bones.Remove("wt16");
             ctx.Bones.ApplyNow();   // the removal restores the bone (a step would do it as well)
             if (own) { Object.DestroyImmediate(ctx.Bones); ctx.Bones = null; HS2Next.Motion.Modifiers.BoneModifierSetup.Sync(ctx); }
@@ -1682,7 +1682,7 @@ public static class MakerClothesTest
             lift.State.ShoesOn = false;
             ctx.Motion.Step(1f / 60f);
             Check("WT16 shoes off: no lift, the joints back to their bases", !lift.Lifted && lift.Height.localPosition == Vector3.zero && !foot.Written
-                  && Enumerable.Range(0, 6).All(i => Quaternion.Angle(joints[i].localRotation, br[i]) < 1e-3f && joints[i].localScale == bs[i]));
+                  && Enumerable.Range(0, 6).All(i => RotationCompare.Deg(joints[i].localRotation, br[i]) < 1e-3f && joints[i].localScale == bs[i]));
             lift.State.ShoesOn = true;
             ctx.Motion.Step(1f / 60f);
             // a body-height edit re-captures the shape bones (cf_N_height among them) while the body is lifted
@@ -1746,11 +1746,11 @@ public static class MakerClothesTest
             HS2Next.Motion.Heels.HeelsFoot.Pose(child.transform, j);
             var exp = Quaternion.Euler(5, 0, 0) * Quaternion.AngleAxis(0, Vector3.right) * Quaternion.AngleAxis(20, Vector3.up) * Quaternion.AngleAxis(7, Vector3.forward);
             Check("WT16 rules: one joint posed (clamped rolls about its own axes, move added, scale set)",
-                  Quaternion.Angle(child.transform.localRotation, exp) < 1e-3f && child.transform.localScale == j.Scale && (child.transform.localPosition - j.Move).sqrMagnitude < 1e-10f,
+                  RotationCompare.Deg(child.transform.localRotation, exp) < 1e-3f && child.transform.localScale == j.Scale && (child.transform.localPosition - j.Move).sqrMagnitude < 1e-10f,
                   child.transform.localRotation.eulerAngles.ToString("F3"));
             child.transform.localRotation = Quaternion.Euler(30, 0, 0);
             HS2Next.Motion.Heels.HeelsFoot.Pose(child.transform, new HeelsData.Joint { Fixed = true, Scale = Vector3.one });
-            Check("WT16 rules: fixed = the parent's world rotation (no roll)", Quaternion.Angle(child.transform.rotation, root.transform.rotation) < 1e-3f);
+            Check("WT16 rules: fixed = the parent's world rotation (no roll)", RotationCompare.Deg(child.transform.rotation, root.transform.rotation) < 1e-3f);
         }
         finally { Object.DestroyImmediate(root); }
     }
@@ -1903,7 +1903,7 @@ public static class MakerClothesTest
             ctx.BodyBones.TryGetValue("cf_J_Kosi01_s", out var kosi);
             Check("WT14 240:" + PigTop + ": one implant, cf_J_Belly_Pivot under the skeleton's cf_J_Kosi01_s with the prefab's local transform",
                   proc != null && root && root.name == "cf_J_Belly_Pivot" && kosi && root.parent == kosi && !root.IsChildOf(part.transform)
-                  && root.localPosition == proc.trfSrc.localPosition && root.localRotation == proc.trfSrc.localRotation && root.localScale == proc.trfSrc.localScale,
+                  && root.localPosition == proc.trfSrc.localPosition && RotationCompare.Deg(root.localRotation, proc.trfSrc.localRotation) == 0 && root.localScale == proc.trfSrc.localScale,
                   $"implants {roots?.Count ?? 0}, root {(root ? root.name + " under " + root.parent.name : "-")}");
             var implanted = root ? new HashSet<Transform>(root.GetComponentsInChildren<Transform>(true)) : new HashSet<Transform>();
             var skeleton = new HashSet<Transform>(ctx.BodyBones.Values);

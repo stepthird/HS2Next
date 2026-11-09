@@ -72,7 +72,8 @@ namespace HS2Next.Save
 
         /// <summary>
         /// Adds a PNG or JPEG (editor and runtime use) and returns its `res` name; identical bytes are stored once.
-        /// Other content throws <see cref="ArgumentException"/>: `bin` resources come only from imports (<see cref="AddImported"/>).
+        /// Other content throws <see cref="ArgumentException"/>: `bin` resources come only from imports (<see cref="AddImported"/>)
+        /// and bakes (<see cref="AddBlob"/>).
         /// </summary>
         public string Add(byte[] data)
         {
@@ -89,6 +90,22 @@ namespace HS2Next.Save
             var t = Sniff(data);
             if (t == ResMediaType.Other) findings?.Warning("res.unknownMediaType", path ?? "", "embedded texture is neither PNG nor JPEG; stored as bin, ignored at run time");
             return Put(data, t);
+        }
+
+        /// <summary>True when <paramref name="data"/> starts with a bake blob's magic: <c>HNBK</c> (main), <c>HNBG</c> (mesh) or <c>HNBT</c> (texture).</summary>
+        public static bool IsBakeBlob(byte[] data) =>
+            data != null && data.Length >= 4 && data[0] == (byte)'H' && data[1] == (byte)'N' && data[2] == (byte)'B' && (data[3] == (byte)'K' || data[3] == (byte)'G' || data[3] == (byte)'T');
+
+        /// <summary>
+        /// Adds a bake blob (content that starts with a bake magic, <see cref="IsBakeBlob"/>) as `bin`, with no finding, and returns its `res`
+        /// name; identical bytes are stored once. Other content throws <see cref="ArgumentException"/>. The run time reads such entries
+        /// through the bake reader only.
+        /// </summary>
+        public string AddBlob(byte[] data)
+        {
+            if (data == null) throw new ArgumentNullException(nameof(data));
+            if (!IsBakeBlob(data)) throw new ArgumentException("not a bake blob (magic HNBK, HNBG or HNBT)", nameof(data));
+            return Put(data, ResMediaType.Other);
         }
 
         string Put(byte[] data, ResMediaType t)

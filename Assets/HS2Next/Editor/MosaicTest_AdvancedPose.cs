@@ -329,7 +329,7 @@ public static partial class MosaicTest
             AdvancedPoseDriver.Reresolve(r);
             st = AdvancedPoseDriver.Of(r);
             r.Motion.Step(1f / 60f);
-            Check("AM2 a transform that holds a member: kept, not applied", st.ProtectedBones.Contains(guarded) && st.Set.Of(guarded) == null && part.localRotation == local0, string.Join(",", st.ProtectedBones));
+            Check("AM2 a transform that holds a member: kept, not applied", st.ProtectedBones.Contains(guarded) && st.Set.Of(guarded) == null && RotationCompare.Deg(part.localRotation, local0) == 0, string.Join(",", st.ProtectedBones));
             Check("AM2 still one finding", Protected() == 1, "" + Protected());
 
             // written back

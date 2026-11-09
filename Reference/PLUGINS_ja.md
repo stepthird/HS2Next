@@ -4,7 +4,7 @@
 コーディネートに自分のデータを保存する、シーンのイベントや撮影に応じて動く、毎フレーム処理を走らせる、元に戻す履歴に
 項目を加える、アプリ自身のウィジェットで描くパネルやインスペクターの節を出す、表示する値をシーンに重ねる、シェーダーを
 供給する、といったことができます。エンジン側のアセンブリを使えば、キャラクターの組み立てへのフック（肌のレイヤー、
-体のパーツの差し替え）、マテリアルの上書き、独自の UI も加えられます。この文書はプラグイン API 1.2 を説明します。同じ内容の
+体のパーツの差し替え）、マテリアルの上書き、独自の UI、Studio のアイテムの一覧の行も加えられます。この文書はプラグイン API 1.3 を説明します。同じ内容の
 [英語版](PLUGINS.md)と[簡体字中国語版](PLUGINS_zh-Hans.md)があり、隣の [COMMANDS.md](COMMANDS.md) にアプリの全コマンド
 が載っています。
 
@@ -20,16 +20,18 @@
 | `PLUGINS.md`、`PLUGINS_ja.md`、`PLUGINS_zh-Hans.md` | この文書 |
 | `COMMANDS.md` | コマンドの説明（プラグインが `Request` や `Call` で呼べるすべてのコマンド） |
 | `HS2NextPlugin.props` | プロジェクトが共有するビルド設定。プロパティ `HS2NextDir` 一つで、すべての参照が見つかります |
-| `PluginKit.sln` | 二つのサンプル。このフォルダーで `dotnet build` を 1 回実行すると両方がビルドされます |
+| `PluginKit.sln` | 三つのサンプル。このフォルダーで `dotnet build` を 1 回実行するとすべてがビルドされます |
 | `NuGet.config` | パッケージの取得元をすべて外します。キットはパッケージもネットワークも使いません |
 | `Hello/` | エンジンを使わないサンプル。コマンド一つ、呼び出しの補助、イベントの受け取り |
 | `HelloUi/` | エンジンを使わないサンプル。フォームとして宣言したパネルとアイテムのインスペクターの節、独自の文字列 |
+| `Shapes/` | エンジン側のサンプル。Studio のアイテムの一覧のグループ一つと、コードで作る五つの行 |
 | `doc/` | `HS2Next.Api` と `HS2Next.Api.Unity` の XML ドキュメント（IDE が見つけられるよう、`HS2Next_Data/Managed/` の DLL の隣にも置いてあります） |
 
 サンプルのビルドには .NET SDK 8 以降が要ります（`dotnet --list-sdks` で確かめられます）。
 
-1. `PluginKit` フォルダーでターミナルを開き、`dotnet build` を実行します。二つのサンプルがアプリ自身の API アセンブリ
-   に対してビルドされ、それぞれ `out/<guid>/`（`out/stp3.sample.hello/`、`out/stp3.sample.helloui/`）に写されます。
+1. `PluginKit` フォルダーでターミナルを開き、`dotnet build` を実行します。サンプルがアプリ自身の API アセンブリ
+   に対してビルドされ、それぞれ `out/<guid>/`（`out/stp3.sample.hello/`、`out/stp3.sample.helloui/`、
+   `out/stp3.sample.shapes/`）に写されます。
 2. そのフォルダーを `HS2Next.exe` の隣の `Plugins` フォルダー（初めてなら作ります）に写し、
    `Plugins/stp3.sample.hello/manifest.json` のような形にします。
 3. HS2Next を起動します。「ファイル > オプション」の自動操作の節にプラグインとその状態が並び、ブリッジの `plugin.list`
@@ -48,7 +50,7 @@ props ファイルにはほかのプロパティの説明もあります。`HS2N
 | アセンブリ | 参照 | 提供するもの |
 | --- | --- | --- |
 | `HS2Next.Api` | エンジンの型なし | `IPlugin` とライフサイクルのインターフェース、プラグインのコンテキスト、呼び出しの補助、イベント、元に戻す履歴の項目、実行時の上書き、フォーム（`HS2Next.Api.Ui`）、ブリッジのコマンドの取り決め（`HS2Next.Api.Bridge`）、拡張ブロックの取り決め（`HS2Next.Api.Save`）、コンテンツの ID、モーションの段階 |
-| `HS2Next.Api.Unity` | UnityEngine | シーンのノードとキャラクターの実体、肌のレイヤーと体のパーツの差し替えを含む組み立てのフック、組み立て直しの要求、マテリアルの上書き、モザイクの対象の追加、UI の登録とアプリのウィジェット（試験的） |
+| `HS2Next.Api.Unity` | UnityEngine | シーンのノードとキャラクターの実体、肌のレイヤーと体のパーツの差し替えを含む組み立てのフック、組み立て直しの要求、マテリアルの上書き、モザイクの対象の追加、UI の登録とアプリのウィジェット、ビューポートのツール、マップの問い合わせ、キャラクターのステージ、アイテムの行（試験的） |
 
 エンジンの型を使わないプラグインは `HS2Next.Api` だけを参照します（JSON のライブラリが欲しければ `Newtonsoft.Json`
 も。アプリはすべてのプラグインにバージョン 13 を提供します）。どちらのアセンブリもアプリの `HS2Next_Data/Managed/`
@@ -220,6 +222,7 @@ ctx.Request(req).ThrowIfError();
   `long`、`double`、`bool`、null、`List<object>`、`Dictionary<string, object>` のどれかです）、`GetJson(member)`、
   `As<T>()`（返答全体をクラスに）、`ThrowIfError()`（コード、メッセージ、詳細を持つ `BridgeException`）。
 - コマンドのエラーで例外は出ません。`Ok` を見てください。同じ封筒なら、`Request` と `Call` は同じ返答の文字列を返します。
+- ブリッジを無効にしても（`bridge.enabled` が false、`-noBridge`）、`Request`、`Call` とその後ろに並べる形は、有効なときと同じようにアプリのコマンドに届きます。
 
 すぐに実行する形（`Request`、`Call`）は、`batch`、返答を遅らせることがあるコマンド、非同期のコマンド、`waitFrames` を
 拒否します（並べる形を使います）。シーンを変えるコマンドは、ほかの誰かがシーンのトランザクションを持っている間（ドラッグ
@@ -326,7 +329,7 @@ public sealed class HelloPlugin : IPlugin
 
 フォームは、プラグインがデータとして宣言し、アプリが自身のウィジェットで描くパネルやインスペクターの節です。アプリの
 インスペクターと同じスライダー、色の選択、選択肢、ピッカーが使われます。値はプラグインの読み取りのコマンドから来て、
-書き込みのコマンドで戻ります。`HS2Next.Api.Ui` と `ctx.Forms` のすべてが `[Experimental]` です。キットの HelloUi の
+書き込みのコマンドで戻ります。`HS2Next.Api.Ui` と `ctx.Forms`（`IPluginForms`）のすべてが `[Experimental]` です。キットの HelloUi の
 サンプルが一通りそろった例です。
 
 ```csharp
@@ -416,12 +419,15 @@ Node・File・Text・AttachPoint は文字列か null、PartList はパーツの
 
 ## エンジン側の UI のためのウィジェット（試験的）
 
-`ctx.Unity().Ui` は、UI Toolkit の要素で作ったパネル、インスペクターの節、操作を登録します（`IPluginUi`）。その `Widgets`
+`ctx.Unity().Ui` は、UI Toolkit の要素で作ったパネル、インスペクターの節、操作を登録します（`IPluginUi`）。節を作る関数は
+`IUiSectionContext`（インスペクターが表示しているノードの `NodeId` とその `Kind`）を受け取ります。その `Widgets`
 （`IUiWidgets`。UI がなければ null）で、そうしたプラグインもアプリ自身のウィジェットを、プラグインのコールバックにつない
 だ形で使えます（どのコールバックもプラグインのガードの中で呼ばれ、プラグインが外れた後は呼ばれません）: `Number`
 （ドラッグの段階を持つスライダー）、`Vector`、`Toggle`、`Choice`、`Color`、`Ref`、`File`、`Text`、`Button`、
 `AttachPoint`。どれも `IUiWidget`（`Element`、コールバックなしで値を表示する `SetValue(value, mixed)`、読み書きできる
-`Enabled`）を返します。ほかに `Toast(text, level)`（そのままの文字）、`Dialog`（コールバックは押したボタンの番号、ほかの
+`Enabled`）を返します。`Number`、`Vector`、`Color` のコールバックは値とその `EditPhase` を受け取ります。ドラッグや色の
+選択が動いている間は `Preview`、編集を終えたときは `Commit`、Esc でドラッグを終えたときや色の選択を元に戻したときは
+`Cancel` です。ほかに `Toast(text, level)`（そのままの文字。`ToastLevel` は `Info`、`Success`、`Warning`、`Error`）、`Dialog`（コールバックは押したボタンの番号、ほかの
 方法で閉じたときは -1）、`Confirm`、`Prompt`（取り消したときは null）、`UiMenuItem(labelKey, run)` の項目（`Enabled` の
 既定値は true）を並べる `Menu(items, anchor)` があります。上のフォームも同じウィジェットで描かれます。要素の名前は、
 `plugin-widget-<labelKey>` と同じ部分の接尾辞、ダイアログは `dialog-plugin-<guid>` とボタン `dialog-button-<番号>`、
@@ -494,7 +500,7 @@ public void Update(in PluginFrame frame)                // before the scene appl
   戻す操作で戻せる削除済みのノードでもない）ときは null を返します。知らないパス、ノードの種類にないパス（アイテムに
   `chara.*`）、ノードの ID のないノードのパス、ノードの ID のあるシーン全体のパスは `ArgumentException` になります。
 
-| パス | ノード | 値（`Kind`）と表示 |
+| パス | ノード | 値（`Kind`。`OverrideValueKind`）と表示 |
 | --- | --- | --- |
 | `transform.pos`、`transform.rot` | キャラクター、アイテム、ライト、フォルダー、ルート、カメラ | `Vector3`、`Rotation`（ローカルの回転） |
 | `transform.scale` | キャラクター、アイテム | `Vector3`。モデルの拡大縮小と同じ意味 |
@@ -645,6 +651,11 @@ public sealed class Plugin : IPlugin, IPluginScenePost
   後段」を見てください）。
 - `Ui`（`[Experimental]`）: Studio の画面の領域のパネル、ノードの種類ごとのインスペクターの節、`ui.action` とショート
   カットから使える操作。ラベルはプラグイン自身の文字列から取り、アプリのウィジェット（`Ui.Widgets`）も使えます。
+- `Tools`（`[Experimental]`）: ビューポートのポインター、ホイール、キーを受け取るツールと、面の拾い（後述）。UI が動いて
+  いないときは null です。
+- `Map`（`[Experimental]`）: 読み込まれたマップのルートと、点の下の面の高さ（後述）。
+- `Stages`（`[Experimental]`）: シーンのキャラクターに付けるモーションのステージ。組み立て直しを越えて保たれます（後述）。
+- `ItemRows`（`[Experimental]`）: プラグインが行を作る Studio のアイテムの一覧のグループ（後述）。
 
 ### 肌のレイヤーと体のパーツの差し替え（試験的）
 
@@ -675,7 +686,7 @@ ctx.Unity().BuildHooks.Register("tattoo", BuildStage.BodyMesh, args =>
   プラグインが作るか読み込んだレンダラーからこれらをまとめて取ります。アプリは骨を一つずつ名前でキャラクターの体の骨に、
   なければパーツがすでに使っている同じ名前の骨に結び付け（足りない骨は先に `ImplantBone` で加えます）、マテリアルは
   キャラクターごとに写します。体のレンダラーでは、最初のスロットは体の肌のマテリアルのままで `Materials[0]` は使われず、
-  ほかの要素がほかのスロットに入ります。結果は `Replaced`、`NotFound`（その名前のパーツがない）、`Mismatch`（アプリが
+  ほかの要素がほかのスロットに入ります。結果（`BodyPartResult`）は `Replaced`、`NotFound`（その名前のパーツがない）、`Mismatch`（アプリが
   結び付けられない骨がある、名前がないのに骨の数が違う、スキンのないパーツに骨を渡した。何も変えません）のどれかです。
   体のレンダラーを差し替えると体は差し替え済みとして扱われ、FK の提供元が自分の行を加えます。差し替えたパーツは、その
   キャラクターの次の組み立てまで残ります。
@@ -696,6 +707,178 @@ ctx.Unity().BuildHooks.Register("tattoo", BuildStage.BodyMesh, args =>
 レンダラーはモザイクの対象の規則に従います。プラグインが `ReplaceBodyPart` で供給した体のパーツは、供給されたとおりに
 描かれます。プラグインが `AddMosaic` で加えたときは、モザイクの対象になります。
 
+### ビューポートのツール（試験的）
+
+ツールは、動いている間ビューポートのポインター、ホイール、キーを受け取ります。キャラクターの上の一点を拾う、何かを
+ドラッグする、面の上に線を引くといった操作に使います。`ViewportTool` を継承して要る呼び出しだけを上書きし、`Tools.Begin` で
+始めます。`Tools` は UI が動いていないときは null なので、ツールを始めるときに読んでください。
+
+```csharp
+sealed class PickPoint : ViewportTool
+{
+    readonly IViewportTools tools;
+    readonly Action<ToolPick> done;
+
+    public PickPoint(IViewportTools tools, Action<ToolPick> done) { this.tools = tools; this.done = done; }
+
+    public override bool PointerDown(in ToolPointer p)
+    {
+        if (p.Button != 0 || !p.Hit.Hit) return false;
+        done(p.Hit);
+        tools.End(this);
+        return true;
+    }
+}
+
+var tools = ctx.Unity().Tools;
+tools?.Begin(new PickPoint(tools, hit => ctx.Log.Info(hit.Part + " " + hit.Point)),
+    new ToolOptions { Filter = new ToolPickFilter { CharactersOnly = true }, Hint = "plugin.my.plugin.pick" });
+```
+
+- **ツールが動いている間。** カメラとその押し続けるキー、ショートカット、ギズモ、選択、ビューポートのメニューは止まります。
+  それらの状態は変わらないので、ツールが終わればすべて元のとおりに戻ります。パネル、メニュー、ダイアログは入力を受け取り
+  続け、元に戻す操作はメニューから使えます。`ToolOptions.PassThrough` を付けると、ツールが取らなかった入力はツールがない
+  ときと同じに働きます。`PointerDown` が false を返した押下はカメラを動かすか選択になり、取らなかったキーやホイールも
+  いつもどおり働きます。同時に動くツールは一つで、`Begin` は前のツールを終わらせます（`Replaced`）。ダイアログが開いている
+  ときのように、ホストが断ると `Begin` は false を返します。
+- **呼び出し。** 最初に `Started`、最後に `Ended(reason)` が来ます。`PointerDown` が true を返すとその押下はツールのものに
+  なり、`PointerUp` まで、または離さずに終わったとき（Esc、ウィンドウがフォーカスを失った）の `PointerCancel` まで、ポインターは
+  ツールに留まります。`PointerMove` は、ツールが取った押下の間と、ボタンを押していないホバーのときに来ます。ツールが
+  取らなかった押下の間には来ません。`Wheel`（ノッチ数、奥へ回すと正）と `Key`（キーマップの名前: `Space`、`T`、`F1`。リピートと
+  Esc は来ません）は、入力を取ったときに true を返します。`Draw(IToolDraw)` はビューの 1 フレームに 1 回走ります。線、十字、
+  文字をワールド座標で描け、ビューにだけ出て、撮影や録画には出ません。ツールがシーンを変えるときは、ほかの場所と同じように
+  コマンドか元に戻す履歴の項目を通します。
+- **ポインター。** `ToolPointer` は `Panel`（パネルの中の位置）、`Ray`（ワールド座標）、`Button`（0 左、1 右、2 中。移動では
+  -1）、`Buttons`（押しているボタン。ビット 1、2、4）、`Mods`（`ToolMods`: `Ctrl`、`Shift`、`Alt`）、`Hit` を持ちます。`Hit` は
+  `ToolOptions.Filter` に従ったポインターの下の拾いです。最初に読んだときに走り、キャラクターでは数ミリ秒かかるので、`Ray` で
+  自前の問い合わせをするツールはこの時間を払いません。渡された呼び出しの中で読んでください。
+- **拾い。** `Tools.Pick(ray, filter)` は、ツールの有無によらず、いつでも同じ答えを返します。`ToolPick` は null になりません。
+  外れたときは `Hit` が false です。ノード（`NodeId`）、場所（`Point`、`Normal`、`Distance`）、部品（`Renderer`、`Part`、`Slot`）、
+  三角形（`Triangle`、`Uv`）、そこで重みの最も大きい骨（`Bone`、`BoneLocal`、`BoneAddress`）を示します。読めないメッシュと UV の
+  ない部品では `Precise` が false で、点と距離だけが正しく、三角形のメンバーは使えません。`ToolPickFilter` は一つのノード
+  （`NodeId`）やキャラクター（`CharactersOnly`）に絞ります。`MapSurface` は、ノードに当たらなかったときにマップの面を足します
+  （`OnMap`）。隠れているレンダラーには当たりません。
+- **終わり。** `ToolEnd` が理由を示します。`Finished`（`End`）、`Cancelled`（押下のないときの Esc、またはツールが例外を投げた）、
+  `Replaced`、`SceneChanged`（新しいシーンや読み込み、または `Filter.NodeId` のノードの削除）、`UiClosed` です。押下の間の Esc は
+  `PointerCancel` になり、ツールは残ります。押下を持ったままツールが終わると、ほかの呼び出しは来ません。
+- **失敗。** ツールの呼び出しが投げた例外はプラグインの失敗として数えられ（`plugin.list` では `tool <呼び出し>`）、ツールは
+  終わります。プラグインが停止、失敗、アンロードされると、動いているツールは、プラグインの `Unload` の後に `UiClosed` で
+  終わります。
+
+### マップの問い合わせ（試験的）
+
+`ctx.Unity().Map`（`IMapQuery`、null になりません）は、マップが読み込まれているかと、その面の高さを答えます。
+
+```csharp
+var map = ctx.Unity().Map;
+if (map.Surface(point, out var hit)) Place(hit.Height, hit.Normal);
+```
+
+- `Loaded`、`Roots`: マップが読み込まれているかと、そのルートのオブジェクトのすべて（マップは複数持つことがあります。読み込まれて
+  いないときは空です）。
+- `Surface(point, out hit, above, below)`: 点の x、z の下で、`point.y + above` から `point.y - below` の間にある最も高い面
+  （既定は 0 と 60）。面がないとき、マップが読み込まれていないときは false です。法線の y が 0.3 未満の面は壁なので数え
+  ません。立っている点を渡してください。屋根の下の点は床を、屋根より上の点は屋根を見つけます。
+- `Surfaces(points, hits, above, below)`: 同じことを複数の点について 1 回の待ちで行います。答えのあった点の数を返し、答えの
+  ない点では `hits[i].Source` が null です。`hits` には `points` 以上の長さが要ります。
+- `MapSurfaceHit`: `Height`、`Normal`（長さ 1、上向き）、`Source`（見つけ方: `gpu`、`mesh`、`terrain`、`collider`）。
+
+答えはコライダーの有無やメッシュが読めるかによりません。例外はグラフィックスデバイスがないときで、そのときはこの二つから
+答えます。アルファで抜いた面と透明な面も数えます（水、ガラス、葉）。キャラクターとアイテムはマップではありません。呼び出しは
+答えを待ちます。およそ 1 ミリ秒で、マップの最初の 1 回は長くかかるので、クリックや数点には向きますが、毎フレーム多くの点を
+問うのには向きません。メインスレッド専用です。コマンド `ground.probe` も同じ問い合わせをします。
+
+### キャラクターのステージ（試験的）
+
+`ctx.Unity().Stages`（`ICharaStages`、null になりません）は、シーンのキャラクターにモーションのステージを足します。ステージは
+プラグインのクラスで、キャラクターのモーションの段階の中で、アプリ自身のステージの間に入って動きます。組み立て直しは体を
+作り直すので、プラグインが渡すのはステージそのものではなく、ステージを作る関数です。
+
+```csharp
+sealed class HeadWatch : IMotionStage
+{
+    readonly Transform head;
+
+    public HeadWatch(GameObject root) { head = Array.Find(root.GetComponentsInChildren<Transform>(), t => t.name == "cf_J_Head"); }
+
+    public Vector3 Position { get; private set; }
+    public MotionPhase Phase => MotionPhase.Final;
+    public string Name => "head";
+    public bool Enabled { get; set; } = true;
+    public void Step(in MotionFrame frame) { if (head) Position = head.position; }
+    public void Reset() { }
+}
+
+IDisposable stage = ctx.Unity().Stages.Add(nodeId, root => new HeadWatch(root));
+```
+
+- **作る関数。** キャラクターが組み立て済みならその場で呼ばれ、組み立て直しのたびに新しい体のルートを渡して呼ばれます。
+  `chara.change`、`RequestRebuild`、新しい体が要る編集は組み立て直しになります。服、髪、アクセサリーの変更はならないので、
+  ステージはそのまま残ります。`SceneLoaded` の時点のようにまだ組み立てられていないキャラクターには、組み立てられたときに
+  付きます。古いステージのオブジェクトは古い体と一緒に消えるので、組み立て直しを越えて残したいものは、関数がキャプチャする
+  変数に置きます。止まっていたステージは止まったままです。関数が null を返すと、その体にはステージが付きません。
+- **フェーズ。** `Phase` と `Name` は関数の後に一度だけ読みます。フェーズは -90 から 940 の間です。これより下には骨を元に
+  戻すアプリのステージが、上にはフレームを締めくくるステージがあります。`MotionPhase` が主なフェーズに名前を付けており、
+  その間のどの数も使えます。たとえば 420 のステージは FK の後、補正の前に動きます。範囲の外のフェーズは拒否され、プラグイン
+  の障害に数えられます。`chara.motion` はキャラクターのステージを実行順に並べます。プラグインのステージの名前は
+  `<guid>/<Name>` で、`owner` は GUID です。コマンドの `stages` 引数で切り替えられます。
+- **骨を書くとき。** 骨を書くステージは、早いフェーズに置いた自分のステージで、その書き込みを自分で取り除きます。アニメー
+  ションが動いていないとき、ほかに骨を戻すものはありません。
+- **フレームの中で。** ステージはキャラクターのモーションの段階の中で動きます。拘束のためにシーンがキャラクターの順番を決めて
+  いる間も同じです。シーンの一時停止中は `MotionFrame.Dt` が 0 です。ホストが姿勢を読むためだけにステージを動かして骨を元に
+  戻すときは、プラグインのステージは動きません。
+- **終わり。** 返り値の `Dispose` でステージを外します。2 回目の呼び出しは何もしません。ステージ自身の `Step` の中から呼ぶと、
+  ステージはその場で止まり、そのフレームのうちに一覧から外れます。削除されたキャラクターのステージは、元に戻す操作に備えて
+  止まったまま残り、ノードが戻らないと決まったときに消えます。新しいシーンと読み込みですべてのステージが終わります。保存は
+  されないので、`SceneLoaded` で足し直してください。
+- **障害。** ステージからの例外はプラグインの障害に数えられ（`plugin.list` の名前は `stage <guid>/<Name>`）、ステージは
+  残ります。関数からの例外は `stage factory` として数えられ、次に組み立てられるまでそのキャラクターにステージは付きません。
+  プラグインの停止、障害、アンロードで、そのステージはすべて外れます。キャラクターでないノードには `Add` が
+  `ArgumentException` を投げます。メインスレッド専用です。
+
+### アイテムの行（試験的）
+
+`ctx.Unity().ItemRows`（`IItemRows`、null になりません）は、プラグイン自身が行を作るグループを Studio のアイテムの一覧に
+足します。行はほかのアイテムと一緒に一覧と `item.search` に並び、その行のアイテムが組み立てられるたびに、アプリはプラグインに
+オブジェクトを求めます。
+
+```csharp
+IItemRowGroup group = ctx.Unity().ItemRows.AddGroup(820001, "Shapes", request => MakeShape(request.Id));
+group.SetCategory(0, "Shapes");
+group.SetRows(new[]
+{
+    new ItemRow { Category = 0, Id = 1, Name = "Cube" },
+    new ItemRow { Category = 0, Id = 4, Name = "Torus", FkBones = new[] { "ring0", "ring1" } },
+});
+```
+
+- **グループ。** グループの番号は、アイテムの一覧のグループと同じ一つの番号の空間にあります。一覧、アプリ、ほかのプラグインが
+  使っている番号は `ArgumentException`（`rows.groupTaken`）で拒否されるので、自分の番号を選んでください。グループは空で
+  始まります。`SetCategory` でカテゴリーに名前を付け、`SetRows` ですべての行を一度に渡します（ID はグループの中で一意）。
+  カテゴリーは行を持つ間だけ一覧に出て、グループは一覧のグループの後に並びます。
+- **行。** 行のキーは `<プラグインの GUID>#<ID>` です。行のアイテムはほかのアイテムと同じように保存され、`ref` がこのキー、
+  それにグループとカテゴリーが付きます。`item.add` は mod のアイテムと同じく `{"ref": "<guid>#<id>"}` か
+  `{"group", "category", "guid", "no"}` を受け取ります。
+- **オブジェクト。** `make` はアイテムの組み立て（追加、読み込み、複製、組み立て直し）の中でメインスレッドで呼ばれ、
+  `ItemRowRequest`（行の `Guid`、`Group`、`Category`、`Id` と、アイテムの `NodeId`）を受け取り、呼ばれるたびに新しい
+  オブジェクトか null を返します。アプリはそのオブジェクトを引き取り、アイテムの下にローカルの原点で置き、一覧の
+  アイテムと同じようにマテリアルのスロットをすべて写してシェーダーを置き換え、行の `FkBones` を名前で探し（アイテムの FK が
+  動かします）、アイテムがなくなるときに壊します。モザイクの対象の名前を
+  持つレンダラーと、モザイクのマテリアルを持つレンダラーは対象です。ほかは `AddMosaic` で加えます。`make` はシーンのノードを
+  足したりシーンを変えたりしません（警告 `item.generatorWrote`）。
+- **変化。** `SetRows` は、行が新しいか、名前・カテゴリー・FK の骨が変わったアイテムを次のフレームで組み立て直します。行が
+  まだないうちに代わりのアイテムで読み込まれたアイテムは、そのとき行のオブジェクトになります。`Refresh(id)` は一つの行の
+  アイテムを組み立て直します。`Load` でグループを足すプラグインは、こうして起動時に読み込まれたシーンにも届きます。
+- **プラグインがないとき**（入っていない、停止した、障害で止まった）、その行のアイテムは `item.missing` 付きで代わりの
+  アイテムとして読み込まれ、保存されたデータはそのまま保たれます。もう一度保存したシーンは変わらず、プラグインが戻れば
+  ふたたび行のオブジェクトになります。
+- **終わり。** `Dispose` でグループとその行が消えます。プラグインのアンロード、停止、障害でも同じです。組み立て済みの
+  アイテムは、組み立て直されるまで今のオブジェクトを保ち、そのとき代わりのアイテムとして読み込まれます。
+- **障害。** `make` が例外を投げるか null を返すと、警告 `item.generatorFailed` 付きで代わりのアイテムが読み込まれ、
+  プラグインの障害に数えられます（`plugin.list` の名前は `item rows <グループ>`）。メインスレッド専用です。
+
+キットのサンプル `Shapes/` は、コードで作る行を五つ足します。その一つのトーラスは、八つの骨をアイテムの FK で曲げられます。
+
 ## シェーダー
 
 `ctx.Shaders.Supply(original, replacement)` は、後から読み込まれるマテリアルのために、シェーダーの名前を、ホストが名前で
@@ -711,20 +894,24 @@ mod やアセットパックのシェーダーに対する HS2Next 自身の置�
 
 API はセマンティック バージョニングに従います。`ApiVersion`（と両方のアセンブリの情報バージョン）がそれを示し、
 アセンブリのバージョンは `MAJOR.0.0.0` なので、プラグインはマイナーとパッチのリリースをまたいで結び付きます。この文書は
-1.2 を説明します。
+1.3 を説明します。
 
 - プラグインは、ビルドに使った `MAJOR.MINOR` を `apiVersion` に書きます。ホストのメジャーが同じで、マイナーが同じか
-  それ以上なら読み込まれます。`1.0` のプラグインはどの 1.x のホストでも、`1.2` のプラグインは 1.2 以降のホストで読み込
-  まれます。1.1 で加わったメンバーを使うプラグインは `"1.1"`、1.2 で加わったメンバーを使うプラグインは `"1.2"` と書きます。
+  それ以上なら読み込まれます。`1.0` のプラグインはどの 1.x のホストでも、`1.3` のプラグインは 1.3 以降のホストで読み込
+  まれます。1.1 で加わったメンバーを使うプラグインは `"1.1"`、1.2 で加わったメンバーを使うプラグインは `"1.2"`、1.3 で
+  加わったメンバーを使うプラグインは `"1.3"` と書きます。
 - 同じメジャーの中では、公開されたものを消したり変えたりしません。ホストが実装するインターフェース（コンテキスト、
   サービス、イベント、返答）は、マイナーのバージョンでメンバーが増えることがあり、プラグインはそれを呼ぶだけです。
   プラグインが実装するインターフェース（`IPlugin`、`IPluginUpdate`、`IPluginSceneLoaded`、`IPluginScenePost`、
   `IExtBlockHandler`、`IKkexConsumer`、`IBatchHook`、`IMotionStage`）は変わりません。新しい機能は、任意の新しいインターフェースか
-  デリゲートとして加わります。
-- `[Experimental]` の付いた型とメンバーは約束の外で、どのマイナーのバージョンでも変わることがあります。1.2 では、
+  デリゲートとして加わります。プラグインが継承するクラス（`ViewportTool`）は、仮想メソッドが増えることはありますが、抽象
+  メソッドは増えません。
+- `[Experimental]` の付いた型とメンバーは約束の外で、どのマイナーのバージョンでも変わることがあります。1.3 では、
   フォーム（`HS2Next.Api.Ui`、`ctx.Forms`）、ウィジェット、元に戻す履歴の項目（`ctx.History`）、実行時の上書き
   （`ctx.Overrides`）、シーンの後段（`IPluginScenePost`、`BoneWritten`）、肌のレイヤー、体のパーツの差し替え、組み立て
-  直しの要求、エンジン側の UI の登録がそれに当たります。
+  直しの要求、エンジン側の UI の登録、ビューポートのツール（`Tools`、`ViewportTool` とその周りの型）、マップの問い合わせ
+  （`Map`、`IMapQuery`、`MapSurfaceHit`）、キャラクターのステージ（`Stages`、`ICharaStages`）、アイテムの行
+  （`ItemRows`、`IItemRows`、`IItemRowGroup`、`ItemRow`、`ItemRowRequest`）がそれに当たります。
   呼び出しの補助、撮影のイベントとその種類、コマンド `plugin.disable` / `plugin.enable` は安定です。
 - 1.1 で加わったもの: `CommandRequest` と `ICommandReply` を使う `Request` / `RequestAsync`、`IsActive`、撮影の
   イベント、元に戻す履歴の項目、フォームとウィジェット、肌のレイヤー、体のパーツの差し替え、組み立て直しの要求、実行中の
@@ -732,6 +919,9 @@ API はセマンティック バージョニングに従います。`ApiVersion`
 - 1.2 で加わったもの: 実行時の上書き（`ctx.Overrides`、`IRuntimeOverrides`、`IOverrideSlot`、`OverrideValueKind`、
   `OverrideInfo`）とその骨と IK の標的のパス、シーンの後段（`IPluginScenePost`、`BoneWritten`）、連番画像の書き出しの
   フレームを表す撮影の種類 `Record`。
+- 1.3 で加わったもの: ビューポートのツール（`Tools`、`IViewportTools`、`ViewportTool`、`ToolPointer`、`ToolPick`）、
+  マップの問い合わせ（`Map`、`IMapQuery`、`MapSurfaceHit`）、キャラクターのステージ（`Stages`、`ICharaStages`）、
+  アイテムの行（`ItemRows`、`IItemRows`、`IItemRowGroup`、`ItemRow`、`ItemRowRequest`）。
 
 ## プラグインの確かめ方
 

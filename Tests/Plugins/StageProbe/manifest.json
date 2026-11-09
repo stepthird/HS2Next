@@ -1,0 +1,12 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.stageprobe",
+  "name": "Stage probe",
+  "version": "0.1.0",
+  "apiVersion": "1.3",
+  "assemblies": ["Stp3.Test.StageProbe.dll"],
+  "commandPrefixes": ["stageprobe."],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the character stages: a stage on a character at a phase, which counts its calls and can throw from one of them."
+}

@@ -16,7 +16,10 @@
 // or manifest key), a change that only concerns experimental entries INFO; probes that are added or dropped are INFO. A
 // listing passes when its largest class is at most INFO, or MINOR with a higher Api minor than the listing's, or MAJOR with
 // a higher Api major. The classifier also runs on synthetic pairs. The command registry is built without an app (the
-// handlers are not run), so the row needs neither the game install nor a test host.
+// handlers are not run), so the row needs neither the game install nor a test host. YE2 (Phase 6.10): each of the three
+// plugin guides (Reference/PLUGINS*.md) names every experimental type and every experimental member of another type, each
+// at least once under a heading that says "experimental" in the guide's language; two controls per guide show that the
+// check sees a missing word and a missing name.
 // Run: -executeMethod ApiSurfaceTest.Run [-write] (headless, -nographics, edit mode). -write rewrites the listing from the
 // code before the comparison: at a release whose version changes, never to hide a difference. Report
 // Spike/out/api/api_surface_report.txt, first line "SUMMARY: N PASS, M FAIL"; exit 1 on a FAIL.
@@ -37,7 +40,7 @@ using Newtonsoft.Json.Linq;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-public static class ApiSurfaceTest
+public static partial class ApiSurfaceTest
 {
     public const string ApiFile = "HS2Next.Api.surface.txt", ApiUnityFile = "HS2Next.Api.Unity.surface.txt",
         CommandsFile = "commands.surface.json", ManifestFile = "plugin_manifest.surface.json", ReportFile = "api_surface_report.txt";
@@ -45,14 +48,14 @@ public static class ApiSurfaceTest
     public static string ListingDir => Path.Combine(ContentSettings.ProjectRoot, "Tools", "api");
     static string OutDir => Path.Combine(ContentSettings.ProjectRoot, "Spike", "out", "api");
 
-    /// <summary>Interfaces plugins implement: they never gain members within a major version (a new capability is a new
-    /// optional interface). Every other public interface is implemented by the host and may gain members in a minor
-    /// version.</summary>
+    /// <summary>What plugins implement. An interface here never gains a member within a major version (a new capability is a
+    /// new optional interface); a class here may gain virtual members, never an abstract one. Every other public interface is
+    /// implemented by the host and may gain members in a minor version.</summary>
     public static readonly string[] PluginImplemented =
     {
         "HS2Next.Api.Bridge.IBatchHook", "HS2Next.Api.Plugins.IPlugin", "HS2Next.Api.Plugins.IPluginSceneLoaded",
         "HS2Next.Api.Plugins.IPluginScenePost", "HS2Next.Api.Plugins.IPluginUpdate", "HS2Next.Api.Save.IExtBlockHandler",
-        "HS2Next.Api.Save.IKkexConsumer", "HS2Next.Motion.IMotionStage",
+        "HS2Next.Api.Save.IKkexConsumer", "HS2Next.Api.Unity.ViewportTool", "HS2Next.Motion.IMotionStage",
     };
 
     /// <summary>The commands flagged experimental at the freeze (Api 1.0.0): UI introspection, dumps, diagnostics.</summary>
@@ -187,6 +190,22 @@ public static class ApiSurfaceTest
             // AZ5 the plugin manifests of the repository
             rep.AppendLine("AZ5 the plugin manifests of the samples, the plugin kit's samples and the test plugins");
             Az5(cur);
+
+            // AZ6 the viewport tools of a plugin, on a stand-in host
+            rep.AppendLine("AZ6 the viewport tools of a plugin, on a stand-in host");
+            Az6();
+
+            // AZ7 the character stages in the contract
+            rep.AppendLine("AZ7 the character stages in the contract");
+            Az7();
+
+            // AZ8 the generated item rows in the contract
+            rep.AppendLine("AZ8 the generated item rows in the contract");
+            Az8();
+
+            // YE2 the experimental set in the three plugin guides
+            rep.AppendLine("YE2 the experimental types and members named in the three plugin guides");
+            Ye2(apiE.Concat(unityE));
         }
         catch (Exception e) { Check("run", "no exception", false, e.ToString()); }
         string summary = $"SUMMARY: {passes} PASS, {fails} FAIL";
@@ -272,7 +291,7 @@ public static class ApiSurfaceTest
         foreach (var e in before) b[e.Key] = e;
         var a = new Dictionary<string, Entry>(StringComparer.Ordinal);
         foreach (var e in after) a[e.Key] = e;
-        var pluginTypes = new HashSet<string>(after.Where(e => e.Kind == "type" && e.Value.Contains("implemented by plugins")).Select(e => e.Key.Substring(2)), StringComparer.Ordinal);
+        var pluginTypes = new HashSet<string>(after.Where(e => e.Kind == "type" && e.Value.StartsWith("interface", StringComparison.Ordinal) && e.Value.Contains("implemented by plugins")).Select(e => e.Key.Substring(2)), StringComparer.Ordinal);
         var classTypes = new HashSet<string>(after.Where(e => e.Kind == "type" && Regex.IsMatch(e.Value, @"^(abstract )?class\b")).Select(e => e.Key.Substring(2)), StringComparer.Ordinal);
         var list = new List<Diff>();
         foreach (var kv in b)
@@ -370,6 +389,9 @@ public static class ApiSurfaceTest
         Pair("a member added to a host interface with a minor bump", baseText, baseText + "M X.IHost::Name | public System.String Name { get; }\n", Change.Minor, v110, true);
         Pair("a member added to an interface plugins implement", baseText, baseText + "M X.IPlug::Stop() | public System.Void Stop()\n", Change.Major, v110, false);
         Pair("a new abstract member of a class", baseText, baseText + "M X.Base::Reset() | public abstract System.Void Reset()\n", Change.Major, v110, false);
+        string derived = head + "T X.Tool | abstract class implemented by plugins\nM X.Tool::Step() | public virtual System.Void Step()\n";
+        Pair("a virtual member added to a class plugins derive from", derived, derived + "M X.Tool::Stop() | public virtual System.Void Stop()\n", Change.Minor, v110, true);
+        Pair("an abstract member added to a class plugins derive from", derived, derived + "M X.Tool::Stop() | public abstract System.Void Stop()\n", Change.Major, v110, false);
         Pair("an experimental member changed", baseText, baseText.Replace("System.Void Old() [Experimental]", "System.Int32 Old() [Experimental]"), Change.Info, v100, true);
         Pair("an experimental member removed", baseText, baseText.Replace("M X.A::Old() | public System.Void Old() [Experimental]\n", ""), Change.Info, v100, true);
         Pair("an experimental member added", baseText, baseText + "M X.A::New() | public System.Void New() [Experimental]\n", Change.Info, v100, true);
@@ -517,6 +539,126 @@ public static class ApiSurfaceTest
         Check("AZ5", "a 0.3 manifest parses and the host refuses its Api", om != null && !SemVer.ApiCompatible(om.ApiVersion, cur.Major, cur.Minor));
     }
 
+    // ================================================================ YE2 the experimental set in the plugin guides
+
+    /// <summary>The plugin guides under Reference/ and the word for "experimental" in their headings (Japanese 試験的, Simplified Chinese 实验性).</summary>
+    public static readonly string[,] Guides =
+        { { "PLUGINS.md", "experimental" }, { "PLUGINS_ja.md", "試験的" }, { "PLUGINS_zh-Hans.md", "实验性" } };
+
+    /// <summary>One name YE2 looks for in the guides.</summary>
+    public struct GuideName
+    {
+        public string Name, What;
+        /// <summary>A member's name is found after "." or "`" (ctx.Forms, `Tools`); a type's as a whole word.</summary>
+        public bool Member;
+    }
+
+    /// <summary>The simple name of every experimental type and the name of every experimental member of a type that is not experimental
+    /// (constructors left out) of <paramref name="surface"/>, each once, in the surface's order.</summary>
+    public static List<GuideName> ExperimentalNames(IEnumerable<Entry> surface)
+    {
+        var list = surface.ToList();
+        var expTypes = new HashSet<string>(list.Where(e => e.Kind == "type" && e.Exp).Select(e => e.Key.Substring(2)), StringComparer.Ordinal);
+        var names = new List<GuideName>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var e in list)
+        {
+            if (!e.Exp) continue;
+            if (e.Kind == "type")
+            {
+                string full = e.Key.Substring(2);
+                string simple = full.Substring(Math.Max(full.LastIndexOf('.'), full.LastIndexOf('+')) + 1);
+                if (seen.Add("T " + simple)) names.Add(new GuideName { Name = simple, What = "type " + full });
+            }
+            else if (e.Kind == "member")
+            {
+                string key = e.Key.Substring(2);
+                int i = key.IndexOf("::", StringComparison.Ordinal);
+                if (i < 0) continue;
+                string type = key.Substring(0, i), member = key.Substring(i + 2);
+                int p = member.IndexOf('(');
+                if (p >= 0) member = member.Substring(0, p);
+                if (expTypes.Contains(type) || member == ".ctor") continue;
+                if (seen.Add("M " + member)) names.Add(new GuideName { Name = member, What = "member " + type + "::" + member, Member = true });
+            }
+        }
+        return names;
+    }
+
+    /// <summary>Which of <paramref name="names"/> <paramref name="text"/> does not name (<paramref name="missing"/>), and which it names only on
+    /// lines under no heading (the nearest one or one above it) that holds <paramref name="word"/> (<paramref name="outside"/>). Lines of fenced
+    /// code count as text and are never headings.</summary>
+    public static void GuideNames(string text, string word, List<GuideName> names, List<string> missing, List<string> outside)
+    {
+        var lines = text.Replace("\r\n", "\n").Split('\n');
+        var under = new bool[lines.Length];
+        var chain = new List<KeyValuePair<int, string>>();
+        bool fence = false;
+        for (int i = 0; i < lines.Length; i++)
+        {
+            string l = lines[i];
+            if (l.StartsWith("```", StringComparison.Ordinal)) fence = !fence;
+            else if (!fence)
+            {
+                var m = Regex.Match(l, @"^(#{1,6})\s+(.*)$");
+                if (m.Success)
+                {
+                    int level = m.Groups[1].Length;
+                    chain.RemoveAll(c => c.Key >= level);
+                    chain.Add(new KeyValuePair<int, string>(level, m.Groups[2].Value));
+                }
+            }
+            under[i] = chain.Exists(c => c.Value.IndexOf(word, StringComparison.Ordinal) >= 0);
+        }
+        foreach (var n in names)
+        {
+            var rx = new Regex((n.Member ? "[.`]" : "(?<![A-Za-z0-9_])") + Regex.Escape(n.Name) + "(?![A-Za-z0-9_])");
+            bool named = false, inside = false;
+            for (int i = 0; i < lines.Length && !inside; i++)
+                if (rx.IsMatch(lines[i])) { named = true; inside = under[i]; }
+            if (!named) missing.Add(n.Name);
+            else if (!inside) outside.Add(n.Name);
+        }
+    }
+
+    static void Ye2(IEnumerable<Entry> surface)
+    {
+        var names = ExperimentalNames(surface);
+        int types = names.Count(n => !n.Member);
+        Check("YE2", "the two surfaces' experimental names: " + types + " types and " + (names.Count - types) + " members of other types", types > 0 && names.Count > types);
+        for (int g = 0; g < Guides.GetLength(0); g++)
+        {
+            string file = Guides[g, 0], word = Guides[g, 1];
+            string path = Path.Combine(ContentSettings.ProjectRoot, "Reference", file);
+            if (!File.Exists(path)) { Check("YE2", "Reference/" + file + " exists", false); continue; }
+            string text = File.ReadAllText(path, Encoding.UTF8);
+            var missing = new List<string>();
+            var outside = new List<string>();
+            GuideNames(text, word, names, missing, outside);
+            Check("YE2", file + ": every one of the " + names.Count + " names is named", missing.Count == 0,
+                missing.Count == 0 ? "" : missing.Count + " not named: " + string.Join(", ", missing));
+            Check("YE2", file + ": each is named under a heading that says \"" + word + "\"", outside.Count == 0,
+                outside.Count == 0 ? "" : outside.Count + " only elsewhere: " + string.Join(", ", outside));
+            // the positive controls: the same guide with the word taken out of every heading, and with the first type's and the first
+            // member's names taken out
+            var headless = Regex.Replace(text.Replace("\r\n", "\n"), "^(#{1,6}\\s+.*)$", m => m.Value.Replace(word, ""), RegexOptions.Multiline);
+            var m2 = new List<string>();
+            var o2 = new List<string>();
+            GuideNames(headless, word, names, m2, o2);
+            Check("YE2", file + ", control: without the word in its headings every named name is reported", o2.Count == names.Count - m2.Count && o2.Count > 0,
+                o2.Count + " of " + (names.Count - m2.Count));
+            var t1 = names.First(n => !n.Member);
+            var m1 = names.First(n => n.Member);
+            string blanked = Regex.Replace(Regex.Replace(text, "(?<![A-Za-z0-9_])" + Regex.Escape(t1.Name) + "(?![A-Za-z0-9_])", "X"),
+                "(?<=[.`])" + Regex.Escape(m1.Name) + "(?![A-Za-z0-9_])", "X");
+            var m3 = new List<string>();
+            GuideNames(blanked, word, names, m3, new List<string>());
+            var want = new HashSet<string>(missing, StringComparer.Ordinal) { t1.Name, m1.Name };
+            Check("YE2", file + ", control: without " + t1.Name + " and ." + m1.Name + " exactly those two more are reported", want.SetEquals(m3),
+                m3.Count + ": " + string.Join(", ", m3));
+        }
+    }
+
     // ================================================================ the Api assemblies
 
     /// <summary>The surface text of one Api assembly: a header, then one line per type and member in ordinal order.</summary>
@@ -528,7 +670,7 @@ public static class ApiSurfaceTest
         {
             string tn = TypeName(t);
             bool texp = Experimental(t);
-            lines.Add("T " + tn + " | " + TypeDecl(t) + Marks(t, texp) + (t.IsInterface && plugin.Contains(tn) ? " implemented by plugins" : ""));
+            lines.Add("T " + tn + " | " + TypeDecl(t) + Marks(t, texp) + (plugin.Contains(tn) ? " implemented by plugins" : ""));
             if (!IsDelegate(t) && !t.IsEnum)
             {
                 // the interfaces the type declares (those a framework base class brings, such as an attribute's or an
@@ -721,7 +863,7 @@ public static class ApiSurfaceTest
 
     static string Literal(object v, Type t)
     {
-        if (v == null || v is DBNull || v == Missing.Value) return "null";
+        if (v == null || v is DBNull || v == Missing.Value) return t != null && t.IsValueType && Nullable.GetUnderlyingType(t) == null ? "default" : "null";
         if (t != null && t.IsByRef) t = t.GetElementType();
         var u = t != null ? Nullable.GetUnderlyingType(t) ?? t : null;
         if (u != null && u.IsEnum && !(v is Enum)) v = Enum.ToObject(u, v);

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The test plugin of the row BakeCheck.player (CC0-1.0). It reads the app's own classes, so it is built by Tools/bake_player_check.py against the Managed folder of the
+       player under test (PlayerManaged), not by Tools/plugins.ps1. -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <AssemblyName>Stp3.Test.BakeProbe</AssemblyName>
+    <RootNamespace>Stp3.Test.BakeProbe</RootNamespace>
+    <Deterministic>true</Deterministic>
+    <DebugType>none</DebugType>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <NoWarn>$(NoWarn);CS1701;CS1702;NU1701</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="HS2Next.Api"><HintPath>$(PlayerManaged)\HS2Next.Api.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="HS2Next.Api.Unity"><HintPath>$(PlayerManaged)\HS2Next.Api.Unity.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="HS2Next.Bridge"><HintPath>$(PlayerManaged)\HS2Next.Bridge.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Assembly-CSharp"><HintPath>$(PlayerManaged)\Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(PlayerManaged)\UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.ImageConversionModule"><HintPath>$(PlayerManaged)\UnityEngine.ImageConversionModule.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>

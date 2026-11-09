@@ -6,7 +6,9 @@
 // AccessoryParentKey value order (unknown point names last, ordinal). Character appearance is not here: it is
 // the subtree charas/<nodeId>/ (CharaSubtree). The scene's Timeline (revision 4) is the member `timeline` after `scene`,
 // written only when the scene has one (SceneTimeline.cs); its constraints (revision 4) the array `constraints` after that, written
-// only when it has an entry (SceneConstraints.cs).
+// only when it has an entry (SceneConstraints.cs); its ragdoll block (revision 5) the object `ragdoll` after that, written only when
+// it is not empty (SceneRagdoll.cs); its scene scripts (revision 5) the array `scripts` after that, written only when it has a script
+// (SceneScripts.cs).
 using System;
 using System.Collections.Generic;
 
@@ -25,6 +27,12 @@ namespace HS2Next.Save
         /// <summary>The scene's constraints (member <c>constraints</c>, after <c>timeline</c>); null or empty = the scene has none and the
         /// member is not written.</summary>
         public ConstraintList Constraints;
+        /// <summary>The scene's ragdoll block (member <c>ragdoll</c>, after <c>constraints</c>); null or empty = the scene has none and the
+        /// member is not written.</summary>
+        public SceneRagdollWorld Ragdoll;
+        /// <summary>The scene's scripts (member <c>scripts</c>, after <c>ragdoll</c>); null or empty = the scene has none and the member is not
+        /// written.</summary>
+        public SceneScriptList Scripts;
         /// <summary>Inline ext of the scene scope.</summary>
         public ExtInline Ext = new ExtInline();
 
@@ -61,6 +69,8 @@ namespace HS2Next.Save
             var timeline = r.ObjN(TimelineDocument.MemberName);
             Timeline = timeline == null ? null : TimelineDocument.Read(timeline);
             Constraints = ConstraintList.Read(r);
+            Ragdoll = SceneRagdollWorld.Read(r);
+            Scripts = SceneScriptList.Read(r);
             Ext = r.Ext();
 
             RepairParents(nodes, byId, r);
@@ -70,6 +80,8 @@ namespace HS2Next.Save
             CheckNodeRef(r, byId, Scene.Effects.SunShafts.Caster, "scene.effects.sunShafts.caster");
             Timeline?.ReportUnknownNodes(byId.ContainsKey, r.Context, DocReader.Join(r.Path, TimelineDocument.MemberName));
             Constraints?.ReportUnknownNodes(byId.ContainsKey, r.Context, DocReader.Join(r.Path, ConstraintList.MemberName));
+            RagdollLimits.ReportScene(Nodes, r);
+            Scripts?.ReportUnknownNodes(byId.ContainsKey, r.Context, DocReader.Join(r.Path, SceneScriptList.MemberName));
         }
 
         internal override void WriteMembers(CanonicalJsonWriter w)
@@ -93,6 +105,8 @@ namespace HS2Next.Save
             Scene.WriteTo(w, "scene");
             if (Timeline != null) Timeline.WriteTo(w, TimelineDocument.MemberName);
             if (Constraints != null && Constraints.Count > 0) Constraints.WriteTo(w, ConstraintList.MemberName);
+            if (Ragdoll != null && !Ragdoll.IsEmpty) Ragdoll.WriteTo(w, SceneRagdollWorld.MemberName);
+            if (Scripts != null && Scripts.Count > 0) Scripts.WriteTo(w, SceneScriptList.MemberName);
         }
 
         static void CheckNodeRef(DocReader r, Dictionary<string, SceneNode> byId, string id, string path)

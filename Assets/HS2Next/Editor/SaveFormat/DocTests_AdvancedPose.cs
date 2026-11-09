@@ -298,8 +298,8 @@ namespace HS2Next.Save.Tests
 
         static void AS3(TestRunner t)
         {
-            t.Check(SaveFormats.AdvancedPoseVersion == 4 && SaveFormats.SupportedVersion == 4 && CoreMigrationRegistry.Default.Supported == 4 && SaveFormats.MinReaderVersion == 1,
-                "AS3: the block at revision 4, no new revision (S = 4), minReaderVersion 1");
+            t.Check(SaveFormats.AdvancedPoseVersion == 4 && SaveFormats.SupportedVersion == CoreMigrationRegistry.Default.Supported && SaveFormats.SupportedVersion >= 4 && SaveFormats.MinReaderVersion == 1,
+                "AS3: the block at revision 4, minReaderVersion 1");
             var s = InfraFixtures.SmallScene(2, 1);
             var c0 = (CharaNodeState)s.Scene.Nodes[0].State;
             var b1 = s.ToBytes(Opts());

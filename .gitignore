@@ -142,14 +142,18 @@ __pycache__/
 
 
 # Plugins (Phase 5.1): the Editor's plugin folder (<project>/Plugins/, staged by Tools/plugins.ps1, never committed); the build
-# output of the plugin projects outside Assets; their project files are tracked although *.csproj is ignored above
+# output of the plugin projects outside Assets (the samples, Tests/Plugins and the player rows' test plugins Tests/*Probe); their project files are
+# tracked although *.csproj is ignored above
 /Plugins/
 /Samples/*/bin/
 /Samples/*/obj/
 /Tests/Plugins/*/bin/
 /Tests/Plugins/*/obj/
+/Tests/*Probe/bin/
+/Tests/*Probe/obj/
 !/Samples/**/*.csproj
 !/Tests/Plugins/**/*.csproj
+!/Tests/*Probe/*.csproj
 # the plugin kit (Phase 6.1, shipped in the zip as PluginKit/): the build output of its projects and its staging folder out/;
 # its solution file is tracked although *.sln is ignored above
 /Samples/PluginKit/*/bin/

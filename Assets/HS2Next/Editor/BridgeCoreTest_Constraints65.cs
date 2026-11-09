@@ -127,7 +127,7 @@ public static partial class BridgeCoreTest
         var want = new[] { "constraint.list", "constraint.add", "constraint.set", "constraint.remove", "constraint.clear", "constraint.move", "constraint.status" };
         c.Check(names.SequenceEqual(want), "CR1: Phase65Names = the 7 commands", string.Join(", ", names));
         c.Check(names.All(CoreCommands.AllNames.Contains), "CR1: all in CoreCommands.AllNames");
-        c.Check(CoreCommands.Groups.Last() == "constraint" && CkGroups.Contains("constraint"), "CR1: the group is the last of CoreCommands.Groups and a convention group", string.Join(", ", CoreCommands.Groups));
+        c.Check(CoreCommands.Groups.Contains("constraint") && CkGroups.Contains("constraint"), "CR1: the group is in CoreCommands.Groups and a convention group", string.Join(", ", CoreCommands.Groups));
         c.Check(names.All(n => !CoreCommands.ParityNames.Contains(n)), "CR1: none is a parity name");
         var bad = new List<string>();
         foreach (var n in names)
@@ -167,7 +167,7 @@ public static partial class BridgeCoreTest
             c.Check(got.SequenceEqual(kv.Value), "CR1: " + kv.Key + ": the arguments of the spec", string.Join(", ", got));
         }
         var live = reg.Specs.Where(s => s.Owner == BridgeOwners.Core || s.Owner == BridgeOwners.Bridge).ToList();
-        c.Check(live.Count == 202 && live.Count(s => (s.Flags & CommandFlags.Experimental) != 0) == 44, "CR1: 202 commands, 44 experimental", live.Count + "");
+        c.Check(live.Count == 265 && live.Count(s => (s.Flags & CommandFlags.Experimental) != 0) == 107, "CR1: 265 commands, 107 experimental", live.Count + "");
         c.Dispose(app);
         // the host above is gone: the next c.Host() is the one the checks use
     }

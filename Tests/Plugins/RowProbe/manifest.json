@@ -1,0 +1,12 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.rowprobe",
+  "name": "Row probe",
+  "version": "0.1.0",
+  "apiVersion": "1.3",
+  "assemblies": ["Stp3.Test.RowProbe.dll"],
+  "commandPrefixes": ["rowprobe."],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the generated item rows: an item group added at load, whose row function can build, throw or make nothing, with renames, refreshes and the group's removal."
+}

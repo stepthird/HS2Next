@@ -249,8 +249,8 @@ namespace HS2Next.App.Plugins.Tests
             t.Check(!SemVer.ApiCompatible("1.3", 1, 2), "1.3 not on 1.2");
             t.Check(!SemVer.ApiCompatible("2.0", 1, 9) && !SemVer.ApiCompatible("1.0", 2, 0), "other majors");
             t.Check(!SemVer.ApiCompatible("1", 1, 0) && !SemVer.ApiCompatible("1.0.0", 1, 0) && !SemVer.ApiCompatible(null, 0, 3), "malformed apiVersion");
-            t.Equal("1.2", HS2Next.ApiVersion.Major + "." + HS2Next.ApiVersion.Minor, "the host Api is 1.2");
-            t.Equal("1.2.0", HS2Next.ApiVersion.Semver, "ApiVersion.Semver");
+            t.Equal("1.3", HS2Next.ApiVersion.Major + "." + HS2Next.ApiVersion.Minor, "the host Api is 1.3");
+            t.Equal("1.3.0", HS2Next.ApiVersion.Semver, "ApiVersion.Semver");
 
             string root = Fx.Root(t, "app");
             Fx.Plugin(root, "a.pre", Fx.Manifest("a.pre", "\"minAppVersion\":\"1.0.0-beta\""));
@@ -262,14 +262,14 @@ namespace HS2Next.App.Plugins.Tests
             r = PluginScan.Scan(root, new PluginScanOptions { AppVersion = null });
             t.Equal(3, r.LoadOrder.Count, "no app version: the check is skipped");
             Fx.Plugin(root, "a.old", Fx.Manifest("a.old", api: "0.3"));
-            Fx.Plugin(root, "a.newer", Fx.Manifest("a.newer", api: "1.3"));
+            Fx.Plugin(root, "a.newer", Fx.Manifest("a.newer", api: "1.4"));
             r = PluginScan.Scan(root, new PluginScanOptions { AppVersion = "1.0.0" });
-            t.Equal(PluginCodes.ApiVersion, Fx.Get(r, "a.old")?.Code, "a 0.3 plugin on the 1.2 host is refused");
-            t.Equal(PluginCodes.ApiVersion, Fx.Get(r, "a.newer")?.Code, "a 1.3 plugin on the 1.2 host is refused");
-            r = PluginScan.Scan(root, new PluginScanOptions { AppVersion = "1.0.0", HostApiMajor = 1, HostApiMinor = 3 });
-            t.Equal(PluginStates.Pending, Fx.Get(r, "a.pre")?.State, "a 1.0 plugin on a 1.3 host loads");
-            t.Equal(PluginStates.Pending, Fx.Get(r, "a.newer")?.State, "a 1.3 plugin on a 1.3 host loads");
-            t.Equal(PluginCodes.ApiVersion, Fx.Get(r, "a.old")?.Code, "a 0.3 plugin on a 1.3 host is refused");
+            t.Equal(PluginCodes.ApiVersion, Fx.Get(r, "a.old")?.Code, "a 0.3 plugin on the 1.3 host is refused");
+            t.Equal(PluginCodes.ApiVersion, Fx.Get(r, "a.newer")?.Code, "a 1.4 plugin on the 1.3 host is refused");
+            r = PluginScan.Scan(root, new PluginScanOptions { AppVersion = "1.0.0", HostApiMajor = 1, HostApiMinor = 4 });
+            t.Equal(PluginStates.Pending, Fx.Get(r, "a.pre")?.State, "a 1.0 plugin on a 1.4 host loads");
+            t.Equal(PluginStates.Pending, Fx.Get(r, "a.newer")?.State, "a 1.4 plugin on a 1.4 host loads");
+            t.Equal(PluginCodes.ApiVersion, Fx.Get(r, "a.old")?.Code, "a 0.3 plugin on a 1.4 host is refused");
         }
     }
 

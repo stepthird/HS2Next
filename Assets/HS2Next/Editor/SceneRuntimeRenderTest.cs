@@ -131,7 +131,7 @@ public static partial class SceneRuntimeTest
             var q0 = Quaternion.Euler(15, 180, 0);   // HS2's reset view (Phase 3.3 E4)
             Check("V1: default view = HS2's reset view (pivot (0,10,0), rot (15,180,0), distance 25, fov 23) when current is null",
                   session.Model.Settings.Camera.Current == null && Near(cam.transform.position, new Vector3(0, 10, 0) + q0 * new Vector3(0, 0, -25)) &&
-                  Quaternion.Angle(cam.transform.rotation, q0) < 0.01f && Mathf.Abs(cam.fieldOfView - 23f) < 1e-4f,
+                  RotationCompare.Deg(cam.transform.rotation, q0) < 0.01f && Mathf.Abs(cam.fieldOfView - 23f) < 1e-4f,
                   $"pos {cam.transform.position}, rot {cam.transform.eulerAngles}, fov {cam.fieldOfView}");
 
             // ---------------------------------------------------------------- V2 current (not recorded)
@@ -141,7 +141,7 @@ public static partial class SceneRuntimeTest
             rt.Tick(0f);
             var q = Quaternion.Euler(10, 200, 0);
             Check("V2: view from camera.current: pivot + Euler(rot)·(0,0,-distance), rotation, fov; not recorded",
-                  r2.Ok && Near(cam.transform.position, new Vector3(0, 12, 0) + q * new Vector3(0, 0, -25)) && Quaternion.Angle(cam.transform.rotation, q) < 0.01f &&
+                  r2.Ok && Near(cam.transform.position, new Vector3(0, 12, 0) + q * new Vector3(0, 0, -25)) && RotationCompare.Deg(cam.transform.rotation, q) < 0.01f &&
                   Mathf.Abs(cam.fieldOfView - 30f) < 1e-4f && session.Commands.UndoList.Count == undoBefore,
                   $"{r2}; pos {cam.transform.position}, fov {cam.fieldOfView}, history {undoBefore} -> {session.Commands.UndoList.Count}");
 
@@ -154,13 +154,13 @@ public static partial class SceneRuntimeTest
             var l = light.Light;
             Check("V3: chara light under the view camera with the stored values folded (colour × intensity, intensity 1; Phase 3.3)",
                   r3a.Ok && r3b.Ok && r3c.Ok && r3d.Ok && l && l.type == LightType.Directional && l.transform.parent == cam.transform &&
-                  Quaternion.Angle(l.transform.localRotation, Quaternion.Euler(20, -30, 0)) < 0.01f && Mathf.Abs(l.intensity - 1f) < 1e-6f &&
+                  RotationCompare.Deg(l.transform.localRotation, Quaternion.Euler(20, -30, 0)) < 0.01f && Mathf.Abs(l.intensity - 1f) < 1e-6f &&
                   Mathf.Abs(l.color.g - 0.9f * 0.7f) < 1e-6f && l.shadows == LightShadows.None,
                   l ? $"rot {l.transform.localEulerAngles}, intensity {l.intensity}, colour {l.color}, shadows {l.shadows}" : "no light");
             session.Commands.Undo(); session.Commands.Undo(); session.Commands.Undo(); session.Commands.Undo();
             rt.Tick(0f);
             Check("V3: undo restores the default chara light (white, 1, (0,0), soft)",
-                  l && Mathf.Abs(l.intensity - 1f) < 1e-6f && l.color == Color.white && l.shadows == LightShadows.Soft && Quaternion.Angle(l.transform.localRotation, Quaternion.identity) < 0.01f);
+                  l && Mathf.Abs(l.intensity - 1f) < 1e-6f && l.color == Color.white && l.shadows == LightShadows.Soft && RotationCompare.Deg(l.transform.localRotation, Quaternion.identity) < 0.01f);
 
             // ---------------------------------------------------------------- V4 active camera node
             session.Set(camK, "transform.pos", new Vec3(5, 12, 20));
@@ -170,7 +170,7 @@ public static partial class SceneRuntimeTest
             rt.Tick(0f);
             var kh = rt.HolderOf(camK);
             Check("V4: an active camera node drives the view (holder world pose, its fov); current unchanged",
-                  r4.Ok && view.ActiveCameraId == camK && kh && Near(cam.transform.position, kh.position) && Quaternion.Angle(cam.transform.rotation, kh.rotation) < 0.01f &&
+                  r4.Ok && view.ActiveCameraId == camK && kh && Near(cam.transform.position, kh.position) && RotationCompare.Deg(cam.transform.rotation, kh.rotation) < 0.01f &&
                   Mathf.Abs(cam.fieldOfView - 40f) < 1e-4f && session.Model.Settings.Camera.Current?.Fov == 30f,
                   $"{r4}; pos {cam.transform.position} vs {(kh ? kh.position.ToString() : "-")}, fov {cam.fieldOfView}");
             session.Set(camK, "transform.pos", new Vec3(6, 12, 20));

@@ -137,6 +137,36 @@
   [ConstraintCheck.player] (python -I Tools\constraint_player_check.py: CW1, CW2, CW4, CW5, CW7, the chain and a round trip in the app
   player, UI off, port 17828; a time over its bar is WARN). C44 runs in BridgeCoreTest, CT in MosaicTest, CF in Mono.save, CM, CG, CB6
   in Mono.scene, CU0 in Mono.ui, CX2, CX3 in Mono.plugins.
+    Phase 6.6: headless [WetTest] (in -Quick, a HeadlessBatch member: the encoder WF9, the map query with no device
+  WG7, the commands with no device WR5, the rig with no device WB12, WB13); graphics [WetTest.render] (the production URP asset: WD, WO,
+  WB, WF7-WF9b, WR1r-WR3r, WE1r), [WetTest.play] (the app and the UI, port 17859: WI, WY10, WY11, WG1-WG6, WG8-WG10, WO8, WR4r); player
+  [WetCheck.player] (python -I Tools\wet_player_check.py: WW1-WW13, WB10, the map query's source, a trip, a recording, the dialog and the
+  largest capture with a stain, port 17849 and its windowed and UI sessions on 17858, 17848; a time over its bar is WARN). C45, C46 run in
+  BridgeCoreTest, WV in MosaicTest.render, WF in Mono.save, WM, WE in Mono.scene, WY10's strings in Mono.ui, WI8 in PluginLoaderTest.play,
+  WY3 in PluginCheck.player.
+    Phase 6.7: headless [RagdollTest] (in -Quick, a HeadlessBatch member: a body in a preview world on BR-Chan and
+  HERO107: RM2-RM5, RM8, RP, RO, RK2-RK8, RB1-RB7, RB9-RB14, RE6, RE7, RD1-RD5, RD8, RD9, RD11, RF8, RF10, RW6, RL0, RL7, RP15); graphics
+  [RagdollTest.render] (RD7, RD10, RD12, the reading RD8t), [RagdollTest.play] (the app and the UI, port 17879: RI, RY11+, RL1-RL3,
+  RL5-RL9, RB8, RK1, RP15d); player [RagdollCheck.player] (python -I Tools\ragdoll_player_check.py: RW1-RW12, RK1 across processes, a trip,
+  RL4 on 50 maps, RV6, RV8, RD6, RD13, obstacles and the first render after a build, ports 17869, 17878, 17868; a time over its bar is
+  WARN). C47, C48 run in BridgeCoreTest, RV in MosaicTest.render ([MosaicTest.render.first] opt-in: -only RVF, the first render of a
+  process), RF in Mono.save, RM, RE in Mono.scene, RY10 in Mono.ui, RY8 in PluginCheck.player.
+    Phase 6.8: headless [BakeTest] (in -Quick, alone outside the HeadlessBatch: the arithmetic BM2-BM7, the rebuilds
+  BB2, BB3, BB6, the cuts BU1-BU10, the generated rows BR1-BR8, BR10, BV8, the commands BE1-BE4, the old bakes BH1, BH3; it builds the test
+  plugin Tests\Plugins\RowProbe and the kit's sample Shapes with pwsh and dotnet); graphics [BakeTest.render.*] (.look, .data, .parts, .pose,
+  .state, .own, .share, .gpu, .ops, .import: each a Unity process of its own after 9 GB of free RAM, a group's bakes holding about 1 GB of textures: BD1-BD13,
+  BB1, BB4, BB5, BU11, BU12, BE1r, BG1i, BH2, BH4, BV7), [BakeTest.play] (the app and the UI, port 17899: BI1, BI2, BY3-BY5); player
+  [BakeCheck.player] (python -I Tools\bake_player_check.py: BA1 across two processes with the store folder moved away, BD1, BD12, BD14, BR9,
+  BV6 and BW1-BW10 in the app player, BV9 with no player, port 17889; a time over its bar is WARN). C49 runs in BridgeCoreTest, BV1-BV5 in
+  MosaicTest.render, BM1 and BF in Mono.save, BE0 and BE3 in Mono.scene, BY1 in ApiSurfaceTest, BY2 in ApiDocs, the kit's third sample in
+  PluginKit.dist and PluginCheck.player.
+    Phase 6.9: headless [ScriptTest] (in -Quick, alone outside the HeadlessBatch: its JX3 loads a test plugin;
+  the compile JM4, JM5, the edits JE2, JE3, the rebuilds JB1-JB4, the playback JP1-JP8, the executor with no listener JX1-JX3, JX5, the
+  script commands JS1-JS8, the generic commands JC1, JC5, JC7, JC8); graphics [ScriptTest.play] (the app, port 17919: JP9, JC2-JC4, JC6,
+  JR1-JR3, JR6, JD3, JU1-JU5, JX4 the sample played by the app started with bridge.enabled false); player [ScriptCheck.player] (python -I Tools\script_player_check.py: JX6 a player with -noBridge, JR4, JR6, the
+  recorded plays JR5, JD1, JD2 and the bars JW1-JW9 in the app player, with the test plugin Tests\ScriptProbe, port 17909; a time over its bar
+  is WARN). C50 runs in BridgeCoreTest, JM1, JF in Mono.save, JE1, JM2, JM3, JF8, JF9 in Mono.scene; further scripts are recorded by hand
+  with the check's --scripts and --expect (never a row).
   Before the first row the offline compile check (Tools\offline_compile.py) runs once; a tree that does not compile is a
   note in the summary and a warning on the console (the first Unity row's compile failure stops the suite as before);
   every row then passes -SkipOfflineCompile to unity_batch.
@@ -549,9 +579,12 @@ function Invoke-ThumbGuardRow([string]$id, [string]$method, [string[]]$a, [bool]
 # in its line). -NoBatch: every member in its own process as before.
 # Not members: LeakCheck (no Unity), ThumbGuardTest (alone as before), and the 11 Maker build rows, which slow down 1.3x as the
 # 2nd member of a process and 2-3x by the 9th (native state that grows with each Maker build and only a process restart
-# bounds; L0c of Phase 5.2).
+# bounds; L0c of Phase 5.2). Phase 6.8: BakeTest runs alone too: it loads the test plugins RowProbe and Shapes, whose assemblies
+# BridgeCoreTest's C37 has already loaded from its own folder in the same process, and an assembly of the same name cannot be
+# loaded twice in one process (plugin.assemblyCollision; -Quick 20261108-0506: 330 / 6 in the batch, 396 / 0 alone). Phase 6.9: ScriptTest
+# runs alone for the same reason (its JX3 loads the test plugin HistoryProbe, staged by BridgeCoreTest's C37 or by itself).
 $BatchExclude = @('LeakCheck', 'ThumbGuardTest', 'MakerCoreTest', 'MakerUnitTest', 'MakerEditTest', 'MakerFaceTest', 'MakerBodyTest',
-    'MakerHairTest', 'AssetRedirectTest', 'MakerClothesTest', 'MakerAccessoriesTest', 'MakerFileTest', 'MakerSchemaTest')
+    'MakerHairTest', 'AssetRedirectTest', 'MakerClothesTest', 'MakerAccessoriesTest', 'MakerFileTest', 'MakerSchemaTest', 'BakeTest', 'ScriptTest')
 # -Run rows whose Unity part can be a member: id -> @{ Method; Args; Report; Pre = the step the runner runs before the batch
 # (returns an error text or $null); Alone = the row run on its own after the batch when Pre failed (Phase 5.4: a first run on an
 # empty cache has no zipmod list cache before the batch, and the batch's first catalog writes it) }
@@ -973,6 +1006,11 @@ $AreaTags = [ordered]@{
     'advancedPose' = 'advanced pose: bone corrections, jiggle values, blend-shape overrides, their tab and handles (Phase 6.3)'
     'materials'    = 'material edits: the arrays of characters, items and the map, textures, shaders, the Materials view, hair bone adjustments (Phase 6.4)'
     'constraints'  = 'constraints: the list, the ordered motion pass, driven bones, the override paths of bones and IK targets, the panel and section (Phase 6.5)'
+    'wet'          = 'wet and stains: the block, the rig, the composite and the film, drops, puddles and their mirrors, the commands and the panel (Phase 6.6)'
+    'tools'        = 'the viewport tool input and the map query, with what plugins see of them (Phase 6.6)'
+    'ragdoll'      = 'ragdolls: the physics world, the body, its stages, ground from the map query, props, shots and effects, the tool, the panel, the commands, the character stage port (Phase 6.7)'
+    'bake'         = 'Chara to Item and the Cutter: bakes, their blobs and store, generated item rows, cuts and markers, the importer of old bakes, the commands, the panels and the tool (Phase 6.8)'
+    'script'       = 'scene scripts: the format, the scene member and the store, roles, compile and playback, the executor with no listener, the generic and the script commands, record, the panel (Phase 6.9)'
 }
 $Rows = [System.Collections.Generic.List[object]]::new()
 function Row {
@@ -1045,7 +1083,7 @@ Row 'LeakCheck'           headless 'publication,plugins' -Run {
 # with -doc: and fails on any missing doc comment (CS1591) or parameter comment (CS1573), listing them. PASS = exit 0 and both
 # XML lines (exit 1: a compile error or a missing comment; exit 2: no Library\Bee or no Unity install); key numbers the two XML
 # lines (size, members by kind, CS1591, CS1573). A few seconds.
-Row 'ApiDocs'             headless 'api,plugins,publication' -Run {
+Row 'ApiDocs'             headless 'api,plugins,publication,bake' -Run {
     $t0 = Get-Date
     $out = @(& python -I (Join-Path $PSScriptRoot 'offline_compile.py') --doc (Join-Path $Project 'Spike\out\api\doc') --asm-only -q 2>&1 | ForEach-Object { "$_" })
     $code = $LASTEXITCODE
@@ -1058,9 +1096,9 @@ Row 'ApiDocs'             headless 'api,plugins,publication' -Run {
 }
 Row 'TestTargets'         headless 'infra'                       'TestTargets.Run' @() 'Spike\out\tests\targets_report.txt' -DevInputs 'Tools/targets.json'
 Row 'ContentIdTest'       headless 'content'                     'ContentIdTest.Run' @() 'Spike\out\content\contentid.txt'
-Row 'SaveFormatTest'      headless 'save,materials,constraints'  'SaveFormatTest.Run' @() 'Spike\out\save\saveformat_report.txt'
+Row 'SaveFormatTest'      headless 'save,materials,constraints,wet,ragdoll,bake,script' 'SaveFormatTest.Run' @() 'Spike\out\save\saveformat_report.txt'
 Row 'ImportTest'          headless 'import,save'                 'ImportTest.Run' @() 'Spike\out\import\import_report.txt' -DevInputs 'Tools/targets.json'
-Row 'SceneModelTest'      headless 'scene,save,materials,constraints' 'SceneModelTest.Run' @() 'Spike\out\scene\scene_model_report.txt'
+Row 'SceneModelTest'      headless 'scene,save,materials,constraints,wet,ragdoll,bake,script' 'SceneModelTest.Run' @() 'Spike\out\scene\scene_model_report.txt'
 Row 'PoseFileTest'        headless 'pose'                        'PoseFileTest.Run' @() 'Spike\out\pose\posefile_report.txt'
 Row 'PoseFileTest.corpus' full     'pose'                        'PoseFileTest.RunCorpus' @() 'Spike\out\pose\pose_corpus_report.txt'
 Row 'ZipmodListTest'      headless 'content'                     'ZipmodListTest.Run' @() 'Spike\out\content\zipmod_lists.txt'
@@ -1206,11 +1244,11 @@ Row 'LooseTextureTest.all' full    'content,maker' -Run { Invoke-LooseRow 'Loose
 # Phase 6.3 (package C): group C42 (Editor/BridgeCoreTest_AdvancedPose63.cs) - AC1 every argument,
 # reply and error of the 12 pose.* commands, AC2 their registration and the promoted bones.dump and chara.bones, AC3 the Api
 # listings unchanged; -only C42 picks it
-Row 'BridgeCoreTest'      headless 'bridge,scene,items,maps,chara-build,motion,pose,effects,ui,plugins,timeline,advancedPose,materials,constraints' 'BridgeCoreTest.Run' @('-c37Stage') 'Spike\out\bridge\bridge_core_report.txt' -DevInputs 'Tools/targets.json'
+Row 'BridgeCoreTest'      headless 'bridge,scene,items,maps,chara-build,motion,pose,effects,ui,plugins,timeline,advancedPose,materials,constraints,wet,tools,ragdoll,bake,script' 'BridgeCoreTest.Run' @('-c37Stage') 'Spike\out\bridge\bridge_core_report.txt' -DevInputs 'Tools/targets.json'
 # CommandsDoc (Phase 5.1 package C; -Full only): BridgeHelpDump.Run writes the help dump of every command
 # (Spike\out\bridge\help_dump.json, about 2 min with the Unity start), then python -I Tools\gen_commands_md.py --check compares
 # Reference/COMMANDS.md with what the dump gives (exit 1: the reference is stale - regenerate it without --check and commit it)
-Row 'CommandsDoc'         full     'bridge'                      -DevInputs 'Tools/targets.json' -Run {
+Row 'CommandsDoc'         full     'bridge,ragdoll,bake,script'         -DevInputs 'Tools/targets.json' -Run {
     $id = 'CommandsDoc'
     $t0 = Get-Date
     $r = Invoke-Unity $id 'BridgeHelpDump.Run' @() $false 'Spike\out\bridge\help_dump_report.txt' 20
@@ -1228,7 +1266,7 @@ Row 'CommandsDoc'         full     'bridge'                      -DevInputs 'Too
 # the plugin manifest schema measured on the parser; MAJOR / MINOR / INFO classes against the Api version (AZ1-AZ5 of the
 # freeze). Builds its command registry without an app: no game install, no catalog, no development input. About 5 s inside the
 # HeadlessBatch.
-Row 'ApiSurfaceTest'      headless 'api,bridge,plugins'          'ApiSurfaceTest.Run' @() 'Spike\out\api\api_surface_report.txt' -TimeoutMin 10
+Row 'ApiSurfaceTest'      headless 'api,bridge,plugins,tools,ragdoll,bake,script' 'ApiSurfaceTest.Run' @() 'Spike\out\api\api_surface_report.txt' -TimeoutMin 10
 # TimelineTest (Phase 6.2; packages O and P): headless edit mode with ManualStepping on BR-Chan,
 # HERO107, a vanilla item and a light; the parts are partial files of the class found by name (Headless_<part>): TO3-TO7 the
 # runtime override layer's channels, release, rebuild and the save-capture exclusions (Editor/TimelineTest_Overrides.cs), TM2-TM4
@@ -1257,19 +1295,41 @@ Row 'MaterialEditTest'    headless 'materials,chara-build,items,scene,save' 'Mat
 # hand: the order CO1-CO3, CO15, CO16, the override paths CL1-CL6, the rebuilds CB1-CB5, CB9-CB11, the graph on the engine CG11, the arithmetic on the engine
 # CM9, the clean model CD1-CD3, CD5, CD6, CX2, CX4, CX5, CW3 (0 B), CW5, CW6. Parts are partial files found by name (Editor/ConstraintTest_*.cs, Headless_<part>);
 # -only CO2+CL1 picks groups, -report <path> keeps a run apart. A HeadlessBatch member; about 0.5 min
-Row 'ConstraintTest'      headless 'constraints,motion,scene,save,bridge' 'ConstraintTest.Run' @() 'Spike\out\constraints\constraint_report.txt' -TimeoutMin 15 -DevInputs 'Tools/targets.json'
+Row 'ConstraintTest'      headless 'constraints,motion,scene,save,bridge,ragdoll' 'ConstraintTest.Run' @() 'Spike\out\constraints\constraint_report.txt' -TimeoutMin 15 -DevInputs 'Tools/targets.json'
+# WetTest (Phase 6.6; packages S, W, M, C): headless edit mode, no device: WF9 (the PNG encoder the app uses), WG7 (the map query's mesh and collider
+# paths), WR5 (the commands with no device), WB12, WB13 (the rig's clock and its capture). Parts are partial files found by name (Editor/WetTest_*.cs, Headless_<part>); -only
+# WF9+WG7 picks groups, -report <path> keeps a run apart. A HeadlessBatch member; about 0.5 min
+Row 'WetTest'             headless 'wet,scene,save,bridge,ragdoll' 'WetTest.Run' @() 'Spike\out\wet\wet_report.txt' -TimeoutMin 15 -DevInputs 'Tools/targets.json'
+# RagdollTest (Phase 6.7; packages P, G, F): headless edit mode, the world in a preview scene (RagdollWorld.MakeScene), BR-Chan and HERO107, frames by hand: the
+# arithmetic RM2-RM5, RM8, the physics RP1-RP14, the order RO, the clock RK2-RK8, the rebuilds RB, the file RF8, RF10, RE6, RE7, the shots RD1-RD4, RD8, RD9, RD11, RW6, ground and props RL0, RL7,
+# RP15. Parts are partial files found by name (Editor/RagdollTest_*.cs, Headless_<part>); -only RM2+RP1 picks groups, -report <path> keeps a run apart. A HeadlessBatch member; about 1.5 min (the
+# common text's budget: over it the slow groups go to a row RagdollTest.full)
+Row 'RagdollTest'         headless 'ragdoll,motion,scene,save,bridge' 'RagdollTest.Run' @() 'Spike\out\ragdoll\ragdoll_report.txt' -TimeoutMin 15 -DevInputs 'Tools/targets.json'
+# BakeTest (Phase 6.8; packages P, X, A, C, I): headless edit mode (AppCore.ForTests hosts, frames by hand) on BR-Chan and HERO107: the arithmetic BM2-BM7,
+# the rebuilds BB2, BB3, BB6, the cuts BU1-BU10 and the markers XM, the generated rows BR1-BR8, BR10, BV8 (part Headless_Rows builds Tests\Plugins\RowProbe and Samples\PluginKit\Shapes with
+# Tools\plugins.ps1: pwsh and dotnet on the PATH), the commands BE1-BE4, the old bakes BH1 and BH3 (the old bakes' folder UserData\CharaToItem of the HS2 install read in place, never written; copies in the test's scratch). Parts are
+# partial files found by name (Editor/BakeTest*.cs, Headless_<part>); -only BM2+BU1 picks groups, -report <path> keeps a run apart. Not a HeadlessBatch member (see $BatchExclude:
+# its test plugins' assemblies are BridgeCoreTest's C37's too); about 0.5 min alone (the common text's budget of about 1 min: over it the slow groups go to a row BakeTest.full).
+# The spec's area 'studio' is 'content' here
+Row 'BakeTest'            headless 'bake,save,scene,items,content,plugins,bridge' 'BakeTest.Run' @() 'Spike\out\bake\bake_report.txt' -TimeoutMin 15 -DevInputs 'Tools/targets.json'
+# ScriptTest (Phase 6.9; packages P, X, G, C): headless edit mode (AppCore.ForTests hosts, frames by hand; JX1-JX3 also AppCore.ForTestsAsApp, the
+# host the app's bridge stage starts) on BR-Chan and HERO107: the compile JM4, JM5, the edits JE2, JE3, the rebuilds JB1-JB4, the playback JP1-JP8, the executor with no listener JX1-JX3, JX5
+# (JX1's control listens on port 17903 for a moment; JX3 loads the test plugin HistoryProbe from BridgeCoreTest's C37 folder, or stages it with Tools\plugins.ps1: pwsh and dotnet on
+# the PATH), the script commands JS1-JS8, the generic commands JC1, JC5, JC7, JC8. Parts are partial files found by name (Editor/ScriptTest*.cs, Headless_<part>); -only JP1+JX2 picks
+# groups, -report <path> keeps a run apart. Not a HeadlessBatch member (see $BatchExclude: a test plugin); the common text's budget about 1 min
+Row 'ScriptTest'          headless 'script,save,scene,timeline,bridge' 'ScriptTest.Run' @() 'Spike\out\script\script_report.txt' -TimeoutMin 15 -DevInputs 'Tools/targets.json'
 
 # ---- mono group (-Quick): the plain-Mono suites of Tools\mono_tests.ps1 in two background jobs beside the Unity rows
 # (Mono.scene alone, the others one after the other); Mono.scene carries the appearance fuzz at 2,000 x 200 while the
 # Unity row SceneModelTest runs it at the smoke size
-Row 'Mono.scene'          mono 'scene,save,maker,timeline,advancedPose,materials,constraints' -MonoSuite scene
-Row 'Mono.ui'             mono 'ui,setup,advancedPose,materials,constraints' -MonoSuite ui
+Row 'Mono.scene'          mono 'scene,save,maker,timeline,advancedPose,materials,constraints,wet,ragdoll,bake,script' -MonoSuite scene
+Row 'Mono.ui'             mono 'ui,setup,advancedPose,materials,constraints,wet,ragdoll,bake,script' -MonoSuite ui
 Row 'Mono.maker'          mono 'maker,content'                   -MonoSuite maker
-Row 'Mono.save'           mono 'save,timeline,advancedPose,materials,constraints' -MonoSuite save
+Row 'Mono.save'           mono 'save,timeline,advancedPose,materials,constraints,wet,ragdoll,bake,script' -MonoSuite save
 Row 'Mono.pose'           mono 'pose'                            -MonoSuite pose
 Row 'Mono.bridge'         mono 'bridge,setup'                    -MonoSuite bridge
 Row 'Mono.content'        mono 'content,setup'                   -MonoSuite content
-Row 'Mono.plugins'        mono 'plugins,constraints'             -MonoSuite plugins
+Row 'Mono.plugins'        mono 'plugins,constraints,tools,ragdoll' -MonoSuite plugins
 
 # ---- the all-card row of -Full (group full) runs before the graphics group (its walk also fills the texture check's verdict
 # cache; table order = run order).
@@ -1479,7 +1539,7 @@ Row 'StreakProbe.check'        graphics 'effects,chara-render'   'StreakProbe.Ru
 Row 'MeReportTest.play'        graphics 'chara-build,ui,effects,materials' 'MeReportTest.RunPlay' @() 'Spike\out\mereport\me_report_play.txt' -NoQuit -TimeoutMin 20
 Row 'BridgeAcceptance.play'    graphics 'bridge,maps,items,chara-render,shaders,scene,save,effects,pose' 'BridgeTest.RunPlay' @() 'Spike\out\bridge\bridge_play_report.txt' -NoQuit -TimeoutMin 30
 Row 'BridgeAcceptance.play.ui' graphics 'ui,bridge,routes,capture' 'BridgeTest.RunPlayUi' @() 'Spike\out\bridge\bridge_play_ui1_report.txt' -NoQuit -TimeoutMin 35
-Row 'UiPanelsTest.play'        graphics 'ui'                     'UiPanelsTest.Run' @() 'Spike\out\ui\ui_panels_report.txt' -NoQuit -TimeoutMin 30
+Row 'UiPanelsTest.play'        graphics 'ui,bake'                'UiPanelsTest.Run' @() 'Spike\out\ui\ui_panels_report.txt' -NoQuit -TimeoutMin 30
 Row 'MakerListTest.thumbs'     graphics 'maker,ui'               'MakerListTest.Thumbs' @() 'Spike\out\maker\maker_thumbs_report.txt' -NoQuit -TimeoutMin 20
 # v0.3 trial 2 (package G): ThumbGuardTest.play - Darkruler 2B's 512 x 511 DXT5 head thumbnail refused by its header without
 # the guard's records and loaded from the repaired copy with them, every block-size thumbnail of the census loaded without an
@@ -1534,12 +1594,15 @@ Row 'MakerFileTest.timing'   graphics 'maker'                  'MakerFileTest.Ru
 # MosaicTest.render and .timing (5.M package R), each in its own Unity process (a render and a timing suite never share
 # one): MR1-MR5 keep every image in memory (code-made marker textures judged by pixel counts; nothing is written), MR6
 # the costs of methods (a) and (b)
-Row 'MosaicTest.render'    graphics 'chara-render,shaders,effects,capture,materials' 'MosaicTest.RunRender' @('-syncShaders') 'Spike\out\maker\mosaic_render_report.txt' -TimeoutMin 30
+Row 'MosaicTest.render'    graphics 'chara-render,shaders,effects,capture,materials,wet,ragdoll,bake' 'MosaicTest.RunRender' @('-syncShaders') 'Spike\out\maker\mosaic_render_report.txt' -TimeoutMin 30
 # MosaicTest.render.sweep (Phase 6.4 package R; opt-in, about 4 min, GPU lock): MO6all, the body skin on every shader a material
 # edit can pick, at its default queue and at 5000, three angles: the members draw and 0 marker pixels show in a mask fixed with the card's own skin. Images
 # stay in memory. A shader that joins the candidates (MaterialShaders) is covered by this row and not by the default MosaicTest.render: run it after adding
 # one. -budgetMin N sets when the angles drop. It writes the same report as MosaicTest.render
 Row 'MosaicTest.render.sweep' graphics 'materials,chara-render,shaders' 'MosaicTest.RunRender' @('-syncShaders', '-only', 'MO6all') 'Spike\out\maker\mosaic_render_report.txt' -OptIn -TimeoutMin 30
+# MosaicTest.render.first (Phase 6.7 package F, opt-in, under a minute, GPU lock): RVF, the first render of a process, on its own: the default row has renders before it. -rvFirst plain, footprint, nobody or
+# wide picks what the first render is (unity_batch by hand for the others); F's numbers are, the player's in RagdollCheck.player's FIRST
+Row 'MosaicTest.render.first' graphics 'ragdoll,chara-render' 'MosaicTest.RunRender' @('-syncShaders', '-only', 'RVF', '-rvFirst', 'plain') 'Spike\out\maker\mosaic_render_report.txt' -OptIn -TimeoutMin 10
 Row 'MosaicTest.timing'    graphics 'chara-render,effects'       'MosaicTest.RunTiming' @() 'Spike\out\maker\mosaic_timing_report.txt' -TimeoutMin 30
 # LooseTextureTest.quit (Phase 4.2 package L; opt-in): play mode with web requests, loose reads and asset loads / opens of the
 # Maker thumbnails in flight, then the session ends - the quit release must leave nothing in flight (the 4.2 shutdown hang).
@@ -1566,7 +1629,7 @@ Row 'BridgeAcceptance.play.routes' graphics 'routes,bridge,capture' 'BridgeTest.
 # PluginLoaderTest.play (Phase 5.1 packages L and S): play mode with the UI, port 17398, -pluginsDir
 # Spike\out\plugins\play (the sample and the probes; -stage re-stages it from the current builds inside the Unity process):
 # T3A, PL13 UI registration, the sample's SQ5-SQ11 over HTTP, PL14 leak rows, then a second session without a domain reload (T3B)
-Row 'PluginLoaderTest.play'    graphics 'plugins,ui,bridge'      'PluginLoaderTest.Run' @('-stage') 'Spike\out\plugins\plugin_loader_play_report.txt' -NoQuit -TimeoutMin 20
+Row 'PluginLoaderTest.play'    graphics 'plugins,ui,bridge,tools,ragdoll' 'PluginLoaderTest.Run' @('-stage') 'Spike\out\plugins\plugin_loader_play_report.txt' -NoQuit -TimeoutMin 20
 # SetupTest.play (Phase 5.3 package F): Editor play with the UI, port 17398, on a fresh data root
 # under Spike\out\setup (the launch override's dataRoot: the project's settings file is never written) - FR5 (skip: the Studio
 # without HS2 content, the banner, setup.json skipped; -setup reopens the guide), SG1 (the settings page keeps unknown members,
@@ -1599,7 +1662,55 @@ Row 'MaterialEditTest.play'    graphics 'materials,ui,items,maps' 'MaterialEditT
 # ConstraintTest.play (Phase 6.5; packages O and U): Editor play with the app and the UI, port 17829, real frames: CO0 (the pass
 # against no pass, bit for bit), CO4-CO14, CO17-CO19, CX2P; the panel, the section, the marks and the popup through ui.*: CU1-CU11, CD4. Parts are partial files found by
 # name (Play_<part>); -only CO4+CU2 picks groups, -report <path> keeps a run apart. About 9 min
-Row 'ConstraintTest.play'      graphics 'constraints,ui,motion,bridge,timeline' 'ConstraintTest.RunPlay' @() 'Spike\out\constraints\constraint_play_report.txt' -NoQuit -TimeoutMin 25 -DevInputs 'Tools/targets.json'
+Row 'ConstraintTest.play'      graphics 'constraints,ui,motion,bridge,timeline,ragdoll' 'ConstraintTest.RunPlay' @() 'Spike\out\constraints\constraint_play_report.txt' -NoQuit -TimeoutMin 25 -DevInputs 'Tools/targets.json'
+# WetTest.render (Phase 6.6; packages R, W, C): edit mode inside the production URP asset, BR-Chan and HERO107, images in memory and judged by numbers,
+# no picture is written: the drawing WD0-WD7, WD9, the mirror WO1-WO7, WO9, WO10, the rebuilds WB1-WB9, WB11, WB14, WB15, the rig WR0, WD8, WD8a, WD10, the file WF7, WF8, WF9b,
+# the commands with a bake WR1r-WR3r, WE1r. WB5 stages the body probe under Spike\out\wet\plugins. Parts are found by name (Render_<part>); -only WD1+WB2 picks groups, -report
+# <path> keeps a run apart. WD3's spill reports by WARN (bar 0.01 % of a garment's pixels). About 1 min
+Row 'WetTest.render'      graphics 'wet,shaders,chara-render,capture,ragdoll' 'WetTest.RunRender' @('-syncShaders') 'Spike\out\wet\wet_render_report.txt' -TimeoutMin 25 -DevInputs 'Tools/targets.json'
+# WetTest.play (Phase 6.6; packages U, M, W, R, C): Editor play with the app and the UI, port 17859, real frames: the tool input WI1-WI7 and the panel WY10,
+# WY11 through ui.input, the map query WG1-WG6, WG10 on real maps, the floors WG8, WG9, WO8, WR4r. Parts are found by name (Play_<part>); -only WI1+WG1 picks groups, -report <path>
+# keeps a run apart; -only WG6 -wg6 <map ref> -wg6LoadSec 700 runs the largest map. About 2.5 min
+Row 'WetTest.play'        graphics 'wet,tools,ui,bridge'         'WetTest.RunPlay' @() 'Spike\out\wet\wet_play_report.txt' -NoQuit -TimeoutMin 30 -DevInputs 'Tools/targets.json'
+# RagdollTest.render (Phase 6.7; package F): edit mode inside the production URP asset, images in memory and judged by numbers, no picture is written: RD7 the splats on
+# the ground, RD10 a shot's stain, RD12 the effects in a capture and in a puddle's mirror, RD8t the Editor's reading of RW8's load. -only RD7+RD12 picks groups, -report <path> keeps a run apart. About 1 min
+Row 'RagdollTest.render'  graphics 'ragdoll,capture,shaders,chara-render' 'RagdollTest.RunRender' @('-syncShaders') 'Spike\out\ragdoll\ragdoll_render_report.txt' -TimeoutMin 15 -DevInputs 'Tools/targets.json'
+# RagdollTest.play (Phase 6.7; packages P, G, U): Editor play with the app and the UI, port 17879, real frames and real maps: RK1 in a local scene, the ground RL1-RL3, RL5, RL6,
+# RL8, RL9, RB8, RP15d, the tool RI1-RI9 through ui.input, the panel RY11+. Parts are found by name (Play_<part>); -only RK1+RL1 picks groups, -report <path> keeps a run apart. About 3 min. Never with -noUi: a row of the
+# UI waits 240 s in silence for a host that does not come. The row takes the last run's layout.json away first, so that RY11 reads the path of a panel not yet registered
+Row 'RagdollTest.play'    graphics 'ragdoll,tools,ui,bridge' -DevInputs 'Tools/targets.json' -Run {
+    Remove-Item -LiteralPath (Join-Path $Project 'Spike\out\ragdoll\play_userdata\config\layout.json') -Force -ErrorAction SilentlyContinue
+    Invoke-Simple 'RagdollTest.play' 'RagdollTest.RunPlay' @() $true 'Spike\out\ragdoll\ragdoll_play_report.txt' $true 25
+}
+# BakeTest.render.* (Phase 6.8; packages P, X, C, I): edit mode inside the production URP asset, BR-Chan and HERO107, images in memory and judged by numbers, no
+# picture is written. A group's bakes hold about 1 GB of textures, so the groups run in Unity processes of their own, one after the other, each after 9 GB of free RAM, each writing
+# Spike\out\bake\bake_render_report_<part>.txt: .look BD1, BD5, BB1; .data BD3, BD4, BD11; .parts BD6, BD13, BD7, BD8; .pose BB4, BB5; .state BD2, BD9, BD10; .own BD15 (the own mesh route); .share BB3 (textures shared by blob); .gpu BD12 (Step 0's sample of 150
+# item rows: the group stops under 9 GB of free RAM with the numbered WARN BD12W1); .ops BE1r, BG1i, BU12, BU11 (the Editor's cut times; the accepted ones are BakeCheck.player's BW5), YC1 (6.10: CutPlan.Finish waits); .import
+# BH2, BH4, BV7, BH3 (the old bakes' folder read in place). -Only 'BakeTest.render.*' runs them all; by hand: BakeTest.RunRender -syncShaders -only <groups> -report <path>
+# (the groups' parameter is not named $only: PowerShell's dynamic scope would hand it to Want, which reads the runner's -Only)
+function Invoke-BakeRender([string]$id, [string]$groups) {
+    $rel = 'Spike\out\bake\bake_render_report_' + $id.Substring('BakeTest.render.'.Length) + '.txt'
+    if (-not (Wait-FreeRam 9)) { Add-Result $id 'FAIL' 30 'less than 9 GB of free RAM for 30 min' $null; return }
+    Invoke-Simple $id 'BakeTest.RunRender' @('-syncShaders', '-only', $groups, '-report', (Join-Path $Project $rel)) $true $rel $false 25
+}
+Row 'BakeTest.render.look'   graphics 'bake,capture,shaders,chara-render' -DevInputs 'Tools/targets.json' -Run { Invoke-BakeRender 'BakeTest.render.look' 'BD1+BD5+BB1' }
+Row 'BakeTest.render.data'   graphics 'bake,capture,shaders,chara-render,materials' -DevInputs 'Tools/targets.json' -Run { Invoke-BakeRender 'BakeTest.render.data' 'BD3+BD4+BD11' }
+Row 'BakeTest.render.parts'  graphics 'bake,capture,chara-render' -DevInputs 'Tools/targets.json' -Run { Invoke-BakeRender 'BakeTest.render.parts' 'BD6+BD13+BD7+BD8' }
+Row 'BakeTest.render.pose'   graphics 'bake,motion,chara-render' -DevInputs 'Tools/targets.json' -Run { Invoke-BakeRender 'BakeTest.render.pose' 'BB4+BB5' }
+Row 'BakeTest.render.state'  graphics 'bake,chara-render,wet,ragdoll' -DevInputs 'Tools/targets.json' -Run { Invoke-BakeRender 'BakeTest.render.state' 'BD2+BD9+BD10' }
+Row 'BakeTest.render.own'    graphics 'bake,chara-render' -DevInputs 'Tools/targets.json' -Run { Invoke-BakeRender 'BakeTest.render.own' 'BD15' }
+Row 'BakeTest.render.share'  graphics 'bake,chara-render' -DevInputs 'Tools/targets.json' -Run { Invoke-BakeRender 'BakeTest.render.share' 'BB3' }
+Row 'BakeTest.render.gpu'    graphics 'bake,items,capture' -DevInputs 'Tools/targets.json' -Run { Invoke-BakeRender 'BakeTest.render.gpu' 'BD12' }
+Row 'BakeTest.render.ops'    graphics 'bake,bridge,chara-render' -DevInputs 'Tools/targets.json' -Run { Invoke-BakeRender 'BakeTest.render.ops' 'BE1r+BG1i+BU12+BU11+YC1' }
+Row 'BakeTest.render.import' graphics 'bake,import,shaders' -DevInputs 'Tools/targets.json' -Run { Invoke-BakeRender 'BakeTest.render.import' 'BH2+BH4+BV7+BH3' }
+# BakeTest.play (Phase 6.8; package U): Editor play with the app and the UI, port 17899, real frames: the CutTool BI1, the markers in the view and not in a capture
+# BI2, the strings BY3, the lazy panels and the sections BY4, the store's list BY5 through ui.*. Parts are found by name (Play_<part>, Editor/BakeTest_Ui.cs); -only BI1+BY5 picks groups
+Row 'BakeTest.play'       graphics 'bake,tools,ui,bridge'        'BakeTest.RunPlay' @() 'Spike\out\bake\bake_play_report.txt' -NoQuit -TimeoutMin 25 -DevInputs 'Tools/targets.json'
+# ScriptTest.play (Phase 6.9; packages P, X, G, U): Editor play, the app started by the parts that need it on port 17919 (the UI on), real frames, BR-Chan and
+# HERO107, images in memory, recorded frames counted and deleted: JP9 the failures, JC2-JC4, JC6 the generic commands, JR1, JR2 the skin in a capture, JX5r the app with bridge.enabled false,
+# JR3 a recorded play, JR6 the mosaic rule on a moving member through the capture paths, JD3 save and load (printed, not acceptance), JE2s, JP8s, JU1-JU5 the panel. Parts are found
+# by name (Play_<part>, Editor/ScriptTest*.cs); -only JR1+JC2 picks groups, -report <path> keeps a run apart
+Row 'ScriptTest.play'     graphics 'script,timeline,capture,tools,ui' 'ScriptTest.RunPlay' @() 'Spike\out\script\script_play_report.txt' -NoQuit -TimeoutMin 45 -DevInputs 'Tools/targets.json'
 # UpdateCheck.play (after 1.0.0; about 3 min): python -I Tools\update_check_test.py - a local
 # release server on 127.0.0.1:17641, then BridgeServe with the UI (-ui -updateCheck -updateCheckUrl; the script starts it through
 # unity_batch, which takes the Unity lock): the dialog at start for a newer release, Skip this version, by hand the latest / HTTP
@@ -1652,13 +1763,13 @@ Row 'PlayerBuild.dist' player 'player,setup,publication' -Run {
 # python -I Tools\pluginkit_check.py packages the tested Builds\App with package_dist.ps1 -Zip -AllowDirty into its own
 # <out>\dist (never Builds\Dist or Builds\Public), checks the zip's entries (PluginKit/**, both XML files), extracts it outside
 # the repository (<TEMP>\hs2next_pluginkit\extract, removed after a passing run), KT2 one `dotnet build` in the extracted
-# PluginKit with no argument and an empty NUGET_PACKAGES (0 warnings), KT3 the two DLLs reference exactly netstandard 2.1.0.0
-# and HS2Next.Api 1.0.0.0, KT5 no build output names the repository, KT4 the kit's out\<guid>\ copied into the extracted
-# Plugins\ and the extracted exe started -batchmode on port 17388 with its own data root and HS2NEXT_NO_PLUGINS removed: both
-# samples loaded, hello.greet answers, HelloUi's 2 forms counted, app.quit exit 0. The runner takes the GPU lock around it
+# PluginKit with no argument and an empty NUGET_PACKAGES (0 warnings), KT3 Hello's and HelloUi's DLLs reference exactly netstandard 2.1.0.0
+# and HS2Next.Api 1.0.0.0 (Shapes also HS2Next.Api.Unity 1.0.0.0 and UnityEngine.CoreModule; Phase 6.8), KT5 no build output names the repository, KT4 the kit's out\<guid>\ copied into the extracted
+# Plugins\ and the extracted exe started -batchmode on port 17388 with its own data root and HS2NEXT_NO_PLUGINS removed: the three
+# samples loaded (Shapes' five rows listed by item.search), hello.greet answers, HelloUi's 2 forms counted, app.quit exit 0. The runner takes the GPU lock around it
 # and stops it when the game gate's process appears (exit 3: WARN). Report <out>\pluginkit_report.txt, first and last line
 # "SUMMARY: N PASS, M FAIL"; key numbers the build time and the DLL sizes. About 1.5-3 min.
-Row 'PluginKit.dist' player 'plugins,publication,player' -Run {
+Row 'PluginKit.dist' player 'plugins,publication,player,ragdoll,bake' -Run {
     $id = 'PluginKit.dist'
     $script = Join-Path $PSScriptRoot 'pluginkit_check.py'
     if (-not (Test-Path $AppExe)) { Add-Result $id 'FAIL' 0 'no app player (Builds\App\HS2Next.exe): run PlayerBuild.app' $null }
@@ -1878,8 +1989,9 @@ Row 'BridgeChecks.player' player 'player,bridge' -Run {
 # Phase 6.1 (package K's script): the Sequencer is built against the Api 1.0.0 reference
 # assemblies (--api-dir Tests\Plugins\fixtures\api10: a 1.0 plugin on the 1.x host, KX4b) and the kit's Hello and HelloUi
 # against the player's own Api; PA1 lists the three loaded, PK1 / PK2 call the kit samples, KD9 disables and enables the
-# Sequencer at run time (counts back, seq.get equal); the key numbers add the PK1, PK2 and KD9 verdicts.
-Row 'PluginCheck.player' player 'player,plugins' -Run {
+# Sequencer at run time (counts back, seq.get equal); the key numbers add the PK1, PK2 and KD9 verdicts. Phase 6.8: the kit's
+# third sample Shapes loads beside them (PA1 counts it) and PK3 reads its five rows and builds its torus with its eight FK bones.
+Row 'PluginCheck.player' player 'player,plugins,tools,ragdoll,bake' -Run {
     $id = 'PluginCheck.player'
     $script = Join-Path $PSScriptRoot 'plugin_player_check.py'
     if (-not (Test-Path $AppExe)) { Add-Result $id 'FAIL' 0 'no app player (Builds\App\HS2Next.exe): run PlayerBuild.app' $null }
@@ -1895,7 +2007,7 @@ Row 'PluginCheck.player' player 'player,plugins' -Run {
         if ($p.Code -eq 0 -and $last -match 'SUMMARY: (\d+) PASS, (\d+) FAIL') { $res = if ([int]$Matches[2] -eq 0) { 'PASS' } else { 'FAIL' } }
         $why = switch ($p.Code) { 0 { '' } 1 { ' (a check failed)' } 2 { ' (setup error)' } 124 { ' (no exit: stopped)' } default { '' } }
         $pm = @($lines | Where-Object { $_ -match '^PA8\s' } | ForEach-Object { ($_ -replace '^PA8\s+\S+\s+', '') }) -join ''
-        $k61 = @($lines | Where-Object { $_ -match '^(PK1|PK2|KD9)\s+\S+' } | ForEach-Object { ($_ -split '\s+', 3)[0..1] -join ' ' })
+        $k61 = @($lines | Where-Object { $_ -match '^(PK1|PK2|PK3|KD9)\s+\S+' } | ForEach-Object { ($_ -split '\s+', 3)[0..1] -join ' ' })
         Add-Result $id $res $p.Minutes ("exit $($p.Code)$why; " + $(if ($last) { $last } else { 'no report' }) + $(if ($pm) { "; PA8 $pm" } else { '' }) +
             $(if ($k61.Count) { '; ' + ($k61 -join ', ') } else { '' })) $rep
     }
@@ -2033,6 +2145,141 @@ Row 'ConstraintCheck.player' player 'constraints,player,motion' -DevInputs 'Tool
         $cw = @($lines | Where-Object { $_ -match '^CW[0-9]\w*\s' } | ForEach-Object { $x = $_ -split '\s+', 3; $s = $x[0] + ' ' + $x[2]; if ($s.Length -gt 90) { $s.Substring(0, 90) } else { $s } })
         Add-Result $id $res $p.Minutes ("exit $($p.Code)$why; " + $(if ($last) { $last } else { 'no report' }) + $(if ($warnLine -and $warnLine -notmatch '^WARN: 0\b') { "; $warnLine" } else { '' }) + $(if ($fl.Count) { '; FAIL ' + ($fl -join ', ') } else { '' }) +
             $(if ($cw.Count) { '; ' + ($cw -join '; ') } else { '' })) $rep
+    }
+}
+
+# WetCheck.player (Phase 6.6, 15.3; package T): python -I Tools\wet_player_check.py starts the app player itself, three times, each with its own UserData and
+# output under <out>: a batch player with no plugin (port 17849: a stain's trip, WB10 on a garment whose mesh cannot be read, the map query's source, the new shaders in the log),
+# a windowed player at 1920 x 1080 with the test plugin Tests\WetProbe (port 17858: WW1-WW8, WW10-WW13: times the bridge cannot see and frames with the frame cap off) and a UI
+# player with the probe (port 17848: WW9, a recording through FrameRecorder, the Screenshot dialog, the largest capture with a stain). A time over its bar is WARN, not FAIL: the
+# lead decides. The frames a recording and a capture write are read as numbers and deleted by the script. The runner holds the GPU lock; the script polls the game gate itself and
+# stops its players by PID (exit 3 = WARN). Report <out>\wet_player_report.txt, first and last line "SUMMARY: N PASS, M FAIL", line 2 "WARN: K (ids)"; exit 0 / 1 / 2 / 3; about 4 min
+Row 'WetCheck.player' player 'wet,player,shaders,tools' -DevInputs 'Tools/targets.json' -Run {
+    $id = 'WetCheck.player'
+    $script = Join-Path $PSScriptRoot 'wet_player_check.py'
+    if (-not (Test-Path $AppExe)) { Add-Result $id 'FAIL' 0 'no app player (Builds\App\HS2Next.exe): run PlayerBuild.app' $null }
+    elseif (-not (Test-Path $script)) { Add-Result $id 'FAIL' 0 'Tools\wet_player_check.py is missing' $null }
+    elseif (-not (Wait-FreeRam)) { Add-Result $id 'FAIL' 30 'less than 8 GB of free RAM for 30 min' $null }
+    else {
+        $out = Join-Path $PlayerOut 'wet'
+        $p = Invoke-Process $id 'python' @('-I', $script, '--exe', $AppExe, '--project', $Project, '--out', $out, '--port', '17849', '--timeout-min', '30') 35
+        $rep = Copy-PlayerReport $id (Join-Path $out 'wet_player_report.txt')
+        $lines = if ($rep) { @(Get-Content -LiteralPath $rep -Encoding UTF8 | Where-Object { $_.Trim() }) } else { @() }
+        $last = @($lines | Where-Object { $_ -like 'SUMMARY: *' } | Select-Object -Last 1) -join ''
+        $warnLine = @($lines | Where-Object { $_ -like 'WARN: *' } | Select-Object -First 1) -join ''
+        $res = switch ($p.Code) { 0 { 'PASS' } 3 { 'WARN' } default { 'FAIL' } }
+        if ($res -eq 'PASS' -and -not ($last -match 'SUMMARY: (\d+) PASS, 0 FAIL')) { $res = 'FAIL' }
+        if ($res -eq 'PASS' -and $warnLine -notmatch '^WARN: 0\b') { $res = 'WARN' }
+        $why = switch ($p.Code) { 0 { '' } 1 { ' (a check failed)' } 2 { ' (setup error)' } 3 { ' (aborted by the game gate: repeat later)' } 124 { ' (no exit: stopped)' } default { '' } }
+        $fl = @($lines | Where-Object { $_ -match '^\S+\s+FAIL\s' } | Select-Object -First 4 | ForEach-Object { ($_ -split '\s+', 3)[0] })
+        $ww = @($lines | Where-Object { $_ -match '^WW[0-9]\w*\s' } | ForEach-Object { $x = $_ -split '\s+', 3; $s = $x[0] + ' ' + $x[2]; if ($s.Length -gt 90) { $s.Substring(0, 90) } else { $s } })
+        Add-Result $id $res $p.Minutes ("exit $($p.Code)$why; " + $(if ($last) { $last } else { 'no report' }) + $(if ($warnLine -and $warnLine -notmatch '^WARN: 0\b') { "; $warnLine" } else { '' }) + $(if ($fl.Count) { '; FAIL ' + ($fl -join ', ') } else { '' }) +
+            $(if ($ww.Count) { '; ' + ($ww -join '; ') } else { '' })) $rep
+    }
+}
+
+# RagdollCheck.player (Phase 6.7, 17.3; package T): python -I Tools\ragdoll_player_check.py starts the app player itself, several times, each with its own UserData and
+# output under <out>: a batch player with no plugin (port 17869: the trip of a body at rest and a body in a fall, the commands over HTTP, obstacles' absence of a probe), batch players with the test plugins
+# Tests\RagdollProbe and Tests\WetProbe (port 17868: RK1 across processes, the first render after a build), windowed players at 1920 x 1080 with them (port 17878: RW1-RW12, RL4 on the 50 maps, the obstacles,
+# RV6, RD6). RD13 reads the build's report, RV8 searches the new files. A time over its bar is WARN, not FAIL: the lead decides. Images stay in the player's memory. The runner holds the GPU lock; the
+# script polls the game gate itself and stops its players by PID (exit 3 = WARN). Report <out>\ragdoll_player_report.txt, first and last line "SUMMARY: N PASS, M FAIL", line 2 "WARN: K (ids)"; exit 0 / 1 / 2 / 3
+Row 'RagdollCheck.player' player 'ragdoll,player' -DevInputs 'Tools/targets.json' -Run {
+    $id = 'RagdollCheck.player'
+    $script = Join-Path $PSScriptRoot 'ragdoll_player_check.py'
+    if (-not (Test-Path $AppExe)) { Add-Result $id 'FAIL' 0 'no app player (Builds\App\HS2Next.exe): run PlayerBuild.app' $null }
+    elseif (-not (Test-Path $script)) { Add-Result $id 'FAIL' 0 'Tools\ragdoll_player_check.py is missing' $null }
+    elseif (-not (Wait-FreeRam)) { Add-Result $id 'FAIL' 30 'less than 8 GB of free RAM for 30 min' $null }
+    else {
+        $out = Join-Path $PlayerOut 'ragdoll'
+        $p = Invoke-Process $id 'python' @('-I', $script, '--exe', $AppExe, '--project', $Project, '--out', $out, '--port', '17869', '--timeout-min', '60') 65
+        $rep = Copy-PlayerReport $id (Join-Path $out 'ragdoll_player_report.txt')
+        $lines = if ($rep) { @(Get-Content -LiteralPath $rep -Encoding UTF8 | Where-Object { $_.Trim() }) } else { @() }
+        $last = @($lines | Where-Object { $_ -like 'SUMMARY: *' } | Select-Object -Last 1) -join ''
+        $warnLine = @($lines | Where-Object { $_ -like 'WARN: *' } | Select-Object -First 1) -join ''
+        $res = switch ($p.Code) { 0 { 'PASS' } 3 { 'WARN' } default { 'FAIL' } }
+        if ($res -eq 'PASS' -and -not ($last -match 'SUMMARY: (\d+) PASS, 0 FAIL')) { $res = 'FAIL' }
+        if ($res -eq 'PASS' -and $warnLine -notmatch '^WARN: 0\b') { $res = 'WARN' }
+        $why = switch ($p.Code) { 0 { '' } 1 { ' (a check failed)' } 2 { ' (setup error)' } 3 { ' (aborted by the game gate: repeat later)' } 124 { ' (no exit: stopped)' } default { '' } }
+        $fl = @($lines | Where-Object { $_ -match '^\S+\s+FAIL\s' } | Select-Object -First 4 | ForEach-Object { ($_ -split '\s+', 3)[0] })
+        $rw = @($lines | Where-Object { $_ -match '^RW[0-9]\w*\s' } | ForEach-Object { $x = $_ -split '\s+', 3; $s = $x[0] + ' ' + $x[2]; if ($s.Length -gt 90) { $s.Substring(0, 90) } else { $s } })
+        Add-Result $id $res $p.Minutes ("exit $($p.Code)$why; " + $(if ($last) { $last } else { 'no report' }) + $(if ($warnLine -and $warnLine -notmatch '^WARN: 0\b') { "; $warnLine" } else { '' }) + $(if ($fl.Count) { '; FAIL ' + ($fl -join ', ') } else { '' }) +
+            $(if ($rw.Count) { '; ' + ($rw -join '; ') } else { '' })) $rep
+    }
+}
+
+# BakeCheck.player (Phase 6.8, 17.3, 17.5; package T): python -I Tools\bake_player_check.py starts the app player itself, five times, windowed at 1920 x 1080 with
+# -noUi, each with its own UserData and output under <out>, on port 17889, with the test plugins Tests\BakeProbe and Tests\WetProbe built against the player's own Managed folder (and the kit's sample
+# Shapes where BR9 needs it): S BA1's scene (a whole bake of each target, a part bake, two pieces) rendered and saved, BD1 at bake time, BD14 in the player, BR9 with the sample; L a fresh process with
+# S's store folder moved away: BA1's load, renders and blobs, BR9 without the sample; W the times, sizes and memory BW1-BW10 (nothing else may run; BW10 imports a copy of the old bakes' folder,
+# the originals hashed before and after) and BR9 again; O1 and O2, before and after W, the last build Builds\AppPrev610 (when it is there) for BW8's frame with no bake and bundle item build over
+# HTTP; G BD12 on Step 0's item rows; V BV6
+# in a capture, a screenshot, a recorded frame, the scene thumbnail and a puddle's mirror; I0, I1 (the last build) and I (this build) the identity of Phase 6.10 (
+# one process against BakeJob.Legacy, YI1b, YI2, YI3 against the last build's fixtures); W's stages YB, YR, YU printed. BV9 searches the new files with no player. A time over its bar is WARN, not FAIL: the lead decides. Images
+# stay in the player's memory. The runner holds the GPU lock; the script polls the game gate itself and stops its players by PID (exit 3 = WARN). Report <out>\bake_player_report.txt, first and last
+# line "SUMMARY: N PASS, M FAIL", line 2 "WARN: K (ids)"; exit 0 / 1 / 2 / 3
+Row 'BakeCheck.player' player 'bake,player' -DevInputs 'Tools/targets.json' -Run {
+    $id = 'BakeCheck.player'
+    $script = Join-Path $PSScriptRoot 'bake_player_check.py'
+    if (-not (Test-Path $AppExe)) { Add-Result $id 'FAIL' 0 'no app player (Builds\App\HS2Next.exe): run PlayerBuild.app' $null }
+    elseif (-not (Test-Path $script)) { Add-Result $id 'FAIL' 0 'Tools\bake_player_check.py is missing' $null }
+    elseif (-not (Wait-FreeRam)) { Add-Result $id 'FAIL' 30 'less than 8 GB of free RAM for 30 min' $null }
+    else {
+        $out = Join-Path $PlayerOut 'bake'
+        # BW8 and session I against the last build (6.8's ruling Q3): Builds\AppPrev610, a copy of the previous acceptance player made before this phase's first build
+        $base = Join-Path $Project 'Builds\AppPrev610\HS2Next.exe'
+        $pa = @('-I', $script, '--exe', $AppExe, '--project', $Project, '--out', $out, '--port', '17889', '--timeout-min', '100')
+        if (Test-Path -LiteralPath $base) { $pa += @('--baseline-exe', $base) }
+        $p = Invoke-Process $id 'python' $pa 105
+        $rep = Copy-PlayerReport $id (Join-Path $out 'bake_player_report.txt')
+        $lines = if ($rep) { @(Get-Content -LiteralPath $rep -Encoding UTF8 | Where-Object { $_.Trim() }) } else { @() }
+        $last = @($lines | Where-Object { $_ -like 'SUMMARY: *' } | Select-Object -Last 1) -join ''
+        $warnLine = @($lines | Where-Object { $_ -like 'WARN: *' } | Select-Object -First 1) -join ''
+        $res = switch ($p.Code) { 0 { 'PASS' } 3 { 'WARN' } default { 'FAIL' } }
+        if ($res -eq 'PASS' -and -not ($last -match 'SUMMARY: (\d+) PASS, 0 FAIL')) { $res = 'FAIL' }
+        if ($res -eq 'PASS' -and $warnLine -notmatch '^WARN: 0\b') { $res = 'WARN' }
+        $why = switch ($p.Code) { 0 { '' } 1 { ' (a check failed)' } 2 { ' (setup error)' } 3 { ' (aborted by the game gate: repeat later)' } 124 { ' (no exit: stopped)' } default { '' } }
+        $fl = @($lines | Where-Object { $_ -match '^\S+\s+FAIL\s' } | Select-Object -First 4 | ForEach-Object { ($_ -split '\s+', 3)[0] })
+        $bw = @($lines | Where-Object { $_ -match '^BW[0-9]\w*\s' } | ForEach-Object { $x = $_ -split '\s+', 3; $s = $x[0] + ' ' + $x[2]; if ($s.Length -gt 90) { $s.Substring(0, 90) } else { $s } })
+        Add-Result $id $res $p.Minutes ("exit $($p.Code)$why; " + $(if ($last) { $last } else { 'no report' }) + $(if ($warnLine -and $warnLine -notmatch '^WARN: 0\b') { "; $warnLine" } else { '' }) + $(if ($fl.Count) { '; FAIL ' + ($fl -join ', ') } else { '' }) +
+            $(if ($bw.Count) { '; ' + ($bw -join '; ') } else { '' })) $rep
+    }
+}
+
+# ScriptCheck.player (Phase 6.9, 17.3, 17.5; package T): python -I Tools\script_player_check.py starts the app player itself, several times, each with
+# -settings, -userData <its folder under <out>>, -cacheDir and -logFile, with the test plugin Tests\ScriptProbe built against the player's own Managed folder: N a player with -noBridge
+# (JX6: JX2's four timed commands and JX4's play of the sample run in the process, the log's "in-process (no listener)"; JW4 off), its run told to the probe by a job file and read from its
+# result file; R windowed at 1920 x 1080, port 17909: JR4 (JR1 on recorded frames and at the screen's rate), JR6 (a) walked by obj.moveTo ((b) is not judged in a player: the
+# wide pass's coverage view is Editor-only, so (b) stands on ScriptTest.play's JR6; one INFO line per path); D windowed: the sample (and the scripts given with
+# --scripts) imported, cast to BR-Chan and HERO107, recorded at 1280 x 720 and 30 fps (frames counted, hashed and deleted: JR5's count), played again without a reload (JD2) and after save
+# and load (JD1) with digests at seven times; JW1-JW9 (JW4 on, JW7 against Builds\AppPrev610 with -noBridge when that copy is there, sessions O1 and O2). A time over its bar is WARN, not FAIL:
+# the lead decides. Images stay in the player's memory. The runner holds the GPU lock; the script polls the game gate itself and stops its players by PID (exit 3 = WARN). Report
+# <out>\script_player_report.txt, first and last line "SUMMARY: N PASS, M FAIL", line 2 "WARN: K (ids)"; exit 0 / 1 / 2 / 3. Further scripts with their expected failures are recorded
+# by hand with --scripts and --expect; never by this row
+Row 'ScriptCheck.player' player 'script,player' -DevInputs 'Tools/targets.json' -Run {
+    $id = 'ScriptCheck.player'
+    $script = Join-Path $PSScriptRoot 'script_player_check.py'
+    if (-not (Test-Path $AppExe)) { Add-Result $id 'FAIL' 0 'no app player (Builds\App\HS2Next.exe): run PlayerBuild.app' $null }
+    elseif (-not (Test-Path $script)) { Add-Result $id 'FAIL' 0 'Tools\script_player_check.py is missing' $null }
+    elseif (-not (Wait-FreeRam)) { Add-Result $id 'FAIL' 30 'less than 8 GB of free RAM for 30 min' $null }
+    else {
+        $out = Join-Path $PlayerOut 'script'
+        # JW7 against the last build: Builds\AppPrev610, a copy of the previous acceptance player made before this phase's first build
+        $base = Join-Path $Project 'Builds\AppPrev610\HS2Next.exe'
+        $pa = @('-I', $script, '--exe', $AppExe, '--project', $Project, '--out', $out, '--port', '17909', '--timeout-min', '80')
+        if (Test-Path -LiteralPath $base) { $pa += @('--baseline-exe', $base) }
+        $p = Invoke-Process $id 'python' $pa 85
+        $rep = Copy-PlayerReport $id (Join-Path $out 'script_player_report.txt')
+        $lines = if ($rep) { @(Get-Content -LiteralPath $rep -Encoding UTF8 | Where-Object { $_.Trim() }) } else { @() }
+        $last = @($lines | Where-Object { $_ -like 'SUMMARY: *' } | Select-Object -Last 1) -join ''
+        $warnLine = @($lines | Where-Object { $_ -like 'WARN: *' } | Select-Object -First 1) -join ''
+        $res = switch ($p.Code) { 0 { 'PASS' } 3 { 'WARN' } default { 'FAIL' } }
+        if ($res -eq 'PASS' -and -not ($last -match 'SUMMARY: (\d+) PASS, 0 FAIL')) { $res = 'FAIL' }
+        if ($res -eq 'PASS' -and $warnLine -notmatch '^WARN: 0\b') { $res = 'WARN' }
+        $why = switch ($p.Code) { 0 { '' } 1 { ' (a check failed)' } 2 { ' (setup error)' } 3 { ' (aborted by the game gate: repeat later)' } 124 { ' (no exit: stopped)' } default { '' } }
+        $fl = @($lines | Where-Object { $_ -match '^\S+\s+FAIL\s' } | Select-Object -First 4 | ForEach-Object { ($_ -split '\s+', 3)[0] })
+        $jw = @($lines | Where-Object { $_ -match '^JW[0-9]\w*\s' } | ForEach-Object { $x = $_ -split '\s+', 3; $s = $x[0] + ' ' + $x[2]; if ($s.Length -gt 90) { $s.Substring(0, 90) } else { $s } })
+        Add-Result $id $res $p.Minutes ("exit $($p.Code)$why; " + $(if ($last) { $last } else { 'no report' }) + $(if ($warnLine -and $warnLine -notmatch '^WARN: 0\b') { "; $warnLine" } else { '' }) + $(if ($fl.Count) { '; FAIL ' + ($fl -join ', ') } else { '' }) +
+            $(if ($jw.Count) { '; ' + ($jw -join '; ') } else { '' })) $rep
     }
 }
 
@@ -2725,10 +2972,22 @@ if ($MonoSel.Count) {
 $BatchMembers = @($Selected | Where-Object { (Is-BatchMember $_) -and -not $DevAbsent.Contains($_.Id) })
 if ($BatchMembers.Count -lt 2) { $BatchMembers = @() }
 $BatchIds = @($BatchMembers | ForEach-Object { $_.Id })
+# Every row started here must leave a result line (Phase 6.8, the impact run 20261108-0829: ten -Run rows returned with none,
+# silently): a started row with no result of its id, of its id's parts (<id>.*) or of its -ResultIds is a FAIL "no result".
+$Started = [System.Collections.Generic.List[object]]::new()
+function Test-RowHasResult($row) {
+    $pats = @(Split-List $row.ResultIds)
+    foreach ($r in $Results) {
+        if ($r.Test -eq $row.Id -or $r.Test -like "$($row.Id).*") { return $true }
+        foreach ($p in $pats) { if ($r.Test -like $p) { return $true } }
+    }
+    return $false
+}
 foreach ($row in $Selected) {
     if ($row.Group -eq 'mono') { continue }   # (the background jobs)
     if ($DevAbsent.Contains($row.Id)) { Add-DevAbsent $row; continue }   # (not started: a development input is absent)
     if (-not (Want $row.Id)) { continue }   # (after a compile failure)
+    $Started.Add($row)
     if ($BatchIds.Count -and $row.Id -in $BatchIds) {
         if (-not $BatchDone) { Invoke-HeadlessBatch $BatchMembers }
         continue
@@ -2747,6 +3006,11 @@ foreach ($row in $Selected) {
             $last = $Results | Where-Object { $_.Test -eq 'SceneModelTest' } | Select-Object -Last 1
             if ($last) { $last.Numbers += '; appearance fuzz off (Mono.scene runs it at 2,000 x 200)' }
         }
+    }
+}
+foreach ($row in $Started) {
+    if (-not (Test-RowHasResult $row)) {
+        Add-Result $row.Id 'FAIL' 0 'no result: the row was selected and started but returned without a result line (a runner fault; see its console)' $null
     }
 }
 

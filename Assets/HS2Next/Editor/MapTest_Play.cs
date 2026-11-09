@@ -347,14 +347,14 @@ public static partial class MapTest
                 var q0 = roots.Select(r => r.transform.rotation).ToArray();
                 map.SetTarget(mref, new Vec3(1, 2, 3), new Vec3(0, 90, 0)); map.Apply();
                 var R = Quaternion.Euler(0, 90, 0); var T = new Vector3(1, 2, 3);
-                float pe = 0, re = 0;
+                float pe = 0; double re = 0;
                 // p0 / q0 were read at the default pose: root 0 is at (0, identity) then; the others at their scene-file pose
                 for (int i = 0; i < roots.Length; i++)
                 {
                     pe = Mathf.Max(pe, (roots[i].transform.position - (R * p0[i] + T)).magnitude);
-                    re = Mathf.Max(re, Quaternion.Angle(roots[i].transform.rotation, R * q0[i]));
+                    re = Math.Max(re, RotationCompare.Deg(roots[i].transform.rotation, R * q0[i]));
                 }
-                bool root0 = roots.Length == 0 || p0[0].magnitude < 1e-4f && Quaternion.Angle(q0[0], Quaternion.identity) < 1e-3f;
+                bool root0 = roots.Length == 0 || p0[0].magnitude < 1e-4f && RotationCompare.Deg(q0[0], Quaternion.identity) < 1e-3f;
                 Check("pose (1,2,3) / (0,90,0): root 0 = (T, R) as HS2 (at the origin at the default pose), every other root at R·p0 + T",
                       root0 && pe < 1e-3f && re < 0.01f, $"{roots.Length} roots, root 0 default {p0.FirstOrDefault()}, position error {pe:E2}, rotation {re:E2}; static-batched {map.StaticBatchedRenderers}");
                 map.SetTarget(mref, Vec3.Zero, Vec3.Zero); map.Apply();

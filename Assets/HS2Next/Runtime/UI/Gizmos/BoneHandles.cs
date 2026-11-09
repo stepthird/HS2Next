@@ -139,6 +139,7 @@ namespace HS2Next.UI.Gizmos
         /// <summary>The spheres shown now, or null while the pick is off.</summary>
         IReadOnlyList<BonePick> BonePicks()
         {
+            if (ctx.Tools.Blocks) return null;   // Phase 6.6: a viewport tool in its default mode
             if (ConstraintBonePick.On) return ConstraintBonePick.Rows;   // Phase 6.5
             var tab = AdvancedPoseTab.Current;
             if (tab == null || !tab.PickOn || ctx.Runtime == null || tab.Primary != ctx.Selection.Primary) return null;

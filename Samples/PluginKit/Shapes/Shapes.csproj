@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The plugin kit's third sample (CC0-1.0): an engine-side plugin that adds rows to the Studio item list and builds their
+       objects in code. Build settings and references come from ..\HS2NextPlugin.props (with the engine-side references);
+       `dotnet build` stages it into ..\out\stp3.sample.shapes\. -->
+  <Import Project="..\HS2NextPlugin.props" />
+  <PropertyGroup>
+    <AssemblyName>Stp3.SampleShapes</AssemblyName>
+    <RootNamespace>Stp3.Samples.Shapes</RootNamespace>
+    <PluginGuid>stp3.sample.shapes</PluginGuid>
+    <Version>0.1.0</Version>
+    <HS2NextUseUnity>true</HS2NextUseUnity>
+  </PropertyGroup>
+</Project>

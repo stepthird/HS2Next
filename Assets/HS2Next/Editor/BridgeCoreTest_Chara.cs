@@ -819,7 +819,7 @@ public static partial class BridgeCoreTest
         c.Check((bool?)en["fkEnabled"] == true && (bool?)en["ikEnabled"] == false && en["activeFK"] is JArray, "reply {fkEnabled true, ikEnabled false, activeFK}", Ctx.Short(c.LastText));
         var st = (CharaNodeState)c.App.Session.Model.Find(id).State;
         bool has = st.Fk.Bones.TryGetValue("cf_J_Spine01", out var v);
-        float ang = has ? W2Angle(Quaternion.Euler(v.X, v.Y, v.Z), Quaternion.Euler(le0)) : float.NaN;
+        double ang = has ? RotationCompare.Deg(Quaternion.Euler(v.X, v.Y, v.Z), Quaternion.Euler(le0)) : double.NaN;
         c.Check(has && ang <= 1e-4f, "the model rot of cf_J_Spine01 = its localEulerAngles before the call ± 1e-4°", has ? $"({v.X}, {v.Y}, {v.Z}) vs {le0}, {ang:G3}°" : "no value");
         c.Check(c.App.Session.Commands.UndoList.Count == undo0 + 1 && c.App.Session.Commands.UndoList[0].Label == "FK", "one history entry \"FK\"",
             string.Join(", ", c.App.Session.Commands.UndoList.Take(3).Select(x => x.Label)));
@@ -835,7 +835,7 @@ public static partial class BridgeCoreTest
         c.Check((int?)set["set"] == 1 && (set["missing"] as JArray)?.Select(x => (string)x).SequenceEqual(new[] { "no_such_bone" }) == true, "set 1, missing [no_such_bone]", Ctx.Short(c.LastText));
         var dump1 = c.Ok(new { cmd = "bones.dump", key = id }, "bones.dump body (after fk.set)");
         var sp1 = W2Bone(dump1, "cf_J_Spine01");
-        float a1 = sp1 != null ? W2Angle(W2Q(sp1["lq"]), Quaternion.Euler(10, 0, 0)) : float.NaN;
+        double a1 = sp1 != null ? RotationCompare.Deg(W2Q(sp1["lq"]), Quaternion.Euler(10, 0, 0)) : double.NaN;
         c.Check(a1 <= 1e-4f, "bones.dump local rotation of cf_J_Spine01 = Euler(10, 0, 0) ± 1e-4°", a1.ToString("G3") + "°");
         var fs = c.Fails(new { cmd = "fk.enable", key = id, groups = new[] { "Tail" } }, "bad_args", "fk.enable {groups: [\"Tail\"]} → bad_args");
         c.Check((fs["detail"]?["candidates"] as JArray)?.Count == 7, "with the 7 group names as candidates", Ctx.Short(c.LastText));

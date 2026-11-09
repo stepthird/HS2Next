@@ -1,0 +1,926 @@
+{
+  "format": "hs2next.script",
+  "version": 1,
+  "id": "5a3c9e71d2b84f06a1e7c4b29d6f8053",
+  "name": "Sample",
+  "description": "A neutral scene script: two characters (roles a and b) and an item held by a (role p). It uses every command form the converted scenes use, a track of every type, a move, a follow, a depth-of-field command, stains made in the preparation and ragdolls built and released. The last set-up step names accessory slots 17 and 18, which the test characters do not wear: it fails on purpose.",
+  "map": null,
+  "roles": [
+    {
+      "role": "a",
+      "kind": "chara",
+      "sex": "female"
+    },
+    {
+      "role": "b",
+      "kind": "chara",
+      "sex": "male"
+    },
+    {
+      "role": "p",
+      "kind": "item",
+      "ref": "illusion.hs2#399",
+      "parent": {
+        "role": "a",
+        "point": "N_Hand_R"
+      },
+      "pos": [0, 0, 0],
+      "rot": [0, 0, 0],
+      "scale": [1, 1, 1]
+    }
+  ],
+  "setup": [
+    {
+      "cmd": "obj.transform",
+      "key": "$a",
+      "pos": [0, 0, 0],
+      "rot": [0, 0, 0]
+    },
+    {
+      "cmd": "obj.transform",
+      "key": "$b",
+      "pos": [0, 0, 20],
+      "rot": [0, 180, 0]
+    },
+    {
+      "cmd": "fk.enable",
+      "key": "$a",
+      "on": false
+    },
+    {
+      "cmd": "fk.enable",
+      "key": "$b",
+      "on": false
+    },
+    {
+      "cmd": "ik.enable",
+      "key": "$a",
+      "on": false
+    },
+    {
+      "cmd": "ik.enable",
+      "key": "$b",
+      "on": false
+    },
+    {
+      "cmd": "chara.hands",
+      "key": "$a",
+      "left": 0,
+      "right": 0
+    },
+    {
+      "cmd": "chara.anime",
+      "key": "$a",
+      "group": 19,
+      "category": 0,
+      "no": 0,
+      "speed": 1,
+      "loop": true
+    },
+    {
+      "cmd": "chara.animeOption",
+      "key": "$a",
+      "visible": false
+    },
+    {
+      "cmd": "chara.face",
+      "key": "$a",
+      "blink": true
+    },
+    {
+      "cmd": "chara.accessories",
+      "key": "$a",
+      "show": {
+        "17": true,
+        "18": true
+      },
+      "note": "fails on purpose: slots the test characters do not wear"
+    }
+  ],
+  "prepare": [
+    {
+      "cmd": "obj.transform",
+      "key": "$a",
+      "pos": [0, 0, 0],
+      "rot": [0, 0, 0]
+    },
+    {
+      "cmd": "obj.transform",
+      "key": "$b",
+      "pos": [0, 0, 20],
+      "rot": [0, 180, 0]
+    },
+    {
+      "cmd": "chara.anime",
+      "key": "$a",
+      "group": 19,
+      "category": 0,
+      "no": 0,
+      "time": 0,
+      "speed": 0
+    },
+    {
+      "cmd": "chara.anime",
+      "key": "$b",
+      "group": 19,
+      "category": 0,
+      "no": 0,
+      "time": 0,
+      "speed": 0
+    },
+    {
+      "wait": 0.5
+    },
+    {
+      "cmd": "wet.set",
+      "key": "$b",
+      "values": {
+        "maxRadius": 1.8,
+        "spreadTime": 3.0,
+        "dripTail": 5.0,
+        "showMarker": false
+      }
+    },
+    {
+      "cmd": "wet.attach",
+      "key": "$b",
+      "from": "$p",
+      "target": {
+        "key": "$b",
+        "bone": "cf_J_Spine03",
+        "offset": [0, 0.8, 0]
+      },
+      "preset": "water"
+    },
+    {
+      "cmd": "wet.set",
+      "key": "$a",
+      "values": {
+        "showMarker": false
+      }
+    },
+    {
+      "cmd": "wet.attach",
+      "key": "$a",
+      "preset": "water"
+    },
+    {
+      "cmd": "wet.set",
+      "values": {
+        "dripRate": 45,
+        "puddleGrowth": 3.0,
+        "puddleScale": 1.8
+      }
+    },
+    {
+      "cmd": "wet.stain",
+      "name": "spread",
+      "preset": "water",
+      "radius": 2.2,
+      "spread": 6,
+      "tail": 8
+    },
+    {
+      "cmd": "wet.stain",
+      "name": "ray",
+      "preset": "water",
+      "from": [0, 10, 6],
+      "target": [0, 10, 0],
+      "radius": 1.4,
+      "spread": 2.5,
+      "tail": 9,
+      "skinDrips": true
+    },
+    {
+      "cmd": "wet.use",
+      "name": "ray",
+      "start": false
+    }
+  ],
+  "timeline": {
+    "duration": 8,
+    "loop": true,
+    "autoplay": false,
+    "tracks": [
+      {
+        "type": "camera",
+        "keys": [
+          {
+            "t": 0,
+            "target": [0, 10, 10],
+            "rot": [8, 180, 0],
+            "dist": 40,
+            "fov": 30,
+            "ease": "linear"
+          },
+          {
+            "t": 4,
+            "target": [4, 9, 4],
+            "rot": [10, 210, 0],
+            "dist": 30,
+            "fov": 30,
+            "ease": "linear"
+          },
+          {
+            "t": 7.98,
+            "rot": [12, 220, 0]
+          }
+        ]
+      },
+      {
+        "type": "dof",
+        "ease": "step",
+        "keys": [
+          {
+            "t": 0,
+            "on": true,
+            "focus": "$a",
+            "sharp": 0.1,
+            "full": 3,
+            "blur": 3
+          },
+          {
+            "t": 3,
+            "focus": {
+              "key": "$b",
+              "bone": "cf_J_Head",
+              "offset": [0, 0.5, 0]
+            }
+          },
+          {
+            "t": 6,
+            "focus": {
+              "point": [0, 10, 10]
+            }
+          },
+          {
+            "t": 7,
+            "focus": {
+              "dist": 30
+            }
+          }
+        ]
+      },
+      {
+        "type": "pos",
+        "key": "$p",
+        "ease": "linear",
+        "keys": [
+          {
+            "t": 0,
+            "v": [0, 0, 0]
+          },
+          {
+            "t": 2,
+            "v": [0, 0.2, 0]
+          }
+        ]
+      },
+      {
+        "type": "rot",
+        "key": "$p",
+        "keys": [
+          {
+            "t": 0,
+            "v": [0, 0, 0]
+          },
+          {
+            "t": 2,
+            "v": [0, 30, 0]
+          }
+        ]
+      },
+      {
+        "type": "rot",
+        "key": "$b",
+        "bone": "cf_J_Neck",
+        "keys": [
+          {
+            "t": 0,
+            "v": [0, 0, 0]
+          },
+          {
+            "t": 4,
+            "v": [10, 20, 0]
+          },
+          {
+            "t": 6,
+            "v": [0, 0, 0]
+          }
+        ]
+      },
+      {
+        "type": "scale",
+        "key": "$p",
+        "keys": [
+          {
+            "t": 0,
+            "v": [1, 1, 1]
+          },
+          {
+            "t": 2,
+            "v": [1.2, 1.2, 1.2]
+          }
+        ]
+      },
+      {
+        "type": "anime",
+        "key": "$b",
+        "keys": [
+          {
+            "t": 0,
+            "group": 11,
+            "category": 5,
+            "no": 0
+          },
+          {
+            "t": 3.5,
+            "group": 19,
+            "category": 0,
+            "no": 0
+          }
+        ]
+      },
+      {
+        "type": "animeSpeed",
+        "key": "$b",
+        "ease": "step",
+        "keys": [
+          {
+            "t": 0,
+            "v": 1
+          },
+          {
+            "t": 3.5,
+            "v": 1
+          }
+        ]
+      },
+      {
+        "type": "animeTime",
+        "key": "$a",
+        "keys": [
+          {
+            "t": 0,
+            "v": 0.1
+          }
+        ]
+      },
+      {
+        "type": "eyes",
+        "key": "$b",
+        "raw": true,
+        "keys": [
+          {
+            "t": 0,
+            "v": 0
+          },
+          {
+            "t": 2,
+            "v": 1
+          }
+        ]
+      },
+      {
+        "type": "mouth",
+        "key": "$b",
+        "keys": [
+          {
+            "t": 0,
+            "v": 0
+          },
+          {
+            "t": 2,
+            "v": 1
+          }
+        ]
+      },
+      {
+        "type": "eyesOpen",
+        "key": "$b",
+        "keys": [
+          {
+            "t": 0,
+            "v": 1
+          },
+          {
+            "t": 2.5,
+            "v": 0.7
+          }
+        ]
+      },
+      {
+        "type": "mouthOpen",
+        "key": "$b",
+        "keys": [
+          {
+            "t": 0,
+            "v": 0
+          },
+          {
+            "t": 2.5,
+            "v": 0.2
+          }
+        ]
+      },
+      {
+        "type": "color",
+        "key": "$p",
+        "slot": 0,
+        "keys": [
+          {
+            "t": 0,
+            "v": [1, 1, 1, 1]
+          },
+          {
+            "t": 3,
+            "v": [0.8, 0.8, 0.8, 1]
+          }
+        ]
+      }
+    ],
+    "events": [
+      {
+        "t": 0,
+        "do": {
+          "cmd": "ragdoll.release"
+        },
+        "note": "a fresh physics world at each pass"
+      },
+      {
+        "t": 0.01,
+        "do": {
+          "cmd": "wet.dry",
+          "key": "$a"
+        }
+      },
+      {
+        "t": 0.02,
+        "do": {
+          "cmd": "wet.dry",
+          "key": "$b"
+        }
+      },
+      {
+        "t": 0.03,
+        "do": {
+          "cmd": "chara.face",
+          "key": "$a",
+          "blink": true,
+          "eyebrow": 1,
+          "eyes": 1,
+          "mouth": 1,
+          "eyesOpen": 0.9,
+          "mouthOpen": 0,
+          "tears": 0
+        }
+      },
+      {
+        "t": 0.03,
+        "do": {
+          "cmd": "chara.face",
+          "key": "$b",
+          "blink": true,
+          "eyebrow": 0,
+          "eyes": 0,
+          "mouth": 0,
+          "eyesOpen": 1
+        }
+      },
+      {
+        "t": 0.04,
+        "do": {
+          "cmd": "chara.anime",
+          "key": "$a",
+          "group": 19,
+          "category": 0,
+          "no": 0,
+          "time": 0,
+          "speed": 1,
+          "loop": true
+        }
+      },
+      {
+        "t": 0.05,
+        "do": {
+          "cmd": "fk.enable",
+          "key": "$b",
+          "on": false
+        }
+      },
+      {
+        "t": 0.05,
+        "do": {
+          "cmd": "obj.transform",
+          "key": "$b",
+          "pos": [0, 0, 20],
+          "rot": [0, 180, 0]
+        }
+      },
+      {
+        "t": 0.06,
+        "do": {
+          "cmd": "obj.transform",
+          "key": "$b",
+          "rot": [0, 170, 0]
+        }
+      },
+      {
+        "t": 0.5,
+        "do": {
+          "cmd": "obj.moveTo",
+          "key": "$b",
+          "target": [0, 0, 12],
+          "stop": 0,
+          "time": 1,
+          "stanceSpeed": 7.85
+        },
+        "note": "b walks to a point"
+      },
+      {
+        "t": 0.6,
+        "do": {
+          "cmd": "wet.start",
+          "key": "$a"
+        }
+      },
+      {
+        "t": 1,
+        "do": {
+          "cmd": "chara.speed",
+          "key": "$a",
+          "speed": 0.5
+        }
+      },
+      {
+        "t": 1.2,
+        "do": {
+          "cmd": "chara.face",
+          "key": "$a",
+          "blink": true,
+          "eyebrow": 2,
+          "eyes": 2,
+          "mouth": 2,
+          "eyesOpen": 0.8,
+          "mouthOpen": 0.2
+        }
+      },
+      {
+        "t": 1.5,
+        "do": {
+          "cmd": "camera.follow",
+          "target": {
+            "key": "$b",
+            "bone": "cf_J_Head"
+          },
+          "rot": [20, 180, 0],
+          "dist": 20,
+          "fov": 30,
+          "seconds": 1
+        }
+      },
+      {
+        "t": 1.6,
+        "do": {
+          "cmd": "obj.moveTo",
+          "key": "$b",
+          "target": {
+            "key": "$a",
+            "bone": "cf_J_Spine02",
+            "offset": [8, 0, 0]
+          },
+          "stop": 0,
+          "time": 1,
+          "stanceSpeed": 7.85
+        },
+        "note": "b walks beside a"
+      },
+      {
+        "t": 2,
+        "do": {
+          "cmd": "dof",
+          "on": true,
+          "focus": "$b",
+          "blend": 0.5,
+          "ease": "inout",
+          "sharp": 0.2,
+          "full": 4
+        }
+      },
+      {
+        "t": 2.7,
+        "do": {
+          "cmd": "obj.moveTo",
+          "key": "$b",
+          "target": {
+            "key": "$a",
+            "bone": "cf_J_Spine02"
+          },
+          "stop": 10,
+          "time": 0.3,
+          "stanceSpeed": 7.85
+        },
+        "note": "b turns towards a"
+      },
+      {
+        "t": 2.9,
+        "do": {
+          "cmd": "chara.face",
+          "key": "$b",
+          "blink": true,
+          "eyebrow": 1,
+          "eyes": 1,
+          "mouth": 1,
+          "eyesOpen": 0.8,
+          "tears": 0
+        }
+      },
+      {
+        "t": 3,
+        "do": {
+          "cmd": "fk.capture",
+          "key": "$b",
+          "stopAnime": true
+        }
+      },
+      {
+        "t": 3.05,
+        "do": {
+          "cmd": "fk.enable",
+          "key": "$b",
+          "on": false,
+          "groups": [
+            "Body"
+          ]
+        }
+      },
+      {
+        "t": 3.1,
+        "do": {
+          "cmd": "pose.load",
+          "key": "$a",
+          "path": "STANDING/Floor/Pose 1.dat"
+        }
+      },
+      {
+        "t": 3.2,
+        "do": {
+          "cmd": "fk.enable",
+          "key": "$a",
+          "on": true,
+          "groups": [
+            "RightArm",
+            "LeftArm",
+            "RightHand",
+            "LeftHand"
+          ]
+        }
+      },
+      {
+        "t": 3.25,
+        "do": {
+          "cmd": "fk.set",
+          "key": "$a",
+          "bones": {
+            "cf_J_Shoulder_L": [0, 0, 0],
+            "cf_J_Shoulder_R": [0, 0, 0],
+            "cf_J_ArmUp00_L": [0, 0, 0],
+            "cf_J_ArmUp00_R": [0, 0, 0],
+            "cf_J_ArmLow01_L": [0, 0, 0],
+            "cf_J_ArmLow01_R": [0, 0, 0],
+            "cf_J_Hand_L": [0, 0, 0],
+            "cf_J_Hand_R": [0, 0, 0],
+            "cf_J_Hand_Thumb01_L": [0, 0, 0],
+            "cf_J_Hand_Thumb01_R": [0, 0, 0],
+            "cf_J_Hand_Thumb02_L": [0, 0, 0],
+            "cf_J_Hand_Thumb02_R": [0, 0, 0],
+            "cf_J_Hand_Thumb03_L": [0, 0, 0],
+            "cf_J_Hand_Thumb03_R": [0, 0, 0],
+            "cf_J_Hand_Index01_L": [0, 0, 0],
+            "cf_J_Hand_Index01_R": [0, 0, 0],
+            "cf_J_Hand_Index02_L": [0, 0, 0],
+            "cf_J_Hand_Index02_R": [0, 0, 0],
+            "cf_J_Hand_Index03_L": [0, 0, 0],
+            "cf_J_Hand_Index03_R": [0, 0, 0],
+            "cf_J_Hand_Middle01_L": [0, 0, 0],
+            "cf_J_Hand_Middle01_R": [0, 0, 0],
+            "cf_J_Hand_Middle02_L": [0, 0, 0],
+            "cf_J_Hand_Middle02_R": [0, 0, 0],
+            "cf_J_Hand_Middle03_L": [0, 0, 0],
+            "cf_J_Hand_Middle03_R": [0, 0, 0],
+            "cf_J_Hand_Ring01_L": [0, 0, 0],
+            "cf_J_Hand_Ring01_R": [0, 0, 0],
+            "cf_J_Hand_Ring02_L": [0, 0, 0],
+            "cf_J_Hand_Ring02_R": [0, 0, 0],
+            "cf_J_Hand_Ring03_L": [0, 0, 0],
+            "cf_J_Hand_Ring03_R": [0, 0, 0],
+            "cf_J_Hand_Little01_L": [0, 0, 0],
+            "cf_J_Hand_Little01_R": [0, 0, 0],
+            "cf_J_Hand_Little02_L": [0, 0, 0],
+            "cf_J_Hand_Little02_R": [0, 0, 0],
+            "cf_J_Hand_Little03_L": [0, 0, 0],
+            "cf_J_Hand_Little03_R": [0, 0, 0]
+          }
+        }
+      },
+      {
+        "t": 3.5,
+        "do": {
+          "cmd": "fk.enable",
+          "key": "$b",
+          "on": true,
+          "groups": [
+            "RightArm",
+            "RightHand"
+          ]
+        }
+      },
+      {
+        "t": 3.6,
+        "do": {
+          "cmd": "fk.set",
+          "key": "$b",
+          "bones": {
+            "cf_J_Shoulder_L": [0, 0, 0],
+            "cf_J_Shoulder_R": [0, 0, 0],
+            "cf_J_ArmUp00_L": [0, 0, 0],
+            "cf_J_ArmUp00_R": [0, 0, 0],
+            "cf_J_ArmLow01_L": [0, 0, 0],
+            "cf_J_ArmLow01_R": [0, 0, 0],
+            "cf_J_Hand_L": [0, 0, 0],
+            "cf_J_Hand_R": [0, 0, 0],
+            "cf_J_Hand_Thumb01_L": [0, 0, 0],
+            "cf_J_Hand_Thumb01_R": [0, 0, 0],
+            "cf_J_Hand_Thumb02_L": [0, 0, 0],
+            "cf_J_Hand_Thumb02_R": [0, 0, 0],
+            "cf_J_Hand_Thumb03_L": [0, 0, 0],
+            "cf_J_Hand_Thumb03_R": [0, 0, 0],
+            "cf_J_Hand_Index01_L": [0, 0, 0],
+            "cf_J_Hand_Index01_R": [0, 0, 0],
+            "cf_J_Hand_Index02_L": [0, 0, 0],
+            "cf_J_Hand_Index02_R": [0, 0, 0],
+            "cf_J_Hand_Index03_L": [0, 0, 0],
+            "cf_J_Hand_Index03_R": [0, 0, 0],
+            "cf_J_Hand_Middle01_L": [0, 0, 0],
+            "cf_J_Hand_Middle01_R": [0, 0, 0],
+            "cf_J_Hand_Middle02_L": [0, 0, 0],
+            "cf_J_Hand_Middle02_R": [0, 0, 0],
+            "cf_J_Hand_Middle03_L": [0, 0, 0],
+            "cf_J_Hand_Middle03_R": [0, 0, 0],
+            "cf_J_Hand_Ring01_L": [0, 0, 0],
+            "cf_J_Hand_Ring01_R": [0, 0, 0],
+            "cf_J_Hand_Ring02_L": [0, 0, 0],
+            "cf_J_Hand_Ring02_R": [0, 0, 0],
+            "cf_J_Hand_Ring03_L": [0, 0, 0],
+            "cf_J_Hand_Ring03_R": [0, 0, 0],
+            "cf_J_Hand_Little01_L": [0, 0, 0],
+            "cf_J_Hand_Little01_R": [0, 0, 0],
+            "cf_J_Hand_Little02_L": [0, 0, 0],
+            "cf_J_Hand_Little02_R": [0, 0, 0],
+            "cf_J_Hand_Little03_L": [0, 0, 0],
+            "cf_J_Hand_Little03_R": [0, 0, 0],
+            "cf_J_Neck": [0, 0, 0],
+            "cf_J_Head": [0, 0, 0]
+          }
+        }
+      },
+      {
+        "t": 4,
+        "do": {
+          "cmd": "ragdoll.build",
+          "key": "$b",
+          "room": [-40, 40, -40, 60]
+        }
+      },
+      {
+        "t": 4.02,
+        "do": {
+          "cmd": "ragdoll.tie",
+          "key": "$b",
+          "a": "hand_L",
+          "b": "hand_R"
+        }
+      },
+      {
+        "t": 4.1,
+        "do": {
+          "cmd": "fx.shoot",
+          "from": "$p",
+          "target": {
+            "key": "$b",
+            "bone": "cf_J_Spine03"
+          },
+          "spread": 0
+        }
+      },
+      {
+        "t": 4.2,
+        "do": {
+          "cmd": "fx.shoot",
+          "from": "$p",
+          "target": {
+            "key": "$b",
+            "bone": "cf_J_Spine03"
+          },
+          "spread": 0,
+          "kill": true
+        }
+      },
+      {
+        "t": 4.3,
+        "do": {
+          "cmd": "fx.shoot",
+          "from": {
+            "key": "$a",
+            "accessory": 0
+          },
+          "target": [8, 11, 0],
+          "kill": true,
+          "momentum": 40
+        }
+      },
+      {
+        "t": 4.35,
+        "do": {
+          "cmd": "ragdoll.push",
+          "key": "$b",
+          "part": "chest",
+          "local": [0, 0, -100]
+        }
+      },
+      {
+        "t": 4.5,
+        "do": {
+          "cmd": "ragdoll.settle",
+          "key": "$b",
+          "seconds": 2,
+          "gain": 16,
+          "damp": 3
+        }
+      },
+      {
+        "t": 4.6,
+        "do": {
+          "cmd": "chara.face",
+          "key": "$a",
+          "blink": true,
+          "eyebrow": 1,
+          "eyes": 1,
+          "mouth": 1,
+          "eyesLook": 1,
+          "eyesOpen": 0.9,
+          "mouthOpen": 0.1,
+          "tears": 0
+        }
+      },
+      {
+        "t": 5,
+        "do": {
+          "cmd": "camera.follow",
+          "target": {
+            "key": "$b",
+            "bone": "cf_J_Kosi02"
+          },
+          "rot": [30, 200, 0],
+          "rotTo": [50, 120, 0],
+          "dist": 25,
+          "distTo": 35,
+          "fov": 30,
+          "seconds": 2.5
+        }
+      },
+      {
+        "t": 5.2,
+        "do": {
+          "cmd": "ragdoll.pusher",
+          "key": "$a",
+          "a": "cf_J_LegLow01_R",
+          "b": "cf_J_Foot01_R",
+          "radius": 0.5
+        }
+      },
+      {
+        "t": 5.5,
+        "do": {
+          "cmd": "ragdoll.build",
+          "key": "$a"
+        }
+      },
+      {
+        "t": 6,
+        "do": {
+          "cmd": "dof",
+          "release": true
+        }
+      },
+      {
+        "t": 6.5,
+        "do": {
+          "cmd": "chara.speed",
+          "key": "$a",
+          "speed": 1
+        }
+      }
+    ]
+  }
+}

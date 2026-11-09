@@ -320,6 +320,12 @@ namespace HS2Next.Scenes.Runtime
             if (GetPart<RuntimeUpkeep>() == null) AddPart(new RuntimeUpkeep());   // the settle stamp, the catalog's eviction and UnloadUnusedAssets, frame times (Phase 5.2)
             if (GetPart<SceneImages>() == null) { var im = new SceneImages(); AddPart(im, im.Dispose); }   // Phase 3.6 package C (after SceneViewCamera)
             if (GetPart<TimelinePlayback>() == null) { var tp = new TimelinePlayback(); AddPart(tp, tp.Dispose); }   // Phase 6.2 package P: Timeline playback (after the standard parts)
+            if (GetPart<ScriptPlayback>() == null) { var sp = new ScriptPlayback(); AddPart(sp, sp.Dispose); }   // Phase 6.9: scene scripts (a play's state, the pause after a recorded pass)
+            if (GetPart<ScriptedMoves>() == null) AddPart(new ScriptedMoves());   // Phase 6.9: the moves of obj.moveTo
+            if (GetPart<ScriptedFollow>() == null) AddPart(new ScriptedFollow());   // Phase 6.9: the camera follow
+            if (GetPart<ScriptedDof>() == null) AddPart(new ScriptedDof());   // Phase 6.9: the depth of field of the dof command
+            if (GetPart<WetPart>() == null) { var wp = new WetPart(); AddPart(wp, wp.Dispose); }   // Phase 6.6: stains, drops and puddles
+            if (GetPart<RagdollPart>() == null) { var rg = new RagdollPart(); AddPart(rg, rg.Dispose); }   // Phase 6.7: the physics world of the bodies
             if (GetPart<ConstraintPart>() == null) AddPart(new ConstraintPart());   // Phase 6.5 package E: the constraints (last: its Apply sees what every other part did)
             return this;
         }

@@ -1,9 +1,10 @@
-# HS2Next 1.3.1
+# HS2Next 1.4.0
 
 HS2Next 是一个使用 Honey Select 2 内容的场景与角色编辑器，基于 Unity 6 全新编写。它把 HS2 Studio 的工作和游戏本体
 的角色编辑（捏人）放在同一个窗口中：角色、物品、地图、灯光、相机、动画、FK / IK、表情、画面效果，以及脸、身体、
-头发、服装和饰品的编辑页面。它在原位置读取您自己安装的 Honey Select 2 的游戏数据、角色卡、服装卡、姿势文件和
-zipmod，并以 HS2Next 自己的文件格式保存作品。
+头发、服装和饰品的编辑页面。此外还有时间轴、约束、材质编辑、高级姿势、湿痕与污渍、布娃娃、把角色烘焙为 Studio 物品的
+“角色转道具”、切割角色和物品的“切割”，以及保存可重复使用镜头的“场景脚本”。它在原位置读取您自己安装的
+Honey Select 2 的游戏数据、角色卡、服装卡、姿势文件和 zipmod，并以 HS2Next 自己的文件格式保存作品。
 
 English: [README.md](README.md) · 日本語: [README_ja.md](README_ja.md)
 
@@ -41,7 +42,7 @@ English: [README.md](README.md) · 日本語: [README_ja.md](README_ja.md)
 
 ## 使用发布版
 
-发布的 zip（`HS2Next-1.3.1-win64.zip`，旁边附有其 SHA-256）就是程序本身。解压到任意位置后启动 `HS2Next.exe`，无需
+发布的 zip（`HS2Next-1.4.0-win64.zip`，旁边附有其 SHA-256）就是程序本身。解压到任意位置后启动 `HS2Next.exe`，无需
 安装程序。程序没有代码签名，因此 Windows SmartScreen 可能会询问一次（点击“更多信息”，再点击“仍要运行”）。首次运行
 向导会依次询问语言、Honey Select 2 文件夹、额外的 mod 文件夹和缓存文件夹，然后建立内容索引（根据 mod 数量和磁盘，
 需要几秒到几分钟）。
@@ -90,7 +91,7 @@ HS2Next 将设置、您的场景与角色以及缓存保存在 `%USERPROFILE%\Ap
 | --- | --- |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | HS2Next 的结构：内容来源与 ID、保存格式、渲染、运动、UI、桥接、插件、启动、数据文件夹、测试 |
 | [Reference/COMMANDS.md](Reference/COMMANDS.md) | 自动化桥接（127.0.0.1:17322 上的 HTTP/JSON）的全部命令，以及如何用脚本操作 HS2Next |
-| [Reference/PLUGINS.md](Reference/PLUGINS.md) | 基于 1.0 API 编写插件；示例见 [Samples/Sequencer](Samples/Sequencer/README.md) |
+| [Reference/PLUGINS.md](Reference/PLUGINS.md) | 基于 1.3 API 编写插件；插件工具包的三个示例见 [Samples/PluginKit](Samples/PluginKit)，完整的例子见 [Samples/Sequencer](Samples/Sequencer/README.md) |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 构建、测试和贡献规则 |
 | [CLEANROOM.md](CLEANROOM.md) | 如何在不复制游戏代码的前提下编写代码 |
 | [THIRD_PARTY.md](THIRD_PARTY.md) | 第三方软件、字体和运行时组件，以及为互操作而保留的名称 |

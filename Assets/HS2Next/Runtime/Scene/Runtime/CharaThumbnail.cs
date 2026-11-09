@@ -68,6 +68,7 @@ namespace HS2Next.Scenes.Runtime
         {
             Prepare(r, out var map);
             var rt = r.Runtime;
+            using var dry = rt.GetPart<WetPart>()?.Suspend(r);   // a character's thumbnail shows it without stains
             return Capture(r.Holder, r.Root, r.Sex == 0, rt.Services.Db, rt.Root ? rt.Root.transform : null,
                            map, rt.Findings, r.NodeId, settings, out info);
         }
@@ -94,6 +95,7 @@ namespace HS2Next.Scenes.Runtime
         {
             Prepare(r, out var map);
             var rt = r.Runtime;
+            using var dry = rt.GetPart<WetPart>()?.Suspend(r);
             return View(r.Holder, view, rt.Root ? rt.Root.transform : null, map, rt.Findings, r.NodeId, settings, out info, Png);
         }
 
@@ -105,6 +107,7 @@ namespace HS2Next.Scenes.Runtime
         {
             Prepare(r, out var map);
             var rt = r.Runtime;
+            using var dry = rt.GetPart<WetPart>()?.Suspend(r);
             var runtimeRoot = rt.Root ? rt.Root.transform : null;
             if (framing == CharaThumbnailFraming.View)
             {

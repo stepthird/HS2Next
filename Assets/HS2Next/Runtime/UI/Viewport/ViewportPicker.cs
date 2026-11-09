@@ -6,6 +6,8 @@
 // a candidate whose mesh cannot be read falls back to its AABB distance. The nearest hit wins. Selection rules of
 // (viewport column): click selects the hit node (empty space clears), Ctrl toggles, Shift adds; the hs2studio
 // click modifiers (P / P+Ctrl / O / O+Ctrl / X+Ctrl) go through StudioOps.Move / CopyTransform.
+// PickSurface (Phase 6.6): the same candidates and triangle test for the viewport tools, with what a tool needs of the surface
+// (ViewportPicker.Surface.cs). PickRay and a click do not use it.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,7 +31,7 @@ namespace HS2Next.UI.Viewport
         public bool Precise;
     }
 
-    public sealed class ViewportPicker
+    public sealed partial class ViewportPicker
     {
         public const int MaxPrecise = 8;
         readonly UiContext ctx;

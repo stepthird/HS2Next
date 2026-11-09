@@ -1,0 +1,12 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.toolprobe",
+  "name": "Tool probe",
+  "version": "0.1.0",
+  "apiVersion": "1.3",
+  "assemblies": ["Stp3.Test.ToolProbe.dll"],
+  "commandPrefixes": ["toolprobe."],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the viewport tools and the map query: a tool that writes down its calls and can throw from one of them, and the map's surface under a point."
+}

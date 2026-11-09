@@ -10,17 +10,18 @@ One run:
   3. KT2  `dotnet build` in <extract>/HS2Next/PluginKit with no argument (the environment only: NUGET_PACKAGES=<the
           extract's parent>/nuget, outside the project like the extract, an empty folder before and after; no build server,
           no node reuse, English output, telemetry off): exit 0,
-          0 warnings, 0 errors, both samples staged into PluginKit/out/<guid>/; the build time.
-     KT3  each DLL references exactly netstandard 2.1.0.0 and HS2Next.Api 1.0.0.0 (read by Tools/plugins.ps1 -Verify).
+          0 warnings, 0 errors, the three samples staged into PluginKit/out/<guid>/; the build time.
+     KT3  Hello's and HelloUi's DLLs reference exactly netstandard 2.1.0.0 and HS2Next.Api 1.0.0.0, Shapes' also HS2Next.Api.Unity 1.0.0.0
+          and UnityEngine.CoreModule 0.0.0.0 (it builds objects; Phase 6.8) (read by Tools/plugins.ps1 -Verify).
      KT5  no build output names the repository: PluginKit/**/obj/** and the build log hold no path of the project
           folder (as written, with '/' or with escaped backslashes).
   4. KT4  out/<guid>/ copied into <extract>/HS2Next/Plugins/ (plain file copies); the extracted exe started
           `-batchmode -bridgePort <port> -bridgeAllowQuit -logFile <out>/player.log` with HS2NEXT_DATA_ROOT=<out>/root
           (holding only Config/settings.local.json: the project's hs2Root and cache, bridge.allowQuit), HS2NEXT_NO_PLUGINS
           removed, HS2NEXT_PRIVATE_OFF=1 and HS2NEXT_UPDATE_CHECK=off: endpoint.json under the root names the PID, ping
-          with the token of <root>/UserData/Bridge/token is ready, both samples loaded (version 0.1.0), hello.greet
+          with the token of <root>/UserData/Bridge/token is ready, the three samples loaded (version 0.1.0), hello.greet
           {name: "kit"} answers "Hello, kit!", plugin.list counts HelloUi's 2 forms (a player without UI counts, not
-          draws), app.quit exits 0. LOG: exception lines in player.log (WARN).
+          draws), item.search {group: 820001} lists Shapes' five rows, app.quit exits 0. LOG: exception lines in player.log (WARN).
   The extract is removed after a passing run (--keep keeps it); <out> keeps the reports, the build log and player.log.
 
 Usage:  python -I Tools/pluginkit_check.py --project <project> --out Spike/out/player/pluginkit [--port 17388]
@@ -52,12 +53,17 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GATE_FILE = os.path.join(ROOT, "Tools", "session_gate.json")
 CREATE_NO_WINDOW = 0x08000000
-KIT = [("stp3.sample.hello", "Hello", "Stp3.SampleHello.dll"), ("stp3.sample.helloui", "HelloUi", "Stp3.SampleHelloUi.dll")]
+KIT = [("stp3.sample.hello", "Hello", "Stp3.SampleHello.dll"), ("stp3.sample.helloui", "HelloUi", "Stp3.SampleHelloUi.dll"),
+       ("stp3.sample.shapes", "Shapes", "Stp3.SampleShapes.dll")]
 KIT_VERSION = "0.1.0"
 WANT_REFS = {"netstandard": "2.1.0.0", "HS2Next.Api": "1.0.0.0"}
+# the kit's Shapes builds objects: the engine-side Api and Unity's core module too (Phase 6.8)
+WANT_REFS_OF = {"Stp3.SampleShapes.dll": dict(WANT_REFS, **{"HS2Next.Api.Unity": "1.0.0.0", "UnityEngine.CoreModule": "0.0.0.0"})}
+SHAPES_GROUP, SHAPES_ROWS = 820001, ["Cube", "Sphere", "Cylinder", "Torus", "Arrow"]
 ZIP_REQUIRED = ["PluginKit/" + n for n in (
     "PLUGINS.md", "PLUGINS_ja.md", "PLUGINS_zh-Hans.md", "COMMANDS.md", "HS2NextPlugin.props", "PluginKit.sln", "NuGet.config",
     "Hello/Hello.csproj", "Hello/manifest.json", "HelloUi/HelloUi.csproj", "HelloUi/manifest.json", "HelloUi/strings.tsv",
+    "Shapes/Shapes.csproj", "Shapes/manifest.json", "Shapes/src/ShapesPlugin.cs",
     "doc/HS2Next.Api.xml", "doc/HS2Next.Api.Unity.xml")] + ["HS2Next_Data/Managed/HS2Next.Api.xml", "HS2Next_Data/Managed/HS2Next.Api.Unity.xml"]
 
 
@@ -295,9 +301,10 @@ def build_kit(a, rep, app, out):
             rep.check("KT3", False, "%s: not built" % dll)
             continue
         refs = references(a.project, os.path.join(staged[guid], dll))
-        rep.check("KT3", refs == WANT_REFS, "%s references %s (exactly %s)" % (
+        want = WANT_REFS_OF.get(dll, WANT_REFS)
+        rep.check("KT3", refs == want, "%s references %s (exactly %s)" % (
             dll, ", ".join("%s %s" % kv for kv in sorted(refs.items())) or "nothing read",
-            ", ".join("%s %s" % kv for kv in sorted(WANT_REFS.items()))))
+            ", ".join("%s %s" % kv for kv in sorted(want.items()))))
     # KT5: the build outputs of the kit never name the repository
     forms = path_forms(a.project)
     hits = []
@@ -402,6 +409,9 @@ def run_player(a, rep, app, out, staged):
                 forms = len(forms) if isinstance(forms, list) else forms
                 rep.check("KT4", forms == 2, "plugin.list stp3.sample.helloui: state %s, forms %s (2: the panel and the item section)"
                           % (e.get("state"), forms if forms is not None else "not reported"))
+                st, sr = http(a.port, {"cmd": "item.search", "group": SHAPES_GROUP, "limit": 100}, token)
+                names = [x.get("name") for x in (sr.get("items") if isinstance(sr, dict) else None) or []]
+                rep.check("KT4", names == SHAPES_ROWS, "item.search {group: %d}: Shapes' rows %s" % (SHAPES_GROUP, names), str(sr)[:200])
                 st, q = http(a.port, {"cmd": "app.quit"}, token)
                 code = wait_exit(p, 30)
                 rep.check("KT4", isinstance(q, dict) and q.get("ok") and code == 0, "app.quit -> exit code %s" % code, str(q)[:200])

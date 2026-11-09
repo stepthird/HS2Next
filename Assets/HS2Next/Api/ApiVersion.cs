@@ -27,6 +27,10 @@
 //          side (experimental); every public member documented (XML documentation in the distribution).
 //   1.2.0  Phase 6.2: runtime overrides — values laid over the scene for display, never saved (experimental); the record
 //          capture kind; the scene post stage and bone and IK target paths of the overrides (experimental).
+//   1.3.0  Phase 6.6: on the engine side, the viewport tools (a tool takes the viewport's pointer, wheel and keys, with
+//          surface picks that name the part, the UV and the bone) and the map query, both experimental. Phase 6.7: the
+//          character stages (a motion stage on a scene character, kept across its rebuilds), experimental. Phase 6.8:
+//          generated item rows (item groups of the Studio list whose rows a plugin makes), experimental.
 using System.Reflection;
 
 // MAJOR.0.0.0 keeps assembly binding stable across minor and patch releases; the full version is informational.
@@ -41,11 +45,11 @@ namespace HS2Next
         /// <summary>The major version: it rises when public surface is removed or changed.</summary>
         public const int Major = 1;
         /// <summary>The minor version: it rises when public surface is added.</summary>
-        public const int Minor = 2;
+        public const int Minor = 3;
         /// <summary>The patch version: it rises for fixes that change no public surface.</summary>
         public const int Patch = 0;
 
         /// <summary>"MAJOR.MINOR.PATCH".</summary>
-        public const string Semver = "1.2.0";
+        public const string Semver = "1.3.0";
     }
 }

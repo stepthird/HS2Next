@@ -1,5 +1,6 @@
 // The HS2Next application core: settings, paths, content catalog and Studio lists, the scene
-// session and its runtime, and package B's bridge host with the Core commands. HS2NextApp (the host MonoBehaviour)
+// session and its runtime, and package B's bridge host with the Core commands (with bridge.enabled false the host runs
+// without a listener: timed commands and plugins' calls still reach the commands). HS2NextApp (the host MonoBehaviour)
 // runs Boot() as a coroutine in play mode and players; edit-mode tests use ForTests, which builds the session and the
 // runtime on given services, starts the bridge without a listener and drives frames by hand (Frame, Call).
 // Core references HS2Next.Bridge only here (start, pump, stop, in-process Execute); the handlers see the Api.
@@ -47,7 +48,11 @@ namespace HS2Next.App
         public SceneRuntime Runtime { get; private set; }
         /// <summary>The operations layer shared by the UI and the bridge; null without a runtime.</summary>
         public StudioOps Ops => StudioOps.For(Runtime);
-        /// <summary>Package B's host, or null when the bridge is disabled or not started yet.</summary>
+        /// <summary>
+        /// Package B's host, or null before the bridge stage (and after a start that failed before it with bridge.enabled false).
+        /// With bridge.enabled false the host runs without a listener (<see cref="BridgeHost.Listening"/> false): read Listening
+        /// for "is there a listener".
+        /// </summary>
         public BridgeHost Bridge { get; private set; }
         /// <summary>The plugin loader of this app (after the plugins stage; a test host's after LoadPlugins), or null.</summary>
         public PluginHost Plugins { get; private set; }
@@ -292,7 +297,7 @@ namespace HS2Next.App
             stageSummary = roots + "; file " + (Settings.SettingsFile ?? "(none: " + Paths.SettingsFile + ")") + "; " + Paths +
                            (fallbacks.Count > 0 ? "; fallback " + string.Join(", ", fallbacks) : "") + "; frame rate " + (Settings.FrameRate > 0 ? Settings.FrameRate.ToString() : "unchanged") +
                            "; background " + (Settings.RunInBackground ? "runs" : "pauses") +
-                           "; bridge " + (Settings.Bridge.Enabled ? "port " + Settings.Bridge.Port + (Settings.Bridge.Token ? ", token" : "") + (Settings.Bridge.AllowQuit ? ", allowQuit" : "") : "disabled") +
+                           "; bridge " + BridgeSettingsSummary +
                            "; build " + BuildInfo.Current.Summary;
             return null;
         }
@@ -344,24 +349,36 @@ namespace HS2Next.App
             return null;
         }
 
+        /// <summary>The bridge stage's line when bridge.enabled is false: the host runs, its commands run in process, nothing listens.</summary>
+        public const string NoListenerSummary = "in-process (no listener)";
+
+        /// <summary>The settings stage's words for the bridge settings: "port N[, token][, allowQuit]", or "disabled (no listener)".</summary>
+        public string BridgeSettingsSummary =>
+            Settings.Bridge.Enabled ? "port " + Settings.Bridge.Port + (Settings.Bridge.Token ? ", token" : "") + (Settings.Bridge.AllowQuit ? ", allowQuit" : "") : "disabled (no listener)";
+
+        /// <summary>The bridge stage's line: "listening on &lt;url&gt;", "not listening" (bridge.enabled, the bind failed) or
+        /// <see cref="NoListenerSummary"/> (bridge.enabled false); null before the host starts.</summary>
+        public string BridgeStageSummary =>
+            Bridge == null ? null : Bridge.Listening ? "listening on " + Bridge.Url : Settings.Bridge.Enabled ? "not listening" : NoListenerSummary;
+
         IEnumerator StageBridge()
         {
-            if (!Settings.Bridge.Enabled)
-            {
-                Debug.Log("[app] bridge disabled");
-                stageSummary = "disabled";
-                return null;
-            }
             StartBridgeOfApp();
-            stageSummary = Bridge.Listening ? "listening on " + Bridge.Url : "not listening";
+            stageSummary = BridgeStageSummary;
             return null;
         }
 
+        /// <summary>
+        /// The app's bridge host: listening on the settings' port when bridge.enabled, else without a listener (no socket, no
+        /// endpoint.json, no token file). Either way the host's pumps run and the core commands are registered, so timed
+        /// commands and plugins' calls reach the app's commands.
+        /// </summary>
         void StartBridgeOfApp()
         {
             if (Bridge != null) return;
-            StartBridge(true, false, host);
-            if (!Bridge.Listening) Debug.LogWarning("[app] bridge not listening: " + Bridge.BindError);
+            bool listen = Settings.Bridge.Enabled;
+            StartBridge(listen, false, host);
+            if (listen && !Bridge.Listening) Debug.LogWarning("[app] bridge not listening: " + Bridge.BindError);
         }
 
         // ------------------------------------------------------------ setup (the first-run guide)
@@ -664,6 +681,7 @@ namespace HS2Next.App
                 EmulateAIInstallGate = !(Settings?.Content?.aiInstall ?? true),
                 AccessoryItems = Settings?.StudioAccessoryItems ?? true,   // group 647158 (settings key studio.accessoryItems)
             });
+            AppItemRows.Register(Services.Db, Paths?.UserData);   // the app's generated group 731406 (bakes and cut markers), before the scene
             Bridge?.Services.Readiness.Set("studioDb", true);
             if (setupHost != null && !setupHost.Closed) setupHost.IndexDone();   // the guide shows the ready page; a progress page closes
             stageSummary = Db.Items.Count + " items, " + Db.Anime.Count + " anime, " + Db.Maps.Count + " maps";
@@ -759,7 +777,20 @@ namespace HS2Next.App
             ForTests(services, settings, parent, null);
 
         /// <summary>As above with the session options given (e.g. Ids replaced by a counting source).</summary>
-        public static AppCore ForTests(RuntimeServices services, AppSettings settings, Transform parent, SessionOptions options)
+        public static AppCore ForTests(RuntimeServices services, AppSettings settings, Transform parent, SessionOptions options) =>
+            NewTestHost(services, settings, parent, options, false);
+
+        /// <summary>
+        /// A test host as <see cref="ForTests(RuntimeServices, AppSettings, Transform, SessionOptions)"/>, except that the bridge
+        /// starts as the app's bridge stage starts it: listening on the settings' port (discovery files in the settings' UserData)
+        /// when bridge.enabled, else without a listener. Outside play mode the pump is manual (<see cref="Frame"/> pumps it); in
+        /// play mode the pump components go on <paramref name="parent"/>'s object (null: an own object) and Frame leaves the bridge
+        /// to them, so <see cref="Call"/> needs the edit-mode form.
+        /// </summary>
+        public static AppCore ForTestsAsApp(RuntimeServices services, AppSettings settings, Transform parent = null, SessionOptions options = null) =>
+            NewTestHost(services, settings, parent, options, true);
+
+        static AppCore NewTestHost(RuntimeServices services, AppSettings settings, Transform parent, SessionOptions options, bool bridgeAsApp)
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
             var app = new AppCore { IsTestHost = true };
@@ -773,7 +804,12 @@ namespace HS2Next.App
             app.importer = ImportSetup.Register(services);
             app.Runtime = new SceneRuntime(app.Session, services, parent, addDrivers: false).AddStandardParts();
             CoreCommands.RuntimeCreated(app);
-            app.StartBridge(false, true, null);
+            if (bridgeAsApp)
+            {
+                app.host = parent;
+                app.StartBridgeOfApp();
+            }
+            else app.StartBridge(false, true, null);
             var ready = app.Bridge.Services.Readiness;
             foreach (var st in new[] { "setup", "catalog", "studioDb", "scene", PluginHost.ReadinessStage }) ready.Set(st, true);
             app.Stage = AppStage.Ready;
@@ -802,7 +838,7 @@ namespace HS2Next.App
         public void Frame(float dt = 1f / 60f)
         {
             if (disposed) return;
-            if (Bridge != null && !Bridge.IsDisposed) Bridge.PumpUpdate();
+            if (Bridge != null && !Bridge.IsDisposed && Bridge.ManualPump) Bridge.PumpUpdate();
             if (Plugins != null)
             {
                 // the plugin pump's place (between the bridge pump and the apply), with the delta the scene clock takes now
@@ -820,7 +856,7 @@ namespace HS2Next.App
             Runtime.StepItems(fdt);   // items after the characters, before LateApply (ItemMotionDriver's place in play mode)
             if (edit) Runtime.RunPost(fdt);   // the scene post stage; in play mode ScenePostDriver has the frame
             Runtime.LateApply();
-            if (Bridge != null && !Bridge.IsDisposed) Bridge.PumpLate();
+            if (Bridge != null && !Bridge.IsDisposed && Bridge.ManualPump) Bridge.PumpLate();
         }
 
         /// <summary>

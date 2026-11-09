@@ -460,6 +460,14 @@ namespace HS2Next.App.Commands
                 if (found && it != null) return it;
                 throw NotFound("no item " + guid + "#" + no + (hasG && hasC ? " in " + g + "/" + cat : ""), "no", ItemCandidates(db, no));
             }
+            // a generated group: (group, category, no) names its row (ids are unique in a group, so the category may be left out)
+            if (hasG && db.Generated.Holds(g))
+            {
+                if (db.Generated.TryGetRowById(g, hasC ? cat : (int?)null, no, out it)) return it;
+                var near = new List<string>();
+                foreach (var r in db.Generated.Group(g).Rows) if (near.Count < 5) near.Add(r.Key + " " + r.Group + "/" + r.Category + " " + r.Name);
+                throw NotFound("no row " + no + " in generated item group " + g + (hasC ? "/" + cat : ""), "no", near);
+            }
             if (no >= SideloaderBase)
                 throw NotFound("item " + no + " is a Sideloader runtime number; HS2Next keeps the mods' own ids: give guid + no or ref", "no", ItemCandidates(db, -1));
             if (db.TryGetItem(ContentId.Vanilla(no), out it) && it != null && (!hasG || it.Group == g) && (!hasC || it.Category == cat)) return it;

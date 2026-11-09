@@ -22,13 +22,13 @@ using Newtonsoft.Json.Linq;
 public static partial class BridgeCoreTest
 {
     /// <summary>The Core commands whose handlers may answer later than they return.</summary>
-    static readonly string[] CkDeferring = { "app.setup", "capture", "map.load", "record.stop", "scene.load", "screenshot", "ui.input", "ui.screenshot" };   // app.setup: Phase 5.3; record.stop: Phase 6.2
+    static readonly string[] CkDeferring = { "app.setup", "capture", "map.load", "record.stop", "scene.load", "screenshot", "script.play", "ui.input", "ui.screenshot" };   // app.setup: Phase 5.3; record.stop: Phase 6.2; script.play: Phase 6.9
 
     /// <summary>The groups of the naming convention (the subject of a name's first part; chara.edit is the Maker).</summary>
     static readonly string[] CkGroups =
     {
         "scene", "obj", "chara", "item", "map", "camera", "light", "route", "fk", "ik", "pose", "anime", "effects", "sound",
-        "content", "app", "ui", "plugin", "bridge", "log", "timeline", "overrides", "record", "materials", "constraint",
+        "content", "app", "ui", "plugin", "bridge", "log", "timeline", "overrides", "record", "materials", "constraint", "wet", "ragdoll", "bake", "cut", "script",
     };
 
     /// <summary>The one-word names registered before the convention was written down (kept as they are).</summary>
@@ -40,7 +40,7 @@ public static partial class BridgeCoreTest
         var app = c.Host();
         var reg = app.BridgeServices.Commands;
         var par = CoreCommands.ParityNames.ToList();
-        c.Check(par.Count == 89 && par.Distinct(StringComparer.Ordinal).Count() == par.Count, "CoreCommands.ParityNames: 89 distinct names", "" + par.Count);
+        c.Check(par.Count == 111 && par.Distinct(StringComparer.Ordinal).Count() == par.Count, "CoreCommands.ParityNames: 111 distinct names", "" + par.Count);
         var missing = par.Where(n => reg.Find(n) == null).ToList();
         c.Check(missing.Count == 0, "every parity name is registered", string.Join(", ", missing));
         var aliased = par.Where(n => reg.Find(n) != null && reg.Find(n).Name != n).ToList();
@@ -147,6 +147,7 @@ public static partial class BridgeCoreTest
             ["record.stop"] = new JObject { ["cmd"] = "record.stop" },
             ["scene.load"] = new JObject { ["cmd"] = "scene.load", ["path"] = "zz_missing.hs2nscene" },
             ["screenshot"] = new JObject { ["cmd"] = "screenshot", ["background"] = "zz" },
+            ["script.play"] = new JObject { ["cmd"] = "script.play", ["script"] = "zz" },
             ["ui.input"] = new JObject { ["cmd"] = "ui.input" },
             ["ui.screenshot"] = new JObject { ["cmd"] = "ui.screenshot", ["name"] = "zz" },
         };

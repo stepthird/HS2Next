@@ -176,6 +176,7 @@ namespace HS2Next.UI.Viewport
             bool first = downButtonMask == 0;
             downButtonMask |= bit;
             lastPos = e.position;
+            if (ctx.Tools.Running && ToolDown(e, first)) return;   // Phase 6.6
             if (first)
             {
                 downPos = e.position;
@@ -194,6 +195,21 @@ namespace HS2Next.UI.Viewport
             e.StopPropagation();
         }
 
+        /// <summary>A press while a tool runs: true when the route ends here. A press the default mode leaves alone keeps the pointer until its release, which does nothing.</summary>
+        bool ToolDown(PointerDownEvent e, bool first)
+        {
+            var tools = ctx.Tools;
+            if (tools.PressHeld) { e.StopPropagation(); return true; }   // it shows in Buttons
+            if (!first) return false;
+            bool blocks = tools.Blocks;
+            downPos = e.position;
+            if (!tools.Press(e.position, e.button, downButtonMask, e.modifiers) && !blocks) return false;
+            pending = cameraDrag = false;
+            Capture(e.pointerId);
+            e.StopPropagation();
+            return true;
+        }
+
         void Capture(int id)
         {
             capturedPointer = id;
@@ -206,6 +222,7 @@ namespace HS2Next.UI.Viewport
             Vector2 delta = p - lastPos;
             lastPos = p;
             if (Gizmo != null && Gizmo.Dragging) { Gizmo.Drag(p, e.modifiers); return; }
+            if (ctx.Tools.Running && ToolMove(e)) return;   // Phase 6.6
             if (downButtonMask == 0) { Gizmo?.Hover(p); return; }
             if (pending && (p - downPos).magnitude >= ClickSlop)
             {
@@ -217,9 +234,25 @@ namespace HS2Next.UI.Viewport
             if (cameraDrag) Camera.Drag(downButtonMask, delta, e.modifiers);
         }
 
+        /// <summary>A move while a tool runs: the held press's, or a hover with no button down (a cancelled press leaves its button down). True when the route ends here.</summary>
+        bool ToolMove(PointerMoveEvent e)
+        {
+            var tools = ctx.Tools;
+            if (tools.PressHeld) { tools.Move(e.position, downButtonMask, e.modifiers); return true; }
+            if (downButtonMask == 0 && e.pressedButtons == 0) tools.Move(e.position, 0, e.modifiers);
+            return tools.Blocks;
+        }
+
         void OnUp(PointerUpEvent e)
         {
             int bit = 1 << e.button;
+            if (ctx.Tools.PressHeld)   // Phase 6.6
+            {
+                downButtonMask &= ~bit;
+                if (e.button == ctx.Tools.PressButton) ctx.Tools.Release(e.position, downButtonMask, e.modifiers);
+                if (downButtonMask == 0) Release();
+                return;
+            }
             if (Gizmo != null && Gizmo.Dragging)
             {
                 Gizmo.End();
@@ -244,8 +277,27 @@ namespace HS2Next.UI.Viewport
             capturedPointer = -1;
         }
 
+        /// <summary>A tool that takes the view began: a click or a camera drag under way ends here.</summary>
+        internal void ToolBegan()
+        {
+            if (cameraDrag) Camera.EndDrag();
+            pending = cameraDrag = false;
+        }
+
+        /// <summary>The press a tool held ended without its release: the pointer is let go.</summary>
+        internal void ToolPressEnded()
+        {
+            downButtonMask = 0;
+            Release();
+        }
+
         void OnCaptureLost()
         {
+            if (ctx.Tools.PressHeld)   // Phase 6.6: the end of an earlier capture can arrive during the next press
+            {
+                if (capturedPointer >= 0 && Element.HasPointerCapture(capturedPointer)) return;
+                ctx.Tools.CancelPress();
+            }
             capturedPointer = -1;
             if (Gizmo != null && Gizmo.Dragging) Gizmo.Cancel();
             if (cameraDrag) Camera.EndDrag();
@@ -256,6 +308,7 @@ namespace HS2Next.UI.Viewport
         /// <summary>Esc during a gizmo drag: cancel (revert). True when something was cancelled.</summary>
         public bool CancelDrag()
         {
+            if (ctx.Tools.CancelPress()) return true;   // Phase 6.6: a tool's press
             if (Gizmo != null && Gizmo.Dragging) { Gizmo.Cancel(); downButtonMask = 0; Release(); return true; }
             return false;
         }
@@ -265,6 +318,11 @@ namespace HS2Next.UI.Viewport
             float notches = -e.delta.y / 3f;   // UI Toolkit wheel delta: 3 per notch, down positive
             if (Mathf.Abs(e.delta.y) > 0 && Mathf.Abs(e.delta.y) < 1) notches = -Mathf.Sign(e.delta.y);
             var mods = Input.ShortcutRouter.Mods(e.modifiers);
+            if (ctx.Tools.Running)   // Phase 6.6
+            {
+                bool blocks = ctx.Tools.Blocks;
+                if (ctx.Tools.Wheel(notches, e.mousePosition, downButtonMask, e.modifiers) || blocks) { e.StopPropagation(); return; }
+            }
             var resolver = ctx.Keys.Resolver;
             if (resolver != null && mods != KeyMods.None)
             {
@@ -296,6 +354,7 @@ namespace HS2Next.UI.Viewport
                 PointerOver = picked != null && (picked == Element || Element.Contains(picked));
             }
             Camera.Update(dt);
+            if (ctx.Tools.Running) ctx.Tools.Tick();   // Phase 6.6
             UpdateInfo();
         }
 
@@ -469,6 +528,7 @@ namespace HS2Next.UI.Viewport
 
         public void Dispose()
         {
+            ctx.Tools.Close();
             EndWheelRun();
             CloseFovPopup();
             if (clearCam) UnityEngine.Object.Destroy(clearCam.gameObject);

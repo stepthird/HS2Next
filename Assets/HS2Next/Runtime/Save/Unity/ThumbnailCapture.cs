@@ -10,7 +10,8 @@
 // Screen effects are not applied yet (Phase 3.1 brings the effect stack). Scene thumbnails take the
 // current view's pose and vertical field of view (the image is the centre crop of that view). Posing
 // the character (Studio defaults: no animation, default expression, eyes and neck forward) is the
-// caller's business. CaptureTexture returns the RGB24 texture the PNG is encoded from (previews). Main thread only.
+// caller's business. CaptureTexture returns the RGB24 texture the PNG is encoded from (previews). Both renders run under
+// CaptureService.SkinScope: every enabled skinned renderer draws with its skin matrices recalculated for them. Main thread only.
 // Isolated captures (character and outfit thumbnails) take nothing from the scene: no volume reaches the
 // camera (its volume layer mask is empty, the post-processing stack keeps the project defaults), and the capture's own
 // environment replaces the scene's for the render: the ambient probe and the default reflection both come from the
@@ -223,8 +224,12 @@ namespace HS2Next.Save
                 rt = new RenderTexture(Width, Height, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB) { antiAliasing = 1 };
                 cam.targetTexture = rt;
                 cam.aspect = Width / (float)Height;
-                cam.Render();
-                cam.Render();
+                // skinned renderers draw the frame's pose (their skin matrices recalculated for these renders)
+                using (HS2Next.Screenshots.CaptureService.SkinScope())
+                {
+                    cam.Render();
+                    cam.Render();
+                }
                 var prevActive = RenderTexture.active;
                 RenderTexture.active = rt;
                 tex = new Texture2D(Width, Height, TextureFormat.RGB24, false);

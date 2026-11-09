@@ -204,7 +204,7 @@ public static partial class BridgeCoreTest
         c.Ok(new { cmd = "overrideprobe.set", name = "cam", values = new[] { 1.0, 2, 3, 10, 20, 0, 5, 30 } }, "TX4: set the camera");
         c.Frames(2);
         var neck = C41Bone(app, chara, "cf_J_Neck");
-        c.Check(neck && Quaternion.Angle(neck.localRotation, Quaternion.Euler(15, 25, 0)) < 0.01f, "TX4: the FK bone shows the probe's slot", neck ? neck.localEulerAngles.ToString("F3") : "no bone");
+        c.Check(neck && RotationCompare.Deg(neck.localRotation, Quaternion.Euler(15, 25, 0)) < 0.01f, "TX4: the FK bone shows the probe's slot", neck ? neck.localEulerAngles.ToString("F3") : "no bone");
         var cam = c.Call(new { cmd = "camera.get" })["camera"];
         c.Check((string)cam?["overridden"] == OpGuid && Math.Abs((double)cam["dist"] - 5) < 1e-4 && Math.Abs((double)cam["fov"] - 30) < 1e-4,
             "TX4: the camera at 1 wins over the Timeline's; camera.get reports the shown view and overridden", Ctx.Short(cam?.ToString(Newtonsoft.Json.Formatting.None)));
@@ -230,7 +230,7 @@ public static partial class BridgeCoreTest
         c.Check((holder.localPosition - new Vector3(7, 0, 0)).magnitude < 1e-6 && layer.Slots(null, OpGuid).Count == 0, "TX4: the Timeline's value shows at once (the probe's slot gone)", holder.localPosition.ToString("F4"));
         c.Frames(1);
         cam = c.Call(new { cmd = "camera.get" })["camera"];
-        c.Check((string)cam?["overridden"] == "timeline" && Math.Abs(Quaternion.Angle(neck.localRotation, Quaternion.Euler(15, 25, 0))) > 0.01f, "TX4: the camera and the bone no longer show the probe's slots", Ctx.Short(cam?.ToString(Newtonsoft.Json.Formatting.None)));
+        c.Check((string)cam?["overridden"] == "timeline" && Math.Abs(RotationCompare.Deg(neck.localRotation, Quaternion.Euler(15, 25, 0))) > 0.01f, "TX4: the camera and the bone no longer show the probe's slots", Ctx.Short(cam?.ToString(Newtonsoft.Json.Formatting.None)));
         // plugin.enable: the new instance acquires again
         c.Ok(new { cmd = "plugin.enable", guid = OpGuid }, "TX4: plugin.enable");
         c.Frames(2);

@@ -154,6 +154,7 @@ namespace HS2Next.UI.Bridge
                     ["cameraRect"] = cam ? new[] { cam.rect.x, cam.rect.y, cam.rect.width, cam.rect.height } : null,
                     ["pointerOver"] = vp.PointerOver,
                     ["pick"] = vp.Picker.Last.NodeId, ["pickMs"] = Math.Round(vp.Picker.Last.Ms, 3),
+                    ["surfacePickMs"] = Math.Round(vp.Picker.LastSurfaceMs, 3), ["toolRunning"] = ui.Tools.Running,   // Phase 6.6
                 })
                 .With("gizmo", new Dictionary<string, object>
                 {

@@ -33,7 +33,9 @@ pwsh -File Tools\run_tests.ps1 -Quick -NoMono          # without the plain-Mono 
 ```
 
 - `-List` prints the rows a command would run (id, group, areas, the last known minutes) and starts nothing.
-- Groups: **headless** (edit-mode Editor jobs with `-nographics`; most of them share one Unity process, the HeadlessBatch),
+- Groups: **headless** (edit-mode Editor jobs with `-nographics`; most of them share one Unity process, the HeadlessBatch;
+  `BakeTest` and `ScriptTest` run alone because they load test plugins whose assemblies `BridgeCoreTest` has already loaded in
+  that process, and an assembly of one name cannot be loaded twice in a process),
   **graphics** (Editor jobs that render, and play-mode jobs), **player** (the app player is built and tested through its
   bridge), **full** (long rows: all cards, corpora, timing), **mono** (plain-Mono suites, `Tools/mono_tests.ps1`, started in
   the background with `-Quick`). `-Quick` = headless + mono; the default = headless + graphics + player; `-Full` = all.
@@ -73,7 +75,7 @@ first line `SUMMARY: ...` or `N passed, M failed`.
 | Input | Rows | Without it |
 | --- | --- | --- |
 | the game install (`hs2Root`) | almost every Editor and player row | the row fails at its start (missing content) |
-| `Tools/targets.json` | in `-Quick`: `TestTargets`, `ImportTest`, `SceneRuntimeTest`, `ItemMotionTest` (and `.play`), `FkWriterTest`, `IkSolverTest`, `PoseImportTest`, `IkDriverTest`, `UiOpsTest`, `PauseTest`, `PausedEditTest`, `CharaStateTest`, `UiShellTest.play`, `UiListsV12Test.play`, `HAnimeTest`, `MosaicTest`, `BridgeCoreTest`, `TimelineTest`, `AdvancedPoseTest`, `ModifierOrderTest`, `MaterialEditTest`, `ConstraintTest`, `AssetRedirectTest` and the Maker rows (`MakerCoreTest`, `MakerUnitTest`, `MakerEditTest`, `MakerFaceTest`, `MakerBodyTest`, `MakerHairTest`, `MakerClothesTest`, `MakerAccessoriesTest`, `MakerFileTest`, `MakerSchemaTest`); also `CharaRenderTest`, `StreakProbe.check`, `PlayerSmoke`, `CommandsDoc`, `TimelineTest.play`, `TimelineCheck.player`, `AdvancedPoseTest.play`, `AdvancedPoseCheck.player`, `UiEscTest.play`, `AdvancedPoseTest.recon` and the player acceptance rows | WARN (development input absent) |
+| `Tools/targets.json` | in `-Quick`: `TestTargets`, `ImportTest`, `SceneRuntimeTest`, `ItemMotionTest` (and `.play`), `FkWriterTest`, `IkSolverTest`, `PoseImportTest`, `IkDriverTest`, `UiOpsTest`, `PauseTest`, `PausedEditTest`, `CharaStateTest`, `UiShellTest.play`, `UiListsV12Test.play`, `HAnimeTest`, `MosaicTest`, `BridgeCoreTest`, `TimelineTest`, `AdvancedPoseTest`, `ModifierOrderTest`, `MaterialEditTest`, `ConstraintTest`, `WetTest`, `RagdollTest`, `BakeTest`, `ScriptTest`, `AssetRedirectTest` and the Maker rows (`MakerCoreTest`, `MakerUnitTest`, `MakerEditTest`, `MakerFaceTest`, `MakerBodyTest`, `MakerHairTest`, `MakerClothesTest`, `MakerAccessoriesTest`, `MakerFileTest`, `MakerSchemaTest`); also `CharaRenderTest`, `StreakProbe.check`, `PlayerSmoke`, `CommandsDoc`, `TimelineTest.play`, `TimelineCheck.player`, `AdvancedPoseTest.play`, `AdvancedPoseCheck.player`, `UiEscTest.play`, `AdvancedPoseTest.recon`, `BakeTest.render.*`, `BakeTest.play`, `BakeCheck.player`, `ScriptTest.play`, `ScriptCheck.player` and the player acceptance rows | WARN (development input absent) |
 | a local list of cards with bone modifiers (`Cache/compare_mods/cards.json`) | `ModifierOrderTest`, `MosaicTest`, `AdvancedPoseTest.play`, `AdvancedPoseCheck.player` | the row runs and leaves those checks out with a WARN line in its report |
 | recordings of the running game (`Tools/compare_poses.json`, `Cache/compare`, `Cache/shapemeasure`) | `PoseImportTest`, `IkDriverTest`, `CompareTest`, `ShapeMapTest.*` | WARN (development input absent) |
 | the S1 baselines (`Cache/maker/baseline`) | `MakerCoreTest` | WARN (development input absent) |
@@ -82,10 +84,11 @@ first line `SUMMARY: ...` or `N passed, M failed`.
 | further recordings (`Cache/items`, `Cache/compare/routes`, `Cache/compare/maker`) | `ItemTest`, `ItemMotionTest`, `RouteTest`, `BridgeCoreTest` | the row runs and skips those checks with a WARN line in its report |
 | a graphics device | the graphics and player groups | the row cannot run headless; run it on a machine with a GPU |
 | the built app (`Builds/App`) | player rows after `PlayerBuild.app` | the player rows build it first |
-| the .NET SDK | the plugin rows (sample and test plugins are built with `Tools/plugins.ps1`) | the plugin rows FAIL |
+| the .NET SDK | the plugin rows (sample and test plugins are built with `Tools/plugins.ps1`), `BakeTest` (it builds the row probe and the kit's Shapes), `ScriptTest` (JX3 builds a test plugin when `BridgeCoreTest` has not staged it), the player checks with a test plugin | the plugin rows FAIL |
+| the old bakes of the game install (`UserData/CharaToItem`, read in place, never written) | `BakeTest` (BH1, BH3), `BakeTest.render.import` (BH2-BH4), `BakeCheck.player` (BW10) | BH1 and BH2 FAIL; BW10 is a WARN |
 
 Each row declares its development-only inputs in `Tools/run_tests.ps1` (`-DevInputs`); `-List` marks a row whose input is
-absent ("WARN, not started here"). Without any of them, `-Quick` runs 36 of its 76 rows and reports the other 40 as WARN; with
+absent ("WARN, not started here"). Without any of them, `-Quick` runs 36 of its 80 rows and reports the other 44 as WARN; with
 only your own `Tools/targets.json`, 5 rows remain WARN (`PoseImportTest`, `IkDriverTest`, `CompareTest`, `MakerCoreTest`,
 `AssetRedirectTest`) and the five `ShapeMapTest` rows, which have no measured sets to compare. The rows outside `-Quick`
 (graphics, player, full) need `Tools/targets.json` and often the recordings as well; only the rows named above declare them so far.
@@ -141,10 +144,10 @@ and `Tools/unity_batch.ps1` run it before Unity and print a warning on errors.
 - Rows that run the plain exe of the release folder (`PlayerBuild.noargs`, `FirstRun.player`) copy the folder first, set
   `HS2NEXT_DATA_ROOT` to a scratch folder (so they never write into your per-user folder) and need the default port 17322 free.
 - `PluginKit.dist` checks the plugin kit as a user gets it: `python -I Tools/pluginkit_check.py` packages the tested app build
-  into a zip of its own (`Spike/out/player/pluginkit/dist`), extracts it outside the repository, builds the kit's two samples
+  into a zip of its own (`Spike/out/player/pluginkit/dist`), extracts it outside the repository, builds the kit's three samples
   with one `dotnet build` in the extracted `PluginKit` folder (no argument, no package source; .NET SDK 8 or later), copies them
-  into the extracted `Plugins` folder and starts the extracted exe on port 17388 with its own data root: both samples load,
-  `hello.greet` answers, `app.quit` exits 0. Report `Spike/out/player/pluginkit/pluginkit_report.txt`.
+  into the extracted `Plugins` folder and starts the extracted exe on port 17388 with its own data root: the three samples load,
+  `hello.greet` answers, Shapes' five rows are listed, `app.quit` exits 0. Report `Spike/out/player/pluginkit/pluginkit_report.txt`.
 - `TimelineCheck.player` checks the Timeline and the frame recording in the app player: `python -I Tools/timeline_player_check.py
   --exe Builds/App/HS2Next.exe --project <project> --out Spike/out/player/timeline --port 17387` starts the player with the UI
   off, builds the test compositions of `Tests/Timeline/compositions` on the test targets and measures the Timeline's time per
@@ -172,6 +175,43 @@ and `Tools/unity_batch.ps1` run it before Unity and print a warning on errors.
   kind survives a save and a load, and measures the evaluation of 8 constraints (bars 0.10 ms median, 0.25 ms p95) and of 64 (0.50 ms,
   1.0 ms), the pass beside the characters' steps (0.05 ms) and the three driven-bone stages with 16 bones (0.1 ms); over a bar the row
   says WARN. Report `Spike/out/player/constraints/constraint_player_report.txt`.
+- `WetCheck.player` checks stains in the app player: `python -I Tools/wet_player_check.py --exe Builds/App/HS2Next.exe --project
+  <project> --out Spike/out/player/wet --port 17849` starts the player three times on the test targets: in batch mode with no plugin
+  (port 17849), windowed at 1920 x 1080 with the test plugin `Tests/WetProbe` (17858), and with the UI and the probe (17848). It checks
+  a stain's trip through a save and a load, a garment whose mesh cannot be read, that the map query answers from the device, the new
+  shaders in the player's log, a recording, the Screenshot dialog and the largest capture with a stain, and measures the times of the
+  spec's WW table; over a bar the row says WARN. Frames a recording and a capture write are read as numbers and deleted by the script.
+  Report `Spike/out/player/wet/wet_player_report.txt`.
+- `RagdollCheck.player` checks ragdolls in the app player: `python -I Tools/ragdoll_player_check.py --exe Builds/App/HS2Next.exe --project
+  <project> --out Spike/out/player/ragdoll --port 17869` starts the player several times on the test targets: in batch mode with no plugin
+  (port 17869), in batch mode with the test plugins `Tests/RagdollProbe` and `Tests/WetProbe` (17868), and windowed at 1920 x 1080 with them
+  (17878). It runs every command over HTTP on a real map, takes a body at rest and a body in a fall through a save and a load, repeats a
+  run across two processes, drops a body on 50 maps, stops one on items, compares two render paths with a member in view and in a puddle's
+  mirror, and measures the times of the spec's RW table; over a bar the row says WARN. Renders stay in the player's memory. Report
+  `Spike/out/player/ragdoll/ragdoll_player_report.txt`.
+- `BakeCheck.player` checks Chara to Item and the Cutter in the app player: `python -I Tools/bake_player_check.py --exe
+  Builds/App/HS2Next.exe --project <project> --out Spike/out/player/bake --port 17889` starts the player several times, windowed at 1920 x
+  1080 with the UI off, with the test plugins `Tests/BakeProbe` and `Tests/WetProbe` (and the kit's sample Shapes where a check needs it).
+  It saves a scene with a whole bake of each test target, a part bake and two pieces, opens it in a second process with the store folder
+  moved away and compares every bake's render bit for bit and every blob by hash; compares a bake with its character (the BD1 bars),
+  looks for every shader a bake names, bakes items whose meshes the player cannot read, checks the kit's sample Shapes with and without
+  the plugin, the members of a bake in a capture, a screenshot, a recorded frame, the scene thumbnail and a puddle's mirror, and measures
+  the times, sizes and memory of the spec's BW table with their stages (run it with nothing else running); over a bar the row says WARN.
+  Since 6.10 it also checks that a bake, a cut and a load give the same blobs and renders as the last build (`--baseline-exe`, the copy
+  of the previous acceptance player): the last build saves two test scenes and bakes and renders them in two processes, then this build
+  bakes, cuts and renders the same, and compares one capture through the old and the new path in one process. The import of the
+  old bakes reads `UserData/CharaToItem` of the game install in place and checks by hash that nothing there changed. Renders stay in the
+  player's memory; scenes are saved with the placeholder thumbnail. Report `Spike/out/player/bake/bake_player_report.txt`.
+- `ScriptCheck.player` checks scene scripts in the app player: `python -I Tools/script_player_check.py --exe Builds/App/HS2Next.exe
+  --project <project> --out Spike/out/player/script --port 17909` starts the player several times on the test targets with the test plugin
+  `Tests/ScriptProbe`. A player started with `-noBridge` (no listener, so the plugin runs its job from a file and writes its result) plays a
+  Timeline's timed commands and the sample script `Tests/SceneScripts/sample.hs2nscript` through the app's own bridge host and times it; a
+  frame meter compares that player's frame with the last build's (`--baseline-exe`). Windowed players check that a capture, a screenshot and a
+  recorded frame of a moving character show the pose of their own frame and that the mosaic covers a moving member in each of them; record
+  the sample at 1280 x 720 and 30 fps (the frames are counted, hashed and deleted), play it again without a reload and after a save and a load
+  and compare bone positions, the camera, the slots, the stains and the ragdolls at seven moments; and measure the times of the spec's JW table
+  (over a bar the row says WARN). `--scripts` and `--expect` record more scripts with their expected failures. Report
+  `Spike/out/player/script/script_player_report.txt`.
 - With the setting `mapAudioLink` a player makes a junction `<player folder>/abdata` into the game's `abdata`. Never delete a
   player folder recursively while it holds that junction: list reparse points first
   (`Get-ChildItem -Recurse -Force -Attributes ReparsePoint`) and remove the junction itself with `cmd /c rmdir`.
@@ -181,7 +221,7 @@ and `Tools/unity_batch.ps1` run it before Unity and print a warning on errors.
 The runner sets `HS2NEXT_NO_PLUGINS=1` for every process it starts, so no row loads a plugin from a `Plugins` folder by
 accident. The plugin rows load their own folders (`Spike/out/plugins/...`) or, for `PluginCheck.player`, stage the sample next
 to the player and remove exactly what they staged. `& Tools\plugins.ps1 -Build all -Stage <editor | player | dir>` builds and
-stages the samples (the Sequencer and the kit's Hello and HelloUi) and the test plugins. The plugins written for Api 1.0 are
+stages the samples (the Sequencer and the kit's Hello, HelloUi and Shapes) and the test plugins. The plugins written for Api 1.0 are
 also built against the Api 1.0.0 reference assemblies in `Tests/Plugins/fixtures/api10` (`-ApiDir`), so every run checks that a
 1.0 plugin still loads on the current host; `PluginCheck.player` builds the Sequencer that way (`--api-dir`) and turns it off
 and on again with `plugin.disable` / `plugin.enable` while the player runs.
@@ -205,17 +245,17 @@ or `curl -s -X POST http://127.0.0.1:17322/ -d '{"cmd":"ping"}'` (always 127.0.0
 
 ## The everyday rows (`-Quick`)
 
-`-List` prints the full set (185 rows with `-Full`). The `-Quick` rows:
+`-List` prints the full set (209 rows with `-Full`). The `-Quick` rows:
 
 | Row | Group | Areas |
 | --- | --- | --- |
 | LeakCheck | headless | publication, plugins |
-| ApiDocs | headless | api, plugins, publication |
+| ApiDocs | headless | api, plugins, publication, bake |
 | TestTargets | headless | infra |
 | ContentIdTest | headless | content |
-| SaveFormatTest | headless | save, materials, constraints |
+| SaveFormatTest | headless | save, materials, constraints, wet, ragdoll, bake, script |
 | ImportTest | headless | import, save |
-| SceneModelTest | headless | scene, save, materials, constraints |
+| SceneModelTest | headless | scene, save, materials, constraints, wet, ragdoll, bake, script |
 | PoseFileTest | headless | pose |
 | ZipmodListTest | headless | content |
 | CardExtTest | headless | content, import |
@@ -270,18 +310,22 @@ or `curl -s -X POST http://127.0.0.1:17322/ -d '{"cmd":"ping"}'` (always 127.0.0
 | MosaicTest | headless | maker, chara-build, shaders, advancedPose, materials, constraints |
 | AccessoryItemsTest | headless | items, content, ui |
 | LooseTextureTest | headless | content, maker |
-| BridgeCoreTest | headless | bridge, scene, items, maps, chara-build, motion, pose, effects, ui, plugins, timeline, advancedPose, materials, constraints |
-| ApiSurfaceTest | headless | api, bridge, plugins |
+| BridgeCoreTest | headless | bridge, scene, items, maps, chara-build, motion, pose, effects, ui, plugins, timeline, advancedPose, materials, constraints, wet, tools, ragdoll, bake, script |
+| ApiSurfaceTest | headless | api, bridge, plugins, tools, ragdoll, bake, script |
 | TimelineTest | headless | timeline, scene, save, bridge, motion |
 | AdvancedPoseTest | headless | advancedPose, motion, scene, save, bridge |
 | ModifierOrderTest | headless | motion, advancedPose, maker |
 | MaterialEditTest | headless | materials, chara-build, items, scene, save |
-| ConstraintTest | headless | constraints, motion, scene, save, bridge |
-| Mono.scene | mono | scene, save, maker, timeline, advancedPose, materials, constraints |
-| Mono.ui | mono | ui, setup, advancedPose, materials, constraints |
+| ConstraintTest | headless | constraints, motion, scene, save, bridge, ragdoll |
+| WetTest | headless | wet, scene, save, bridge, ragdoll |
+| RagdollTest | headless | ragdoll, motion, scene, save, bridge |
+| BakeTest | headless | bake, save, scene, items, content, plugins, bridge |
+| ScriptTest | headless | script, save, scene, timeline, bridge |
+| Mono.scene | mono | scene, save, maker, timeline, advancedPose, materials, constraints, wet, ragdoll, bake, script |
+| Mono.ui | mono | ui, setup, advancedPose, materials, constraints, wet, ragdoll, bake, script |
 | Mono.maker | mono | maker, content |
-| Mono.save | mono | save, timeline, advancedPose, materials, constraints |
+| Mono.save | mono | save, timeline, advancedPose, materials, constraints, wet, ragdoll, bake, script |
 | Mono.pose | mono | pose |
 | Mono.bridge | mono | bridge, setup |
 | Mono.content | mono | content, setup |
-| Mono.plugins | mono | plugins, constraints |
+| Mono.plugins | mono | plugins, constraints, tools, ragdoll |

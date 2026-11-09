@@ -1,0 +1,12 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.scriptprobe",
+  "name": "Script probe",
+  "version": "0.1.0",
+  "apiVersion": "1.3",
+  "assemblies": ["Stp3.Test.ScriptProbe.dll"],
+  "commandPrefixes": ["scriptprobe."],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the row ScriptCheck.player: a run of a player with no listener told by a job file, a frame meter, captures of a moving character against renders kept in memory, digests at the frames of a recorded pass, times on the main thread."
+}

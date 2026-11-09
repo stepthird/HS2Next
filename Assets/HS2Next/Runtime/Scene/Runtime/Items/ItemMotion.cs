@@ -79,6 +79,7 @@ namespace HS2Next.Scenes.Runtime
             ItemMotionHooks.Releasing = OnReleasing;
             ItemMotionHooks.FkBase = OnFkBase;
             ItemMotionHooks.Describe = OnDescribe;
+            HS2Next.Scenes.Bake.BakeProvider.Register();
         }
 
         static void OnBuilt(ItemRealization it)
@@ -195,6 +196,7 @@ namespace HS2Next.Scenes.Runtime
             if (m.Animation != null) m.Motion.Add(m.Animation);
             if (m.Fk != null) m.Motion.Add(m.Fk);
             if (m.Dynamic != null) m.Motion.Add(m.Dynamic);
+            HS2Next.Scenes.Bake.BakeFk.AddCorrection(it, m.Motion);
 
             // 4. the stored state
             if (st != null)

@@ -60,6 +60,17 @@ namespace HS2Next.UI.Core
         // Phase 6.5: constraints
         public const string ConstraintAdd = "Add constraint", Constraint = "Constraint", ConstraintRemove = "Remove constraint", ConstraintClear = "Clear constraints",
             ConstraintReorder = "Reorder constraints", ConstraintTakeOffset = "Take offset";
+        // Phase 6.6: stains
+        public const string WetAdd = "Add stain", WetRemove = "Remove stain", WetEdit = "Stain", WetKeep = "Keep layer", WetStart = "Start stain", WetDry = "Dry stain",
+            WetClearPuddles = "Clear puddles", WetFloor = "Floor", WetOrigin = "Move origin";
+        // Phase 6.7: ragdolls
+        public const string RagdollBuild = "Ragdoll", RagdollRelease = "Release ragdoll", RagdollPin = "Pin", RagdollUnpin = "Unpin", RagdollTie = "Tie", RagdollHold = "Hold",
+            RagdollSettings = "Ragdoll settings", RagdollPusher = "Pusher", RagdollObstacle = "Obstacle", RagdollBake = "Bake pose to FK", RagdollFollower = "Follower";
+        // Phase 6.8: bakes and cuts
+        public const string BakeMake = "Bake to item", BakeRename = "Rename bake", CutMake = "Cut", CutEdit = "Edit cut", CutMoveMarker = "Move marker";
+        // Phase 6.9: scene scripts
+        public const string ScriptAdd = "Add script", ScriptEdit = "Edit script", ScriptRemove = "Remove script", ScriptCast = "Cast roles", ScriptLoad = "Load script",
+            ScriptPrepare = "Prepare script", ScriptCapture = "Save edits into script", ScriptBorrow = "Borrow";
 
         /// <summary>Every label (for the schema test and B's parity check).</summary>
         public static readonly IReadOnlyList<string> All = new[]
@@ -80,6 +91,10 @@ namespace HS2Next.UI.Core
             BoneCorrection, ClearBoneCorrections, JiggleValues, ClearJiggleValues, BlendShapes, ClearBlendShapes,
             MaterialEdit, MaterialReset, MaterialClear, MaterialTexture, MaterialShader, HairBoneAdjust,
             ConstraintAdd, Constraint, ConstraintRemove, ConstraintClear, ConstraintReorder, ConstraintTakeOffset,
+            WetAdd, WetRemove, WetEdit, WetKeep, WetStart, WetDry, WetClearPuddles, WetFloor, WetOrigin,
+            RagdollBuild, RagdollRelease, RagdollPin, RagdollUnpin, RagdollTie, RagdollHold, RagdollSettings, RagdollPusher, RagdollObstacle, RagdollBake, RagdollFollower,
+            BakeMake, BakeRename, CutMake, CutEdit, CutMoveMarker,
+            ScriptAdd, ScriptEdit, ScriptRemove, ScriptCast, ScriptLoad, ScriptPrepare, ScriptCapture, ScriptBorrow,
         };
     }
 }

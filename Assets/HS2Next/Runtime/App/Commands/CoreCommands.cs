@@ -8,7 +8,9 @@
 // runtime-side parts of the commands (W2: MotionOverrides.Attach; Phase 6.2: the Timeline's timed commands reach the app's
 // bridge). Phase 6.2 registers the groups "timeline" (TimelineCommands, OverrideCommands) and "record" (RecordCommands), Since 1.2.0.
 // Phase 6.3 registers the group "advanced pose" (AdvancedPoseCommands), Since 1.2.0. Phase 6.4 registers the group "materials"
-// (MaterialCommands), Since 1.2.0.
+// (MaterialCommands), Since 1.2.0. Phase 6.6 registers the group "wet" (WetCommands), Since 1.3.0. Phase 6.7 registers the group "ragdoll" (RagdollCommands), Since 1.3.0.
+// Phase 6.8 registers the groups "bake" (BakeCommands) and "cut" (CutCommands), Since 1.3.0. Phase 6.9 registers the group "script" (ScriptCommands and
+// the generic commands of scripts, ScriptedCommands), Since 1.3.0.
 using System.Collections.Generic;
 using HS2Next.Api.Bridge;
 
@@ -135,8 +137,20 @@ namespace HS2Next.App.Commands
         /// <summary>The commands of Phase 6.5 (constraints), Since 1.2.0, all experimental.</summary>
         public static readonly IReadOnlyList<string> Phase65Names = ConstraintCommands.Names;
 
+        /// <summary>The commands of Phase 6.6 (stains and the map's surface), Since 1.3.0, all experimental.</summary>
+        public static readonly IReadOnlyList<string> Phase66Names = WetCommands.Names;
+
+        /// <summary>The commands of Phase 6.7 (ragdolls and shots), Since 1.3.0, all experimental.</summary>
+        public static readonly IReadOnlyList<string> Phase67Names = RagdollCommands.Names;
+
+        /// <summary>The commands of Phase 6.8 (Chara to Item and the Cutter), Since 1.3.0, all experimental.</summary>
+        public static readonly IReadOnlyList<string> Phase68Names = Lists(BakeCommands.Names, CutCommands.Names);
+
+        /// <summary>The commands of Phase 6.9 (scene scripts: the script commands and the generic commands of scripts), Since 1.3.0, all experimental.</summary>
+        public static readonly IReadOnlyList<string> Phase69Names = Lists(ScriptCommands.Names, ScriptedCommands.Names);
+
         /// <summary>
-        /// The Core commands that keep HS2 Studio's automation vocabulary (89 names HS2's own bridge also answers): never renamed
+        /// The Core commands that keep HS2 Studio's automation vocabulary (107 names HS2's own bridge also answers): never renamed
         /// or aliased away, with HS2's argument names, defaults, reply members and number forms. BridgeCoreTest checks that each
         /// is registered under its own name; the help dump lists them and Reference/COMMANDS.md marks them. A new HS2Next-only
         /// command follows the naming convention of Reference/COMMANDS.md instead.
@@ -155,6 +169,10 @@ namespace HS2Next.App.Commands
             "scene", "scene.lights", "scene.load", "scene.new", "scene.save", "select", "shape.info", "shape.set",
             "sound.list", "sound.set", "sound.state", "timeline.build", "timeline.clear", "timeline.events", "timeline.pause",
             "timeline.play", "timeline.seek", "timeline.status", "timeline.stop", "ui.state",
+            "ground.probe", "wet.attach", "wet.stain", "wet.status", "wet.use",
+            "ragdoll.build", "ragdoll.lock", "ragdoll.tie", "ragdoll.pin", "ragdoll.unpin", "ragdoll.follower", "ragdoll.turn", "ragdoll.settle",
+            "ragdoll.pusher", "ragdoll.parts", "ragdoll.push", "ragdoll.release", "fx.shoot",
+            "obj.moveTo", "camera.follow", "dof", "chara.accessoryAxis",
         };
 
         static string[] Lists(params IReadOnlyList<string>[] lists)
@@ -194,6 +212,10 @@ namespace HS2Next.App.Commands
                 foreach (var n in Phase63Names) yield return n;   // Phase 6.3 (advanced pose: pose.bones*, pose.chains*, pose.bust*, pose.blendShapes*; Since 1.2.0)
                 foreach (var n in Phase64Names) yield return n;   // Phase 6.4 (materials: the arrays of characters, items and the map, hair bone modifiers; Since 1.2.0)
                 foreach (var n in Phase65Names) yield return n;   // Phase 6.5 (constraint: constraint.*; Since 1.2.0)
+                foreach (var n in Phase66Names) yield return n;   // Phase 6.6 (wet: wet.*, ground.probe; Since 1.3.0)
+                foreach (var n in Phase67Names) yield return n;   // Phase 6.7 (ragdoll: ragdoll.*, fx.shoot; Since 1.3.0)
+                foreach (var n in Phase68Names) yield return n;   // Phase 6.8 (bake: bake.*; cut: cut.*; Since 1.3.0)
+                foreach (var n in Phase69Names) yield return n;   // Phase 6.9 (script: script.*, obj.moveTo, camera.follow, dof, chara.accessoryAxis; Since 1.3.0)
                 foreach (var n in HS2Next.UI.Bridge.UiCommands.Names) yield return n;   // Phase 3.5 package A: ui.* (unavailable without the UI)
             }
         }
@@ -242,6 +264,11 @@ namespace HS2Next.App.Commands
             Group(AdvancedPoseCommands.GroupName, () => AdvancedPoseCommands.Register(r, app));   // Phase 6.3 package C (pose.bones*, pose.chains*, pose.bust*, pose.blendShapes*)
             Group(MaterialCommands.GroupName, () => MaterialCommands.Register(r, app));   // Phase 6.4 package C (materials.shaders, chara.edit.materials.*, item.materials.*, map.materials*, chara.edit.boneMods*)
             Group(ConstraintCommands.GroupName, () => ConstraintCommands.Register(r, app));   // Phase 6.5 package C (constraint.*)
+            Group(WetCommands.GroupName, () => WetCommands.Register(r, app));   // Phase 6.6 package C (wet.*, ground.probe)
+            Group(RagdollCommands.GroupName, () => RagdollCommands.Register(r, app));   // Phase 6.7 package C (ragdoll.*, fx.shoot)
+            Group(BakeCommands.GroupName, () => BakeCommands.Register(r, app));   // Phase 6.8 package C (bake.*)
+            Group(CutCommands.GroupName, () => CutCommands.Register(r, app));   // Phase 6.8 package C (cut.*)
+            Group(ScriptCommands.GroupName, () => { ScriptCommands.Register(r, app); ScriptedCommands.Register(r, app); });   // Phase 6.9 packages C (script.*) and G (obj.moveTo, camera.follow, dof, chara.accessoryAxis)
         }
 
         /// <summary>"&lt;group&gt;: &lt;exception&gt;" of the groups whose last registration threw, and "&lt;group&gt;: &lt;command&gt;
@@ -254,7 +281,8 @@ namespace HS2Next.App.Commands
         {
             "scene", "map/item", "camera", "app", "chara", "fk/pose", "motion", "dumps", "items", "item motion", "maps",
             "lights/cameras/sound", "effects", "ui scene", "ui", "capture", "time", "routes", "chara edit", "content", "plugin",
-            "timeline", "record", AdvancedPoseCommands.GroupName, MaterialCommands.GroupName, ConstraintCommands.GroupName,
+            "timeline", "record", AdvancedPoseCommands.GroupName, MaterialCommands.GroupName, ConstraintCommands.GroupName, WetCommands.GroupName, RagdollCommands.GroupName,
+            BakeCommands.GroupName, CutCommands.GroupName, ScriptCommands.GroupName,
         };
 
         static void Group(string name, System.Action register)

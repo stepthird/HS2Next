@@ -1,8 +1,12 @@
 // Item node realization. Build order
 // (HS2's AddObjectItem.Load):
-//   1 resolve the row (a missing or gated row, or a row whose prefab does not load, loads the fallback illusion.hs2#399,
-//     `item.missing`; the stored ref is never changed), instantiate under the holder at local identity (the prefab root's
-//     own pose is replaced, as in vanilla)
+//   1 the instance, from the first source that answers (ItemInstanceSource): a bake (the bake code says whether the node is
+//     one; a bake it cannot build loads the fallback item), else a generated row (its group's function makes the object; a
+//     throw, no object or a missing row loads the fallback item, `item.generatorFailed` / `item.missing`), else the bundle
+//     prefab of the resolved row (a missing or gated row, or a row whose prefab does not load, loads the fallback
+//     illusion.hs2#399, `item.missing`; the stored ref is never changed); placed under the holder at local identity (the
+//     prefab root's own pose is replaced, as in vanilla). A generated object's renderers that are members by name or by a
+//     mosaic material are members before the first frame.
 //   2 collect (HS2's rules): the root ItemComponent and helpers (Particle / Icon / Panel / SE component), the playing
 //     particle systems of the active hierarchy, every DynamicBone of the active hierarchy, the first Animator of the
 //     active hierarchy; the root MeshCollider disabled, network components destroyed, cameras and audio listeners
@@ -22,10 +26,12 @@
 // dynamicBones, anime → ItemMotionHooks.Changed; materialOverrides → a pass over the array, a rebuild when a shader name or another
 // structural member changed; material edits run again after every colour, pattern and panel write. Visibility: forceRenderingOff on every own renderer (T7), particles
 // played / paused (play mode), the icon object; lights stay on.
+// A change of the item's bake data builds it again, as a change of its row does.
 // Runtime overrides (Phase 6.2): a winning `item.colors[i].main` slot of the override layer replaces that main colour in
 // every colour write (a view of the state is written; the model is not touched); a slot's change writes the colours at once.
 using System;
 using System.Collections.Generic;
+using HS2Next.Chara.Mosaic;
 using HS2Next.Content;
 using HS2Next.Content.Studio;
 using HS2Next.Save;
@@ -84,6 +90,11 @@ namespace HS2Next.Scenes.Runtime
         ItemTextures.Handle panelTex;
         bool released = true;
         bool visibleNow = true;
+        // what a source other than the bundle asked to be told at the release
+        Action sourceReleased;
+
+        /// <summary>Where the instance came from: "bake", "generated" or "bundle" (also for the fallback item); null unless built.</summary>
+        public string Source { get; private set; }
 
         ItemNodeState St => Node.State as ItemNodeState;
 
@@ -126,9 +137,20 @@ namespace HS2Next.Scenes.Runtime
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
             var st = St;
-            Row = ResolveRow(Services.Db, st, out bool fallback);
-            IsFallback = fallback;
-            if (fallback) ReportOnce(FindingSeverity.Warning, "item.missing", "item " + st?.Ref + " (group " + st?.Group + ", category " + st?.Category + ") is missing or gated: fallback " + StudioDb.FallbackItem + " loaded; the stored ref is kept");
+            // 1 the instance: a bake, else a generated row, else the bundle prefab (also the fallback of the two others)
+            GameObject go = null;
+            Action built = null;
+            bool generated = false;
+            if (!FromBake(st, out go, out built))
+            {
+                Row = ResolveRow(Services.Db, st, out bool fallback);
+                IsFallback = fallback;
+                if (fallback) ReportOnce(FindingSeverity.Warning, "item.missing", "item " + st?.Ref + " (group " + st?.Group + ", category " + st?.Category + ") is missing or gated: fallback " + StudioDb.FallbackItem + " loaded; the stored ref is kept");
+                if (!fallback && Row != null) generated = FromGenerated(out go);
+                // an item of a generated group, or of a group nobody lists (a provider may come later): built again when its row comes
+                if (st != null && Services.Db != null && (Services.Db.Generated.Holds(st.Group) || (fallback && !Services.Db.TryGetItemGroup(st.Group, out _))))
+                    GeneratedRowRebuilds.For(Runtime);
+            }
             if (Row == null)
             {
                 State = RealizationState.Failed;
@@ -136,30 +158,39 @@ namespace HS2Next.Scenes.Runtime
                 Report(FindingSeverity.Error, "item.loadFailed", Detail);
                 return;
             }
-            GameObject prefab = null;
-            try { prefab = Services.Catalog.LoadAsset<GameObject>(Row); }
-            catch (Exception e) { Debug.LogWarning("item " + NodeId + ": loading " + Row + " threw: " + e.Message); }
-            if (!prefab && !IsFallback)
+            if (go)
             {
-                // HS2 (AddObjectItem.Load): a row whose prefab does not load builds the fallback item (0, 0, 399)
-                var fb = Services.Db.Items.Get(StudioDb.FallbackItem);
-                if (fb != null && fb != Row)
+                go.transform.SetParent(Holder, false);
+                Source = generated ? "generated" : "bake";
+            }
+            else
+            {
+                GameObject prefab = null;
+                try { prefab = Services.Catalog.LoadAsset<GameObject>(Row); }
+                catch (Exception e) { Debug.LogWarning("item " + NodeId + ": loading " + Row + " threw: " + e.Message); }
+                if (!prefab && !IsFallback)
                 {
-                    ReportOnce(FindingSeverity.Warning, "item.missing", "prefab " + Row.BundlePath + "/" + Row.FileName + " of item " + st?.Ref + " not loadable: fallback " + StudioDb.FallbackItem + " loaded; the stored ref is kept");
-                    Row = fb;
-                    IsFallback = true;
-                    try { prefab = Services.Catalog.LoadAsset<GameObject>(Row); } catch (Exception) { prefab = null; }
+                    // HS2 (AddObjectItem.Load): a row whose prefab does not load builds the fallback item (0, 0, 399)
+                    var fb = Services.Db.Items.Get(StudioDb.FallbackItem);
+                    if (fb != null && fb != Row)
+                    {
+                        ReportOnce(FindingSeverity.Warning, "item.missing", "prefab " + Row.BundlePath + "/" + Row.FileName + " of item " + st?.Ref + " not loadable: fallback " + StudioDb.FallbackItem + " loaded; the stored ref is kept");
+                        Row = fb;
+                        IsFallback = true;
+                        try { prefab = Services.Catalog.LoadAsset<GameObject>(Row); } catch (Exception) { prefab = null; }
+                    }
                 }
+                if (!prefab)
+                {
+                    State = RealizationState.Failed;
+                    Detail = "prefab " + Row.BundlePath + "/" + Row.FileName + " not loadable";
+                    Report(FindingSeverity.Error, "item.loadFailed", Detail);
+                    return;
+                }
+                go = Object.Instantiate(prefab, Holder, false);
+                go.name = prefab.name;
+                Source = "bundle";
             }
-            if (!prefab)
-            {
-                State = RealizationState.Failed;
-                Detail = "prefab " + Row.BundlePath + "/" + Row.FileName + " not loadable";
-                Report(FindingSeverity.Error, "item.loadFailed", Detail);
-                return;
-            }
-            var go = Object.Instantiate(prefab, Holder, false);
-            go.name = prefab.name;
             var t = go.transform;
             t.localPosition = Vector3.zero;
             t.localRotation = Quaternion.identity;
@@ -181,6 +212,7 @@ namespace HS2Next.Scenes.Runtime
                 if (Writer.MismatchedEntries > 0)
                     ReportOnce(FindingSeverity.Info, "item.materialInfoMismatch", Writer.MismatchedEntries + " renderer entr" + (Writer.MismatchedEntries == 1 ? "y has" : "ies have") + " a slot count other than the MaterialInfo count (extra slots unwritten)");
             });
+            if (generated) Part("members", () => GeneratedMembers(go));
             Part("lights", () => LightsPrepared = BundleLights.Prepare(go));
             Part("icon", () =>
             {
@@ -197,6 +229,7 @@ namespace HS2Next.Scenes.Runtime
             Part("features", () => Features = ItemFeatures.Compute(this, Writer));
             if (Features != null && Features.FkMissing.Count > 0)
                 ReportOnce(FindingSeverity.Info, "item.fkBoneMissing", Features.FkMissing.Count + " bone(s) of the item's bone list not found: " + string.Join(", ", Features.FkMissing));
+            if (built != null) Part("source", built);
             State = RealizationState.Built;
             if (ItemMotionHooks.Built != null) Part("motion", () => ItemMotionHooks.Built(this));
             for (int k = 0; k < 3; k++)
@@ -211,6 +244,82 @@ namespace HS2Next.Scenes.Runtime
             Part("particles", PlayOnLoad);
             appliedAnimeTime = CurrentAnimeTime();
             BuildMilliseconds = sw.Elapsed.TotalMilliseconds;
+        }
+
+        // The bake source: false when the node is not drawn from a bake. True: the instance, or none when the bake cannot be built
+        // (then the fallback item; the node's state stays as it is).
+        bool FromBake(ItemNodeState st, out GameObject go, out Action built)
+        {
+            go = null;
+            built = null;
+            var bake = ItemInstanceSource.Bake;
+            if (bake == null || st == null) return false;
+            ItemInstance made;
+            try
+            {
+                if (!bake(this, out made)) return false;
+            }
+            catch (Exception e)
+            {
+                made = default;
+                ReportOnce(FindingSeverity.Warning, "item.partFailed", "build part bake threw " + e.GetType().Name + ": " + e.Message);
+                Debug.LogWarning("item " + NodeId + ": the bake source threw: " + e);
+            }
+            sourceReleased = made.Released;
+            if (made.Object)
+            {
+                go = made.Object;
+                built = made.Built;
+                IsFallback = false;
+                Row = made.Row ?? ResolveRow(Services.Db, st, out _);
+                return true;
+            }
+            Row = Services.Db?.Items.Get(StudioDb.FallbackItem);
+            IsFallback = true;
+            return true;
+        }
+
+        // A generated row: its group's function makes the object (a throw, no object or an object of the scene: the fallback item,
+        // item.generatorFailed). The function must not change the scene model (item.generatorWrote; the build goes on).
+        bool FromGenerated(out GameObject go)
+        {
+            go = null;
+            var g = Services.Db.Generated.Group(Row.Group);
+            if (g == null) return false;
+            var bus = Runtime.Session?.Commands;
+            long before = bus?.Version ?? 0;
+            string why = null;
+            try { go = g.Make(new GeneratedRowRequest(Row, NodeId)); }
+            catch (Exception e)
+            {
+                go = null;
+                why = "its function threw " + e.GetType().Name + ": " + e.Message;
+                Debug.LogWarning("item " + NodeId + " (" + Row.Key + "): the function of generated item group " + g.Number + " threw: " + e);
+            }
+            if (bus != null && bus.Version != before)
+                Report(FindingSeverity.Warning, "item.generatorWrote", "the function of generated item group " + g.Number + " changed the scene while it made " + Row.Key + " (the build goes on)");
+            if (go && go.GetComponentInParent<SceneNodeHolder>(true) != null)
+            {
+                why = "its function returned an object of the scene";
+                go = null;
+            }
+            if (go) return true;
+            Report(FindingSeverity.Warning, "item.generatorFailed", "generated item " + Row.Key + " (group " + g.Number + "): " + (why ?? "its function made no object") + "; fallback " + StudioDb.FallbackItem + " loaded; the stored ref is kept");
+            Row = Services.Db.Items.Get(StudioDb.FallbackItem);
+            IsFallback = true;
+            return false;
+        }
+
+        // A generated object's renderers that are members by name or by a mosaic material are members from the first frame.
+        static void GeneratedMembers(GameObject go)
+        {
+            foreach (var r in go.GetComponentsInChildren<Renderer>(true))
+            {
+                bool material = false;
+                foreach (var m in r.sharedMaterials) if (MosaicSet.IsMosaicMaterial(m)) { material = true; break; }
+                if (material) MosaicSet.Track(r);
+                else if (MosaicSet.IsMemberName(r.name)) MosaicSet.Add(r);
+            }
         }
 
         void Part(string name, Action a)
@@ -378,6 +487,13 @@ namespace HS2Next.Scenes.Runtime
         {
             if (released) return;
             released = true;
+            var sr = sourceReleased;
+            sourceReleased = null;
+            if (sr != null)
+            {
+                try { sr(); }
+                catch (Exception e) { Debug.LogWarning("item " + NodeId + ": the source's release threw: " + e); }
+            }
             if (Instance && State == RealizationState.Built && ItemMotionHooks.Releasing != null)
             {
                 try { ItemMotionHooks.Releasing(this); }
@@ -398,7 +514,7 @@ namespace HS2Next.Scenes.Runtime
         {
             ReleaseContent();
             if (Instance) UnityObjects.Destroy(Instance);
-            Instance = null; Component = null; Animator = null; Attach = null; Row = null; Motion = null;
+            Instance = null; Component = null; Animator = null; Attach = null; Row = null; Motion = null; Source = null;
             ParticleComponent = null; PanelComponent = null; IconComponent = null; SoundComponent = null; Icon = null; Features = null;
             DynamicBones = Array.Empty<DynamicBone>();
             Particles = Array.Empty<ParticleSystem>();
@@ -421,7 +537,7 @@ namespace HS2Next.Scenes.Runtime
 
         protected internal override void ApplyChanges(IReadOnlyCollection<string> paths)
         {
-            if (Touches(paths, "item.ref") || Touches(paths, "item.group") || Touches(paths, "item.category"))
+            if (Touches(paths, "item.ref") || Touches(paths, "item.group") || Touches(paths, "item.category") || Touches(paths, "item.bake"))
             {
                 Runtime.RebuildContent(this);
                 return;
@@ -515,6 +631,163 @@ namespace HS2Next.Scenes.Runtime
         {
             if (!Animator || !Animator.enabled || !Animator.isActiveAndEnabled || Animator.runtimeAnimatorController == null) return float.NaN;
             return Animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+        }
+    }
+}
+
+namespace HS2Next.Scenes.Runtime
+{
+    /// <summary>An item's instance from a source other than a bundle prefab.</summary>
+    public struct ItemInstance
+    {
+        /// <summary>A new object the item takes over: placed under its holder at local identity, its materials copied per slot as a
+        /// prefab's, destroyed at the release. Null: the source could not make one (the item loads the fallback item).</summary>
+        public GameObject Object;
+        /// <summary>The row the item stands for (its name and FK bone names); null: the row the node's reference resolves to.</summary>
+        public StudioItem Row;
+        /// <summary>Called inside the build after the item's own parts (materials, lights, icon, features), before its motion; may be null.</summary>
+        public Action Built;
+        /// <summary>Called once when the item's content is released; may be null.</summary>
+        public Action Released;
+    }
+
+    /// <summary>
+    /// Where an item node's instance comes from, in this order: a bake (<see cref="Bake"/>), a row of a generated group (the group's
+    /// function), else the bundle prefab of the row. A scene with no bake and no generated row builds every item from its prefab.
+    /// </summary>
+    public static class ItemInstanceSource
+    {
+        /// <summary>
+        /// Asked first for every item build: false when the node is not drawn from a bake (the next sources are asked). True: the
+        /// node is a bake; <paramref name="made"/> holds its instance, or no object when it cannot be built (the source reports
+        /// why; the item loads the fallback item and its state stays as it is).
+        /// </summary>
+        public delegate bool BakeSource(ItemRealization item, out ItemInstance made);
+
+        /// <summary>
+        /// A row of a generated group is about to become a new item node: the source may complete the node's state (or refuse with a
+        /// message, then nothing is added). <paramref name="state"/> holds the reference, group and category of the row.
+        /// </summary>
+        public delegate string AddingRow(SceneRuntime runtime, StudioItem row, ItemNodeState state);
+
+        /// <summary>The bake source (set by the bake code); null: no node is a bake.</summary>
+        public static BakeSource Bake { get; set; }
+
+        /// <summary>Asked when a row of a generated group is added as an item (set by the bake code for the store's rows); may be null.</summary>
+        public static AddingRow Adding { get; set; }
+
+        /// <summary>
+        /// The state of a new item of a generated row: the defaults of an item without a prefab, completed by <see cref="Adding"/>.
+        /// Null with <paramref name="refusal"/> when the source refuses; null with no refusal when <paramref name="row"/> is not a
+        /// generated row (a list row: its prefab gives the defaults).
+        /// </summary>
+        public static ItemNodeState NewItem(SceneRuntime runtime, StudioItem row, out string refusal)
+        {
+            refusal = null;
+            // the group's current row of that key (a list read a moment ago may hold an earlier object of it)
+            var gen = runtime?.Services.Db?.Generated;
+            if (row == null || gen == null || !gen.TryGetRow(row.Group, row.Key, out var current)) return null;
+            var state = ItemDefaults.FromPrefab(null, current);
+            var adding = Adding;
+            if (adding != null)
+            {
+                try { refusal = adding(runtime, current, state); }
+                catch (Exception e) { refusal = "adding " + current.Key + " threw " + e.GetType().Name + ": " + e.Message; }
+            }
+            return refusal == null ? state : null;
+        }
+    }
+
+    /// <summary>
+    /// The items of generated rows built again when their rows come or change: a runtime part made at the first build of an item whose
+    /// group is generated or unknown, so a scene without such items has none. A change of a group (rows that are new or changed, a
+    /// refreshed row) builds the scene's items of those rows again at the next apply, one build per item; a removed group or row
+    /// builds nothing (its items keep their objects until their next build, which falls back).
+    /// </summary>
+    public sealed class GeneratedRowRebuilds : ISceneRuntimePart
+    {
+        SceneRuntime runtime;
+        GeneratedRows registry;
+        readonly List<GeneratedChange> pending = new List<GeneratedChange>();
+
+        /// <summary>Items built again since the part was made.</summary>
+        public int Rebuilt { get; private set; }
+
+        /// <summary>The part of <paramref name="rt"/>, or null when it has none.</summary>
+        public static GeneratedRowRebuilds Of(SceneRuntime rt) => rt?.GetPart<GeneratedRowRebuilds>();
+
+        /// <summary>The part of <paramref name="rt"/>, made when it has none.</summary>
+        public static GeneratedRowRebuilds For(SceneRuntime rt)
+        {
+            if (rt == null || rt.IsDisposed) return null;
+            var p = rt.GetPart<GeneratedRowRebuilds>();
+            if (p != null) return p;
+            p = new GeneratedRowRebuilds();
+            rt.AddPart(p, p.Dispose);
+            return p;
+        }
+
+        void ISceneRuntimePart.Attach(SceneRuntime r)
+        {
+            runtime = r;
+            Subscribe();
+        }
+
+        void Subscribe()
+        {
+            var reg = runtime?.Services.Db?.Generated;
+            if (reg == registry) return;
+            if (registry != null) registry.Changed -= OnRows;
+            registry = reg;
+            if (registry != null) registry.Changed += OnRows;
+        }
+
+        void OnRows(GeneratedChange c)
+        {
+            if (c.Kind != GeneratedChangeKind.Removed && c.Keys.Count > 0) pending.Add(c);
+        }
+
+        void ISceneRuntimePart.OnChanged(HS2Next.Scenes.SceneChangeBatch b) { }
+
+        void ISceneRuntimePart.Apply()
+        {
+            Subscribe();
+            if (pending.Count == 0 || runtime == null || runtime.IsDisposed) return;
+            var changes = pending.ToArray();
+            pending.Clear();
+            var again = new List<ItemRealization>();
+            foreach (var r in runtime.Realizations)
+            {
+                if (!(r is ItemRealization it) || !it.HasHolder || it.InGraveyard || !runtime.IsInModel(it)) continue;
+                if (it.State != RealizationState.Built && it.State != RealizationState.Failed) continue;
+                if (!(it.Node.State is ItemNodeState st) || !ContentId.TryParse(st.Ref, out var key)) continue;
+                foreach (var c in changes)
+                    if (c.Group == st.Group && Contains(c.Keys, key)) { again.Add(it); break; }
+            }
+            foreach (var it in again)
+            {
+                runtime.RebuildContent(it);
+                Rebuilt++;
+            }
+        }
+
+        static bool Contains(IReadOnlyCollection<ContentId> keys, ContentId key)
+        {
+            foreach (var k in keys) if (k == key) return true;
+            return false;
+        }
+
+        void ISceneRuntimePart.LateApply() { }
+
+        void ISceneRuntimePart.Clear() => pending.Clear();
+
+        void ISceneRuntimePart.OnLoadedRealized() { }
+
+        void Dispose()
+        {
+            if (registry != null) registry.Changed -= OnRows;
+            registry = null;
+            pending.Clear();
         }
     }
 }

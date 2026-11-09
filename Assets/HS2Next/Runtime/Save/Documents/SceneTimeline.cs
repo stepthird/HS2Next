@@ -9,6 +9,10 @@
 // verbatim and inactive, an unknown ease is kept (evaluated as the default), an event that may not run is kept and never
 // fired, a second track of one channel is kept inactive, a track without an id gets a derived one, and the excess over the
 // limits is dropped. The writer emits every member in schema order, keys and events sorted by time (stable).
+//
+// A Timeline loaded from a scene script carries the marker `script` {id, compiled} after `events` (written only when set). The Timeline
+// of a scene script itself (RoleKeys) may name roles ("$role") where a node id belongs: a track's `key` and a depth-of-field focus's
+// `node`; a scene's own Timeline never does.
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -171,6 +175,28 @@ namespace HS2Next.Save
         /// <summary>The member name in scene.json.</summary>
         public const string MemberName = "timeline";
 
+        // Role keys: while above 0 on this thread, the reader and the writer take "$role" at a track's key and a focus node (a script's
+        // Timeline is read and written inside such a scope; a scene's Timeline never is).
+        [ThreadStatic] static int roleKeyDepth;
+
+        /// <summary>True while a script's Timeline is being read or written on this thread.</summary>
+        internal static bool RoleKeysActive => roleKeyDepth > 0;
+
+        /// <summary>A scope in which role keys are taken (<paramref name="on"/>) or refused; dispose to leave it.</summary>
+        internal static RoleKeyScope EnterRoleKeys(bool on) => new RoleKeyScope(on);
+
+        internal struct RoleKeyScope : IDisposable
+        {
+            readonly int before;
+            // On: role keys are taken until disposed; off: they are refused until disposed (a scene's Timeline inside a script's scope).
+            public RoleKeyScope(bool on)
+            {
+                before = roleKeyDepth;
+                roleKeyDepth = on ? before + 1 : 0;
+            }
+            public void Dispose() => roleKeyDepth = before;
+        }
+
         /// <summary>Seconds, in (0, <see cref="TimelineLimits.MaxDuration"/>]. Required in a file.</summary>
         public float Duration = TimelineLimits.RepairDuration;
         /// <summary>True: playback wraps at the duration; false: it ends there.</summary>
@@ -181,6 +207,16 @@ namespace HS2Next.Save
         public List<TimelineTrack> Tracks = new List<TimelineTrack>();
         /// <summary>Timed commands, sorted by time (stable) when read and written.</summary>
         public List<TimelineEvent> Events = new List<TimelineEvent>();
+        /// <summary>The scene script this Timeline was loaded from (member <c>script</c>, after <c>events</c>); null = none, not written.</summary>
+        public TimelineScriptMarker Script;
+        /// <summary>
+        /// True for the Timeline of a scene script: a track's key and a focus node may be "$role" (<see cref="ScriptText.RoleOf"/>) as well as a
+        /// node id. Not written; a script's reader sets it. A scene's Timeline has it false and refuses role keys.
+        /// </summary>
+        public bool RoleKeys;
+
+        /// <summary>A new, empty Timeline of a scene script (<see cref="RoleKeys"/> on, the build defaults).</summary>
+        public static TimelineDocument NewScriptTimeline() => new TimelineDocument { RoleKeys = true };
 
         // ---------- reading ----------
 
@@ -188,7 +224,7 @@ namespace HS2Next.Save
         public static TimelineDocument Read(DocReader r)
         {
             var d = new TimelineDocument();
-            d.ReadFrom(r);
+            using (EnterRoleKeys(false)) d.ReadFrom(r);
             return d;
         }
 
@@ -210,6 +246,23 @@ namespace HS2Next.Save
             if (!(token is JObject o))
                 throw new SaveFormatException(SaveErrorCode.BadDocument, "a Timeline is an object, found " + (token == null ? "nothing" : DocReader.Describe(token)), entry, token?.Path ?? "");
             return Read(new DocReader(o, new DocReadContext(entry, lenient, findings ?? new FindingList())));
+        }
+
+        /// <summary>As <see cref="FromToken"/> for the Timeline of a scene script: "$role" is taken at a track's key and a focus node
+        /// (<see cref="RoleKeys"/> on).</summary>
+        public static TimelineDocument FromScriptToken(JToken token, FindingList findings = null, string entry = MemberName)
+        {
+            if (!(token is JObject o))
+                throw new SaveFormatException(SaveErrorCode.BadDocument, "a Timeline is an object, found " + (token == null ? "nothing" : DocReader.Describe(token)), entry, token?.Path ?? "");
+            return ReadScript(new DocReader(o, new DocReadContext(entry, false, findings ?? new FindingList())));
+        }
+
+        /// <summary>Reads the Timeline object of a scene script (<see cref="RoleKeys"/> on) with every repair and finding.</summary>
+        internal static TimelineDocument ReadScript(DocReader r)
+        {
+            var d = new TimelineDocument { RoleKeys = true };
+            using (EnterRoleKeys(true)) d.ReadFrom(r);
+            return d;
         }
 
         internal override void ReadMembers(DocReader r)
@@ -304,6 +357,8 @@ namespace HS2Next.Save
                 Events.Add(e);
             }
             SortStable(Events, e => e.T);
+            var marker = r.ObjN(TimelineScriptMarker.MemberName);
+            Script = marker == null ? null : ReadNew<TimelineScriptMarker>(marker);
         }
 
         // ---------- writing ----------
@@ -312,6 +367,11 @@ namespace HS2Next.Save
         public void Write(CanonicalJsonWriter w) => WriteTo(w);
 
         internal override void WriteMembers(CanonicalJsonWriter w)
+        {
+            using (EnterRoleKeys(RoleKeys)) WriteKnown(w);
+        }
+
+        void WriteKnown(CanonicalJsonWriter w)
         {
             w.F32("duration", Duration);
             w.Bool("loop", Loop);
@@ -334,7 +394,26 @@ namespace HS2Next.Save
             w.StartArray();
             foreach (var e in events) e.WriteTo(w);
             w.EndArray();
+            if (Script != null && !omitScript) Script.WriteTo(w, TimelineScriptMarker.MemberName);
         }
+
+        bool omitScript;
+
+        /// <summary>
+        /// The hash a loaded script's marker holds as <c>compiled</c>: the first 16 hex digits of the SHA-256 of the canonical JSON text (UTF-8, no
+        /// trailing LF) of this document without the member <c>script</c>. Equal documents give equal hashes; the marker itself does not count.
+        /// </summary>
+        public string CompiledHash()
+        {
+            var c = (TimelineDocument)MemberwiseClone();
+            c.omitScript = true;
+            var b = CanonicalJsonWriter.ToDocumentBytes(MemberName, c.WriteTo);
+            return ScriptText.Hash16(Encoding.UTF8.GetString(b, 0, b.Length - 1));
+        }
+
+        /// <summary>True when the Timeline carries a script marker and was edited since it was loaded (its <see cref="CompiledHash"/> differs from
+        /// the marker's <c>compiled</c>).</summary>
+        public bool IsEditedSinceLoad => Script != null && CompiledHash() != Script.Compiled;
 
         /// <summary>The canonical JSON bytes of the Timeline object (UTF-8, trailing LF), as scene.json writes it.</summary>
         public byte[] ToBytes() => CanonicalJsonWriter.ToDocumentBytes(MemberName, WriteTo);
@@ -349,8 +428,12 @@ namespace HS2Next.Save
         /// <summary>The Timeline as a JSON object (numbers as the canonical text reads back).</summary>
         public JObject ToJObject() => DocReader.Parse(ToBytes(), MemberName);
 
-        /// <summary>A deep copy (a canonical write → read round trip: unknown members kept, nothing shared).</summary>
-        public TimelineDocument Clone() => Read(DocReader.ForDocument(ToBytes(), new DocReadContext(MemberName, false, new FindingList())));
+        /// <summary>A deep copy (a canonical write → read round trip: unknown members kept, the marker and <see cref="RoleKeys"/> kept, nothing shared).</summary>
+        public TimelineDocument Clone()
+        {
+            var r = DocReader.ForDocument(ToBytes(), new DocReadContext(MemberName, false, new FindingList()));
+            return RoleKeys ? ReadScript(r) : Read(r);
+        }
 
         // ---------- queries ----------
 
@@ -431,7 +514,7 @@ namespace HS2Next.Save
                 if (t == null) return "tracks[" + i + "] is null";
                 if (!JsonText.IsId(t.Id)) return "tracks[" + i + "] has no valid id";
                 if (!ids.Add(t.Id)) return "tracks[" + i + "] repeats the id " + t.Id;
-                string p = t.Problem();
+                string p = t.Problem(RoleKeys);
                 if (p != null) return "tracks[" + i + "]: " + p;
                 string ch = t.ChannelKey;
                 if (ch != null) counts[ch] = counts.TryGetValue(ch, out int c) ? c + 1 : 1;
@@ -450,6 +533,11 @@ namespace HS2Next.Save
                 if (e == null) return "events[" + i + "] is null";
                 string p = e.Problem();
                 if (p != null) return "events[" + i + "]: " + p;
+            }
+            if (Script != null)
+            {
+                string mp = Script.Problem();
+                if (mp != null) return "script: " + mp;
             }
             return null;
         }
@@ -582,13 +670,17 @@ namespace HS2Next.Save
         /// within 256 characters, the slot 0–3 or null, keys non-null, ascending, no two at one time, with a value of the
         /// type's form and a non-null ease. An unknown type needs its raw object.
         /// </summary>
-        public string Problem()
+        public string Problem() => Problem(false);
+
+        /// <summary>As <see cref="Problem()"/>; with <paramref name="roleKeys"/> (a script's Timeline) the key may also be "$role".</summary>
+        public string Problem(bool roleKeys)
         {
             if (!JsonText.IsId(Id)) return "no valid id";
             if (Raw != null) return null;
             if (Type == null) return "no type";
             if (!TimelineTypes.IsKnown(Type)) return "unknown type \"" + Type + "\" without its stored object";
-            if (Key != null && !JsonText.IsId(Key)) return "key \"" + Key + "\" is not a node id";
+            if (Key != null && !JsonText.IsId(Key) && !(roleKeys && ScriptText.RoleOf(Key) != null))
+                return "key \"" + Key + "\" is not a node id" + (roleKeys ? " or a role" : "");
             if (Label != null && Label.Length > TimelineLimits.MaxText) return "label over " + TimelineLimits.MaxText + " characters";
             if (Slot.HasValue && (Slot.Value < 0 || Slot.Value > 3)) return "slot " + Slot.Value + " outside 0–3";
             if (Keys == null) return "keys is null";
@@ -601,24 +693,55 @@ namespace HS2Next.Save
                 if (i > 0 && k.T == Keys[i - 1].T) return "two keys at t = " + TimelineDocument.F(k.T);
                 if (i > 0 && k.T < Keys[i - 1].T) return "keys out of order at t = " + TimelineDocument.F(k.T);
                 if (k.Ease == null) return "keys[" + i + "] has no ease";
-                string vp = k.ValueProblem(shape);
+                string vp = k.ValueProblem(shape, roleKeys);
                 if (vp != null) return "keys[" + i + "]: " + vp;
             }
             return null;
         }
 
         /// <summary>A deep copy (a canonical write → read round trip).</summary>
-        public TimelineTrack Clone()
+        public TimelineTrack Clone() => Clone(false);
+
+        /// <summary>A deep copy; with <paramref name="roleKeys"/> a track of a script's Timeline (its key or a focus node may be "$role").</summary>
+        public TimelineTrack Clone(bool roleKeys)
         {
-            var b = CanonicalJsonWriter.ToDocumentBytes(TimelineDocument.MemberName, WriteTo);
-            return ReadAt(DocReader.ForDocument(b, new DocReadContext(TimelineDocument.MemberName, false, new FindingList())), 0);
+            using (TimelineDocument.EnterRoleKeys(roleKeys))
+            {
+                var b = CanonicalJsonWriter.ToDocumentBytes(TimelineDocument.MemberName, WriteTo);
+                return ReadAt(DocReader.ForDocument(b, new DocReadContext(TimelineDocument.MemberName, false, new FindingList())), 0);
+            }
         }
 
         /// <summary>The canonical JSON text of the track object (no trailing LF).</summary>
-        public string ToJson()
+        public string ToJson() => ToJson(false);
+
+        /// <summary>As <see cref="ToJson()"/>; with <paramref name="roleKeys"/> a track of a script's Timeline.</summary>
+        public string ToJson(bool roleKeys)
         {
-            var b = CanonicalJsonWriter.ToDocumentBytes(TimelineDocument.MemberName, WriteTo);
-            return Encoding.UTF8.GetString(b, 0, b.Length - 1);
+            using (TimelineDocument.EnterRoleKeys(roleKeys))
+            {
+                var b = CanonicalJsonWriter.ToDocumentBytes(TimelineDocument.MemberName, WriteTo);
+                return Encoding.UTF8.GetString(b, 0, b.Length - 1);
+            }
+        }
+
+        /// <summary>A node key of a track or a focus: a node id, or (in a script's Timeline) "$role". Null when absent or JSON null and not required.</summary>
+        internal static string ReadNodeKey(DocReader r, string name, bool required)
+        {
+            if (!TimelineDocument.RoleKeysActive) return required ? r.Id(name) : r.IdN(name);
+            var v = required ? r.ValueReq(name) : r.Value(name);
+            if (v == null || (!required && v.IsNull)) return null;
+            if (v.Type == JTokenType.String && ScriptText.RoleOf((string)v.Token) != null) return (string)v.Token;
+            if (v.Type == JTokenType.String && JsonText.IsIdAnyCase((string)v.Token)) return v.AsId();
+            throw v.Error("an id (32 hex digits) or a role (\"$name\")");
+        }
+
+        /// <summary>Writes a node key (a role reference only inside a script's Timeline).</summary>
+        internal static void WriteNodeKey(CanonicalJsonWriter w, string name, string key, bool required)
+        {
+            if (key != null && TimelineDocument.RoleKeysActive && ScriptText.RoleOf(key) != null) { w.Str(name, key); return; }
+            if (required) ReqId(w, name, key);
+            else w.Id(name, key);
         }
 
         /// <summary>Reads one track object (the stored form) with the track's own repairs (key order, keys at one time, keys
@@ -648,7 +771,7 @@ namespace HS2Next.Save
                 r.Report(FindingSeverity.Warning, TimelineFindings.UnknownType, "type", "track type \"" + Type + "\" is unknown; the track is kept as stored and inactive");
                 return;
             }
-            Key = r.IdN("key");
+            Key = ReadNodeKey(r, "key", false);
             Bone = r.StrN("bone");
             Slot = r.IntN("slot");
             Enabled = r.Bool("enabled", true);
@@ -706,7 +829,7 @@ namespace HS2Next.Save
             var shape = Shape;
             if (shape == TimelineValueShape.Unknown)
                 throw new SaveFormatException(SaveErrorCode.BadDocument, "track type \"" + Type + "\" is unknown and has no stored object", w.Entry, w.Path);
-            w.Id("key", Key);
+            WriteNodeKey(w, "key", Key, false);
             w.Str("bone", Bone);
             w.IntN("slot", Slot);
             w.Bool("enabled", Enabled);
@@ -761,7 +884,10 @@ namespace HS2Next.Save
         public static TimelineKey OfDof(float t, TimelineDof v, string ease = TimelineEases.Default) => new TimelineKey(t, ease) { Dof = v };
 
         /// <summary>Why the value does not fit <paramref name="shape"/> (a null object, a non-finite number), or null.</summary>
-        public string ValueProblem(TimelineValueShape shape)
+        public string ValueProblem(TimelineValueShape shape) => ValueProblem(shape, false);
+
+        /// <summary>As <see cref="ValueProblem(TimelineValueShape)"/>; with <paramref name="roleKeys"/> a focus node may also be "$role".</summary>
+        public string ValueProblem(TimelineValueShape shape, bool roleKeys)
         {
             switch (shape)
             {
@@ -772,7 +898,7 @@ namespace HS2Next.Save
                 case TimelineValueShape.Color: return Finite(Color.R, Color.G, Color.B, Color.A) ? null : "non-finite value";
                 case TimelineValueShape.Anime: return Anime == null ? "no animation row" : Anime.Source == null ? "animation row without source" : null;
                 case TimelineValueShape.Camera: return Camera == null ? "no camera value" : null;
-                case TimelineValueShape.Dof: return Dof == null ? "no depth-of-field value" : Dof.Focus != null ? Dof.Focus.Problem() : null;
+                case TimelineValueShape.Dof: return Dof == null ? "no depth-of-field value" : Dof.Focus != null ? Dof.Focus.Problem(roleKeys) : null;
                 default: return "unknown value form";
             }
         }
@@ -948,7 +1074,7 @@ namespace HS2Next.Save
             {
                 var focus = new TimelineFocus();
                 focus.ReadFrom(f);
-                FocusProblem = focus.Problem();
+                FocusProblem = focus.Problem(TimelineDocument.RoleKeysActive);
                 Focus = focus;
             }
             Size = r.F32("size");
@@ -1001,11 +1127,15 @@ namespace HS2Next.Save
         public TimelineFocus Clone() => new TimelineFocus { Kind = Kind, Node = Node, Bone = Bone, Offset = Offset, Point = Point, Dist = Dist, Unknown = Unknown?.Clone(), forms = 1 };
 
         /// <summary>Why the focus is not exactly one valid form, or null.</summary>
-        public string Problem()
+        public string Problem() => Problem(false);
+
+        /// <summary>As <see cref="Problem()"/>; with <paramref name="roleKeys"/> (a script's Timeline) the node may also be "$role".</summary>
+        public string Problem(bool roleKeys)
         {
             if (forms > 1) return "a focus holds more than one of node, point, dist";
             if (forms == 0 && readFrom) return "a focus without node, point or dist";
-            if (Kind == TimelineFocusKind.Node && !JsonText.IsId(Node)) return "a focus node that is not a node id";
+            if (Kind == TimelineFocusKind.Node && !JsonText.IsId(Node) && !(roleKeys && ScriptText.RoleOf(Node) != null))
+                return "a focus node that is not a node id" + (roleKeys ? " or a role" : "");
             return null;
         }
 
@@ -1019,7 +1149,7 @@ namespace HS2Next.Save
             {
                 forms++;
                 Kind = TimelineFocusKind.Node;
-                Node = r.Id("node");
+                Node = TimelineTrack.ReadNodeKey(r, "node", true);
                 Bone = r.StrN("bone");
                 Offset = r.V3N("offset");
             }
@@ -1042,7 +1172,7 @@ namespace HS2Next.Save
             switch (Kind)
             {
                 case TimelineFocusKind.Node:
-                    ReqId(w, "node", Node);
+                    TimelineTrack.WriteNodeKey(w, "node", Node, true);
                     w.Str("bone", Bone);
                     w.V3N("offset", Offset);
                     break;
@@ -1163,6 +1293,48 @@ namespace HS2Next.Save
             w.Token(Do);
             w.Bool("enabled", Enabled);
             w.Str("note", Note);
+        }
+    }
+    /// <summary>
+    /// <c>script</c> of a Timeline loaded from a scene script: the script's <see cref="Id"/> and <see cref="Compiled"/>, the
+    /// <see cref="TimelineDocument.CompiledHash"/> of the document as it was loaded. A Timeline whose hash differs was edited since.
+    /// </summary>
+    public sealed class TimelineScriptMarker : DocObject
+    {
+        /// <summary>The member name in a Timeline.</summary>
+        public const string MemberName = "script";
+
+        /// <summary>The scene script's id (32 hex). Required.</summary>
+        public string Id;
+        /// <summary>16 lowercase hex digits. Required.</summary>
+        public string Compiled;
+
+        public TimelineScriptMarker() { }
+        public TimelineScriptMarker(string id, string compiled) { Id = id; Compiled = compiled; }
+
+        public TimelineScriptMarker Clone() => new TimelineScriptMarker(Id, Compiled) { Unknown = Unknown?.Clone() };
+
+        /// <summary>Why the marker is not valid, or null.</summary>
+        public string Problem()
+        {
+            if (!JsonText.IsId(Id)) return "the marker names no script id";
+            if (!ScriptText.IsHash16(Compiled)) return "the marker's compiled hash is not 16 hex digits";
+            return null;
+        }
+
+        internal override void ReadMembers(DocReader r)
+        {
+            Id = r.Id("id");
+            var v = r.ValueReq("compiled");
+            Compiled = v.AsStr();
+            if (!ScriptText.IsHash16(Compiled)) throw v.Error("a hash of 16 hex digits");
+        }
+
+        internal override void WriteMembers(CanonicalJsonWriter w)
+        {
+            ReqId(w, "id", Id);
+            if (!ScriptText.IsHash16(Compiled)) throw new SaveFormatException(SaveErrorCode.BadDocument, "not a hash of 16 hex digits: \"" + Compiled + "\"", w.Entry, DocReader.Join(w.Path, "compiled"));
+            w.Str("compiled", Compiled);
         }
     }
 }

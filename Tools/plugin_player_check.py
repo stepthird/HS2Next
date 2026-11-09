@@ -39,12 +39,12 @@ Run:
      -cacheDir <project>\\Cache -userData <out>\\userdata -bridgeOutputDir <out>\\bridge_out -logFile <out>\\player.log, with
      HS2NEXT_NO_PLUGINS removed from its environment (and HS2NEXT_PRIVATE_OFF=1). Ready = ping.appReady and
      <out>\\userdata\\Bridge\\endpoint.json naming the started PID.
-  4. PA1, PA2, PK1, PK2, PA3-PA8, KD9, then app.quit (PA9). Past --timeout-min the script kills only the PID it started.
+  4. PA1, PA2, PK1, PK2, PK3, PA3-PA8, KD9, WY3, RY8, then app.quit (PA9). Past --timeout-min the script kills only the PID it started.
   5. Removes exactly the files it staged (and the folders it created, when empty).
 
 Checks (one report line each):
   SETUP  ready time, versions, the staged files
-  PA1    bridge.version.plugins lists the sample {guid, version 0.1.0, state loaded} and the kit's two samples (version
+  PA1    bridge.version.plugins lists the sample {guid, version 0.1.0, state loaded} and the kit's three samples (version
          0.1.0, loaded; not with --no-kit), and only test-set plugins;
          plugin.list's dir is <exe dir>\\Plugins\\stp3.sample.sequencer
   PA2    help lists exactly the 8 seq.* commands, owner and group = the GUID
@@ -71,6 +71,12 @@ Checks (one report line each):
          helloui.reset read back; plugin.list counts the sample's 2 forms (ui.forms; a player without UI counts, not draws)
   KD9    plugin.disable of the Sequencer (fixture loaded): state disabled, its commands gone; plugin.enable: state loaded,
          its registration counts as before, seq.get byte-equal to before (the scene's block read again); the times
+  WY3    the tool probe (Tests\\Plugins\\ToolProbe, Api 1.3, built against the player's own Api): with the UI off Tools is null and
+         Map is not; a tool's calls run in the player; with no map loaded Loaded is false; on a vanilla map Loaded, Roots and a
+         surface under a point (source gpu, both queries); with the map cleared Loaded is false again
+  RY8    the stage probe (Tests\\Plugins\\StageProbe, Api 1.3, built against the player's own Api): on BR-Chan, in real frames: the stage counts its Steps at its phase, chara.motion lists it with the plugin as
+         owner, a rebuild of the character (chara.change) runs the factory again on a new root, the guide's example reads a head above the floor, a stage taken off stops counting and leaves the list. Reads
+         Tools\\targets.json; without it the step is a WARN
   PA9    app.quit: the plugin's "unloaded" log line in player.log (one more after KD9's disable), exit code 0
   LOG    exceptions in player.log (WARN only)
   CLEAN  the staged files removed
@@ -106,8 +112,17 @@ GUID = "stp3.sample.sequencer"
 VERSION = "0.1.0"
 # the plugin kit's samples: (GUID, project folder under the repository, assembly); version 0.1.0, apiVersion 1.1
 KIT = [("stp3.sample.hello", os.path.join("Samples", "PluginKit", "Hello"), "Stp3.SampleHello.dll"),
-       ("stp3.sample.helloui", os.path.join("Samples", "PluginKit", "HelloUi"), "Stp3.SampleHelloUi.dll")]
+       ("stp3.sample.helloui", os.path.join("Samples", "PluginKit", "HelloUi"), "Stp3.SampleHelloUi.dll"),
+       ("stp3.sample.shapes", os.path.join("Samples", "PluginKit", "Shapes"), "Stp3.SampleShapes.dll")]
+# the kit's Shapes (Phase 6.8): its item group and rows
+SHAPES_GROUP, SHAPES_ROWS, SHAPES_TORUS = 820001, ["Cube", "Sphere", "Cylinder", "Torus", "Arrow"], "stp3.sample.shapes#4"
 KIT_VERSION = "0.1.0"
+# the test plugin of the viewport tools and the map query; built and staged as the kit's samples
+TOOL_PROBE = ("stp3.test.toolprobe", os.path.join("Tests", "Plugins", "ToolProbe"), "Stp3.Test.ToolProbe.dll")
+TOOL_MAP = "illusion.hs2#10"
+# the test plugin of the character stages; built and staged as the kit's samples
+STAGE_PROBE = ("stp3.test.stageprobe", os.path.join("Tests", "Plugins", "StageProbe"), "Stp3.Test.StageProbe.dll")
+STAGE_FRAMES = 30
 HELLOUI_KEYS = ["enabled", "mode", "note", "size", "tint"]
 SEQ_COMMANDS = ["seq.get", "seq.measure", "seq.pause", "seq.play", "seq.seek", "seq.set", "seq.status", "seq.stop"]
 DEFAULT_PORT = 17394
@@ -426,7 +441,7 @@ class Ctx:
         self.dirs_before = set()
         self.only = set(x.strip().upper() for x in a.only.split(",")) if a.only else None
         self.deadline = None
-        self.guids = [GUID] + ([] if a.no_kit else [g for g, _, _ in KIT])
+        self.guids = [GUID] + ([] if a.no_kit else [g for g, _, _ in KIT + [TOOL_PROBE, STAGE_PROBE]])
         self.extra_unloads = 0
 
     def want(self, cid):
@@ -528,7 +543,7 @@ def build_and_stage(C):
     kit_api = a.kit_api_dir or os.path.join(os.path.dirname(C.exe), "HS2Next_Data", "Managed")
     plan = [(GUID, os.path.join("Samples", "Sequencer"), "Stp3.SampleSequencer.dll", a.api_dir)]
     if not a.no_kit:
-        plan += [(g, rel, dll, kit_api) for g, rel, dll in KIT]
+        plan += [(g, rel, dll, kit_api) for g, rel, dll in KIT + [TOOL_PROBE, STAGE_PROBE]]
     C.info["build"], C.info["verify"], C.info["apiDirs"] = {}, {}, {}
     for guid, rel, dll_name, api in plan:
         src = os.path.join(C.project, rel)
@@ -1176,6 +1191,26 @@ def pk1(C):
                json.dumps(r2.get("text") if r2.get("ok") else r2.get("error"))), replies=[r, r2])
 
 
+def pk3(C):
+    """The kit's Shapes in the player (Phase 6.8, BY6): its five rows listed, its torus built from its row with its eight FK bones."""
+    if C.a.no_kit:
+        C.R.add("PK3", "WARN", "not run (--no-kit)")
+        return
+    rows = C.call({"cmd": "item.search", "group": SHAPES_GROUP, "limit": 100}).get("items") or []
+    names = [x.get("name") for x in rows]
+    add = C.call({"cmd": "item.add", "ref": SHAPES_TORUS}, check=False)
+    key = ((add.get("added") or [{}])[0]).get("key") if add.get("ok") else None
+    st = C.call({"cmd": "item.state", "key": key}, check=False) if key else {}
+    row, real = st.get("row") or {}, st.get("realized") or {}
+    fk = real.get("fkBones")
+    fk = len(fk) if isinstance(fk, list) else fk
+    if key:
+        C.call({"cmd": "delete", "key": key}, check=False)
+    ok = names == SHAPES_ROWS and key is not None and row.get("fallback") is False and (real.get("renderers") or 0) >= 1 and fk == 8
+    C.R.add("PK3", "PASS" if ok else "FAIL", "the kit's Shapes: item.search {group: %d} %s; item.add %s -> row fallback %s, renderers %s, FK bones %s"
+            % (SHAPES_GROUP, names, SHAPES_TORUS, row.get("fallback"), real.get("renderers"), fk), state=st)
+
+
 def forms_count(e):
     ui = e.get("ui")
     if isinstance(ui, dict) and "forms" in ui:
@@ -1213,6 +1248,80 @@ def pk2(C):
             "a bad mode -> %s; plugin.list forms %s"
             % (",".join(sorted(v0)), v0.get("size"), v1.get("size"), v2.get("size"), t1.get("weight"), bad.get("code"),
                forms if forms is not None else "not reported"), entry=e)
+
+
+def wy3(C):
+    if C.a.no_kit:
+        C.R.add("WY3", "WARN", "not run (--no-kit)")
+        return
+    s0 = C.call({"cmd": "toolprobe.state"}, check=False)
+    t = C.call({"cmd": "toolprobe.selftest"}, check=False)
+    C.call({"cmd": "map.load", "ref": TOOL_MAP})
+    s1 = C.call({"cmd": "toolprobe.state"}, check=False)
+    q = C.call({"cmd": "toolprobe.surface", "x": 0, "y": 30, "z": 0}, check=False)
+    C.call({"cmd": "map.load", "clear": True})
+    s2 = C.call({"cmd": "toolprobe.state"}, check=False)
+    calls = ["Started", "PointerDown 0 Ctrl hit True", "PointerUp 0", "Ended Finished"]
+    ok = (s0.get("ok") and s0.get("unity") is True and s0.get("tools") is False and s0.get("map") is True and s0.get("loaded") is False
+          and t.get("ok") and t.get("down") is True and t.get("picks") == 1 and t.get("calls") == calls
+          and s1.get("loaded") is True and (s1.get("roots") or 0) >= 1
+          and q.get("ok") and q.get("hit") is True and q.get("source") == "gpu" and q.get("answers") == 2
+          and s2.get("loaded") is False)
+    C.R.add("WY3", "PASS" if ok else "FAIL",
+            "the UI off: tools %s, map %s; tool calls %s, picks %s; %s: loaded %s, roots %s, surface %s at %s (%s), answers %s; cleared: loaded %s"
+            % (s0.get("tools"), s0.get("map"), t.get("calls"), t.get("picks"), TOOL_MAP, s1.get("loaded"), s1.get("roots"), q.get("hit"),
+               q.get("height"), q.get("source"), q.get("answers"), s2.get("loaded")), replies=[s0, t, s1, q, s2])
+
+
+def motion_row(C, key, stage):
+    """The row of a stage in chara.motion, or None."""
+    r = C.call({"cmd": "chara.motion", "key": key}, check=False)
+    return next((x for x in (r.get("stages") or []) if x.get("name") == stage), None)
+
+
+def ry8(C):
+    """A plugin's stage on a character in a player: the port has run only headless."""
+    if C.a.no_kit:
+        C.R.add("RY8", "WARN", "not run (--no-kit)")
+        return
+    path = os.path.join(C.project, "Tools", "targets.json")
+    if not os.path.isfile(path):
+        C.R.add("RY8", "WARN", "not run: Tools\\targets.json is absent")
+        return
+    with open(path, encoding="utf-8") as f:
+        rel = json.load(f)["visual"]["female"].replace("\\", "/")
+    rel = rel[len("chara/female/"):] if rel.lower().startswith("chara/female/") else rel
+    C.call({"cmd": "scene.new"})
+    s0 = C.call({"cmd": "stageprobe.state"}, check=False)
+    C.call({"cmd": "stageprobe.clear"})
+    key = C.call({"cmd": "chara.load", "path": rel, "sex": "female"}, timeout=300)["added"][0]["key"]
+    name = STAGE_PROBE[0] + "/probe"
+    add = C.call({"cmd": "stageprobe.add", "key": key, "phase": 420})
+    C.frames(STAGE_FRAMES)
+    s1 = C.call({"cmd": "stageprobe.state"})
+    row = motion_row(C, key, name)
+    r = C.call({"cmd": "chara.change", "key": key, "path": rel}, timeout=300)
+    C.frames(STAGE_FRAMES)
+    s2 = C.call({"cmd": "stageprobe.state"})
+    row2 = motion_row(C, key, name)
+    ok = (s0.get("ok") and s0.get("unity") is True and s0.get("stages") is True and add.get("added") is True and s1["steps"] >= STAGE_FRAMES and s1["makes"] == 1
+          and row is not None and row.get("phase") == 420 and row.get("owner") == STAGE_PROBE[0])
+    C.R.add("RY8", "PASS" if ok else "FAIL", "a stage at 420 on BR-Chan in real frames: unity %s, stages %s; %d steps over %d frames, %d made, chara.motion: %s" % (s0.get("unity"), s0.get("stages"), s1["steps"], STAGE_FRAMES, s1["makes"], json.dumps(row)),
+            replies=[s0, add, s1])
+    ok = s2["makes"] == 2 and s2["root"] not in (0, s1["root"]) and s2["steps"] > s1["steps"] and row2 is not None
+    C.R.add("RY8", "PASS" if ok else "FAIL", "chara.change: %d made, root %s -> %s, %d steps, still listed %s" % (s2["makes"], s1["root"], s2["root"], s2["steps"], row2 is not None), reply=r, state=s2)
+    removed = C.call({"cmd": "stageprobe.remove"})
+    s3 = C.call({"cmd": "stageprobe.state"})
+    C.frames(5)
+    s4 = C.call({"cmd": "stageprobe.state"})
+    gone = motion_row(C, key, name)
+    C.R.add("RY8", "PASS" if removed.get("removed") == 1 and s4["steps"] == s3["steps"] and gone is None else "FAIL", "taken off: %s removed, steps %d then %d, listed %s" % (removed.get("removed"), s3["steps"], s4["steps"], gone is not None))
+    C.call({"cmd": "stageprobe.watch", "key": key})
+    C.frames(5)
+    y = C.call({"cmd": "stageprobe.head"}).get("y", 0)
+    C.call({"cmd": "stageprobe.remove"})
+    C.R.add("RY8", "PASS" if y > 1 else "FAIL", "the guide's example at the final phase saw the head at y %.3f (at least 1)" % y)
+    C.call({"cmd": "scene.new"})
 
 
 def kd9(C):
@@ -1313,7 +1422,7 @@ def main(argv):
     ap.add_argument("--port", type=int, default=DEFAULT_PORT)
     ap.add_argument("--timeout-min", type=float, default=20.0, help="whole run; past it the started PID is killed")
     ap.add_argument("--ready-timeout-min", type=float, default=12.0)
-    ap.add_argument("--only", default="", help="comma list of PA1..PA8, PK1, PK2, KD9 (PA9 always runs when the player was started)")
+    ap.add_argument("--only", default="", help="comma list of PA1..PA8, PK1, PK2, PK3, KD9, WY3, RY8 (PA9 always runs when the player was started)")
     ap.add_argument("--cycles", type=int, default=20, help="PA7 measured cycles")
     ap.add_argument("--warmup", type=int, default=2, help="PA7 warm-up cycles")
     ap.add_argument("--measure-frames", type=int, default=600)
@@ -1364,8 +1473,8 @@ def main(argv):
                 if a.make_fixture:
                     guard(C, "FIXTURE", make_fixture)
                 else:
-                    for cid, fn in (("PA1", pa1), ("PA2", pa2), ("PK1", pk1), ("PK2", pk2), ("PA3", pa3), ("PA4", pa4),
-                                    ("PA5", pa5), ("PA6", pa6), ("PA7", pa7), ("PA8", pa8), ("KD9", kd9)):
+                    for cid, fn in (("PA1", pa1), ("PA2", pa2), ("PK1", pk1), ("PK2", pk2), ("PK3", pk3), ("PA3", pa3), ("PA4", pa4),
+                                    ("PA5", pa5), ("PA6", pa6), ("PA7", pa7), ("PA8", pa8), ("KD9", kd9), ("WY3", wy3), ("RY8", ry8)):
                         if C.want(cid):
                             guard(C, cid, fn)
             except Abort as e:

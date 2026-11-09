@@ -318,7 +318,7 @@ public static partial class SceneRuntimeTest
                        && a?.Instance && a.Instance.transform.parent == a.Holder && b?.Instance && b.Instance.transform.parent == b.Holder
                        && c?.Instance && c.Instance.transform.parent == c.Holder && li?.Instance && li.Instance.transform.parent == li.Holder
                        && ro?.ChildRoot && ro.ChildRoot.parent == ro.Holder;
-        Check("every content under its holder at local identity", content && br.Root.transform.localPosition == Vector3.zero && a.Instance.transform.localRotation == Quaternion.identity);
+        Check("every content under its holder at local identity", content && br.Root.transform.localPosition == Vector3.zero && RotationCompare.Deg(a.Instance.transform.localRotation, Quaternion.identity) == 0);
         var hand = br?.AttachPoints?["N_Hand_R"];
         Check("holders under the attach transforms (B at N_Hand_R, C and light at A's childRoot, K and R in F, roots in Nodes)",
               hand && b?.Holder.parent == hand && c?.Holder.parent == a?.Attach && li?.Holder.parent == a?.Attach && a?.Attach != a?.Instance.transform
@@ -396,11 +396,11 @@ public static partial class SceneRuntimeTest
         var p0 = b.Holder.position; var q0 = b.Holder.rotation;
         var r1 = rt.Ops.MoveKeepWorld(f.ItemB, null, null);
         Check("MoveKeepWorld B → root: ok, holder under Nodes", r1.Ok && b.Holder.parent == rt.NodesRoot && f.Session.Model.Find(f.ItemB).Parent == null, r1.ToString());
-        Check("world position kept ±1e-4, rotation ±0.01°", VErr(b.Holder.position, p0) <= 1e-4f && Quaternion.Angle(b.Holder.rotation, q0) <= 0.01f,
+        Check("world position kept ±1e-4, rotation ±0.01°", VErr(b.Holder.position, p0) <= 1e-4f && RotationCompare.Deg(b.Holder.rotation, q0) <= 0.01f,
               $"{F(b.Holder.position)} vs {F(p0)}, {Quaternion.Angle(b.Holder.rotation, q0):F4}°");
         var r2 = rt.Ops.MoveKeepWorld(f.ItemB, f.BrChan, "N_Hand_R");
         Check("MoveKeepWorld B → BR-Chan N_Hand_R: ok, holder under N_Hand_R", r2.Ok && b.Holder.parent == hand, r2.ToString());
-        Check("world position kept ±1e-4, rotation ±0.01° (back)", VErr(b.Holder.position, p0) <= 1e-4f && Quaternion.Angle(b.Holder.rotation, q0) <= 0.01f,
+        Check("world position kept ±1e-4, rotation ±0.01° (back)", VErr(b.Holder.position, p0) <= 1e-4f && RotationCompare.Deg(b.Holder.rotation, q0) <= 0.01f,
               $"{F(b.Holder.position)} vs {F(p0)}, {Quaternion.Angle(b.Holder.rotation, q0):F4}°");
         var hp0 = hand.position;
         for (int i = 0; i < 30; i++) rt.Tick(1f / 30f);
@@ -522,7 +522,7 @@ public static partial class SceneRuntimeTest
         var br2 = rt.FindChara(f.BrChan); var b2 = rt.FindItem(f.ItemB);
         Check("undo: same GameObject instances, active again", u.Ok && br2 == br && br2.HolderObject.GetEntityId() == idBr && b2.HolderObject.GetEntityId() == idB && br2.Root.GetEntityId() == idRoot && br2.HolderObject.activeInHierarchy && rt.Graveyard.EntryCount == 0,
               $"{u} ({msUndo:F1} ms)");
-        Check("world poses ±1e-4", VErr(br2.Holder.position, pBr) <= 1e-4f && VErr(b2.Holder.position, pB) <= 1e-4f && Quaternion.Angle(b2.Holder.rotation, qB) <= 0.01f,
+        Check("world poses ±1e-4", VErr(br2.Holder.position, pBr) <= 1e-4f && VErr(b2.Holder.position, pB) <= 1e-4f && RotationCompare.Deg(b2.Holder.rotation, qB) <= 0.01f,
               $"BR {F(br2.Holder.position)} vs {F(pBr)}, B {F(b2.Holder.position)} vs {F(pB)}");
         var bytes1 = SceneBytes(s);
         Check("scene bytes equal pre-delete", Same(bytes0, bytes1), Diff(bytes0, bytes1));

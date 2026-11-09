@@ -347,7 +347,7 @@ public static partial class LightCameraTest
             var cam = view.Camera;
             var q = Quaternion.Euler(15, 180, 0);
             Check("current null → the view at the reset view", r.Session.Model.Settings.Camera.Current == null && (cam.transform.position - (new Vector3(0, 10, 0) + q * new Vector3(0, 0, -25))).magnitude < 1e-4f
-                  && Quaternion.Angle(cam.transform.rotation, q) < 0.01f && Near(cam.fieldOfView, 23) && Near(cam.farClipPlane, 15000), cam.transform.position.ToString());
+                  && RotationCompare.Deg(cam.transform.rotation, q) < 0.01f && Near(cam.fieldOfView, 23) && Near(cam.farClipPlane, 15000), cam.transform.position.ToString());
             var rv = SceneViewCamera.ResetView();
             Check("ResetView() as a model value", rv.Pivot.Y == 10 && rv.Rot.X == 15 && rv.Rot.Y == 180 && rv.Distance == 25 && rv.Fov == 23);
             var slots = r.Session.Model.Settings.Camera.Slots;

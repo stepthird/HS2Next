@@ -472,19 +472,19 @@ public static class DynamicBoneTest
         }
 
         var frame = new MotionFrame(1f / 60, 1f / 60, 0, 0);
-        float worst = 0f;
+        double worst = 0;
         var sb = new StringBuilder();
         for (int f = 1; f <= 10; f++)
         {
             Drive(main.owner, f); Drive(refr.owner, f);
             stage.Step(frame);
             RefStep();
-            float e = 0f;
-            for (int i = 0; i < 3; i++) e = Mathf.Max(e, (chain.Position(i) - X[i]).magnitude);
-            e = Mathf.Max(e, (main.b1.position - refr.b1.position).magnitude);
-            e = Mathf.Max(e, Quaternion.Angle(main.b1.rotation, refr.b1.rotation) * Mathf.Deg2Rad);
-            e = Mathf.Max(e, Quaternion.Angle(main.b0.rotation, refr.b0.rotation) * Mathf.Deg2Rad);
-            if (f == 1 || f == 2 || f == 10) { sb.Append($"step {f}: {e:E2} (tip {F(X[2])}); "); worst = Mathf.Max(worst, e); }
+            double e = 0;
+            for (int i = 0; i < 3; i++) e = Math.Max(e, (chain.Position(i) - X[i]).magnitude);
+            e = Math.Max(e, (main.b1.position - refr.b1.position).magnitude);
+            e = Math.Max(e, RotationCompare.Deg(main.b1.rotation, refr.b1.rotation) * Math.PI / 180);
+            e = Math.Max(e, RotationCompare.Deg(main.b0.rotation, refr.b0.rotation) * Math.PI / 180);
+            if (f == 1 || f == 2 || f == 10) { sb.Append($"step {f}: {e:E2} (tip {F(X[2])}); "); worst = Math.Max(worst, e); }
         }
         float pen = DynamicBoneColliders.Penetration(stage.Colliders[chain.ColliderIndex(0)], chain.Position(1), main.db.m_Radius);
         Check("3-particle chain vs reference", worst < 1e-5f, $"max |dx| / bone angle (rad) {worst:E2}; {sb}collider touched: {pen < 1e-4f}");

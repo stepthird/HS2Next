@@ -717,10 +717,12 @@ namespace HS2Next.UI.Gizmos
             pass.Clear();
             Visible = false;
             RouteDraws(pass, cam);   // Phase 3.6 package R: route lines and markers (also with gizmos hidden, as HS2's route layer)
+            ctx.Tools.Draw(pass, cam);   // Phase 6.6: what a viewport tool shows (also with gizmos hidden)
             if (!ctx.Options.Bool(OptionDefs.ViewGizmos)) return;
             pairs.Clear();
             Helpers(pass, cam);
-            if (TryTarget(out var t))
+            bool rest = ctx.Tools.Blocks;   // Phase 6.6: a viewport tool in its default mode: no handle shows
+            if (!rest && TryTarget(out var t))
             {
                 var tool = ToolFor(t);
                 ShownTool = tool;
@@ -775,9 +777,12 @@ namespace HS2Next.UI.Gizmos
                     pass.Add(new GizmoDraw { Mesh = GizmoMeshes.Cube, Matrix = Matrix4x4.TRS(t.Pos, axes, Vector3.one * L * 0.12f), Color = C(HandleKind.ScaleUniform, -1, ViewRing) });
                 }
             }
-            SubHandleDraws(pass, cam);
-            HairDraws(pass, cam);   // Phase 4.3 package W: hair bundle markers
-            AccessoryDraws(pass, cam);   // Phase 4.5 package W: accessory set markers
+            if (!rest)
+            {
+                SubHandleDraws(pass, cam);
+                HairDraws(pass, cam);   // Phase 4.3 package W: hair bundle markers
+                AccessoryDraws(pass, cam);   // Phase 4.5 package W: accessory set markers
+            }
             BoneDraws(pass, cam);   // Phase 6.3 package U: the pick's spheres
             if (pairs.Count > 0)
             {

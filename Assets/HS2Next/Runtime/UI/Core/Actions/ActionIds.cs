@@ -83,6 +83,13 @@ namespace HS2Next.UI.Core
             TimelineKey = "timeline.key", TimelineExport = "timeline.export";
         /// <summary>Constraints (Phase 6.5): the panel (open / collapse).</summary>
         public const string ConstraintsPanel = "constraints.panel";
+        public const string WetPanel = "wet.panel";
+        /// <summary>The ragdoll (Phase 6.7): the panel (open / collapse).</summary>
+        public const string RagdollPanel = "ragdoll.panel";
+        /// <summary>Chara to Item and the Cutter (Phase 6.8): the panels (open / collapse).</summary>
+        public const string BakePanel = "bake.panel", CutPanel = "cut.panel";
+        /// <summary>Scene scripts (Phase 6.9): the panel (open / collapse).</summary>
+        public const string ScriptsPanel = "scripts.panel";
 
         // screenshots (Phase 3.6, F11 takes one, Shift+F11 opens the dialog, both presets)
         public const string CaptureScreenshot = "capture.screenshot", CaptureDialog = "capture.dialog";
@@ -262,6 +269,11 @@ namespace HS2Next.UI.Core
             foreach (var id in new[] { ActionIds.TimelinePanel, ActionIds.TimelinePlayPause, ActionIds.TimelineStop, ActionIds.TimelineKey, ActionIds.TimelineExport })
                 A(id, G);   // Phase 6.2: the Timeline
             A(ActionIds.ConstraintsPanel, G);   // Phase 6.5
+            A(ActionIds.WetPanel, G);   // Phase 6.6
+            A(ActionIds.RagdollPanel, G);   // Phase 6.7
+            A(ActionIds.BakePanel, G);   // Phase 6.8
+            A(ActionIds.CutPanel, G);
+            A(ActionIds.ScriptsPanel, G);   // Phase 6.9
 
             A(ActionIds.HelpKeys, G);
             A(ActionIds.HelpAbout, G);

@@ -2113,3 +2113,451 @@ history.constraint.remove	Remove constraint	拘束の削除	删除约束	zh?
 history.constraint.clear	Clear constraints	拘束をすべて削除	清除约束	zh?
 history.constraint.reorder	Reorder constraints	拘束の並べ替え	重新排序约束	zh?
 history.constraint.takeOffset	Take offset	ずれの取得	获取偏移	zh?
+#U66 (Phase 6.6 package U: the viewport tools, the Wet and stains panel and action, the section of the State tab, the history labels of its edits)
+tool.refused.dialog	Close the dialog first.	先にダイアログを閉じてください。	请先关闭对话框。	zh?
+tool.refused.edit	Leave the Edit tab first.	先に「編集」タブを離れてください。	请先离开“编辑”选项卡。	zh?
+action.wet.panel	Wet and stains panel	濡れと染みパネル	湿痕与污渍面板	zh?
+panel.wet	Wet and stains	濡れと染み	湿痕与污渍	zh?
+wet.none	No stains on this character.	このキャラに染みはありません。	此角色没有污渍。	zh?
+wet.selectCharacter	Select a character.	キャラを選んでください。	请选择角色。	zh?
+wet.primaryOnly	Shows the primary character; several selected edit nothing.	主に選んだキャラを表示します。複数選択では編集しません。	显示主选角色；多选时不进行编辑。	zh?
+wet.openPanel	Open in panel	パネルで開く	在面板中打开	zh?
+wet.addStain	Add stain	染みを追加	添加污渍	zh?
+wet.removeAll	Remove all	すべて削除	全部删除	zh?
+wet.remove	Remove	削除	删除	zh?
+wet.moveUp	Move up	上へ	上移	zh?
+wet.moveDown	Move down	下へ	下移	zh?
+wet.kept	Kept	保持	已保留	zh?
+wet.state.running	Running	進行中	进行中	zh?
+wet.state.dry	Dry	乾いている	干燥	zh?
+wet.state.stopped	Stopped	停止	已停止	zh?
+wet.pickOrigin	Pick origin	起点を拾う	拾取起点	zh?
+wet.pickOrigin.hint	Press on the character to set the origin. Esc leaves.	キャラの上を押すと起点になります。Esc で抜けます。	在角色上按下即可设置起点。按 Esc 退出。	zh?
+wet.defaultOrigin	Default origin	既定の起点	默认起点	zh?
+wet.origin	Origin	起点	起点	zh?
+wet.origin.down	Lower by	下げる量	下移量	zh?
+wet.origin.out	Out by	手前へ出す量	外移量	zh?
+wet.showMarker	Show marker	印を出す	显示标记	zh?
+wet.start	Start	開始	开始	zh?
+wet.full	Full	最後まで	全部	zh?
+wet.dry	Dry	乾かす	晾干	zh?
+wet.clearPuddles	Clear puddles	水たまりを消す	清除水洼	zh?
+wet.keep	Keep as layer	層として残す	保留为图层	zh?
+wet.run	Run	進め方	运行	zh?
+wet.loop	Loop	繰り返す	循环	zh?
+wet.hold	Hold (s)	とどめる時間（秒）	停留时间（秒）	zh?
+wet.preset.water	Water	水	水	zh?
+wet.preset.blood	Blood	血	血	zh?
+wet.applyAgain	Apply again	付け直す	重新应用	zh?
+wet.reset	Back to the default	既定に戻す	恢复默认	zh?
+wet.shape	Shape	形	形状	zh?
+wet.shape.radius	Radius	半径	半径	zh?
+wet.shape.spread	Spread time (s)	広がる時間（秒）	扩散时间（秒）	zh?
+wet.shape.up	Upward	上へ	向上	zh?
+wet.shape.down	Downward	下へ	向下	zh?
+wet.shape.front	Front	前へ	向前	zh?
+wet.shape.back	Back	後ろへ	向后	zh?
+wet.shape.side	Sides	横へ	向两侧	zh?
+wet.shape.outer	Outer side of the legs	脚の外側	腿外侧	zh?
+wet.shape.noise	Unevenness	ムラ	不均匀度	zh?
+wet.shape.feather	Soft edge	ふちのぼかし	边缘柔化	zh?
+wet.targets.skin	Stain skin too	肌も染める	也染皮肤	zh?
+wet.targets.hair	Stain hair too	髪も染める	也染头发	zh?
+wet.targets.accessories	Stain accessories too	アクセも染める	也染配饰	zh?
+wet.targets.shoes	Stain shoes too	靴も染める	也染鞋子	zh?
+wet.targets.gloves	Stain gloves too	手袋も染める	也染手套	zh?
+wet.look	Look	見え方	外观	zh?
+wet.look.saturate	Saturation	彩度	饱和度	zh?
+wet.look.tint.r	Tint, red	色味（赤）	色调（红）	zh?
+wet.look.tint.g	Tint, green	色味（緑）	色调（绿）	zh?
+wet.look.tint.b	Tint, blue	色味（青）	色调（蓝）	zh?
+wet.look.stain	Stain colour	染みの色	污渍颜色	zh?
+wet.look.amount	Stain amount	染みの濃さ	污渍浓度	zh?
+wet.look.skin	On skin	肌への効き	对皮肤的强度	zh?
+wet.film	Film	濡れのつや	湿润光泽	zh?
+wet.film.on	Gloss on clothes	服につやを出す	衣物显示光泽	zh?
+wet.film.gloss	Gloss	つや	光泽	zh?
+wet.film.smooth	Smoothness	なめらかさ	平滑度	zh?
+wet.film.opacity	Opacity	不透明度	不透明度	zh?
+wet.drips	Drips	しずく	水滴	zh?
+wet.drips.on	Drips fall	しずくを落とす	滴落水滴	zh?
+wet.drips.rate	Rate (per s)	量（毎秒）	数量（每秒）	zh?
+wet.drips.tail	Tail (s)	続く時間（秒）	持续时间（秒）	zh?
+wet.drips.size	Size	大きさ	大小	zh?
+wet.drips.growth	Puddle growth	水たまりの育ち方	水洼增长	zh?
+wet.drips.skin	From skin too	肌からも落とす	也从皮肤滴落	zh?
+wet.drips.color	Colour	色	颜色	zh?
+wet.drips.shine	Shine	光り方	光泽	zh?
+wet.puddle	Puddle	水たまり	水洼	zh?
+wet.puddle.color	Colour	色	颜色	zh?
+wet.puddle.shine	Shine	光り方	光泽	zh?
+wet.puddle.edge	Rim	ふち	边缘	zh?
+wet.puddle.scale	Scale	大きさ	大小	zh?
+wet.mirror	Mirror	映り込み	倒影	zh?
+wet.mirror.on	Reflect	映す	显示倒影	zh?
+wet.mirror.strength	Strength	強さ	强度	zh?
+wet.mirror.scale	Resolution	解像度	分辨率	zh?
+wet.floor	Floor	床	地面	zh?
+wet.floor.map	Map surface	マップの面	地图表面	zh?
+wet.floor.feet	Feet	足元	脚底	zh?
+wet.floor.fixed	Fixed	固定	固定	zh?
+wet.floor.offset	Offset	高さの調整	高度调整	zh?
+wet.floor.height	Height	高さ	高度	zh?
+wet.floor.shown	Map {0}, feet {1}, floor {2}	マップ {0}、足元 {1}、床 {2}	地图 {0}，脚底 {1}，地面 {2}	zh?
+wet.status.partChanged	This part changed: apply again to stain it.	部品が変わりました。染めるには付け直します。	部件已更改：请重新应用以染色。	zh?
+wet.status.line	{0} s, radius {1}, {2} parts, {3} puddles	{0} 秒、半径 {1}、部品 {2}、水たまり {3}	{0} 秒，半径 {1}，{2} 个部件，{3} 个水洼	zh?
+wet.status.left	{0} parts stay dry: they cannot be stained.	{0} 個の部品は染められないので乾いたままです。	{0} 个部件无法染色，保持干燥。	zh?
+history.wet.add	Add stain	染みの追加	添加污渍	zh?
+history.wet.remove	Remove stain	染みの削除	删除污渍	zh?
+history.wet.edit	Stain	染み	污渍	zh?
+history.wet.keep	Keep layer	層として残す	保留图层	zh?
+history.wet.start	Start stain	染みの開始	开始污渍	zh?
+history.wet.dry	Dry stain	染みを乾かす	晾干污渍	zh?
+history.wet.clearPuddles	Clear puddles	水たまりを消す	清除水洼	zh?
+history.wet.floor	Floor	床	地面	zh?
+history.wet.origin	Move origin	起点の移動	移动起点	zh?
+#U67 (Phase 6.7 package U: the Ragdoll panel and action, the section of the State tab, the tool, the option Show blood, the history labels of its edits)
+action.ragdoll.panel	Ragdoll panel	ラグドールパネル	布娃娃面板	zh?
+panel.ragdoll	Ragdoll	ラグドール	布娃娃	zh?
+ragdoll.make	Ragdoll	ラグドールにする	变为布娃娃	zh?
+ragdoll.release	Release	解除	解除	zh?
+ragdoll.releaseAll	Release all	すべて解除	全部解除	zh?
+ragdoll.bake	Bake pose to FK	姿勢を FK に焼く	将姿势烘焙到 FK	zh?
+ragdoll.snap	Snap to pose	姿勢に戻す	回到姿势	zh?
+ragdoll.preset.limp	Limp	脱力	松弛	zh?
+ragdoll.preset.stiff	Stiff	硬直	僵硬	zh?
+ragdoll.preset.puppet	Puppet	追従	跟随	zh?
+ragdoll.preset.hipsPin	Hips pin	腰留め	固定腰部	zh?
+ragdoll.state.none	No ragdoll	ラグドールなし	非布娃娃	zh?
+ragdoll.state.up	Up	立ち	站立	zh?
+ragdoll.state.down	Down	倒れ	倒地	zh?
+ragdoll.state.gettingUp	Getting up	起き上がり	起身中	zh?
+ragdoll.state.limp	Limp	脱力	松弛	zh?
+ragdoll.selectCharacter	Select a character.	キャラを選んでください。	请选择角色。	zh?
+ragdoll.primaryOnly	Shows the primary character; several selected edit nothing.	主に選んだキャラを表示します。複数選択では編集しません。	显示主选角色；多选时不进行编辑。	zh?
+ragdoll.openPanel	Open in panel	パネルで開く	在面板中打开	zh?
+ragdoll.reset	Back to the default	既定に戻す	恢复默认	zh?
+ragdoll.grab	Grab	つかむ	抓取	zh?
+ragdoll.shoot	Shoot	撃つ	射击	zh?
+ragdoll.colliders	Colliders	当たりの形	碰撞体	zh?
+ragdoll.room	Room	部屋	房间	zh?
+ragdoll.mode.off	Off	使わない	不使用	zh?
+ragdoll.outlines.hint	Shows in the view while a character has a body or a thrown prop is in the world, never in a capture.	体のあるキャラか投げた物がある間、ビューに線を出します。撮影には写りません。	有带身体的角色或投出的物体时在视图中显示线框。不会出现在截图中。	zh?
+ragdoll.tool.hint	Drag: grab. Ctrl: push. Shift: throw. Wheel: depth. Space: pin. T: pin to selected. N: follower. Esc: leave.	ドラッグ: つかむ。Ctrl: 押す。Shift: 投げる。ホイール: 奥行き。Space: 留める。T: 選択に留める。N: 追従フォルダー。Esc: 終わる。	拖动：抓取。Ctrl：推。Shift：投掷。滚轮：深度。Space：固定。T：固定到所选。N：跟随文件夹。Esc：退出。	zh?
+ragdoll.tool.shootHint	Press: shoot. Hold: repeat. Alt: camera. Esc: leave.	押す: 撃つ。押したまま: 続けて撃つ。Alt: カメラ。Esc: 終わる。	按下：射击。按住：连续射击。Alt：相机。Esc：退出。	zh?
+ragdoll.tool.noSelection	Select what the pin follows first.	留めが追う物を先に選んでください。	请先选择固定要跟随的对象。	zh?
+ragdoll.tool.propPin	A prop takes no pin.	投げた物は留められません。	投掷物无法固定。	zh?
+ragdoll.selectFirst	Select something first.	先に何かを選んでください。	请先选择对象。	zh?
+ragdoll.pin	Pin	留める	固定	zh?
+ragdoll.unpin	Unpin	留めを外す	取消固定	zh?
+ragdoll.unpinAll	Unpin all	留めをすべて外す	全部取消固定	zh?
+ragdoll.tie	Tie	つなぐ	绑定	zh?
+ragdoll.hold	Hold pose	姿勢を保つ	保持姿势	zh?
+ragdoll.push	Push	押す	推	zh?
+ragdoll.stay	Stay	その場に留める	留在原地	zh?
+ragdoll.followSelected	Follow selected	選択を追う	跟随所选	zh?
+ragdoll.remove	Remove	外す	移除	zh?
+ragdoll.pinFollows	{0} follows {1}	{0} が {1} を追う	{0} 跟随 {1}	zh?
+ragdoll.tieRow	{0} and {1}	{0} と {1}	{0} 与 {1}	zh?
+ragdoll.holdRow	Hold: {0}	姿勢を保つ: {0}	保持：{0}	zh?
+ragdoll.part.pelvis	Pelvis	腰	骨盆	zh?
+ragdoll.part.abdomen	Abdomen	腹	腹部	zh?
+ragdoll.part.chest	Chest	胸	胸部	zh?
+ragdoll.part.head	Head	頭	头部	zh?
+ragdoll.part.upperarm_L	Left upper arm	左の上腕	左上臂	zh?
+ragdoll.part.upperarm_R	Right upper arm	右の上腕	右上臂	zh?
+ragdoll.part.forearm_L	Left forearm	左の前腕	左前臂	zh?
+ragdoll.part.forearm_R	Right forearm	右の前腕	右前臂	zh?
+ragdoll.part.hand_L	Left hand	左手	左手	zh?
+ragdoll.part.hand_R	Right hand	右手	右手	zh?
+ragdoll.part.thigh_L	Left thigh	左の太もも	左大腿	zh?
+ragdoll.part.thigh_R	Right thigh	右の太もも	右大腿	zh?
+ragdoll.part.shin_L	Left shin	左のすね	左小腿	zh?
+ragdoll.part.shin_R	Right shin	右のすね	右小腿	zh?
+ragdoll.part.foot_L	Left foot	左足	左脚	zh?
+ragdoll.part.foot_R	Right foot	右足	右脚	zh?
+ragdoll.section.muscles	Muscles and pins	筋肉と留め	肌肉与固定	zh?
+ragdoll.section.knockdown	Knockdown	転倒	倒地	zh?
+ragdoll.section.props	Props	投げる物	投掷物	zh?
+ragdoll.section.shots	Shots	射撃	射击	zh?
+ragdoll.section.world	World	物理の世界	物理世界	zh?
+ragdoll.section.room	Room	部屋	房间	zh?
+ragdoll.value.muscle	Muscle	筋力	肌肉	zh?
+ragdoll.value.muscleDamping	Damping	筋肉の減衰	肌肉阻尼	zh?
+ragdoll.value.pin	Pin	留めの強さ	固定强度	zh?
+ragdoll.value.pinFreq	Pin frequency	留めの周波数	固定频率	zh?
+ragdoll.value.pinFalloff	Falloff	留めが弱まる距離	衰减距离	zh?
+ragdoll.value.pinHipsOnly	Hips only	腰だけ留める	仅固定腰部	zh?
+ragdoll.value.gravityComp	Gravity compensation	重力の補正	重力补偿	zh?
+ragdoll.value.blendOut	Blend out	解除にかける時間	解除过渡时间	zh?
+ragdoll.value.knockDistance	Distance	倒れる距離	倒地距离	zh?
+ragdoll.value.knockHit	Hit	倒れる当たりの強さ	倒地撞击强度	zh?
+ragdoll.value.downMuscle	Down muscle	倒れている間の筋力	倒地时肌肉	zh?
+ragdoll.value.minDown	Down time	倒れている時間	倒地时间	zh?
+ragdoll.value.getUp	Get-up	起き上がる時間	起身时间	zh?
+ragdoll.value.relocate	Relocate	倒れた場所で起き上がる	在倒地处起身	zh?
+ragdoll.value.faceCamera	Face the camera	カメラのほうを向く	面向相机	zh?
+ragdoll.value.legCollision	Leg collision	左右の脚の衝突	左右腿碰撞	zh?
+ragdoll.knock	Knock down	倒す	击倒	zh?
+ragdoll.reseat	Reseat twisted	ねじれを直す	修正扭曲	zh?
+ragdoll.prop.ball	Ball	ボール	球	zh?
+ragdoll.prop.box	Box	箱	箱子	zh?
+ragdoll.prop.heavy	Heavy	重い球	重球	zh?
+ragdoll.value.propMass	Mass	質量	质量	zh?
+ragdoll.value.propSpeed	Speed	速さ	速度	zh?
+ragdoll.value.propSize	Size	大きさ	大小	zh?
+ragdoll.clearProps	Clear props	投げた物を消す	清除投掷物	zh?
+ragdoll.lastHit	Last hit: {0}	最後の当たり: {0}	上次命中：{0}	zh?
+ragdoll.value.momentum	Momentum	運動量	动量	zh?
+ragdoll.value.transfer	Transfer	伝わる割合	传递比例	zh?
+ragdoll.value.maxPartDv	Per-part cap	部位ごとの上限	每部位上限	zh?
+ragdoll.value.hitWeaken	Weaken	弱まりにくさ	削弱阈值	zh?
+ragdoll.value.weakenRegain	Regain	回復の速さ	恢复速度	zh?
+ragdoll.value.weakMuscle	Muscle share	弱まりで減る筋力	削弱时减少的肌肉	zh?
+ragdoll.value.staggerAt	Stagger	よろめきの限度	踉跄上限	zh?
+ragdoll.value.fireRate	Fire rate	続けて撃つ速さ	射速	zh?
+ragdoll.stainOnHit	Stain on hit	当たった所に染み	命中处留痕	zh?
+options.blood	Show blood	血を表示	显示血迹	zh?
+option.studio.blood	Show blood	血を表示	显示血迹	zh?
+ragdoll.value.timeScale	Time scale	時間の倍率	时间比例	zh?
+ragdoll.value.gravity	Gravity	重力	重力	zh?
+ragdoll.value.pushSpeed	Push	押す強さ	推力	zh?
+ragdoll.value.grabStiffness	Grab stiffness	つかむ硬さ	抓取刚度	zh?
+ragdoll.value.grabMax	Grab force	つかむ力	抓取力	zh?
+ragdoll.value.followStiffness	Follow stiffness	追う硬さ	跟随刚度	zh?
+ragdoll.value.followMax	Follow force	追う力	跟随力	zh?
+ragdoll.value.angularDrag	Angular drag	回転の抵抗	角阻力	zh?
+ragdoll.value.friction	Friction	関節の摩擦	关节摩擦	zh?
+ragdoll.value.hz	Substep	サブステップ (毎秒)	子步 (每秒)	zh?
+ragdoll.value.mass	Mass (next build)	質量 (次に作るときから)	质量 (下次生成时)	zh?
+ragdoll.value.roomW	W	幅	宽	zh?
+ragdoll.value.roomH	H	高さ	高	zh?
+ragdoll.value.roomD	D	奥行き	深	zh?
+ragdoll.floor.map	Map	マップ	地图	zh?
+ragdoll.floor.feet	Feet	足元	脚底	zh?
+ragdoll.floor.fixed	Fixed	固定	固定	zh?
+ragdoll.value.floorOffset	Offset	高さの調整	高度调整	zh?
+ragdoll.value.floorHeight	Height	高さ	高度	zh?
+ragdoll.roomAtSelection	Room at selection	選択の位置に部屋を移す	将房间移到所选处	zh?
+ragdoll.obstacle	Obstacle	障害物	障碍物	zh?
+history.ragdoll.build	Ragdoll	ラグドール	布娃娃	zh?
+history.ragdoll.release	Release ragdoll	ラグドールの解除	解除布娃娃	zh?
+history.ragdoll.pin	Pin	留める	固定	zh?
+history.ragdoll.unpin	Unpin	留めを外す	取消固定	zh?
+history.ragdoll.tie	Tie	つなぐ	绑定	zh?
+history.ragdoll.hold	Hold	姿勢を保つ	保持姿势	zh?
+history.ragdoll.settings	Ragdoll settings	ラグドールの設定	布娃娃设置	zh?
+history.ragdoll.pusher	Pusher	押し出し	推动体	zh?
+history.ragdoll.obstacle	Obstacle	障害物	障碍物	zh?
+history.ragdoll.bake	Bake pose to FK	姿勢を FK に焼く	将姿势烘焙到 FK	zh?
+history.ragdoll.follower	Follower	追従フォルダー	跟随文件夹	zh?
+#U68 (Phase 6.8 package U: the panels Chara to Item and Cutter and their actions, the sections of the State tab and the item inspector, the tool that places a marker on a surface, the rows of the item list, the history labels of their edits)
+action.bake.panel	Chara to Item panel	「キャラをアイテムに」パネル	角色转道具面板	zh?
+action.cut.panel	Cutter panel	カッターパネル	切割面板	zh?
+panel.bake	Chara to Item	キャラをアイテムに	角色转道具	zh?
+panel.cut	Cutter	カッター	切割	zh?
+bake.rows.bakes	Baked objects	焼いた物	烘焙物体	zh?
+bake.rows.markers	Cut tools	切断具	切割工具	zh?
+bake.useSelected	Use selected	選択を使う	使用所选	zh?
+bake.target	Characters: {0}	キャラ: {0}	角色：{0}	zh?
+bake.selectCharacter	Select a character, then press Use selected.	キャラを選んで「選択を使う」を押してください。	请选择角色，然后点击“使用所选”。	zh?
+bake.parts	Parts	部位	部位	zh?
+bake.partsNotBuilt	The character is not built yet.	キャラはまだ読み込み中です。	角色尚未加载完成。	zh?
+bake.whole	Whole	全体	整体	zh?
+bake.preset.body	Body	体	身体	zh?
+bake.preset.hair	Hair	髪	头发	zh?
+bake.preset.clothes	Clothes	服	服装	zh?
+bake.preset.accs	Accessories	アクセ	饰品	zh?
+bake.part.body	Body	体	身体	zh?
+bake.part.head	Head	頭	头部	zh?
+bake.part.hair0	Hair back	後ろ髪	后发	zh?
+bake.part.hair1	Hair front	前髪	前发	zh?
+bake.part.hair2	Hair side	横髪	侧发	zh?
+bake.part.hair3	Hair extension	エクステ	接发	zh?
+bake.part.acc	Accessory {0}	アクセ {0}	饰品 {0}	zh?
+bake.part.accHair	Accessory {0} (hair)	アクセ {0} (髪)	饰品 {0}（头发）	zh?
+bake.part.other	Other	その他	其他	zh?
+bake.split	One item per part	部位ごとに別のアイテム	每个部位一个道具	zh?
+bake.options	Options	設定	选项	zh?
+bake.fk	FK bones	FK のボーン	FK 骨骼	zh?
+bake.fill	Fill hollow parts	空洞を塞ぐ	填充空心部位	zh?
+bake.centre	Origin at the parts' centre	原点を部位の中心に	原点在部位中心	zh?
+bake.hide	Hide the character	キャラを隠す	隐藏角色	zh?
+bake.keep	Keep in the store	置き場に残す	保存到库	zh?
+bake.name	Name	名前	名称	zh?
+bake.make	Bake	焼く	烘焙	zh?
+bake.capturing	Capturing…	取り込み中…	正在捕获…	zh?
+bake.made	Items made: {0}	作ったアイテム: {0}	已生成道具：{0}	zh?
+bake.noDevice	Baking needs a graphics device.	焼くにはグラフィックスデバイスが要ります。	烘焙需要图形设备。	zh?
+bake.store	Bakes	焼いた物	烘焙列表	zh?
+bake.showDeleted	Show deleted	削除した物も表示	显示已删除	zh?
+bake.storeEmpty	The store holds no bake yet.	置き場にはまだ焼いた物がありません。	库中尚无烘焙。	zh?
+bake.storeNoMatch	No bake matches.	当てはまる焼いた物はありません。	没有匹配的烘焙。	zh?
+bake.storeUnreadable	The store's index cannot be read; it is kept and copied aside at the next write.	置き場の目録が読めません。目録は残し、次に書くときに別名で控えます。	无法读取库的索引；它会被保留，并在下次写入时另存一份。	zh?
+bake.add	Add	追加	添加	zh?
+bake.rename	Rename	名前を変える	重命名	zh?
+bake.delete	Delete	削除	删除	zh?
+bake.deleteAsk	Delete? Press again	もう一度押すと削除	再按一次删除	zh?
+bake.deletedMark	(deleted)	(削除済み)	（已删除）	zh?
+bake.restore	Restore	戻す	恢复	zh?
+bake.damaged	damaged	破損	已损坏	zh?
+bake.kind.chara	Character	キャラ	角色	zh?
+bake.kind.parts	Parts	部位	部位	zh?
+bake.kind.item	Item	アイテム	道具	zh?
+bake.kind.piece	Piece	切った物	切块	zh?
+bake.kind.imported	Imported	取り込んだ物	导入	zh?
+bake.purge	Purge…	完全に消す…	清除…	zh?
+bake.purgeOk	Purge	完全に消す	清除	zh?
+bake.purgeWhat	Removes {0} deleted rows and {1} files no row uses ({2}).	削除した {0} 行と、どの行も使っていないファイル {1} 個 ({2}) を消します。	将移除 {0} 个已删除的行，以及 {1} 个无行使用的文件（{2}）。	zh?
+bake.purgeNone	Nothing to purge.	消す物はありません。	没有可清除的内容。	zh?
+bake.purged	Removed {0} rows and {1} files ({2}).	{0} 行とファイル {1} 個 ({2}) を消しました。	已移除 {0} 行和 {1} 个文件（{2}）。	zh?
+bake.import	Import old bakes…	古い焼き物を取り込む…	导入旧烘焙…	zh?
+bake.importFolder	Folder	フォルダー	文件夹	zh?
+bake.importFolderFirst	Give the folder of the old bakes first.	先に古い焼き物のフォルダーを入れてください。	请先填写旧烘焙所在的文件夹。	zh?
+bake.importing	Importing…	取り込み中…	正在导入…	zh?
+bake.imported	Imported {0}, skipped {1}.	{0} 個を取り込み、{1} 個を飛ばしました。	已导入 {0} 个，跳过 {1} 个。	zh?
+bake.section.whole	Bake whole	全体を焼く	烘焙整体	zh?
+bake.section.parts	Bake parts…	部位を焼く…	烘焙部位…	zh?
+bake.section.last	Last bake: {0}	最後に焼いた物: {0}	上次烘焙：{0}	zh?
+bake.section.none	No bake of this character yet.	このキャラはまだ焼いていません。	尚未烘焙此角色。	zh?
+bake.item.title	Bake	焼いた物	烘焙	zh?
+bake.item.kind	Kind: {0}	種類: {0}	类型：{0}	zh?
+bake.item.source	Source: {0}	元: {0}	来源：{0}	zh?
+bake.item.size	Size: {0}	サイズ: {0}	大小：{0}	zh?
+bake.item.members	Mosaic parts: {0}	モザイクの部材: {0}	马赛克部件：{0}	zh?
+bake.item.steps	Steps: {0}	手順: {0}	步骤：{0}	zh?
+bake.item.editCut	Edit cut	切り方を変える	编辑切割	zh?
+bake.item.recut	Re-cut from source	元から切り直す	从源重新切割	zh?
+bake.item.recutSame	The cut gives the same result.	切り直しても同じ結果です。	重新切割的结果相同。	zh?
+bake.openPanel	Open in panel	パネルで開く	在面板中打开	zh?
+bake.kept	Kept in the store as {0}.	置き場に {0} として残しました。	已作为 {0} 保存到库。	zh?
+bake.keptAlready	The store holds it already as {0}.	置き場には {0} としてすでにあります。	库中已有，编号 {0}。	zh?
+cut.useSelected	Use selected	選択を使う	使用所选	zh?
+cut.target	Target: {0}	対象: {0}	目标：{0}	zh?
+cut.selectTarget	Select a character or an item, then press Use selected.	キャラかアイテムを選んで「選択を使う」を押してください。	请选择角色或道具，然后点击“使用所选”。	zh?
+cut.add.plane	Add plane	平面を追加	添加平面	zh?
+cut.add.box	Add box	箱を追加	添加盒	zh?
+cut.add.tear	Add tear	裂け目を追加	添加裂口	zh?
+cut.add.hole	Add hole	穴を追加	添加孔	zh?
+cut.marker	Cut with	切断具	切割工具	zh?
+cut.marker.plane	Plane	平面	平面	zh?
+cut.marker.box	Box	箱	盒	zh?
+cut.marker.tear	Tear	裂け目	裂口	zh?
+cut.marker.hole	Hole	穴	孔	zh?
+cut.markerFirst	Add or select a marker first.	先に切断具を追加するか選んでください。	请先添加或选择切割工具。	zh?
+cut.place	Place on surface	面に置く	放到表面	zh?
+cut.tool.hint	Press on a surface: place the marker there. Wheel: turn it. Esc: leave.	面を押す: 切断具をそこに置く。ホイール: 回す。Esc: 終わる。	按下表面：将切割工具放到该处。滚轮：旋转。Esc：退出。	zh?
+cut.mode.both	Both sides	両側	两侧	zh?
+cut.mode.front	Front	表	正面	zh?
+cut.mode.back	Back	裏	背面	zh?
+cut.mode.inside	Inside	内側	内侧	zh?
+cut.mode.outside	Outside	外側	外侧	zh?
+cut.mode.boxBoth	Both	両方	两者	zh?
+cut.section	Section colour	断面の色	截面颜色	zh?
+cut.section.darkRed	Dark red	暗い赤	暗红	zh?
+cut.section.flesh	Flesh	肉色	肉色	zh?
+cut.section.bone	Bone	骨色	骨色	zh?
+cut.section.black	Black	黒	黑	zh?
+cut.section.grey	Grey	灰色	灰色	zh?
+cut.rgb	RGB	RGB	RGB	zh?
+cut.ownInside	Own fabric inside	服と髪は自分の裏地	服装和头发显示自身内侧	zh?
+cut.ragged	Ragged edge	ギザギザ	锯齿边	zh?
+cut.tooth	Tooth size	歯の間隔	齿距	zh?
+cut.random	Randomness	不揃いさ	随机度	zh?
+cut.pattern	Pattern #	模様番号	图案编号	zh?
+cut.newPattern	New pattern	新しい模様	新图案	zh?
+cut.clothesOnly	Clothes only	服だけ	仅服装	zh?
+cut.hide	Hide the target	対象を隠す	隐藏目标	zh?
+cut.name	Name	名前	名称	zh?
+cut.make	Cut	切る	切割	zh?
+cut.apply	Apply to piece	切った物に当てる	应用到切块	zh?
+cut.cutting0	Cutting…	切っています…	正在切割…	zh?
+cut.cutting	Cutting… {0}	切っています… {0}	正在切割… {0}	zh?
+cut.made	Pieces made: {0}	切った物: {0}	已生成切块：{0}	zh?
+cut.applied	The piece takes the new cut.	切った物に新しい切り方を当てました。	切块已应用新的切割。	zh?
+cut.unchanged	The cut gives the same result.	同じ結果です。	结果相同。	zh?
+history.bake.make	Bake to item	アイテムに焼く	烘焙为道具	zh?
+history.bake.rename	Rename bake	焼いた物の名前を変える	重命名烘焙	zh?
+history.cut.make	Cut	切る	切割	zh?
+history.cut.edit	Edit cut	切り方を変える	编辑切割	zh?
+history.cut.moveMarker	Move marker	切断具を動かす	移动切割工具	zh?
+#U69 (Phase 6.9 package U: the Scene scripts panel and action, its dialogs, the script line of the Timeline panel's header, the history labels of the script edits)
+action.scripts.panel	Scene scripts panel	「シーンの台本」パネル	场景脚本面板	zh?
+panel.scripts	Scene scripts	シーンの台本	场景脚本	zh?
+script.scene	Scripts of this scene	このシーンの台本	本场景的脚本	zh?
+script.none	The scene has no script yet.	このシーンにはまだ台本がありません。	本场景还没有脚本。	zh?
+script.castCount	Cast: {0} of {1}	割り当て: {0} / {1}	已分配：{0} / {1}	zh?
+script.prepared	prepared	準備済み	已准备	zh?
+script.loaded	loaded	読み込み済み	已载入	zh?
+script.newer	(newer version)	(新しい版)	（较新版本）	zh?
+script.play	Play	再生	播放	zh?
+script.stop	Stop	停止	停止	zh?
+script.prepare	Prepare again	準備をやり直す	重新准备	zh?
+script.record	Record…	連番に書き出す…	录制…	zh?
+script.loop	Loop	繰り返す	循环	zh?
+script.rename	Rename	名前を変える	重命名	zh?
+script.remove	Remove	外す	移除	zh?
+script.keep	Keep in the store	置き場に残す	保存到库	zh?
+script.export	Export…	書き出す…	导出…	zh?
+script.failedSteps	{0} steps failed: see Last play.	{0} 個の手順が失敗しました。「前回の再生」を見てください。	{0} 个步骤失败：请查看“上次播放”。	zh?
+script.kept	Kept in the store as row {0}.	置き場に {0} 番として残しました。	已作为第 {0} 行保存到库。	zh?
+script.exported	Exported to {0}.	{0} に書き出しました。	已导出到 {0}。	zh?
+script.roles	Roles	役	角色	zh?
+script.selectScript	Select a script in the list.	一覧から台本を選んでください。	请在列表中选择脚本。	zh?
+script.noRoles	This script has no role.	この台本には役がありません。	此脚本没有角色。	zh?
+script.kind.chara	Character	キャラ	人物	zh?
+script.kind.item	Item	アイテム	道具	zh?
+script.sex.female	Female	女性	女性	zh?
+script.sex.male	Male	男性	男性	zh?
+script.sex.any	Either	どちらでも	任意	zh?
+script.uncast	Not cast	未割り当て	未分配	zh?
+script.role.use	Use selected	選択中を使う	使用所选	zh?
+script.selectCharacter	Select a character first.	先にキャラを選んでください。	请先选择人物。	zh?
+script.selectItem	Select an item first.	先にアイテムを選んでください。	请先选择道具。	zh?
+script.store	Script store	台本の置き場	脚本库	zh?
+script.showDeleted	Show deleted	削除した物も表示	显示已删除	zh?
+script.storeEmpty	The store is empty.	置き場は空です。	库为空。	zh?
+script.storeNoMatch	No row matches.	合う行はありません。	没有匹配的行。	zh?
+script.storeUnreadable	The store's index cannot be read; it is written again at the next change.	置き場の索引が読めません。次に変更したときに書き直します。	无法读取库的索引；下次更改时会重新写入。	zh?
+script.add	Add to scene	シーンに足す	添加到场景	zh?
+script.delete	Delete	削除	删除	zh?
+script.deleteAsk	Delete? Press again	もう一度押すと削除	再按一次删除	zh?
+script.deletedMark	(deleted)	(削除済み)	（已删除）	zh?
+script.restore	Restore	戻す	恢复	zh?
+script.import	Import…	取り込む…	导入…	zh?
+script.importOk	Import	取り込む	导入	zh?
+script.imported	Imported as row {0}.	{0} 番として取り込みました。	已作为第 {0} 行导入。	zh?
+script.file	File	ファイル	文件	zh?
+script.fileFirst	Give the file first.	先にファイルを入れてください。	请先填写文件。	zh?
+script.noFile	No such file: {0}	ファイルがありません: {0}	没有此文件：{0}	zh?
+script.exportOk	Export	書き出す	导出	zh?
+script.purge	Purge…	完全に消す…	清除…	zh?
+script.purgeOk	Purge	完全に消す	清除	zh?
+script.purgeWhat	Removes {0} deleted rows and their files ({1}).	削除した {0} 行とそのファイル ({1}) を消します。	将移除 {0} 个已删除的行及其文件（{1}）。	zh?
+script.purgeNone	Nothing to purge.	消す物はありません。	没有可清除的内容。	zh?
+script.purgeUnreadable	The store's index cannot be read: nothing is purged.	置き場の索引が読めないため、何も消しません。	无法读取库的索引：不清除任何内容。	zh?
+script.purged	Removed {0} rows and {1} files ({2}).	{0} 行とファイル {1} 個 ({2}) を消しました。	已移除 {0} 行和 {1} 个文件（{2}）。	zh?
+script.recordNote	One pass of the script's Timeline is recorded at a fixed time step, as numbered PNG files.	台本のタイムラインを一周、一定の時間刻みで連番の PNG ファイルに書き出します。	以固定时间步长将脚本时间轴的一个循环录制为编号的 PNG 文件。	zh?
+script.recordOk	Record	書き出す	录制	zh?
+script.failures	Last play	前回の再生	上次播放	zh?
+script.noPlay	No play yet.	まだ再生していません。	尚未播放。	zh?
+script.lastSummary	Set-up: {0} sent, {1} failed. Preparation: {2} sent, {3} failed. Skipped: {4}.	段取り: 送信 {0}、失敗 {1}。準備: 送信 {2}、失敗 {3}。飛ばした物: {4}。	设置：已发送 {0}，失败 {1}。准备：已发送 {2}，失败 {3}。跳过：{4}。	zh?
+script.noFailures	No step failed.	失敗した手順はありません。	没有失败的步骤。	zh?
+script.eventErrors	Timed commands that failed: {0}	失敗した時刻つきの命令: {0}	失败的定时命令：{0}	zh?
+script.phase.setup	Set-up	段取り	设置	zh?
+script.phase.prepare	Preparation	準備	准备	zh?
+script.phase.cast	Cast	割り当て	分配	zh?
+script.phase.load	Load	読み込み	载入	zh?
+script.phase.play	Play	再生	播放	zh?
+script.step	Step {0}	手順 {0}	步骤 {0}	zh?
+script.edited	edited	編集あり	已编辑	zh?
+script.capture	Save edits into the script	編集を台本に書き戻す	将编辑保存到脚本	zh?
+timeline.fromScript	Script: {0}	台本: {0}	脚本: {0}	zh?
+history.script.add	Add script	台本を足す	添加脚本	zh?
+history.script.edit	Edit script	台本を変える	编辑脚本	zh?
+history.script.remove	Remove script	台本を外す	移除脚本	zh?
+history.script.cast	Cast roles	役を割り当てる	分配角色	zh?
+history.script.load	Load script	台本を読み込む	载入脚本	zh?
+history.script.prepare	Prepare script	台本を準備する	准备脚本	zh?
+history.script.capture	Save edits into script	編集を台本に書き戻す	将编辑保存到脚本	zh?
+history.script.borrow	Borrow	借りる	借用	zh?

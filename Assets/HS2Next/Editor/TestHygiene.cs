@@ -12,8 +12,9 @@
 //     / shader supply / registration left in a registry, a public static switch (a field of a value type or string, or a
 //     field of a public options object) of any other class left away from its default.
 //   Product states on a fixed list (KnownStates: the product's counters, last timings and reasons, the UI singletons a panel
-//     build sets) are put back and counted; a static property with a non-public setter outside the list that changed is put
-//     back and is a finding. Callbacks the engine's packages queued are dropped and listed (they never run in a row alone).
+//     build sets) are put back, counted and named in the member's "reset" notes as "(listed state)"; a static property with a
+//     non-public setter outside the list that changed is put back and is a finding. Callbacks the engine's packages queued are
+//     dropped and listed (they never run in a row alone).
 //   A public static reference of another class is listed as "kept" when the member changed it.
 //   Those references (hooks the product installs once, services) are not put back: an installer that guards itself with its
 //     own flag would not install them again.
@@ -74,6 +75,10 @@ public static class TestHygiene
         "HS2Next.UI.Panels.CharaBrowser.Current", "HS2Next.UI.Panels.SceneFiles.Current", "HS2Next.UI.Panels.WorkspacePanel.Current",
         "HS2Next.Scenes.Runtime.ClothesInfo.FactsBuilt", "HS2Next.Scenes.Runtime.ClothesInfo.FactsFromCache",
         "HS2Next.Scenes.Runtime.AccessoryInfo.FactsBuilt", "HS2Next.Scenes.Runtime.AccessoryInfo.FactsFromCache",
+        "HS2Next.Scenes.Runtime.MapSurface.LastCandidates", "HS2Next.Scenes.Runtime.MapSurface.LastDraws", "HS2Next.Scenes.Runtime.MapSurface.LastScanMs",
+        "HS2Next.Scenes.Runtime.MapSurface.LastIndexMs", "HS2Next.Scenes.Runtime.MapSurface.Waits",
+        "HS2Next.Scenes.Cut.CutPieces.PiecesEncoded", "HS2Next.Scenes.Cut.CutPieces.CopiesCompared", "HS2Next.Scenes.Cut.CutPieces.CopiesDiffered",
+        "HS2Next.Scenes.Cut.CutPieces.FirstDifferencePiece", "HS2Next.Scenes.Cut.CutPieces.FirstDifferenceCopy", "HS2Next.Scenes.Cut.CutPieces.FirstDifferenceParse",
     };
 
     /// <summary>The product states put back so far in this batch (the batch summary counts them).</summary>
@@ -383,6 +388,7 @@ public static class TestHygiene
         {
             if (Same(s.Value, v)) return 0;
             s.Field.SetValue(null, s.Value);
+            r.Resets.Add(Short(s.Name) + " (listed state)");
             return 1;
         }
         if (s.Kind == Kind.State)

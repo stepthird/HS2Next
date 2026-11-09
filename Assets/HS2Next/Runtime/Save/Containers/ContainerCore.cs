@@ -558,23 +558,40 @@ namespace HS2Next.Save
 
         /// <summary>Raises <see cref="WriteFormatVersion"/> to what a scene node needs: format 3 when a character's
         /// state.nippleThroughClothes is false (after 1.1.0), format 4 when its advanced-pose block or an item's material array
-        /// is not empty (after 1.2.0).</summary>
+        /// is not empty (after 1.2.0), format 5 when its wet block or its ragdoll block is not empty or an item has a bake or a cut (after 1.3.x).</summary>
         public void Covers(SceneNode node)
         {
-            if (node?.State is ItemNodeState item && item.MaterialOverrides.Count > 0)
-                WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.MaterialEditVersion);
+            if (node?.State is ItemNodeState item)
+            {
+                if (item.MaterialOverrides.Count > 0)
+                    WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.MaterialEditVersion);
+                if (item.Bake != null || item.Cut != null)
+                    WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.BakeVersion);
+                return;
+            }
             if (!(node?.State is CharaNodeState c)) return;
             if (c.State != null && !c.State.NippleThroughClothes)
                 WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.NippleThroughClothesVersion);
             if (c.AdvancedPose != null && !c.AdvancedPose.IsEmpty)
                 WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.AdvancedPoseVersion);
+            if (c.Wet != null && !c.Wet.IsEmpty)
+                WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.WetVersion);
+            if (c.Ragdoll != null && !c.Ragdoll.IsEmpty)
+                WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.RagdollVersion);
         }
 
         /// <summary>Raises <see cref="WriteFormatVersion"/> to what a scene's Timeline needs: format 4 when the scene has one
-        /// (after 1.2.0; an empty Timeline included).</summary>
+        /// (after 1.2.0; an empty Timeline included), format 5 when it carries a script marker.</summary>
         public void Covers(TimelineDocument timeline)
         {
             if (timeline != null) WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.TimelineVersion);
+            if (timeline?.Script != null) WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.ScriptVersion);
+        }
+
+        /// <summary>Raises <see cref="WriteFormatVersion"/> to what a scene's scripts need: format 5 when it has a script.</summary>
+        public void Covers(SceneScriptList scripts)
+        {
+            if (scripts != null && scripts.Count > 0) WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.ScriptVersion);
         }
 
         /// <summary>Raises <see cref="WriteFormatVersion"/> to what a scene's constraints need: format 4 when the list has an entry
@@ -582,6 +599,12 @@ namespace HS2Next.Save
         public void Covers(ConstraintList constraints)
         {
             if (constraints != null && constraints.Count > 0) WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.ConstraintsVersion);
+        }
+
+        /// <summary>Raises <see cref="WriteFormatVersion"/> to what a scene's ragdoll block needs: format 5 when it is not empty (after 1.3.x).</summary>
+        public void Covers(SceneRagdollWorld ragdoll)
+        {
+            if (ragdoll != null && !ragdoll.IsEmpty) WriteFormatVersion = Math.Max(WriteFormatVersion, SaveFormats.RagdollVersion);
         }
 
         /// <summary>Raises <see cref="WriteFormatVersion"/> to what the map needs: format 4 when its material array is not empty

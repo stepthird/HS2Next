@@ -1,0 +1,12 @@
+{
+  "manifestVersion": 1,
+  "guid": "stp3.test.bakeprobe",
+  "name": "Bake probe",
+  "version": "0.1.0",
+  "apiVersion": "1.3",
+  "assemblies": ["Stp3.Test.BakeProbe.dll"],
+  "commandPrefixes": ["bakeprobe."],
+  "author": "stp3",
+  "license": "CC0-1.0",
+  "description": "Test plugin of the row BakeCheck.player: on the player's main thread, a node rendered alone in memory, the times of a capture, its encoding and a cut's procedure, the managed heap during a capture, an item's meshes and members."
+}

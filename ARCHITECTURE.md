@@ -25,8 +25,9 @@ assembly definition cannot reference the default assembly.
 
 Other top-level folders: `Tools/` (Python and PowerShell tools: the test runner, the Unity runner, the offline compile
 check, scanners and generators, the packaging), `Tests/` (fixtures, the sample and test plugins, the probe cases of the
-shader fits in `Tests/FitCases/`), `Samples/` (the sample plugins: `Sequencer`, and `PluginKit` with Hello and HelloUi,
-the plugin kit of the zip), `Config/` (`settings.example.json`), `Reference/` (the command reference and the plugin guide).
+shader fits in `Tests/FitCases/`), `Samples/` (the sample plugins: `Sequencer`, and `PluginKit` with Hello, HelloUi and
+Shapes, the plugin kit of the zip), `Config/` (`settings.example.json`), `Reference/` (the command reference and the plugin
+guide).
 
 ## Content
 
@@ -96,15 +97,28 @@ with `Step(dt)` in tests and while paused). The order is the `MotionPhase` value
 | --- | --- |
 | 0 `Animation` | animation sampling: the game's animator controllers played through a manually evaluated PlayableGraph |
 | 100 `Shape` | shape bones on change, the 21 hand shapes, the sway switches of an animation row |
+| 110 | the heel lift of heel shoes |
+| 120 | a card's bone modifiers, on the pose sources' value of this frame |
 | 150 `IkPrepare`, 200 `Ik` | IK targets and the IK solve |
+| 210 | the feet and toes of heel shoes |
 | 300 `NeckLook` | neck look |
 | 400 `Fk` | FK overrides (the Studio's FK groups; also item FK) |
+| 410 | a ragdoll body: the bones of a character that is a physics body |
+| 440 | driven bones: the bone values of the runtime overrides and of constraints |
+| 450 | the bone corrections of the advanced pose |
 | 500 `EyeLook` | eye look |
 | 600 `Face` | expression blend shapes, blinking, mouth, tears, cheek |
+| 610 | the blend-shape overrides of the advanced pose |
 | 700 `Correct` | joint correction: the twist bones computed from the final pose |
 | 750 `BustPhysics` | bust and hip chains |
 | 800 `DynamicBone` | dynamic bones of hair, clothes and accessories |
-| 900 `Final` | what must see the final pose (bone modifiers, measurements) |
+| 900 `Final` | what must see the final pose (measurements) |
+
+The stages without a name in `MotionPhase` exist only while a character needs them (heel data, a bone modifier, a body, a
+driven bone, a correction, a blend-shape override). The corrections, the driven bones and the body take their writes off
+again at the start of the next step (phases -100 to -98), so the pose sources start from their own values; they and the bone
+modifiers read what the frame shows after every other stage (950 to 960). A plugin can add motion stages to a scene
+character; they come back after every rebuild.
 
 Every stage is HS2Next's own implementation, written from measured behaviour; a stage's exception is caught and logged
 without stopping the others. Two places differ from the game on purpose: the expression
@@ -114,6 +128,24 @@ which removes a one-frame lag.
 **FK and IK.** IK uses the Studio's 13 targets in 5 groups so that posing feels the same; the solver is analytic (two-bone
 limbs with a bend goal, the torso distributed over the spine). FK and IK can be used together; the Studio's exclusive
 behaviour is an option. HS2 pose files import FK exactly and IK approximately.
+
+**Runtime overrides.** The Timeline, constraints and plugins show values over the scene through one override layer
+(`Assets/HS2Next/Runtime/Scene/Overrides`). A slot holds a value for one channel: a node's position, rotation or scale, a
+character's FK bone, animation row, speed and time, face patterns, bones and IK targets, an item's or a light's colour, the
+camera, the depth of field. A channel shows the value of its slot with the highest priority (the one taken last among equal
+priorities). The layer never writes the scene model: it makes no command, history entry or dirty mark and is never saved;
+when the slot is released the model's own value shows again. Bone values reach the character inside its step (the driven
+bones at 440), so the joint correction, the eye look, the chains and the skin see them. The Timeline plays its tracks and
+timed commands on the scene clock. Constraints (position, rotation, scale, look-at, parent) make a node, a character's bone
+or an IK target follow a source; one on a bone runs inside its character's step.
+
+**The advanced pose** is a character's scene-only adjustment, saved with the scene: bone corrections on the pose of the
+frame (450) and blend-shape weights that win over the face stage (610).
+
+**Ragdolls.** A character made a physics body is simulated in one physics scene of the scene's own (with the room, the
+floor, props and obstacles), stepped by hand on the scene clock: the pause stops it, a step steps it, a recording records
+it. The body's stage (410) writes its bones after FK. A body in motion is not saved; its settings and its last settled pose
+are.
 
 **Defaults.** The default of every behaviour is the game without plugins. Much of what a modded HS2 shows comes from plugins
 (joint correction, eye-movement range, male height), so such behaviour is a named switch. The switches whose default is not
@@ -135,6 +167,10 @@ of every family are in `Assets/HS2Next/Shaders/README.md`. A shader name can sta
 with different properties; the map routes each copy to the replacement that matches it. Anything unmapped falls back to
 `URP/Lit` with its main texture and colour, and the fallback is reported.
 
+**Material edits.** The material edits of characters, items and the map (values, images and shaders of named materials) land
+on the node's own copies of its materials, never on a bundle's. An item's and the map's are written after their own colour,
+pattern and panel writes, so a saved scene loads to the same picture.
+
 **Lights.** The game does not use linear light intensities, so the intensity is folded into the colour. The game's culling
 masks become rendering layers (Forward+ ignores culling masks). Point and spot lights use the game's range-normalised
 falloff by default (`render.lightFalloff`).
@@ -144,10 +180,20 @@ tables baked on the CPU (the game's base grade is read from the user's install),
 item-focus depth of field, sun shafts and height fog reproduced from the original formulas, and screen-space reflections as
 an option. A "modern" HDR grading is an option.
 
+**Stains** (`Assets/HS2Next/Runtime/Scene/Runtime/Wet`) never write a material: the stained image of a part is a composite
+of its current main texture and the stains' maps, bound to that renderer and slot through a property block, so it lies above
+every material edit and the same inputs give the same image. A wet garment gets a hidden film with the garment's mesh and
+bones that draws its gloss. Puddles show the scene through planar mirrors, rendered for each camera that has a puddle in
+view, so captures and recordings show them too.
+
+**Captures and thumbnails.** Screenshots, captures, recorded frames and the thumbnails of scenes, characters and coordinates
+render every enabled skinned renderer with its skin recalculated for that render, so each shows the pose of its own frame.
+
 **Mosaic.** The parts of the app's own content that the game covers with a mosaic always draw it. The plugin API guards it
 at its points: material overrides refuse mosaic slots, build hooks offer no stage after the mosaic, the host restores a
 member's mosaic material after plugin hooks ran, and added members stay members. A body part a plugin supplies is drawn as
-the plugin supplies it. The wide screen-space mosaic over the same area is an option (`render.mosaicWide`, on by default).
+the plugin supplies it. A renderer baked from a member into an item, or cut from one, stays a member. The wide
+screen-space mosaic over the same area is an option (`render.mosaicWide`, on by default).
 
 ## Scenes and files
 
@@ -174,9 +220,24 @@ coordinates (`.hs2ncoord`) and poses (`.hs2npose`).
 - Binary resources (overlay images) are stored once under `res/` by their SHA-256.
 - Extension blocks live under `ext/<namespace>/`: a plugin's namespace is its GUID; data imported from HS2 plugins is kept
   raw under `ext/hs2.kkex/`. Unknown members and unknown blocks survive a load and save unchanged.
-- `formatVersion` 1 is frozen. A file is written with the lowest revision that covers it (revision 2 only adds an optional
-  member for clothes parts); readers migrate older revisions and refuse newer ones with a finding. Saving writes a temporary
-  file and replaces the target atomically, and the same document always gives the same bytes.
+- `formatVersion` 1 is frozen. A file is written with the lowest revision that covers it; each revision only adds optional
+  members: revision 2 the clothes parts' `ext`, revision 3 a character's `state.nippleThroughClothes`, revision 4 the
+  scene's `timeline` and `constraints`, a character's `advancedPose` and the `materialOverrides` of items and the map,
+  revision 5 a character's `wet` and `ragdoll`, the scene's `ragdoll`, an item's `bake` and `cut`, the scene's `scripts` and
+  the Timeline's `script` marker. Readers migrate older revisions and refuse newer ones with a finding. Saving writes a
+  temporary file and replaces the target atomically, and the same document always gives the same bytes.
+
+**Bakes and cuts** (`Assets/HS2Next/Runtime/Scene/Bake`, `Cut`). Chara to Item copies characters as drawn into bakes, which
+are items. A bake is a set of `res/<sha256>.bin` blobs: a main (its canonical JSON: the node tree, the FK list, materials,
+renderers, inside faces) and one blob per mesh and per texture, each named by its SHA-256, so equal blobs are stored once
+and shared between bakes. A scene holds every blob of its bakes and opens without the character's mods; the items of one
+bake share its meshes and textures in memory. The Cutter makes pieces, which are bakes too: an item's `cut` member records
+the source and the steps, so a piece can be cut again, changed or made again from its source, and a scene loads pieces as
+saved.
+
+**Scene scripts** (`Assets/HS2Next/Runtime/Scene/Scripts`) keep reusable shots in the scene's `scripts`: roles, set-up and
+preparation steps (commands) and a Timeline with timed commands. A play casts the roles, sends the steps through the
+command registry and plays the Timeline on the scene clock; the scene's Timeline then names the script it was loaded from.
 
 **Import** (`Assets/HS2Next/Runtime/Import`) turns HS2 character and coordinate cards into these documents when they are
 placed in a scene: it validates the card, applies the game's version updates and the Sideloader resolve rules, and keeps
@@ -199,8 +260,10 @@ The bridge (`Assets/HS2Next/Bridge`) is an HTTP/JSON server on `127.0.0.1:17322`
 scripts and tests drive the app the way a user would. Requests with an `Origin` or `Sec-Fetch-*` header are refused,
 whatever the value, which keeps web pages out; the release build also requires a per-start token. Requests are queued and
 run on the main thread in order, within a per-frame time budget; a command may defer its reply to a later frame. `help`
-describes every command, and names that HS2 Studio's automation already used keep HS2's arguments and reply members. The
-147 commands of 1.0 are listed in [Reference/COMMANDS.md](Reference/COMMANDS.md).
+describes every command, and names that HS2 Studio's automation already used keep HS2's arguments and reply members. Every
+command is listed in [Reference/COMMANDS.md](Reference/COMMANDS.md). One command registry serves every caller: HTTP
+requests, the timed commands of a Timeline, scene scripts and plugins' calls. With the bridge disabled the same host runs
+without a listener (no socket, no `endpoint.json`, no token file), so those commands still run inside the app.
 
 ## Plugins
 
@@ -211,13 +274,18 @@ its GUID, event handlers (the capture events among them), shader supplies and, t
 hooks, material overrides and additional mosaic members; it calls commands through typed helpers. Experimental in 1.1: undo
 entries in the scene's own history, forms (panels and inspector sections that the app draws with its own widgets from the
 plugin's read and write commands), UI panels of its own with the app's widgets, and at the build's `BodyMesh` point skin
-layers and body-part replacement, with rebuild requests outside builds. A plugin can be disabled and enabled again while the
+layers and body-part replacement, with rebuild requests outside builds. Experimental in 1.2: runtime overrides (values shown
+over the scene through the override layer) and the scene post stage. Experimental in 1.3: viewport tools (a tool takes the
+viewport's pointer, wheel and keys and picks surfaces), the map query (the height and normal of the map's surface under a
+point), character stages (motion stages on scene characters) and item rows (groups of the Studio item list whose objects the
+plugin builds). A plugin can be disabled and enabled again while the
 app runs: disabling unloads it and removes what it registered, enabling runs its load again on the loaded assembly and reads
 the open scene's data of its namespaces again; a replaced DLL loads after a restart. Every call into a plugin is guarded: an
 exception is logged and counted, and after 10 faults the plugin is stopped. Plugins run with the app's rights; there is no
 sandbox. [Reference/PLUGINS.md](Reference/PLUGINS.md) is the guide (also in Japanese and Simplified Chinese). The
-distribution zip carries it in `PluginKit/` with the command reference, the XML documentation of the API and two
-engine-free samples whose sources are `Samples/PluginKit`; `Samples/Sequencer` is a complete example.
+distribution zip carries it in `PluginKit/` with the command reference, the XML documentation of the API and three
+samples whose sources are `Samples/PluginKit` (Hello and HelloUi engine-free, Shapes engine-side); `Samples/Sequencer` is a
+complete example.
 
 ## Start-up
 
@@ -228,7 +296,8 @@ and last the plugins. With warm caches the app is ready about 2 seconds after th
 ## Data folders and settings
 
 The **data root** holds `Config/settings.local.json`, `UserData/` (HS2Next's scenes, characters, coordinates, poses, the
-bridge's files) and `Cache/` (scan caches, texture verdicts, repaired bundles, thumbnails). It is
+bridge's files, the store of bakes `bakes/` and the store of scene scripts `scripts/`, each made when the first one is kept;
+no saved scene depends on them) and `Cache/` (scan caches, texture verdicts, repaired bundles, thumbnails). It is
 
 - the project folder in the Editor;
 - for a player: the folder of `HS2Next.exe` when `portable.txt` lies next to it, else the folder named by the environment

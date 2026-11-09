@@ -548,7 +548,7 @@ namespace HS2Next.Save.Tests
 
         static void TS4(TestRunner t)
         {
-            t.Check(CoreMigrationRegistry.Default.Supported == 4 && SaveFormats.SupportedVersion == 4 && SaveFormats.TimelineVersion == 4 && SaveFormats.MinReaderVersion == 1,
+            t.Check(CoreMigrationRegistry.Default.Supported == SaveFormats.SupportedVersion && SaveFormats.SupportedVersion >= 4 && SaveFormats.TimelineVersion == 4 && SaveFormats.MinReaderVersion == 1,
                 "TS4: S = 4, the Timeline at revision 4, minReaderVersion 1");
             var s = InfraFixtures.SmallScene(2, 1);
             var f1 = s.ToBytes(Opts());

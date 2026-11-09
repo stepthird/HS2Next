@@ -160,7 +160,17 @@ namespace HS2Next.Content.Studio
         internal readonly Dictionary<(int, ContentId), StudioItem> accessoryByKey = new Dictionary<(int, ContentId), StudioItem>();
         internal readonly List<StudioItem> accessoryAll = new List<StudioItem>();
 
-        internal StudioDb(StudioLoadOptions options) { Options = options; }
+        internal StudioDb(StudioLoadOptions options)
+        {
+            Options = options;
+            Generated = new GeneratedRows(this);
+        }
+
+        /// <summary>
+        /// The generated item groups (rows a provider makes, not read from list files): their groups and categories are listed with the
+        /// list groups, their rows are a table of their own (not in <see cref="Items"/>).
+        /// </summary>
+        public GeneratedRows Generated { get; }
 
         internal void Count(string key, int n = 1) => Counters[key] = (Counters.TryGetValue(key, out var v) ? v : 0) + n;
 
@@ -203,30 +213,34 @@ namespace HS2Next.Content.Studio
             category != null && itemsByCategory.TryGetValue((category.Group, category.Number), out var l)
                 ? l.Where(r => includeHidden || r.Visible) : Enumerable.Empty<StudioItem>();
 
-        /// <summary>The item for (GUID, local id) (see <see cref="StudioTable{T}.TryGet"/>), hidden or not.</summary>
-        public bool TryGetItem(ContentId id, out StudioItem item) => Items.TryGet(id, out item);
+        /// <summary>The item for (GUID, local id) (see <see cref="StudioTable{T}.TryGet"/>), hidden or not; else the first generated row
+        /// with that key.</summary>
+        public bool TryGetItem(ContentId id, out StudioItem item) => Items.TryGet(id, out item) || Generated.TryFind(id, out item);
 
         /// <summary>
         /// Secondary index for the duplicate ids inside one zipmod: (GUID, group, category, local id), first row wins. For
-        /// <see cref="AccessoryGroup"/> the accessory row of (category, GUID#id).
+        /// <see cref="AccessoryGroup"/> the accessory row of (category, GUID#id); for a generated group its row of GUID#id.
         /// </summary>
         public bool TryGetItem(string guid, int group, int category, int id, out StudioItem item)
         {
             item = null;
             if (string.IsNullOrEmpty(guid)) return false;
             if (group == AccessoryGroup) return TryGetAccessoryItem(category, new ContentId(guid, id), out item);
+            if (Generated.Holds(group)) return Generated.TryGetRow(group, new ContentId(guid, id), out item);
             return itemsByFullKey.TryGetValue((new ContentId(guid, id), group, category), out item);
         }
 
         /// <summary>
         /// The row an item reference names together with its stored group and category: for <see cref="AccessoryGroup"/> the
-        /// accessory row of (category, id), else the (GUID, group, category, id) row and then the (GUID, id) row.
+        /// accessory row of (category, id), for a generated group its row of the reference, else the (GUID, group, category, id) row and
+        /// then the (GUID, id) row.
         /// </summary>
         public bool TryGetItem(ContentId id, int group, int category, out StudioItem item)
         {
             item = null;
             if (id.IsEmpty) return false;
             if (group == AccessoryGroup) return TryGetAccessoryItem(category, id, out item);
+            if (Generated.Holds(group)) return Generated.TryGetRow(group, id, out item);
             if (TryGetItem(id.SourceGuid, group, category, id.Id, out item) && item != null) return true;
             return Items.TryGet(id, out item);
         }
@@ -245,7 +259,8 @@ namespace HS2Next.Content.Studio
         /// Scene-load resolution of a stored item (its reference, group and category): the (GUID, group, category, id) row when
         /// it exists and is not gated, else <see cref="ResolveItem(ContentId)"/>. An item of <see cref="AccessoryGroup"/>
         /// resolves only to its accessory row; without it (the group switched off, the row gone) it is missing and the
-        /// fallback item stands in. <paramref name="fallback"/> = the row is not the stored one.
+        /// fallback item stands in. An item of a generated group resolves only to that group's row of its reference (else the fallback
+        /// item). <paramref name="fallback"/> = the row is not the stored one.
         /// </summary>
         public StudioItem ResolveItem(ContentId id, int group, int category, out bool fallback)
         {
@@ -258,6 +273,12 @@ namespace HS2Next.Content.Studio
             if (group == AccessoryGroup)
             {
                 if (TryGetAccessoryItem(category, id, out var acc)) return acc;
+                fallback = true;
+                return Items.Get(FallbackItem);
+            }
+            if (Generated.Holds(group))
+            {
+                if (Generated.TryGetRow(group, id, out var gen)) return gen;
                 fallback = true;
                 return Items.Get(FallbackItem);
             }

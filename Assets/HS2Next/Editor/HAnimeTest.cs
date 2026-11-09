@@ -609,14 +609,14 @@ public static class HAnimeTest
         return d;
     }
 
-    static (float pos, float deg) PoseDiff(Dictionary<string, (Vector3 p, Quaternion r)> a, Dictionary<string, (Vector3 p, Quaternion r)> b)
+    static (float pos, double deg) PoseDiff(Dictionary<string, (Vector3 p, Quaternion r)> a, Dictionary<string, (Vector3 p, Quaternion r)> b)
     {
-        float dp = a.Count == b.Count && a.Count > 0 ? 0f : float.PositiveInfinity, dr = dp;
+        float dp = a.Count == b.Count && a.Count > 0 ? 0f : float.PositiveInfinity; double dr = dp;
         foreach (var kv in a)
         {
             if (!b.TryGetValue(kv.Key, out var o)) return (float.PositiveInfinity, float.PositiveInfinity);
             dp = Mathf.Max(dp, (kv.Value.p - o.p).magnitude);
-            dr = Mathf.Max(dr, Quaternion.Angle(kv.Value.r, o.r));
+            dr = Math.Max(dr, RotationCompare.Deg(kv.Value.r, o.r));
         }
         return (dp, dr);
     }
@@ -707,7 +707,7 @@ public static class HAnimeTest
                 a.Speed = 1f;
                 a.Load(row, 0.5f);
                 for (int i = 0; i < 20; i++) a.Stage.Step(frame);
-                bool rootKept = root.localPosition == rp && root.localRotation == rq && animT.localPosition == ap && animT.localRotation == aq;
+                bool rootKept = root.localPosition == rp && RotationCompare.Deg(root.localRotation, rq) == 0 && animT.localPosition == ap && RotationCompare.Deg(animT.localRotation, aq) == 0;
                 if (rootKept) ok++; else bad.Add($"{(id == female ? "f" : "m")} {Row(row)}: root {Tr(root)}, p_cf_anim {Tr(animT)}");
                 if (offsetRows.Contains(row))
                 {

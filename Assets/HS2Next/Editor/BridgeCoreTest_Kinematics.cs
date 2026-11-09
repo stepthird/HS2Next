@@ -169,7 +169,7 @@ public static partial class BridgeCoreTest
         var lp = W1V3(lh?["pos"]);
         var wr = W1V3(lh?["world"]?["rot"]);
         c.Check(W1Dist(wp, wpos) <= 1e-5 && W1Dist(lp, root.InverseTransformPoint(wpos)) <= 1e-5, "world round trip: world pos = the value set, pos = root space (1e-5)", $"world {wp:F6}, local {lp:F6}");
-        c.Check(Quaternion.Angle(Quaternion.Euler(wr), Quaternion.Euler(0, 90, 0)) <= 1e-3f, "world rot = the value set (1e-3°)", wr.ToString("F4"));
+        c.Check(RotationCompare.Deg(Quaternion.Euler(wr), Quaternion.Euler(0, 90, 0)) <= 1e-3f, "world rot = the value set (1e-3°)", wr.ToString("F4"));
         c.Ok(new { cmd = "obj.transform", key = id, pos = new[] { 0, 0, 0 }, rot = new[] { 0, 0, 0 } }, "obj.transform back");
 
         // ---------------- copies (IK off: the final pose is the paused clip pose = the probe's)
@@ -321,7 +321,7 @@ public static partial class BridgeCoreTest
             if (dp > 1e-5) bad.Add(IkTargets.Names[i] + " " + dp.ToString("G3"));
             if (IkGroupInfo.UsesRotation((IkTargetId)i))
             {
-                double dr = Quaternion.Angle(Quaternion.Euler(W1V3(l[i]["rot"])), Quaternion.Inverse(root.rotation) * bone.rotation);
+                double dr = RotationCompare.Deg(Quaternion.Euler(W1V3(l[i]["rot"])), Quaternion.Inverse(root.rotation) * bone.rotation);
                 maxR = Math.Max(maxR, dr);
                 if (dr > 1e-3) bad.Add(IkTargets.Names[i] + " rot " + dr.ToString("G3"));
             }

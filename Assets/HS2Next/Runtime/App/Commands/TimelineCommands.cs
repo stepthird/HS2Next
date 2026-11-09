@@ -482,7 +482,7 @@ namespace HS2Next.App.Commands
                 if (members) throw CommandKit.BadArgs("timeline", null, "timeline: null removes the Timeline; duration, loop and autoplay need one");
                 if (s.Document != null) s.SetDocument(null, TimelineEditCommand.LabelTimeline, null, o);
             }
-            else if (kind == ArgKind.Object) s.SetStored(Json(c, "timeline"), duration, loop, autoplay, o);
+            else if (kind == ArgKind.Object) { var doc = Json(c, "timeline"); (doc as JObject)?.Remove(TimelineScriptMarker.MemberName); s.SetStored(doc, duration, loop, autoplay, o); }   // a whole Timeline is no script's: its script mark goes
             else if (kind != ArgKind.Missing) throw CommandKit.BadArgs("timeline", ArgTypes.Object);
             else if (!members) throw CommandKit.BadArgs("timeline", null, "give timeline, duration, loop or autoplay");
             else s.SetProps(duration, loop, autoplay, o);

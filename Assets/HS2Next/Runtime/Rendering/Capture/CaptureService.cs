@@ -161,6 +161,56 @@ namespace HS2Next.Screenshots
         /// <summary>Raised on the main thread after a screenshot file was written (the UI's toast).</summary>
         public static event Action<CaptureResult> Saved;
 
+        // ------------------------------------------------------------ skin matrices
+
+        /// <summary>
+        /// True (always in the app): every capture renders each enabled skinned renderer with its skin matrices recalculated for
+        /// the render, so a capture at the frame's late point shows the pose of that frame. False only for a test's comparison
+        /// render (the flag is not saved anywhere).
+        /// </summary>
+        public static bool RecalculateSkin = true;
+
+        /// <summary>
+        /// For its lifetime, sets <c>forceMatrixRecalculationPerRender</c> on every enabled skinned renderer of the loaded scenes
+        /// that has it off; Dispose puts each of those back to off (a renderer that had it on keeps it; one destroyed meanwhile is
+        /// skipped). Nested scopes change nothing more. Does nothing while <see cref="RecalculateSkin"/> is false. Main thread.
+        /// </summary>
+        public static IDisposable SkinScope()
+        {
+            if (!RecalculateSkin) return SkinRestore.Empty;
+            var all = Object.FindObjectsByType<SkinnedMeshRenderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            List<SkinnedMeshRenderer> set = null;
+            foreach (var s in all)
+            {
+                if (!s || !s.enabled || s.forceMatrixRecalculationPerRender) continue;
+                s.forceMatrixRecalculationPerRender = true;
+                (set ??= new List<SkinnedMeshRenderer>(all.Length)).Add(s);
+            }
+            return set == null ? SkinRestore.Empty : new SkinRestore(set);
+        }
+
+        /// <summary>The renderers a <see cref="SkinScope"/> switched on, and how many (diagnostics of the last scope).</summary>
+        public static int LastSkinScopeCount { get; private set; }
+
+        sealed class SkinRestore : IDisposable
+        {
+            public static readonly SkinRestore Empty = new SkinRestore(null);
+            List<SkinnedMeshRenderer> set;
+
+            public SkinRestore(List<SkinnedMeshRenderer> set)
+            {
+                this.set = set;
+                if (set != null) LastSkinScopeCount = set.Count;
+            }
+
+            public void Dispose()
+            {
+                if (set == null) return;
+                foreach (var s in set) if (s) s.forceMatrixRecalculationPerRender = false;
+                set = null;
+            }
+        }
+
         // ------------------------------------------------------------ render
 
         sealed class Frame
@@ -207,6 +257,7 @@ namespace HS2Next.Screenshots
             var sw = Stopwatch.StartNew();
             var icons = ItemIcons.HideForCapture();
             var helpers = LightHelpers.HideForCapture();
+            using var cutMarkers = HS2Next.Scenes.Cut.CutMarkers.HideForCapture();
             IDisposable bloom = null, bg = null, frame = null;
             try
             {
@@ -241,8 +292,10 @@ namespace HS2Next.Screenshots
                 cam.targetTexture = f.Rt;
                 cam.ResetProjectionMatrix();
                 cam.aspect = w / (float)h;
-                // the mosaic's block floor follows the output size, not the supersampled render (5.M)
+                // the mosaic's block floor follows the output size, not the supersampled render (5.M); skinned renderers draw
+                // the frame's pose (their skin matrices recalculated for these renders)
                 using (HS2Next.Chara.Mosaic.MosaicCamera.OutputScope(cam, k))
+                using (SkinScope())
                 {
                     cam.Render();
                     cam.Render();

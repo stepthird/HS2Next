@@ -106,6 +106,7 @@ namespace HS2Next.Scenes.Runtime
             }
             AdvancedPoseDriver.RestoreNow(this);   // shapes and rest poses are captured from the bones without the corrections
             DrivenPoseDriver.RestoreNow(this);     // and without driven values
+            RagdollDriver.RestoreNow(this);        // and without a body
             var r = ed.Flush(mode);
             if (r.RebuildRequested)
             {
@@ -152,6 +153,8 @@ namespace HS2Next.Scenes.Runtime
             if (r.Mode == FlushMode.Normal && (r.BodyShapeChanged || r.FaceShapeChanged || r.AnySwap || r.DynBone != "none" || r.ExtFinalRan ||
                                                r.NewObjects.Count > 0 || r.ClothesObjectsReset.Any(b => b)))
                 WantSettle();
+            Runtime.GetPart<WetPart>()?.AfterFlush(this, r);
+            Runtime.GetPart<RagdollPart>()?.AfterFlush(this, r);
             LastSceneStepMs = sw.Elapsed.TotalMilliseconds;
         }
 

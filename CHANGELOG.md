@@ -3,6 +3,158 @@
 HS2Next follows semantic versioning: the save format, the plugin API and the bridge commands not marked experimental
 keep working within a major version ([CONTRIBUTING.md](CONTRIBUTING.md), "Compatibility").
 
+## 1.4.0
+
+Released on 2026-11-09 (UTC).
+
+### Additions
+
+- Wet and stains. A new panel in the View menu adds stains to the selected character, picks where they start on the body,
+  runs, dries or keeps them as layers, and tunes their shape, look, gloss, drips, puddles and floor. The character's State
+  tab lists its stains and opens the panel.
+  - Stains spread from an origin over time on clothes, skin, face and hair, and look the same after a save and a load.
+    Water and blood can lie on one character as layers.
+  - Accessories, shoes and gloves can take stains too: each has a switch beside those of skin and hair, off by default.
+    An accessory that is not skinned shows the stain's colour without the glossy film.
+  - A stain follows the scene clock: the pause stops it, a step steps it, a recording records it.
+  - Stains show without changing any material: removing a material edit under a stain shows the edit's original image with
+    the stain on top.
+  - Wet clothes get a glossy film that follows the garment and its transparency.
+  - Drops fall from wet parts and gather into puddles on the map's floor, with the scene reflected in them. Puddles mirror
+    the scene in the view, in captures and in recordings, under the same rendering rules as the view.
+  - Stains survive part swaps, coordinates and rebuilds: a part that changed stays dry until the stain is applied again,
+    and the stain comes back when the part returns.
+- Ragdoll. A new panel in the View menu and a section in the character's State tab make a character a physics body,
+  release it, bake its pose to FK, and set its presets, pins, ties, holds, room, floor and every value.
+  - A body falls, follows its animation, can get up by itself and goes back to its pose; a release can blend back to the
+    animation. Parts can be pinned in place or to a moving object, tied to each other and held; a follower folder moves
+    with a part.
+  - The panel's tool is one of Off, Grab and Shoot. In the view, Grab takes a body or a prop with the pointer: the wheel
+    changes the depth, Space pins, T pins to the selected object, N makes a follower, Ctrl pushes and Shift throws balls,
+    boxes and heavy balls. Shoot fires from the camera; hold to repeat. Outlines of the colliders and the room show in
+    the view while the panel is open, with the tool on or off, and never in a capture.
+  - A body lands on the map's own surface on every map, also one whose meshes cannot be read; the floor can also come
+    from the character's feet or a fixed height. A Studio item can act as an obstacle that bodies land on and that
+    follows the item. The map's walls do not stop a body; the room does.
+  - Bodies follow the scene clock: the pause stops them, a step steps them, a recording records them. The same commands
+    at the same steps, in a fresh physics world, give the same motion.
+  - Thrown props can be grabbed, last 20 seconds and are not saved; a hard hit knocks a body down.
+  - Shots pass through bodies and props, weaken what they hit, can knock a body down, and with `kill` leave the first
+    body limp. Blood droplets and splats, tracers, muzzle flashes and dust show in captures, recordings and puddle
+    mirrors, stop at the pause and are not saved. A shot can leave a stain where it hits a character, at most one in
+    half a second and four per character. «Show blood» in the options and in the panel turns blood off; it is not saved
+    in the scene.
+  - Hair, skirts and other swinging parts restart cleanly when a body jumps back to its pose.
+- Chara to Item. A new panel in the View menu bakes the selected characters, whole or by parts, into Studio items with
+  FK; a section in the character's State tab bakes the whole character or opens the panel on it.
+  - A bake is a self-contained copy of the character as drawn: meshes, materials, textures, FK bones, joint correction
+    and inside faces for hollow parts. A scene with bakes opens on a machine without the character's mods. Bakes of the
+    same character, and a cut's pieces, share their textures in video memory.
+  - Once the character is captured, the bake's data is written in the background while the view keeps its frame rate.
+  - Presets (Body, Hair, Clothes, Accessories), one item per part, the FK groups, filling hollow parts, the origin at the
+    parts' centre, hiding the character and keeping the bake in the store are options.
+  - Bakes are kept in a store in the user data folder (`bakes/`) and listed in the Studio item list under «Chara to
+    Item». The panel's store list adds, renames in place, deletes after asking, restores, purges through a dialog that
+    shows what goes, and marks a damaged row. Deleting hides a bake; «Purge» removes only data that no remaining bake
+    uses; a saved scene never depends on the store.
+  - «Import old bakes…» reads the bakes of the earlier tool (`.c2i` and its texture files) from `UserData/CharaToItem`,
+    rebuilds each with this install's content and stores it under its old number. The old folder is only read, and
+    importing again adds nothing.
+  - The item inspector shows a bake's kind, source and size, and keeps it in the store.
+- Cutter. A new panel in the View menu cuts a character, an item or a bake with a plane, a box, a tear or a hole marker,
+  in one undo step.
+  - Both sides of a plane or box become items; a tear or hole opens the surface. «Clothes only» cuts only garments.
+  - Cut edges can be ragged (amplitude, tooth size, randomness, pattern number); both pieces of a ragged cut fit each
+    other. Cut faces show a flat section colour, or the garment's or hair's own fabric inside.
+  - A piece keeps only the FK bones that move what is left in it and is placed at the cut. It shows the pose it was cut
+    in; posing it and cutting it again never moves its earlier cuts.
+  - Cuts stay editable: a piece remembers how it was made and can be cut again, changed («Apply to piece») or made again
+    from its source; a scene loads pieces exactly as saved.
+  - Markers are added from the panel and placed with the gizmo; «Place on surface» puts a tear or hole marker on the
+    surface under the pointer and the wheel turns it. Markers show in the view and never in a screenshot, capture,
+    recording or thumbnail.
+- Scene scripts. A new panel in the View menu («Scene scripts») keeps reusable shots: roles cast to the scene's characters
+  and props, set-up steps sent at every play, preparation steps sent once, and a Timeline with timed commands.
+  - Play casts the roles (from the saved cast, a character of the same name, or the role's card when it loads), loads the
+    map and the missing characters and props, prepares once per cast in one undo step, sends the set-up and plays the
+    Timeline on the scene clock. A failed step is listed under «Last play» and the play goes on.
+  - Playing a script loads its Timeline into the scene's Timeline. The Timeline panel names the script, marks it
+    «edited» after a change and offers «Save edits into the script».
+  - «Record…» plays one pass at a fixed step and writes every frame.
+  - Stop releases the script's camera follow, moves and depth of field; it also releases the cast's ragdolls and dries
+    their stains.
+  - Scripts are kept in a store in the user data folder (`scripts/`) and exported to or imported from `.hs2nscript`
+    files. Deleting hides a script; «Purge» removes only the files of deleted scripts, decided from the store's index,
+    and removes nothing when the index cannot be read.
+  - Importing a scene brings in its scene scripts, cast to the imported characters and items.
+- Scene files can also hold items made from bakes (their meshes, materials and textures inside the scene file) and cut
+  pieces with how they were cut (format revision 5). A scene without them is saved exactly as before; 1.3 opens one
+  with them with its "newer format" notice, shows those items as missing and keeps them when it saves.
+- Scene files can hold a character's stains and puddles (format revision 5). A scene without them is saved exactly as
+  before. 1.3 opens a scene with stains with its "newer format" notice, shows the character dry and keeps the stains and
+  their pictures when it saves.
+- Scene files can also hold a character's ragdoll settings, pins, ties, holds and last settled pose, and the scene's
+  ragdoll values, room, floor, pushers and obstacles (format revision 5). A body in motion is not saved: loading shows the
+  last pose at rest. A scene without ragdoll data is saved exactly as before; 1.3 opens one with it with its "newer
+  format" notice, shows the character without a body and keeps the data when it saves.
+- Scene files can also hold scene scripts and the script the Timeline was loaded from (format revision 5). A scene
+  without scripts is saved exactly as before; 1.3 opens one with them with its "newer format" notice, plays the loaded
+  script as a plain Timeline and keeps the scripts when it saves.
+- While a viewport tool runs, the status line says what it asks for and Esc leaves it. The camera, shortcuts and gizmos
+  are back as they were when it ends.
+- New bridge commands, all experimental.
+  - `wet.attach`, `wet.stain`, `wet.use` and `wet.status` work with the names and arguments scene scripts already use.
+  - `wet.start`, `wet.dry`, `wet.set`, `wet.keep`, `wet.remove` and `wet.floor` drive stains from a script. Timed commands
+    of a Timeline can start, dry and change stains without touching the undo history.
+  - `ground.probe` answers the height of the map's surface under a list of points.
+  - `ragdoll.build`, `.lock`, `.tie`, `.pin`, `.unpin`, `.follower`, `.turn`, `.settle`, `.pusher`, `.parts`, `.push`,
+    `.release` and `fx.shoot` work with the names and arguments scene scripts already use. `ragdoll.release` with no key
+    ends every body, prop, pusher and effect, so a Timeline loop that starts with it repeats a run exactly.
+  - `ragdoll.status`, `.set`, `.knock`, `.throw`, `.bake` and `.obstacle` drive and read ragdolls from a script.
+    `ragdoll.bake` writes a body's pose to FK and releases it in one undo step; it turns IK off for that character.
+    Timed commands of a Timeline can build, push and shoot without touching the undo history.
+  - `bake.parts`, `.make`, `.list`, `.rename`, `.delete`, `.purge`, `.keep`, `.status` and `.import` bake characters or
+    their parts into items, keep bakes in a store and import the old bakes; `cut.marker`, `.make`, `.set` and `.status`
+    cut characters and items into pieces and change a piece's cut later. Baking, cutting and changing a cut are single
+    undo steps; renaming a bake renames the items that still carry its old name in one step.
+  - `script.list`, `.get`, `.set`, `.remove`, `.cast`, `.play`, `.stop`, `.status`, `.capture`, `.borrow`, `.keep`,
+    `.add`, `.import`, `.export`, `.delete` and `.purge` make, store and play scene scripts. `script.set` and
+    `script.import` take a Timeline in the form `timeline.build` takes, and warn about steps the app does not know,
+    steps that answer later and set-up steps that clear the undo history. A step or timed command a script may not hold
+    is refused, and the error names its place in the script.
+  - `obj.moveTo`, `camera.follow`, `dof` and `chara.accessoryAxis` work with the names and arguments scene scripts
+    already use. `fx.shoot`, `wet.attach` and `wet.stain` accept `from: {key, accessory}`, which starts at that
+    accessory's muzzle. `fk.enable` accepts `RightArm`, `LeftArm`, `RightLeg` and `LeftLeg`; each switches the Body
+    group, with a warning.
+  - `timeline.set` with a whole Timeline (for example one read with `timeline.get`) makes it a plain Timeline that no
+    longer counts as loaded from a scene script.
+- Plugin API 1.3.0; plugins built for earlier versions load unchanged. The plugin guide describes the additions in the
+  three languages.
+  - Viewport tools (experimental): a plugin's tool takes the viewport's pointer, wheel and keys while it runs, and picks a
+    surface with its point, normal, part, UV and bone.
+  - The map query (experimental): a plugin can ask the height and normal of the map's surface under a point, also on maps
+    with no readable mesh or colliders.
+  - Motion stages (experimental): a plugin can add a motion stage to a scene character. The stage comes back after every
+    rebuild of the character, shows in `chara.motion` with the plugin as owner, and goes when the plugin leaves.
+  - Item rows (experimental): a plugin can add its own groups of rows to the Studio item list and build each row's
+    object. Item FK moves the bones the row names, and an item of such a row saves like any item; without the plugin it
+    loads as the fallback item and keeps its data. The plugin kit has a third sample, Shapes: five shapes built in code,
+    among them a torus that item FK bends.
+
+### Changes
+
+- Playing a Timeline from the start now restarts the animations its tracks set and resets the hair, clothes and breast
+  physics of its characters, so a replay or a play after loading the scene moves the same as the first play.
+- With the automation bridge disabled (`bridge.enabled` false or `-noBridge`), the app's commands still run inside the
+  app: timed commands of a Timeline, scene scripts and plugins' `Call` and `Request` work as with it enabled. Only the
+  HTTP listener, its `endpoint.json` and its token file are absent.
+
+### Fixes
+
+- Screenshots, captures, recorded frames and thumbnails show a moving character in the pose of the frame they were
+  taken in: they drew its skin one frame late. A character's card thumbnail in the «Front» framing shows the default
+  pose with its own skin; it showed the skin of the pose before.
+
 ## 1.3.1
 
 Released on 2026-11-06 (UTC).

@@ -1,5 +1,5 @@
 // The per-camera block of the mosaic (method (a); package R of
-// 5.M). Before every camera renders (RenderPipelineManager.beginCameraRendering: the view, captures, thumbnails, mirrors,
+// 5.M). Before every camera that raises RenderPipelineManager.beginCameraRendering renders (the view, captures, thumbnails,
 // reflection probes, the Editor's views) every drawn member of the mosaic set gets a MaterialPropertyBlock with this camera's
 // block; the materials keep fixed defaults, so a character's material text (S1) does not depend on what was rendered.
 //   HS2's cell (behaviour of AIT/mnpb): screen-aligned cells of 1 / d in aspect-corrected NDC, d the distance from the
@@ -19,10 +19,12 @@
 //     unit) / (the smallest scale of the skinning matrices at the region); a view across the surface needs more:
 //     1 / max(|n . v|, 0.5) (n the region's mean normal, v the direction to the camera). The block is the smallest power of
 //     two UV b (2^-12 ... 1, a UV-aligned nested grid) with b >= need / P * s * slant (_MosaicBlockUv).
-// Nested renders (a mirror inside the view's callback) push / pop: the outer camera's blocks are written again when the
-// inner camera ends. Every member also gets its world centre and radius for the wide mosaic (MosaicCamera.FrameOf). The
-// global _HS2MosaicFloorPx (the floor in render pixels) serves mosaic-shader renderers no record knows. Cost: a few matrix
-// products per drawn member (ZU4, MosaicTest.timing MR6: LastMilliseconds).
+// Nested renders: a camera that raises its events inside another camera's render pushes its frame at begin and pops it at end,
+// and the outer camera's blocks are written again. Map mirrors render through RenderSingleCamera, which raises no camera
+// event: they draw with the outer camera's blocks and have no frame of their own. Puddle mirrors push and pop their frame
+// with Enter and Leave (not nested). Every member also gets its world centre and radius for the wide mosaic
+// (MosaicCamera.FrameOf). The global _HS2MosaicFloorPx (the floor in render pixels) serves mosaic-shader renderers no
+// record knows. Cost: a few matrix products per drawn member (ZU4, MosaicTest.timing MR6: LastMilliseconds).
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -132,6 +134,16 @@ namespace HS2Next.Chara.Mosaic
             // the outer camera's blocks again (a nested render wrote its own)
             if (stack.Count > 0) Apply(stack[stack.Count - 1].Camera, stack.Count > 1, stack[stack.Count - 1]);
         }
+
+        /// <summary>For a camera rendered with no camera events: what the begin event does (its frame pushed, the blocks applied), the frame not
+        /// nested, its final output <paramref name="outputScale"/> times smaller than its target. Every Enter has its <see cref="Leave"/>.</summary>
+        public static void Enter(Camera cam, int outputScale)
+        {
+            using (OutputScope(cam, outputScale)) stack.Add(Apply(cam, false));
+        }
+
+        /// <summary>What the end event does for <paramref name="cam"/>: its frame popped, the outer camera's blocks written again.</summary>
+        public static void Leave(Camera cam) => OnEnd(default, cam);
 
         // ---------------------------------------------------------------- the rule
 

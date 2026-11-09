@@ -385,7 +385,7 @@ namespace HS2Next.Save.Tests
 
         static void CF2(TestRunner t)
         {
-            t.Check(SaveFormats.ConstraintsVersion == 4 && SaveFormats.SupportedVersion == 4 && CoreMigrationRegistry.Default.Supported == 4 && SaveFormats.MinReaderVersion == 1,
+            t.Check(SaveFormats.ConstraintsVersion == 4 && SaveFormats.SupportedVersion == CoreMigrationRegistry.Default.Supported && SaveFormats.SupportedVersion >= 4 && SaveFormats.MinReaderVersion == 1,
                 "CF2: the list at revision 4, no new revision (S = 4), minReaderVersion 1");
             var one = new ConstraintList(new[] { AllForms()[0] });
             var s = InfraFixtures.SmallScene(1, 1);

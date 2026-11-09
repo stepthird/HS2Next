@@ -263,6 +263,7 @@ namespace HS2Next.UI.Panels
                 return null;
             });
             into.Add(MaterialEditView.ItemSection(ctx, n.Id));   // Phase 6.4: the primary item, built when first opened
+            if (BakeItemSection.StandsOn(n)) into.Add(new BakeItemSection(ctx, n.Id));   // Phase 6.8: an item drawn from a bake; reads nothing until opened
         }
     }
 }

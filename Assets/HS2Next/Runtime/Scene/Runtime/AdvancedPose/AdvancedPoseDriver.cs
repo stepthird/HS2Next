@@ -386,7 +386,7 @@ namespace HS2Next.Scenes.Runtime
         public static void Bare(CharaRealization r, Action read)
         {
             var c = Of(r);
-            if (c != null && c.Set.Entries.Count > 0) c.Set.Bare(() => DrivenPoseDriver.Bare(r, read));
+            if (c != null && c.Set.Entries.Count > 0) c.Set.Bare(() => DrivenPoseDriver.Bare(r, read));   // the driven values, and the body under them, come off inside
             else DrivenPoseDriver.Bare(r, read);
         }
 

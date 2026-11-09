@@ -139,6 +139,8 @@ namespace HS2Next.UI.Core
         // #R5M (5.M package R): the wide screen-space mosaic over the genital-area parts and their outline (MosaicWide; on by
         // default; it only adds coverage to the mosaic that is always drawn)
         public const string RenderMosaicWide = "render.mosaicWide";
+        /// <summary>A shot shows blood (Phase 6.7; on by default): droplets and marks on the floor, nothing else.</summary>
+        public const string StudioBlood = "studio.blood";
         // #W46 (Phase 4.6 package W): the Maker's file view state (the File page)
         public const string MakerThumbnailFraming = "maker.thumbnailFraming", MakerLoadFlags = "maker.loadFlags",
             MakerLoadFlagsAll = "face,body,hair,coordinate,profile";
@@ -231,6 +233,7 @@ namespace HS2Next.UI.Core
             l.Add(new OptionDef { Key = RenderBackgroundColor, Kind = OptionKind.String, Default = "", Section = "rendering", Vanilla = "GraphicData.BackColor" });
             C(RenderSceneShaderTime, "all", new[] { "all", "captures", "off" }, "rendering");
             B(RenderMosaicWide, true, "rendering");   // #R5M
+            B(StudioBlood, true, "rendering");   // Phase 6.7
             // #C40 (Phase 4.0 package C): Maker item changes keep clothes / accessory / hair decoration colours (C7, default off)
             B("maker.keepColours", false, "general");
             C("maker.bodyThrottle", "auto", new[] { "auto", "always", "off" }, "general");   // #W42 (Phase 4.2 package W): body composite drag throttle (Y4)

@@ -39,13 +39,15 @@ namespace HS2Next.Scenes.Runtime
         public static ICharaPoseDriver AdvancedPose = AdvancedPoseDriver.Instance;
         /// <summary>The driven bones of a character: only their suspend is called from here.</summary>
         public static ICharaPoseDriver Driven = DrivenPoseDriver.Instance;
+        /// <summary>A character's ragdoll: only its suspend is called from here.</summary>
+        public static ICharaPoseDriver Ragdoll = RagdollDriver.Instance;
 
         /// <summary>Suspends every registered driver on <paramref name="charaRoot"/>; null when none had anything to suspend.</summary>
         public static IDisposable SuspendAll(GameObject charaRoot)
         {
             List<IDisposable> handles = null;
-            // the corrections come off first, then the driven bones under them: the other drivers' writes and latches never see either
-            foreach (var d in new[] { AdvancedPose, Driven, Ik, Fk })
+            // the corrections come off first, then the driven bones under them, then the body: the other drivers' writes and latches never see any of them
+            foreach (var d in new[] { AdvancedPose, Driven, Ragdoll, Ik, Fk })
             {
                 var h = d?.Suspend(charaRoot);
                 if (h != null) (handles ??= new List<IDisposable>()).Add(h);

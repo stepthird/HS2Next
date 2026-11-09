@@ -284,11 +284,12 @@ namespace HS2Next.Scenes
 
         // ---------------- classification ----------------
 
-        /// <summary>Property sets only (directly or in composites): safe to apply without history. A Timeline or constraint edit
-        /// counts as one (it replaces a value of the scene and holds no node), so it merges and applies without history as they do.</summary>
+        /// <summary>Property sets only (directly or in composites): safe to apply without history. A Timeline, constraint, wet, ragdoll or bake
+        /// edit counts as one (it replaces a value and holds no node), so it merges and applies without history as they do.</summary>
         internal static bool IsPropertyOnly(ISceneCommand c)
         {
-            if (c is SetPropertyCommand || c is TimelineEditCommand || c is ConstraintEditCommand) return true;
+            if (c is SetPropertyCommand || c is TimelineEditCommand || c is ConstraintEditCommand || c is WetEditCommand || c is RagdollEditCommand || c is RagdollWorldEditCommand || c is BakeEditCommand ||
+                c is ScriptEditCommand) return true;
             if (c is CompositeCommand k)
             {
                 foreach (var x in k.Children) if (!IsPropertyOnly(x)) return false;

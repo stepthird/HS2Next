@@ -78,6 +78,8 @@ namespace HS2Next.UI
         public UiFonts Fonts { get; internal set; }
         /// <summary>The viewport (element, camera controller, picking); null before the shell is built.</summary>
         public HS2Next.UI.Viewport.ViewportHost Viewport { get; internal set; }
+        /// <summary>The viewport tools (Phase 6.6): what hears a tool's input before the routes of the view. Never null.</summary>
+        public HS2Next.UI.Viewport.ToolHost Tools { get; }
         /// <summary>The scene file the session was loaded from or last saved to (null = untitled); the file flows set it.</summary>
         public string CurrentFile { get => currentFile; set { if (currentFile != value) { currentFile = value; RaiseView("file"); } } }
         string currentFile;
@@ -106,6 +108,7 @@ namespace HS2Next.UI
             Options = new UiOptions(this);
             Keys = new UiKeymap(this);
             Bindings = new BindingHub(this);
+            Tools = new HS2Next.UI.Viewport.ToolHost(this);
             var ev = Session.Events;
             ev.Changed += OnChanged;
             ev.Cleared += OnCleared;
@@ -142,6 +145,7 @@ namespace HS2Next.UI
         {
             if (disposed) return;
             disposed = true;
+            Tools.Close();
             var ev = Session?.Events;
             if (ev != null)
             {

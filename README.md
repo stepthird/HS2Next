@@ -1,8 +1,10 @@
-# HS2Next 1.3.1
+# HS2Next 1.4.0
 
 HS2Next is a scene and character editor for Honey Select 2 content, built anew on Unity 6. It puts the work of HS2
 Studio and of the game's character maker in one window: characters, items, maps, lights, cameras, animation, FK / IK,
-expressions, screen effects, and the face, body, hair, clothes and accessory pages of the maker. It reads the game data,
+expressions, screen effects, and the face, body, hair, clothes and accessory pages of the maker. It also has a Timeline,
+constraints, material edits, an advanced pose, wet and stains, ragdolls, Chara to Item (characters baked into Studio
+items), a Cutter for characters and items, and scene scripts that keep reusable shots. It reads the game data,
 character cards, coordinate cards, pose files and zipmods of your own Honey Select 2 install where they are, and saves
 its work in its own file formats.
 
@@ -45,7 +47,7 @@ are frozen: later 1.x versions read every 1.0 file and load every 1.0 plugin. Wh
 
 ## Using the release
 
-The release zip (`HS2Next-1.3.1-win64.zip`, with its SHA-256 next to it) holds the program. Extract it anywhere and start
+The release zip (`HS2Next-1.4.0-win64.zip`, with its SHA-256 next to it) holds the program. Extract it anywhere and start
 `HS2Next.exe`; there is no installer. The program is not code-signed, so Windows SmartScreen may ask once ("More info",
 then "Run anyway"). A first-run guide asks for the language, the Honey Select 2 folder, extra mods folders and the cache
 folder, then builds the content index (a few seconds to a few minutes, depending on the mods and the disk).
@@ -93,7 +95,7 @@ FAIL. [Tools/README_tests.md](Tools/README_tests.md) explains the rows, what eac
 | --- | --- |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | How HS2Next is built: content sources and ids, the save format, rendering, motion, UI, the bridge, plugins, start-up, data folders, tests |
 | [Reference/COMMANDS.md](Reference/COMMANDS.md) | Every command of the automation bridge (HTTP/JSON on 127.0.0.1:17322) and how to drive HS2Next from a script |
-| [Reference/PLUGINS.md](Reference/PLUGINS.md) | Writing a plugin against the 1.0 API; the sample in [Samples/Sequencer](Samples/Sequencer/README.md) |
+| [Reference/PLUGINS.md](Reference/PLUGINS.md) | Writing a plugin against the 1.3 API; the plugin kit's three samples in [Samples/PluginKit](Samples/PluginKit) and a complete example in [Samples/Sequencer](Samples/Sequencer/README.md) |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Building, testing and the rules for contributions |
 | [CLEANROOM.md](CLEANROOM.md) | How the code was written without copying the game's code |
 | [THIRD_PARTY.md](THIRD_PARTY.md) | Third-party software, fonts and runtime components, and the names kept for interoperability |

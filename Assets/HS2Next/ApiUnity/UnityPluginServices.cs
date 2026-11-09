@@ -1,7 +1,9 @@
 // The engine-side points of the plugin Api (assembly HS2Next.Api.Unity, same version as HS2Next.Api): what needs engine
 // types — the realized objects of scene nodes and characters, the build hooks of a character (with skin layers and
 // body-part replacement), typed material overrides, the additive mosaic, skin layers and rebuild requests outside builds,
-// and the experimental UI registration with the host's widgets. A plugin opts into them by referencing this assembly; the
+// the experimental UI registration with the host's widgets, the experimental viewport tools, the experimental map query, the
+// experimental character stages and the experimental item rows.
+// A plugin opts into them by referencing this assembly; the
 // engine-free contract (HS2Next.Api) hands them out through IPluginContext.GetService, wrapped by ctx.Unity().
 //
 // Engine objects are the live realization of the scene: reading them is supported; changing state the scene model owns
@@ -63,6 +65,25 @@ namespace HS2Next.Api.Unity
         /// </summary>
         [Experimental("the scene post stage may change in any minor release")]
         bool BoneWritten(string nodeId, Transform bone);
+
+        /// <summary>
+        /// Tools of the viewport, which take its pointer, wheel and keys, and surface picks; null when the UI does not run, so read
+        /// it when a tool starts rather than keeping it from Load.
+        /// </summary>
+        [Experimental("the viewport tools may change in any minor release")]
+        IViewportTools Tools { get; }
+
+        /// <summary>The loaded map's roots and the height of its surface under a point; never null, also with no map loaded.</summary>
+        [Experimental("the map query may change in any minor release")]
+        IMapQuery Map { get; }
+
+        /// <summary>Motion stages on scene characters; never null.</summary>
+        [Experimental("the character stages may change in any minor release")]
+        ICharaStages Stages { get; }
+
+        /// <summary>Item groups of the Studio list whose rows the plugin makes; never null.</summary>
+        [Experimental("generated item rows may change in any minor release")]
+        IItemRows ItemRows { get; }
     }
 
     /// <summary>The entry from the engine-free context.</summary>

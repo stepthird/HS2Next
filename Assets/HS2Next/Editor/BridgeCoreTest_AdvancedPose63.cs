@@ -110,7 +110,7 @@ public static partial class BridgeCoreTest
             string code = ApiSurfaceTest.AssemblySurface(asm, name, v).Replace("\r\n", "\n");
             c.Check(listing == code, "AC3: Tools/api/" + file + " equals the code's surface (" + listing.Length + " characters)", listing.Length + " / " + code.Length);
         }
-        c.Check(HS2Next.ApiVersion.Semver == "1.2.0", "AC3: ApiVersion stays 1.2.0", HS2Next.ApiVersion.Semver);
+        c.Check(HS2Next.ApiVersion.Major == 1 && HS2Next.ApiVersion.Minor >= 2, "AC3: the Api is 1.2 or a later 1.x", HS2Next.ApiVersion.Semver);
     }
 
     // ---------------------------------------------------------------- every command
@@ -206,7 +206,7 @@ public static partial class BridgeCoreTest
             () => new { cmd = "pose.bones.set", key = f, bone = C42Spine, pos = new[] { 0, 0.01, 0 }, undo = false });
         c.Check((one["changed"] as JArray)?.Single().ToString() == C42Finger && (one["removed"] as JArray)?.Count == 0 && C42V3(one["bones"]?[C42Finger]?["rot"], 0, 0, 15) && C42V3(one["bones"]?[C42Finger]?["scale"], 1, 1, 1),
             "pose.bones.set: {changed, removed, bones}", Ctx.Short(one.ToString(Newtonsoft.Json.Formatting.None)));
-        c.Check(Quaternion.Angle(fingerNow(), bare * Quaternion.Euler(0, 0, 15)) < 0.01f, "the bone shows the correction at once (bones.dump, in the same frame): the pose times the rotation", fingerNow().eulerAngles.ToString("F3"));
+        c.Check(RotationCompare.Deg(fingerNow(), bare * Quaternion.Euler(0, 0, 15)) < 0.01f, "the bone shows the correction at once (bones.dump, in the same frame): the pose times the rotation", fingerNow().eulerAngles.ToString("F3"));
         c.Check(C42Block(app, f).Bones.ContainsKey(C42Spine), "undo: false stored its value");
         c.Ok(new { cmd = "pose.bones.clear", key = f, bone = C42Spine, undo = false }, "undo: false clear");
         var row = C42Row(c.Ok(new { cmd = "pose.bones", key = f, correctedOnly = true }, "pose.bones correctedOnly"), "bones", "bone", C42Finger);
@@ -339,7 +339,7 @@ public static partial class BridgeCoreTest
         c.Check(C42Block(app, none).Bones.ContainsKey(C42Gone) && (nb["changed"] as JArray)?.Count == 1, "... stored without resolving");
         c.Check((int?)c.Ok(new { cmd = "pose.bones.clear", key = none, all = true }, "pose.bones.clear on it")["removed"] == 1, "... and cleared");
         c.Check(C42Block(app, f).IsEmpty && W1DocSha(c) == sha0, "every correction cleared: the scene document is the one before the first", W1DocSha(c) + " / " + sha0);
-        c.Check(Quaternion.Angle(fingerNow(), bare) < 0.01f, "every correction cleared: the bone is back", fingerNow().eulerAngles.ToString("F3"));
+        c.Check(RotationCompare.Deg(fingerNow(), bare) < 0.01f, "every correction cleared: the bone is back", fingerNow().eulerAngles.ToString("F3"));
     }
 
     // ---------------------------------------------------------------- pose.chains

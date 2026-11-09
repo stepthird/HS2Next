@@ -39,6 +39,8 @@ README.txt 为英文版，README_ja.txt 为日文版。
   %USERPROFILE%\AppData\LocalLow\stp3\HS2Next（其中包含 Config、UserData 和 Cache）。
 - 便携模式：在 HS2Next.exe 旁边创建一个名为 portable.txt 的空文件，然后重新启动。这三个文件夹将建立在
   HS2Next.exe 旁边，因此该文件夹必须可写。
+- UserData\bakes 是用“角色转道具”保存的烘焙的库，在保存第一个时建立；保存的场景自带其所用烘焙的副本。
+- UserData\scripts 是所保存的“场景脚本”的库，在保存第一个时建立；保存的场景自带其所用脚本的副本。
 - 如果以前的 HS2Next 在其 exe 旁边有 UserData 文件夹，向导会提议复制一次。原文件夹不会被更改。之后也可以在
   “文件 > 选项”的文件夹部分从任何以前的文件夹复制。
 - 设置文件为 Config\settings.local.json。本软件包中的 settings.example.json 列出了所有设置及一行说明。常用设置
@@ -57,8 +59,8 @@ README.txt 为英文版，README_ja.txt 为日文版。
 HS2Next 从 HS2Next.exe 旁边的 Plugins 文件夹加载插件：每个插件是一个 Plugins\<插件 ID>\ 文件夹，其中包含
 manifest.json 和 DLL。插件以与 HS2Next 本身相同的权限运行；请只安装来源可信的插件。“文件 > 选项”的自动化部分
 列出已安装的插件；关闭或打开插件会立即生效（替换了 DLL 的插件在重新启动后加载）。PluginKit 文件夹用于编写插件：
-其中有 PLUGINS.md（另有日文版和简体中文版）、命令参考、两个小型示例项目和 API 文档。构建这些示例需要 .NET SDK 8
-或更高版本。
+其中有 PLUGINS.md（另有日文版和简体中文版）、命令参考、三个小型示例项目（Hello、HelloUi 和 Shapes）和 API 文档。
+构建这些示例需要 .NET SDK 8 或更高版本。
 
 
 检查更新

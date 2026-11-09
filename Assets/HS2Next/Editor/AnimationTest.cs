@@ -141,13 +141,13 @@ public static class AnimationTest
     static Dictionary<Transform, (Vector3 p, Quaternion r, Vector3 s)> Snap(IEnumerable<Transform> ts) =>
         ts.Where(t => t).Distinct().ToDictionary(t => t, t => (t.localPosition, t.localRotation, t.localScale));
 
-    static float MaxPoseDiff(Dictionary<Transform, (Vector3 p, Quaternion r, Vector3 s)> a) => MaxPoseDiff(a, out _);
-    static float MaxPoseDiff(Dictionary<Transform, (Vector3 p, Quaternion r, Vector3 s)> a, out string worst)
+    static double MaxPoseDiff(Dictionary<Transform, (Vector3 p, Quaternion r, Vector3 s)> a) => MaxPoseDiff(a, out _);
+    static double MaxPoseDiff(Dictionary<Transform, (Vector3 p, Quaternion r, Vector3 s)> a, out string worst)
     {
-        float m = 0; worst = "-";
+        double m = 0; worst = "-";
         foreach (var kv in a)
         {
-            float d = Mathf.Max(Quaternion.Angle(kv.Key.localRotation, kv.Value.r), VErr(kv.Key.localPosition, kv.Value.p));
+            double d = Math.Max(RotationCompare.Deg(kv.Key.localRotation, kv.Value.r), VErr(kv.Key.localPosition, kv.Value.p));
             if (d > m) { m = d; worst = kv.Key.name; }
         }
         return m;
@@ -314,7 +314,7 @@ public static class AnimationTest
         a.NormalizedTime = 1f; c.A.Speed = 0f; c.Step(1);
         var end = Snap(new[] { arm, hand });
         a.NormalizedTime = 1.7f;
-        float d17 = MaxPoseDiff(end);
+        double d17 = MaxPoseDiff(end);
         Check("no force loop: normalized 1.7 shows the last frame and reads 1.7", d17 < 1e-3f && Mathf.Abs(a.NormalizedTime - 1.7f) < 1e-5f, $"pose diff {d17:F5}, reads {a.NormalizedTime:F4}");
         a.Speed = 1f;
 
@@ -327,7 +327,7 @@ public static class AnimationTest
               it.Root.transform.parent && it.Root.transform.parent.name == "k_f_handR_00" && !it.Animator && !it.Synced,
               it != null ? $"{it.Root?.name} parent {it.Root?.transform.parent?.name}" : "none");
         if (it == null) return;
-        Check("counterScale false: moved object keeps the prefab root scale; local zero / identity", it.Root.transform.localScale == it.RootScale && it.Root.transform.localPosition == Vector3.zero && it.Root.transform.localRotation == Quaternion.identity,
+        Check("counterScale false: moved object keeps the prefab root scale; local zero / identity", it.Root.transform.localScale == it.RootScale && it.Root.transform.localPosition == Vector3.zero && RotationCompare.Deg(it.Root.transform.localRotation, Quaternion.identity) == 0,
               $"scale {F(it.Root.transform.localScale)} prefab {F(it.RootScale)}");
         Check("renderers collected (enabled in the prefab) and visible", it.Renderers.Count > 0 && it.Renderers.All(r => r.enabled), $"{it.Renderers.Count} renderers");
         var kHand = c.B("k_f_handR_00");
@@ -365,9 +365,9 @@ public static class AnimationTest
                 reads.Add(a.NormalizedTime);
                 poses.Add(bones.Select(b => b.localRotation).ToArray());
             }
-            float minDiff = float.MaxValue;
+            double minDiff = double.MaxValue;
             for (int i = 0; i < 4; i++) for (int j = i + 1; j < 4; j++)
-                minDiff = Mathf.Min(minDiff, Enumerable.Range(0, bones.Length).Max(k => Quaternion.Angle(poses[i][k], poses[j][k])));
+                minDiff = Math.Min(minDiff, Enumerable.Range(0, bones.Length).Max(k => RotationCompare.Deg(poses[i][k], poses[j][k])));
             bool readOk = reads.Zip(new[] { 0f, 0.25f, 0.5f, 0.75f }, (r, t) => Mathf.Abs(r - t) < 1e-5f).All(x => x);
             Check($"{name}: get returns the set time; poses at 0 / 0.25 / 0.5 / 0.75 all differ", readOk && minDiff > 0.05f,
                   $"reads [{string.Join(", ", reads.Select(r => r.ToString("F4")))}], smallest pairwise max bone difference {minDiff:F2} deg, state length {a.StateInfo.length:F4}, loop {a.StateInfo.loop}");
@@ -415,17 +415,17 @@ public static class AnimationTest
         a.Speed = 0f;
         var q60 = arm.localRotation; float t60 = a.NormalizedTime;
         c.Step(30);
-        Check("speed 0: time and pose hold over 30 steps", Mathf.Abs(a.NormalizedTime - t60) < 1e-6f && Quaternion.Angle(arm.localRotation, q60) < 1e-4f, $"t {a.NormalizedTime:F5}");
+        Check("speed 0: time and pose hold over 30 steps", Mathf.Abs(a.NormalizedTime - t60) < 1e-6f && RotationCompare.Deg(arm.localRotation, q60) < 1e-4f, $"t {a.NormalizedTime:F5}");
         arm.localRotation = Quaternion.identity; c.Step(1);
-        Check("speed 0: the clip pose is still written every step", Quaternion.Angle(arm.localRotation, q60) < 1e-3f);
+        Check("speed 0: the clip pose is still written every step", RotationCompare.Deg(arm.localRotation, q60) < 1e-3f);
         a.NormalizedTime = 0.25f;
-        Check("speed 0 + set time: pose changes at once and the time reads back", Quaternion.Angle(arm.localRotation, q25) < 1e-3f && Mathf.Abs(a.NormalizedTime - 0.25f) < 1e-6f,
+        Check("speed 0 + set time: pose changes at once and the time reads back", RotationCompare.Deg(arm.localRotation, q25) < 1e-3f && Mathf.Abs(a.NormalizedTime - 0.25f) < 1e-6f,
               $"diff to the t 0.25 pose {Quaternion.Angle(arm.localRotation, q25):F4} deg, reads {a.NormalizedTime:F4}");
         a.Options.ResampleOnSetTime = false;
         a.NormalizedTime = 0.6f;
-        bool notYet = Quaternion.Angle(arm.localRotation, q25) < 1e-3f;
+        bool notYet = RotationCompare.Deg(arm.localRotation, q25) < 1e-3f;
         c.Step(1);
-        bool after = Quaternion.Angle(arm.localRotation, q60) < 1e-3f;
+        bool after = RotationCompare.Deg(arm.localRotation, q60) < 1e-3f;
         a.Options.ResampleOnSetTime = true;
         Check("ResampleOnSetTime off: the pose changes at the next step only", notYet && after);
         c.M.Paused = true; a.Speed = 1f; float tp = a.NormalizedTime; c.Step(20); c.M.Paused = false;
@@ -536,8 +536,8 @@ public static class AnimationTest
         Check($"{sex}: table pattern 1 left: I1 z 65, L2 z 106, M3 z 101 (deg, rounded)", Mathf.Abs(z("cf_J_Hand_Index01_L") - 65) < 0.6f && Mathf.Abs(z("cf_J_Hand_Little02_L") - 106) < 0.6f && Mathf.Abs(z("cf_J_Hand_Middle03_L") - 101) < 0.6f,
               $"{z("cf_J_Hand_Index01_L"):F2}, {z("cf_J_Hand_Little02_L"):F2}, {z("cf_J_Hand_Middle03_L"):F2}");
         h[0] = 0; h[1] = 0; c.Step(1);
-        float back = 0;
-        for (int i = 0; i < 15; i++) { back = Mathf.Max(back, Quaternion.Angle(h.Bones(0)[i].localRotation, clipL[i])); back = Mathf.Max(back, Quaternion.Angle(h.Bones(1)[i].localRotation, clipR[i])); }
+        double back = 0;
+        for (int i = 0; i < 15; i++) { back = Math.Max(back, RotationCompare.Deg(h.Bones(0)[i].localRotation, clipL[i])); back = Math.Max(back, RotationCompare.Deg(h.Bones(1)[i].localRotation, clipR[i])); }
         Check($"{sex}: pattern 0: next step the fingers show the clip again", back < 1e-3f, $"max {back:F5} deg");
         h[0] = 5; h[0] = 99;
         Check($"{sex}: out-of-range pattern ignored", h[0] == 5);
@@ -560,7 +560,7 @@ public static class AnimationTest
             foreach (var r in rows)
             {
                 a.Load(r, 0f); c.Step(30);
-                var moved = shapeSnap.Where(kv => VErr(kv.Key.localScale, kv.Value.s) > 1e-6f || VErr(kv.Key.localPosition, kv.Value.p) > 1e-6f || Quaternion.Angle(kv.Key.localRotation, kv.Value.r) > 1e-3f).Select(kv => kv.Key.name).ToList();
+                var moved = shapeSnap.Where(kv => VErr(kv.Key.localScale, kv.Value.s) > 1e-6f || VErr(kv.Key.localPosition, kv.Value.p) > 1e-6f || RotationCompare.Deg(kv.Key.localRotation, kv.Value.r) > 1e-3f).Select(kv => kv.Key.name).ToList();
                 worstCount = Math.Max(worstCount, moved.Count);
                 if (moved.Count > 0) lines.Add($"{r.Group}/{r.Category}/{r.No} {r.Clip}: {moved.Count} [{string.Join(",", moved.Take(8))}]");
                 foreach (var kv in shapeSnap) { kv.Key.localPosition = kv.Value.p; kv.Key.localRotation = kv.Value.r; kv.Key.localScale = kv.Value.s; }
@@ -618,7 +618,7 @@ public static class AnimationTest
         float len = a.StateInfo.length;
         int frames = Mathf.CeilToInt(10 * len * 60);
         for (int i = 0; i < frames; i++) { c.Step(); var d = hips.localPosition - h0; maxXZ = Mathf.Max(maxXZ, new Vector2(d.x, d.z).magnitude); }
-        Check("p_cf_anim unchanged after 10 cycles; hips stay near the start (walk in place)", VErr(anim.localPosition, p0) < 1e-6f && Quaternion.Angle(anim.localRotation, r0) < 1e-4f && maxXZ < 3f && !a.UnbakedRootMotion,
+        Check("p_cf_anim unchanged after 10 cycles; hips stay near the start (walk in place)", VErr(anim.localPosition, p0) < 1e-6f && RotationCompare.Deg(anim.localRotation, r0) < 1e-4f && maxXZ < 3f && !a.UnbakedRootMotion,
               $"cycle {len:F3} s, {frames} steps, normalized {a.NormalizedTime:F3}, max hips XZ offset {maxXZ:F3}, unbaked flag {a.UnbakedRootMotion}, loop {a.StateInfo.loop}");
         a.Load(Stand);
     }
@@ -649,7 +649,7 @@ public static class AnimationTest
         {
             a.Load(Dance, 0f); c.M.ResetAll(); look?.SetNeckPattern(neck);
             target.position = headJ.position + new Vector3(-25, 0, 15);
-            int e0 = c.M.Errors; bool nan = false; float hairRatio = 0, damRef = 0;
+            int e0 = c.M.Errors; bool nan = false; float hairRatio = 0; double damRef = 0;
             for (int f = 0; f < 120; f++)
             {
                 c.Step();
@@ -659,7 +659,7 @@ public static class AnimationTest
                         if (ch.Category != DynamicBoneCategory.Hair || !ch.Active || ch.ParticleCount < 2 || !ch.Root || ch.TotalLength < 1e-4f) continue;
                         for (int i = 0; i < ch.ParticleCount; i++) hairRatio = Mathf.Max(hairRatio, (ch.Position(i) - ch.Root.position).magnitude / ch.TotalLength);
                     }
-                if (corr != null && dam != null && f % 30 == 29) { var q = dam.localRotation; corr.Refresh(); damRef = Mathf.Max(damRef, Quaternion.Angle(q, dam.localRotation)); }
+                if (corr != null && dam != null && f % 30 == 29) { var q = dam.localRotation; corr.Refresh(); damRef = Math.Max(damRef, RotationCompare.Deg(q, dam.localRotation)); }
             }
             info = $"neck {neck}: motion errors {c.M.Errors - e0}, NaN {nan}, hair max distance / chain length {hairRatio:F3}, dam vs re-evaluation {damRef:F5} deg";
             if (c.M.Errors - e0 > 0 || nan || hairRatio > 1.05f || damRef > 1e-3f) info = "BAD " + info;
@@ -695,7 +695,7 @@ public static class AnimationTest
         var s2 = JsonUtility.FromJson<AnimationSceneState>(json);
         bool ok = a.Restore(db, s2);
         c.A.Hands.Apply();
-        float poseDiff = MaxPoseDiff(pose, out var worstBone);
+        double poseDiff = MaxPoseDiff(pose, out var worstBone);
         var t = a.Save();
         Check("Restore reproduces every field (JSON round trip) and the raw time", ok && t.Guid == s.Guid && t.Group == s.Group && t.Category == s.Category && t.No == s.No && t.Speed == s.Speed &&
               t.Pattern == s.Pattern && t.ForceLoop == s.ForceLoop && t.OptionVisible == s.OptionVisible && t.OptionParam1 == s.OptionParam1 && t.OptionParam2 == s.OptionParam2 &&
@@ -724,11 +724,11 @@ public static class AnimationTest
             res[e] = Snap(bones); times[e] = a.NormalizedTime;
             Info($"{e}: Animator enabled {a.Animator.enabled}, own controller {(a.Animator.runtimeAnimatorController ? a.Animator.runtimeAnimatorController.name : "none")}, normalized after 300 steps {a.NormalizedTime:F5}, items {a.Items.Count}");
         }
-        float maxDiff = 0; string wb = "-";
+        double maxDiff = 0; string wb = "-";
         foreach (var kv in res[AnimationEngine.Playable])
         {
             var o = res[AnimationEngine.Animator][kv.Key];
-            float d = Mathf.Max(Quaternion.Angle(kv.Value.r, o.r), VErr(kv.Value.p, o.p));
+            double d = Math.Max(RotationCompare.Deg(kv.Value.r, o.r), VErr(kv.Value.p, o.p));
             if (d > maxDiff) { maxDiff = d; wb = kv.Key.name; }
         }
         Check("both engines give the same pose and time (rifle row with force loop, 300 steps)", maxDiff < 1e-3f && Mathf.Abs(times[AnimationEngine.Playable] - times[AnimationEngine.Animator]) < 1e-5f,
@@ -797,10 +797,10 @@ public static class AnimationTest
         var animPrefab = c.Ctx.Catalog.LoadAsset<GameObject>("studio/base/00.unity3d", "p_cf_anim");
         var prefArm = CharaAssembler.Find(animPrefab.transform, "cf_J_ArmUp00_R");
         Check("Stop: driver and items released, Animator disabled without controller, skeleton back to the built pose",
-              !a.IsLoaded && a.Items.Count == 0 && !a.Animator.enabled && a.Animator.runtimeAnimatorController == null && Quaternion.Angle(arm.localRotation, prefArm.localRotation) < 1e-3f,
+              !a.IsLoaded && a.Items.Count == 0 && !a.Animator.enabled && a.Animator.runtimeAnimatorController == null && RotationCompare.Deg(arm.localRotation, prefArm.localRotation) < 1e-3f,
               $"arm vs prefab {Quaternion.Angle(arm.localRotation, prefArm.localRotation):F4} deg");
         c.Step(5);
-        Check("steps after Stop do nothing to the arm", Quaternion.Angle(arm.localRotation, prefArm.localRotation) < 1e-3f);
+        Check("steps after Stop do nothing to the arm", RotationCompare.Deg(arm.localRotation, prefArm.localRotation) < 1e-3f);
     }
 
     // ================================================================ male
